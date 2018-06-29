@@ -1,93 +1,9 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>Project Title</title>
-		<link type="text/css" rel="stylesheet" href="lib/tipsy/tipsy.css"/>
-		<link type="text/css" rel="stylesheet" href="lib/jquery-ui/jquery-ui.min.css"/>
-		<link type="text/css" rel="stylesheet" href="lib/contextmenu/jquery.contextmenu.css"/>
-		<link type="text/css" rel="stylesheet" href="%PUBLIC_URL%/../src/index.css"/>
-		
-		<script type="text/javascript" src="lib/three.js"></script>
-		<script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
-		<script type="text/javascript" src="lib/jquery/jquery-1.10.1.min.js"></script>
-		<script type="text/javascript" src="lib/tipsy/jquery.tipsy.js"></script>
-		<script type="text/javascript" src="lib/jquery-ui/jquery-ui.min.js"></script>
-		<script type="text/javascript" src="lib/colorbrewer/colorbrewer.js"></script>
-		<script type="text/javascript" src="lib/contextmenu/jquery.contextmenu.js"></script>
+		<title>FairSight</title>
 	</head>
 	<body>
-		<div style="width: 1280px; height: 900px; margin: 0 auto;">
-
-			<div style="width: 400px; float: left;">
-				<div style="width: 400px; margin: 4px">
-					<div class="toolbar ui-widget-header ui-corner-all">
-						<label class="toolbar_label">Overview:</label>
-					</div>
-					<div id="overview" class="ui-widget-content ui-corner-all no_selection"></div>
-				</div>
-				<div id="tablists" style="width: 390px; margin: 4px">
-					<ul>
-						<li><a href="#vview1" class="toolbar_label">Ranking List</a></li>
-   						<li><a href="#vview2" class="toolbar_label">Vertical View2</a></li>
-  					</ul>
-					<div id="vview1" class="ui-widget-content ui-corner-all">
-					</div>
-					<div id="vview2" class="ui-widget-content ui-corner-all no_selection"></div>
-				</div>
-			</div>
-			<div style="width: 850px; float: left;">
-				<div style="width: 960px; margin: 4px">
-					<div class="toolbar ui-widget-header ui-corner-all">
-						<div>
-							<span class="ui-widget">
-									Dataset:
-									<select id="dataset" onchange="display()">
-									</select>
-							</span>
-						</div>
-					</div>
-					<div id="mainview" style="margin-top:-4px;" class="ui-widget-content ui-corner-all no_selection">
-						<div id="filter">
-							<span>Top k: 10</span>
-							<span>Method: SVM</span>
-							<span>Attributes: credit_amount + age</span>
-						</div>
-						<div id="mainview_plot" style="width:55%; height:100%; float:left"></div>
-						<div id="mainview_wrapper" style="width:45%; height:100%; float:left">
-							<div id="mainview_comparison" style="height:50%">
-								<div id="group_comparison">
-									<span>Group comparison</span>
-								</div>
-							</div>
-							<div id="mainview_comparison" style="height:50%">
-								<div id="group_comparison">
-										<span>Fairness criteria</span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-				<div id="tabs" style="width: 960px; margin: 4px">
-					<ul>
-   						<li>
-   							<a href="#hview1" class="toolbar_label">Horizontal View 1</a>
-   						</li>
-   						<li>
-   							<a href="#hview2" class="toolbar_label">Horizontal View 2</a>
-   						</li>
-  					</ul>
-  					<div id="hview1" class="ui-widget-content ui-corner-all no_selection"></div>
-					<div id="hview2" class="ui-widget-content ui-corner-all no_selection"></div>
-				</div>
-			</div>
-		</div>
-		<script type="text/javascript" src="js/vis.js"></script>
-		<script type="text/javascript" src="js/overview.js"></script>
-		<script type="text/javascript" src="js/component.js"></script>
-		<script type="text/javascript" src="js/ranking_instance.js"></script>
-		<script type="text/javascript" src="js/driver.js"></script>
-		<br>
-		<br>
-		<footer class="central">&copy; 2015, nancao.org</footer>
+		<div id="root"></div>
 	</body>
 </html>

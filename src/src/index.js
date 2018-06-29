@@ -14,5 +14,5 @@ ReactDOM.render(
         <App />
     </ConnectedRouter>
   </Provider>,
-  document.getElementById("mainview")
+  document.getElementById("root")
 );

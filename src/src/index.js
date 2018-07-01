@@ -5,7 +5,8 @@ import { Provider } from "react-redux";
 import { ConnectedRouter } from "react-router-redux";
 import store, { history } from "redux/configureStore";
 import App from "components/App";
-import './index.css';
+
+import 'bootstrap/dist/css/bootstrap.css';
 //import { translations } from "translations";
 
 ReactDOM.render(

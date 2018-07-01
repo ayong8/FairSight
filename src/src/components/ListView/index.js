@@ -5,6 +5,9 @@ class ListView extends Component {
   render() {
     return (
       <div className={styles.ListView}>
+        <div className={styles.titleBar}>
+          RANKINGS
+        </div>
       </div>
     );
   }

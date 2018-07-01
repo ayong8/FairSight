@@ -159,6 +159,7 @@ module.exports = {
           // in development "style" loader enables hot editing of CSS.
           {
             test: /\.(css|scss)$/,
+            exclude: /\.module\.css$/,
             use: [
               require.resolve("style-loader"),
               {
@@ -166,8 +167,8 @@ module.exports = {
                 options: {
                   importLoaders: 1,
                   modules: true,
-                  localIdentName: "[path][name]__[local]--[hash:base64:5]",
-                  camelCase: "dashes"
+                  // localIdentName: "[path][name]__[local]--[hash:base64:5]",
+                  // camelCase: "dashes"
                 }
               },
               {

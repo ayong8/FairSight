@@ -18,3 +18,25 @@
     background: gray;
     border: 1px dotted black;
 }
+
+.FeatureSelectorWrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.SensitiveAttrSelector {
+    width: 30%;
+    height: 100%;
+    border: 2px dotted red;
+
+    .sensitiveAttributes {
+        
+    }
+}
+
+.FeatureSelector {
+    width: 70%;
+    height: 100%;
+    border: 2px dotted blue;
+}
+

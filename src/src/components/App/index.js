@@ -23,7 +23,6 @@ class App extends Component {
 
     return (
       <div className={styles.App}>
-        <Button>dd</Button>
         <div className={styles.titleBar}>
           <span>FairSight</span>
         </div>

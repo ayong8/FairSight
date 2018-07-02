@@ -1,4 +1,9 @@
 /* main html */
+.show {
+  display: flex !important;
+}
+
+
 .central {
     text-align: center;
   }

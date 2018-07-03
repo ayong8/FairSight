@@ -1,42 +1,51 @@
 .Generator {
-    width: 100%;
-    height: 100px;
-    border: 1px solid blue;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap;
+    grid-column: 1 / 5;
+    grid-row: 2 / 3;
+
+    display: grid;
+    
     align-items: center;
-}
+    border: 1px solid blue;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 12px;
 
-.DataLoader, 
-.FeatureSelector,
-.MethodSelector,
-.FairnessOrganizer
-{
-    width: 25%;
-    height: 100%;
-    background: gray;
-    border: 1px dotted black;
-}
+    .DataLoader, 
+    .FeatureSelector,
+    .MethodSelector,
+    .FairnessOrganizer
+    {
+        width: 25%;
+        height: 100%;
+        background: gray;
+        border: 1px dotted black;
+    }
 
-.FeatureSelectorWrapper {
-    display: flex;
-    flex-direction: row;
-}
+    .FeatureSensitiveWrapper {
+        display: flex;
+        flex-direction: row;
 
-.SensitiveAttrSelector {
-    width: 30%;
-    height: 100%;
-    border: 2px dotted red;
+        .SensitiveAttrWrapper {
 
-    .sensitiveAttributes {
+            .SensitiveAttrSelector {
+                width: 30%;
+                height: 100%;
+                border: 2px dotted red;
+            
+                .sensitiveAttributes {
+                }
+            }
+        }
+        
+        .FeatureSelectorWrapper {
+            width: 70%;
+            height: 100%;
+            border: 2px dotted blue;
+        }
         
     }
 }
 
-.FeatureSelector {
-    width: 70%;
-    height: 100%;
-    border: 2px dotted blue;
-}
+
+
 

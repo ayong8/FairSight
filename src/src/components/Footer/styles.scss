@@ -1,4 +1,7 @@
 .footer {
+  grid-column: 1 / 5;
+  grid-row: 5 / 6;
+
   max-width: $max-page-width;
   width: 100%;
   margin: 0 auto;
@@ -8,7 +11,7 @@
   font-weight: 600;
   text-transform: uppercase;
   font-size: 12px;
-  float: clear;
+
   .column {
     .nav {
       .list {

@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import styles from "./styles.scss";
 import Footer from "components/Footer";
 import Generator from 'components/Generator';
-import ListView from 'components/ListView';
 import RankingView from 'components/RankingView';
+import RankingsListView from 'components/RankingsListView';
 import TableView from 'components/TableView';
 import { Button } from 'reactstrap';
 
@@ -27,13 +27,9 @@ class App extends Component {
           <span>FairSight</span>
         </div>
         <Generator dataset='german.csv' />
-        <div className={styles.mainViewWrapper}>
-          <ListView />
-        </div>
-        <div className={styles.tableRankingViewWrapper}>
-          <RankingView />
-          <TableView />
-        </div>
+        <RankingsListView />
+        <TableView />
+        <RankingView />
         <Footer />
       </div>
     );

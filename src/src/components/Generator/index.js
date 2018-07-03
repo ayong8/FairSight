@@ -71,7 +71,7 @@ class FeatureSelector extends Component {
   constructor(props) {
     super(props);
 
-    this.toggle.bind(this);
+    this.toggle = this.toggle.bind(this);
     this.state = {
       dropdownOpen: false
     };
@@ -87,27 +87,37 @@ class FeatureSelector extends Component {
     return (
       <div className={styles.FeatureSelector}>
         <span>2. Select attributes and sensitive...</span>
-        <div className={styles.FeatureSelectorWrapper}>
-          <div className={styles.SensitiveAttrSelector}>
-          <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-            <DropdownToggle
-              tag="span"
-              onClick={this.toggle}
-              data-toggle="dropdown"
-              aria-expanded={this.state.dropdownOpen}
-            >
-              Features
-            </DropdownToggle>
-            <DropdownMenu>
-              <DropdownItem>Feature1</DropdownItem>
-              <DropdownItem>Feature2</DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
+        <div className={styles.FeatureSensitiveWrapper}>
+          <div className={styles.SensitiveAttrWrapper}>
+            <span> Sensitive Attribute </span>
+            <div className={styles.SensitiveAttrSelector}>
+            <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+              <DropdownToggle caret>
+                Features
+              </DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem>Feature1</DropdownItem>
+                <DropdownItem>Feature2</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+            </div>
+            <div className={styles.sensitiveAttributes}>
+              Men, Women
+            </div>
           </div>
-          <div className={styles.sensitiveAttributes}>
-            Men, Women
-          </div>
-          <div className={styles.FeatureSelector}>
+          <div className={styles.FeatureSelectorWrapper}>
+            <span> Sensitive Attribute </span>
+            <div className={styles.SensitiveAttrWrapper}>
+              <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+                <DropdownToggle caret>
+                  Features
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem>Feature1</DropdownItem>
+                  <DropdownItem>Feature2</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
           </div>
         </div>
       </div>

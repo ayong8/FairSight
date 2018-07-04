@@ -3,8 +3,15 @@ html {
   font-size: 0.8rem;
 }
 
+/* Reactstrap => dropdown menu */
 .show {
   display: flex !important;
 }
+
+/* react-slider => customize */
+.rangeslider-horizontal .rangeslider__fill {
+  background-color: blue;
+}
+
 
 

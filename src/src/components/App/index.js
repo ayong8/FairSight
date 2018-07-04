@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import styles from "./styles.scss";
 import Footer from "components/Footer";
 import Generator from 'components/Generator';
-import RankingView from 'components/RankingView';
+import RankingInspector from 'components/RankingInspector';
 import RankingsListView from 'components/RankingsListView';
 import TableView from 'components/TableView';
 import { Button } from 'reactstrap';
@@ -29,7 +29,7 @@ class App extends Component {
         <Generator dataset='german.csv' />
         <RankingsListView />
         <TableView />
-        <RankingView />
+        <RankingInspector />
         <Footer />
       </div>
     );

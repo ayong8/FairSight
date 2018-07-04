@@ -3,3 +3,14 @@
     grid-column: 1;
     border: 1px solid red;
 }
+
+.rankingList {
+    background-color: gray;
+    border: 1px solid darkgray;
+
+    .svgRankingList {
+        width: 100%;
+        height: 100%;
+        background-color: bisque;
+    }
+}

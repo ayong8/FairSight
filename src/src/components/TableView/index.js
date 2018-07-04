@@ -2,11 +2,36 @@ import React, { Component } from "react";
 import { Table } from 'reactstrap';
 import styles from "./styles.scss";
 
+let rankingList = [];
+
 class TableView extends Component {
+  constructor(props) {
+    super(props);
+    this.handleSearchChange = this.handleSearchChange.bind(this);
+
+    this.state = {
+      searchKeyword: ''
+    }
+  }
+
+  handleSearchChange(e) {
+    this.setState({
+      searchKeyword: e.target.value
+    });
+  }
+
   render() {
     return (
       <div className={styles.TableView}>
         <div className={styles.title}>Dataset</div>
+        <div>
+          <input 
+            type='text'
+            name='name'
+            placeholder='search'
+            onChange={this.handleSearchChange}
+          />
+        </div>
         <Table striped>
           <thead>
             <tr>

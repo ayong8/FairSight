@@ -24,16 +24,32 @@ class IndividualFairnessView extends Component {
     super(props);
   }
 
+  ddd = 'dd';
+
+  componentWillMount() {
+    this.calculateDistortions();
+  }
+
+  // Plot the coordinate difference between observed(feature) and decision(ranking) space
+  calculateDistortions() {
+    //this.props.rankings
+    // x: observed space difference, y: decision space difference
+    const distortionMockup = [ 
+              {x: 1, y: 2},
+              {x: 2, y: 1.4},
+              {x: 5, y: 4},
+              {x: 6, y: 6},
+              {x: 8, y: 8.8},
+              {x: 10, y: 14},
+              {x: 13, y: 8},
+              {x: 15, y: 13},
+              {x: 18, y: 17},
+              {x: 20, y: 22}
+            ];
+  }
+
   render() {
-    // var circles = d3.selectAll(".circle")
-    //               .data(this.props.data)
-    //               .enter().append('circle')
-    //               .attr("cx", 3)
-    //               .attr("cy", 3)
-    //               .attr("r", (d) => {
-    //                 return d;
-    //               })
-    //               .style("stroke", "black");
+
     console.log(d3);
     console.log(this.props.data);
 
@@ -42,6 +58,7 @@ class IndividualFairnessView extends Component {
               <circle cx='3' cy='4' r={d}></circle>
             );
           });
+
     console.log(circles);
 
     return (

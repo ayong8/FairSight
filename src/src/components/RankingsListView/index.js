@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import * as d3 from 'd3';
+import ReactFauxDOM from 'react-faux-dom';
 import _ from 'lodash';
 import styles from "./styles.scss";
 
@@ -19,6 +21,10 @@ class RankingsListView extends Component {
     return rankings;
   }
 
+  renderRankingListGraph() {
+
+  }
+
   render() {
     return (
       <div className={styles.RankingsListView}>
@@ -37,6 +43,7 @@ class RankingInstance extends Component {
   constructor(props) {
     super(props);
   }
+
   render() {
     return (
       <rect x="10" y={(this.props.index + 1) * 20} width="60" height="10"></rect>

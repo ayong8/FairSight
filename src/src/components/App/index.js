@@ -37,6 +37,10 @@ class App extends Component {
     };
   }
 
+  componentDidMount() {
+    // data file loading here
+  }
+
   render() {
     // if (this.state.loadError) {
     //   return <div>couldn't load file</div>;
@@ -48,12 +52,12 @@ class App extends Component {
     return (
       <div className={styles.App}>
         <div className={styles.titleBar}>
-          <span>FairSight</span>
+          <div className={styles.title}>FairSight</div>
         </div>
         <Generator dataset='german.csv' />
         <RankingsListView rankings={this.state.rankings} />
         <TableView />
-        <RankingInspector />
+        <RankingInspector rankings={this.state.rankings} />
         <Footer />
       </div>
     );

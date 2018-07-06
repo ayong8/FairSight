@@ -13,26 +13,26 @@ class App extends Component {
     this.state = {
       dataset: {},
       rankings: [
-        {
-          1: { ranking: 1, score: 90 },
-          2: { ranking: 2, score: 88 },
-          3: { ranking: 3, score: 85 },
-          4: { ranking: 4, score: 82 },
-          5: { ranking: 5, score: 80 },
-          6: { ranking: 6, score: 78 },
-          7: { ranking: 7, score: 75 },
-          8: { ranking: 8, score: 70 }
-        },
-        {
-          1: { ranking: 1, score: 90 },
-          2: { ranking: 2, score: 88 },
-          3: { ranking: 3, score: 85 },
-          4: { ranking: 4, score: 82 },
-          5: { ranking: 5, score: 80 },
-          6: { ranking: 6, score: 78 },
-          7: { ranking: 7, score: 75 },
-          8: { ranking: 8, score: 70 }
-        }
+        [
+          { ranking: 1, score: 90 },
+          { ranking: 2, score: 88 },
+          { ranking: 3, score: 85 },
+          { ranking: 4, score: 82 },
+          { ranking: 5, score: 80 },
+          { ranking: 6, score: 78 },
+          { ranking: 7, score: 75 },
+          { ranking: 8, score: 70 }
+        ],
+        [
+          { ranking: 1, score: 90 },
+          { ranking: 2, score: 88 },
+          { ranking: 3, score: 85 },
+          { ranking: 4, score: 82 },
+          { ranking: 5, score: 80 },
+          { ranking: 6, score: 78 },
+          { ranking: 7, score: 75 },
+          { ranking: 8, score: 70 }
+        ]
       ]
     };
   }

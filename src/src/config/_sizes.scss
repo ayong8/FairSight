@@ -1,1 +1,23 @@
 $max-page-width: 935px;
+
+/* 
+    Css-grid layout for the website structure 
+    grid-template-rows: 50px 200px 400px 250px 80px;
+    grid-template-columns: 25% 40% 15% 20%;
+*/
+
+$layout-first-row: 50px;
+$layout-second-row: 200px;
+$layout-third-row: 400px;
+$layout-fourth-row: 250px;
+$layout-fifth-row: 80px;
+
+$layout-first-column: 25%;
+$layout-second-column: 40%;
+$layout-third-column: 15%;
+$layout-fourth-column: 20%;
+
+/*
+    Component layouts bound to css-grid layouts
+*/
+

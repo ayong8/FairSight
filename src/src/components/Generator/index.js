@@ -10,7 +10,9 @@ class Generator extends Component {
 
     this.toggle = this.toggle.bind(this);
     this.state = {
-      dropdownOpen: false
+      dropdownOpen: false,
+      dataset: {},
+      ranking: {}
     };
   }
 
@@ -27,7 +29,7 @@ class Generator extends Component {
         <div>Sensitive Attribute, Features: 17</div>
         <div>Method</div>
         <div>Fairness</div>
-        <DataLoader className={styles.DataLoader}/>
+        <DataLoader dataset={this.state.dataset} className={styles.DataLoader}/>
         <FeatureSelector className={styles.FeatureSelector}/>
         <MethodSelector className={styles.MethodSelector}/>
         <FairnessOrganizer className={styles.FairnessOrganizer}/>
@@ -167,7 +169,7 @@ class FairnessOrganizer extends Component {
 
   toggleRun() { // Run button
     // Pass a generated ranking object to the rankingListView
-    
+
   }
   render() {
     return (

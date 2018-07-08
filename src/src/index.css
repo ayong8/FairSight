@@ -1,0 +1,11 @@
+.title {
+    display:flex;
+    align-items: center;
+    justify-content:center;
+
+    height: 30px;
+    margin: 1px 1px;
+    font-weight: 600;
+    background-color: #9bd8eb;
+    border: 1px solid #48c0e5
+  }

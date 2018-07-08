@@ -1,6 +1,8 @@
 import React, { Component } from "react";
 import { Table } from 'reactstrap';
+
 import styles from "./styles.scss";
+import index from "../../index.css";
 
 let rankingList = [];
 
@@ -23,7 +25,7 @@ class TableView extends Component {
   render() {
     return (
       <div className={styles.TableView}>
-        <div className={styles.title}>Dataset</div>
+        <div className={index.title}>Dataset</div>
         <div>
           <input 
             type='text'

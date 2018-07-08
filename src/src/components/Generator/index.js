@@ -25,10 +25,12 @@ class Generator extends Component {
   render() {
     return (
       <div className={styles.Generator}>
-        <div>Dataset</div>
-        <div>Sensitive Attribute, Features: 17</div>
-        <div>Method</div>
-        <div>Fairness</div>
+        <div className={styles.GeneratorNavBar}>
+          <div>Dataset</div>
+          <div>Sensitive Attribute, Features: 17</div>
+          <div>Method</div>
+          <div>Fairness</div>
+        </div>
         <DataLoader dataset={this.state.dataset} className={styles.DataLoader}/>
         <FeatureSelector className={styles.FeatureSelector}/>
         <MethodSelector className={styles.MethodSelector}/>
@@ -58,13 +60,12 @@ class DataLoader extends Component {
   render(){
     return (
       <div className={styles.DataLoader}>
-        <div>1. Upload a dataset</div>
+        <div className={styles.generatorSubtitle}>1. Upload a dataset</div>
         <FormGroup>
           <Label for="exampleFile">File</Label>
           <Input type="file" name="file" id="exampleFile" />
           <FormText color="muted">
-            This is some placeholder block-level help text for the above input.
-            It's a bit lighter and easily wraps to a new line.
+            GERMAN.csv
           </FormText>
         </FormGroup>
       </div>
@@ -91,7 +92,7 @@ class FeatureSelector extends Component {
   render(){
     return (
       <div className={styles.FeatureSelector}>
-        <div className={styles.firstTitle}>2. Select attributes and sensitive...</div>
+        <div className={styles.generatorSubtitle + ' ' + styles.firstTitle}>2. Select attributes and sensitive...</div>
         <div className={styles.secondTitle1}> Sensitive Attribute </div>
         <Dropdown className={styles.SensitiveAttrSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
           <DropdownToggle caret>
@@ -101,10 +102,10 @@ class FeatureSelector extends Component {
             <DropdownItem>Feature1</DropdownItem>
             <DropdownItem>Feature2</DropdownItem>
           </DropdownMenu>
+          <div>
+            Men, Women
+          </div>
         </Dropdown>
-        <div className={styles.sensitiveAttrProperties}>
-          Men, Women
-        </div>
         <div className={styles.secondTitle2}> Feature Selection </div>
         <Dropdown className={styles.FeatureSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
           <DropdownToggle caret>
@@ -141,7 +142,7 @@ class MethodSelector extends Component {
 
     return (
       <div className={styles.MethodSelector}>
-        <div className={styles.firstTitle}>3. Select a method and top-k</div>
+        <div className={styles.generatorSubtitle}>3. Select a method and top-k</div>
         <Dropdown className={styles.MethodSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
           <DropdownToggle caret>
             Features
@@ -174,6 +175,7 @@ class FairnessOrganizer extends Component {
   render() {
     return (
       <div className={styles.FairnessOrganizer}>
+        <div className={styles.generatorSubtitle}>4. Adjust the fairness</div>
         <Button classNmae={styles.buttonGenerateRanking} color="danger">RUN</Button>
       </div>
     );

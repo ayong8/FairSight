@@ -9,12 +9,15 @@ body {
 }
 
 .App {
-  width: 80%;
+  width: 95%;
   height: 1000px;
   margin: 0 auto;
   display: grid;
   grid-template-rows: 50px 200px 400px 250px 80px;
   grid-template-columns: 25% 40% 15% 20%;
+  row-gap: 10px;
+
+  margin-bottom: -10px;
 }
 // .mainViewWrapper {
 //   grid-area: 'Generator';
@@ -26,8 +29,8 @@ body {
   display: flex;
   align-items: flex-end;
   
-  .title {
-    font-size: 18px;
+  .appTitle {
+    font-size: 25px;
     font-weight: bolder;
   }
 }

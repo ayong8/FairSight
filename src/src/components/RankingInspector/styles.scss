@@ -4,10 +4,66 @@
 
     display: grid;
     grid-template-columns: 50% 25% 25%;
-    grid-template-rows: 10% 90%;
-    border: 1px solid green;
+    grid-template-rows: 50% 50%;
+
+    .IndividualFairnessView {
+        grid-column: 1 / 2;
+        grid-row: 1 / 3;
+    }
 
     .RankingView {
-        border: 1px solid black;
+        grid-column: 2 / 3;
+        grid-row: 1 / 3;
+    }
+
+    .GroupFairnessView {
+        grid-column: 3 / 4;
+        grid-row: 1 / 2;
+
+        display: grid;
+        grid-template-columns: 50% 50%;
+        grid-template-rows: 30px 35% 55%;
+
+        .title {
+            grid-column: 1 / 3;
+            grid-row: 1;
+        }
+
+        .subTitle {
+            display:flex;
+            align-items: center;
+            justify-content:center;
+
+            width: 60%;
+            height: 20px;
+            font-size: 9px;
+            font-weight: 300;
+            background-color: #a7ffe7;
+            border: 1px solid #97dbc8;
+        }
+        .groupOverview {
+            grid-column: 1;
+            grid-row: 2 / 4;
+        }
+        .statParityPlot {
+            grid-column: 2;
+            grid-row: 2;
+
+            border: 1px solid gray;
+            margin: 3px 0px;
+        }
+        .conditionalParityPlot {
+            grid-column: 2;
+            grid-row: 3;
+
+            border: 1px solid gray;
+            margin: 3px 0px;
+        }
+
+    }
+
+    .UtilityView {
+        grid-column: 3 / 4;
+        grid-row: 2 / 3;
     }
 }

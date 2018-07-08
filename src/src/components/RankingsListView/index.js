@@ -2,7 +2,9 @@ import React, { Component } from "react";
 import * as d3 from 'd3';
 import ReactFauxDOM from 'react-faux-dom';
 import _ from 'lodash';
+
 import styles from "./styles.scss";
+import index from "../../index.css";
 import gs from "../../config/_variables.scss"; // gs (=global style)
 
 const _attr = {
@@ -12,17 +14,17 @@ class RankingsListView extends Component {
   constructor(props) {
     super(props);
 
-    this.renderRankingInstances = this.renderRankingInstances.bind(this);
+    //this.renderRankingInstances = this.renderRankingInstances.bind(this);
     this.renderRankingListGraph = this.renderRankingListGraph.bind(this);
   }
 
-  renderRankingInstances(props) {
-    const rankings = _.map(this.props.rankings, (ranking, idx)=> {
-          return (<RankingInstance ranking={ranking} index={idx} />);
-        });
+  // renderRankingInstances(props) {
+  //   const rankings = _.map(this.props.rankings, (ranking, idx)=> {
+  //         return (<RankingInstance ranking={ranking} index={idx} />);
+  //       });
 
-    return rankings;
-  }
+  //   return rankings;
+  // }
 
   renderRankingListGraph() {
     const divWrapper = new ReactFauxDOM.Element('div');
@@ -77,23 +79,24 @@ class RankingsListView extends Component {
   render() {
     return (
       <div className={styles.RankingsListView}>
-        <div className={styles.titleBar}> RANKINGS </div>
+        <div className={index.title}> RANKINGS </div>
+        <div className={styles.addRanking}>+</div>
         {this.renderRankingListGraph()}
       </div>
     );
   }
 }
 
-class RankingInstance extends Component {
-  constructor(props) {
-    super(props);
-  }
+// class RankingInstance extends Component {
+//   constructor(props) {
+//     super(props);
+//   }
 
-  render() {
-    return (
-      <rect x="10" y={(this.props.index + 1) * 20} width="60" height="10"></rect>
-    );
-  }
-}
+//   render() {
+//     return (
+//       <rect x="10" y={(this.props.index + 1) * 20} width="60" height="10"></rect>
+//     );
+//   }
+// }
 
 export default RankingsListView;

@@ -15,7 +15,7 @@ class RankingsListView extends Component {
     super(props);
 
     //this.renderRankingInstances = this.renderRankingInstances.bind(this);
-    this.renderRankingListGraph = this.renderRankingListGraph.bind(this);
+    this.renderRankingInstance = this.renderRankingInstance.bind(this);
   }
 
   // renderRankingInstances(props) {
@@ -26,77 +26,119 @@ class RankingsListView extends Component {
   //   return rankings;
   // }
 
-  renderRankingListGraph() {
-    const divWrapper = new ReactFauxDOM.Element('div');
+  renderRankingInstance(ranking) {
+    // const divWrapper = new ReactFauxDOM.Element('div');
 
-    const svg = d3.select(divWrapper)
-            .append('svg')
-            .attr('class', 'svgRankingList')
-            .attr("width", 100)
-            .attr('height', 500);
+    // const svg = d3.select(divWrapper)
+    //         .append('svg')
+    //         .attr('class', 'svgRankingList')
+    //         .attr("width", 100)
+    //         .attr('height', 500);
+
+    // let xScale = d3.scaleBand()
+    //         .range([0, 100])
+    //         .domain([0,1,2,3,4,5,6,7,8,9,10]);
+      
+    // const groupColorScale = d3.scaleOrdinal()
+    //         .range([gs.groupColor1, gs.groupColor2])
+    //         .domain([1, 2]);
+
+    // const gRankings = svg
+    //         .selectAll('.rankingInstance')
+    //         .data(this.props.rankings)
+    //         .enter().append('g')
+    //         .attr('class', 'rankingInstance')
+    //         .attr('transform', function(d, i) {
+    //           return 'translate(0, ' + ((i+1) * 10) + ')'; 
+    //         });
+
+    // gRankings
+    //   .each(function(d){
+    //     var gRanking = d3.select(this);
+
+    //     gRanking
+    //       .selectAll('.instance')
+    //       .data(d)
+    //       .enter().append('rect')
+    //       .attr('class', 'instance')
+    //       .attr('x', function(e, i) {
+    //         return xScale(i + 1);
+    //       })
+    //       .attr('y', 0)
+    //       .attr('width', 8)
+    //       .attr('height', 15)
+    //       .style('fill', function(e) {
+    //         return groupColorScale(e.group);
+    //       })
+    //       .style('stroke', 'white');
+    //   });
+
+
+            
+    
+    return (
+      <RankingInstance ranking={ranking}></RankingInstance>
+    );
+  }
+
+  render() {
+    const rankingInstances = _.map(this.props.rankings, (ranking) => this.renderRankingInstance(ranking));
+
+    return (
+      <div className={styles.RankingsListView}>
+        <div className={index.title}> RANKINGS </div>
+        <div className={styles.addRanking}>+</div>
+        <div className={styles.rankingCondition}>RANKING SVM + FEATURE 17</div>
+        {rankingInstances}
+      </div>
+    );
+  }
+}
+
+class RankingInstance extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    const svg = new ReactFauxDOM.Element('svg');
+
+    svg.setAttribute('width', '500px');
+    svg.setAttribute('height', '100px');
+    svg.setAttribute('class', 'svgRankingList');
 
     let xScale = d3.scaleBand()
             .range([0, 100])
             .domain([0,1,2,3,4,5,6,7,8,9,10]);
       
     const groupColorScale = d3.scaleOrdinal()
-            .range(['red', 'blue'])
+            .range([gs.groupColor1, gs.groupColor2])
             .domain([1, 2]);
 
-    const gRankings = svg
-            .selectAll('.rankingInstance')
-            .data(this.props.rankings)
-            .enter().append('g')
-            .attr('class', 'rankingInstance')
-            .attr('transform', function(d, i) {
-              return 'translate(0, ' + ((i+1) * 10) + ')'; 
-            });
-
-    gRankings
-      .each(function(d){
-        var gRanking = d3.select(this);
-
-        gRanking
+    const gRanking = d3.select(svg)
           .selectAll('.instance')
-          .data(d)
+          .data(this.props.ranking)
           .enter().append('rect')
           .attr('class', 'instance')
           .attr('x', function(e, i) {
-            return xScale(i + 1);
+            return 15 * (i+1);
           })
           .attr('y', 0)
-          .attr('width', 10)
-          .attr('height', 10)
+          .attr('width', 15)
+          .attr('height', 20)
           .style('fill', function(e) {
             return groupColorScale(e.group);
-          });
-      });
-            
-    
-    return divWrapper.toReact();
-  }
+          })
+          .style('stroke', 'white');
 
-  render() {
     return (
-      <div className={styles.RankingsListView}>
-        <div className={index.title}> RANKINGS </div>
-        <div className={styles.addRanking}>+</div>
-        {this.renderRankingListGraph()}
+      <div className={styles.rankingInstanceWrapper}>
+      <div className={styles.rankingIndex}>R1</div>
+      {svg.toReact()}
+      <div className={styles.rankingScores}>89</div>
       </div>
     );
   }
 }
-
-// class RankingInstance extends Component {
-//   constructor(props) {
-//     super(props);
-//   }
-
-//   render() {
-//     return (
-//       <rect x="10" y={(this.props.index + 1) * 20} width="60" height="10"></rect>
-//     );
-//   }
-// }
 
 export default RankingsListView;

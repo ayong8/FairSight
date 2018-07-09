@@ -92,23 +92,25 @@ class FeatureSelector extends Component {
   render(){
     return (
       <div className={styles.FeatureSelector}>
-        <div className={styles.generatorSubtitle + ' ' + styles.firstTitle}>2. Select attributes and sensitive...</div>
+        <div className={styles.generatorSubtitle + ' ' + styles.firstTitle}>2. Select features and sensitive attributes</div>
         <div className={styles.secondTitle1}> Sensitive Attribute </div>
         <Dropdown className={styles.SensitiveAttrSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle caret>
-            Features
+          <DropdownToggle caret className={styles.SensitiveAttrSelectorDropdownToggle}>
+            Sensitive Attribute
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItem>Feature1</DropdownItem>
             <DropdownItem>Feature2</DropdownItem>
           </DropdownMenu>
-          <div>
-            Men, Women
+          <div className={styles.sensitiveGroupIndicator}>
+            <span className={styles.group1}>...</span> Men
+            <br />
+            <span className={styles.group2}>...</span> Women
           </div>
         </Dropdown>
         <div className={styles.secondTitle2}> Feature Selection </div>
         <Dropdown className={styles.FeatureSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle caret>
+          <DropdownToggle caret className={styles.FeatureSelectorDropdownToggle}>
             Features
           </DropdownToggle>
           <DropdownMenu>
@@ -145,13 +147,14 @@ class MethodSelector extends Component {
         <div className={styles.generatorSubtitle}>3. Select a method and top-k</div>
         <Dropdown className={styles.MethodSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
           <DropdownToggle caret>
-            Features
+            Method
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItem>Feature1</DropdownItem>
             <DropdownItem>Feature2</DropdownItem>
           </DropdownMenu>
         </Dropdown>
+        <div className={styles.secondTitle2}> Top-K </div>
         <Slider
           value={topK}
           orientation="horizontal"

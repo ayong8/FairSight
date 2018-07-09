@@ -11,7 +11,7 @@
     
     align-items: center;
     font-weight: 600;
-    text-transform: uppercase;
+    //text-transform: uppercase;
     font-size: 12px;
 
     .GeneratorNavBar {
@@ -91,7 +91,26 @@
         .SensitiveAttrSelectorDropdown {
             grid-column: 1 / 2;
             grid-row: 3 / 4;
+
+            .SensitiveAttrSelectorDropdownToggle {
+                width: 140px;
+            }
         }
+        .sensitiveGroupIndicator {
+            margin: 5px;
+        }
+
+        .group1 {
+            color: $group-color1;
+            background-color: $group-color1;
+            margin: 3px;
+        }
+        .group2 {
+            color: $group-color2;
+            background-color: $group-color2;
+            margin: 3px;
+        }
+
 
         // .sensitiveAttrProperties {
         //     grid-column: 1 / 2;
@@ -106,12 +125,21 @@
         .FeatureSelectorDropdown {
             grid-column: 2 / 3;
             grid-row: 3 / 4;
+
+            .FeatureSelectorDropdownToggle {
+                width: 140px;
+            }
         }
     }
 
     /*** 3. Method & Top-k Selector ***/
     .MethodSelector {
-
+        .MethodSelectorDropdown {
+            width: 140px;
+        }
+        .secondTitle2 {
+            margin-top: 10px;
+        }
     }
 
     /*** 4. Method & Top-k Selector ***/

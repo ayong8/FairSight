@@ -4,7 +4,7 @@ body {
   background-color: $bg-color;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
-    text-transform: uppercase;
+    // text-transform: uppercase;
     color: $dark-blue;
 }
 
@@ -13,7 +13,7 @@ body {
   height: 1000px;
   margin: 0 auto;
   display: grid;
-  grid-template-rows: 50px 200px 400px 250px 80px;
+  grid-template-rows: 50px 200px 500px 250px 80px;
   grid-template-columns: 25% 40% 15% 20%;
   row-gap: 10px;
 
@@ -29,8 +29,11 @@ body {
   display: flex;
   align-items: flex-end;
   
+  
   .appTitle {
     font-size: 25px;
     font-weight: bolder;
+    margin-bottom: -10px;
+    text-transform: uppercase;
   }
 }

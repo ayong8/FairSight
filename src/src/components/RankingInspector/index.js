@@ -67,22 +67,11 @@ class IndividualFairnessView extends Component {
   }
 
   render() {
-    const svg = new ReactFauxDOM.Element('svg');
-
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '100%');
-    svg.setAttribute('0 0 300 300');
-    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-
-    console.log('this.props: ', this.props);
-
-    const data = this.props.distortions;
-
     const layout = {
-      width: 400,
-      height: 400,
+      width: 300,
+      height: 300,
       get r() {
-        return d3.min([this.width, this.height]) / 2;
+        return d3.min([this.width, this.height]) / 3;
       },
       get centroid() {
         return {
@@ -90,7 +79,18 @@ class IndividualFairnessView extends Component {
           y: this.height / 2
         };
       }
-    }
+    };
+
+    const svg = new ReactFauxDOM.Element('svg');
+
+    svg.setAttribute('width', layout.width);
+    svg.setAttribute('height', layout.height);
+    svg.setAttribute('0 0 200 200');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+    console.log('this.props: ', this.props);
+
+    const data = this.props.distortions;
 
     const xObservedScale = d3.scaleLinear()
             .range([0, layout.width])
@@ -100,15 +100,15 @@ class IndividualFairnessView extends Component {
             .range([layout.height, 0])
             .domain([0, d3.max(data, (d) => d.decision)]);
 
-    const circles = d3.select(svg)
-            .selectAll('.circles')
-            .data(data)
-            .enter().append('circle')
-            .attr('class', 'circles')
-            .attr('cx', (d) => xObservedScale(d.observed))
-            .attr('cy', (d) => yDecisionScale(d.decision))
-            .attr('r', 1)
-            .style('fill', 'black');
+    // const circles = d3.select(svg)
+    //         .selectAll('.circles')
+    //         .data(data)
+    //         .enter().append('circle')
+    //         .attr('class', 'circles')
+    //         .attr('cx', (d) => xObservedScale(d.observed))
+    //         .attr('cy', (d) => yDecisionScale(d.decision))
+    //         .attr('r', 1)
+    //         .style('fill', 'black');
 
     const bigCircle = d3.select(svg)
             .append('circle')
@@ -116,8 +116,10 @@ class IndividualFairnessView extends Component {
             .attr('cx', (d) => layout.centroid.x)
             .attr('cy', (d) => layout.centroid.y)
             .attr('r', layout.r)
-            .style('stroke', 'blue')
-            .style('fill', 'none');
+            .style('stroke', '#c18f02')
+            .style('stroke-width', 5)
+            .style('fill', '#ffbc00')
+            .style('opacity', 0.5);
 
     const diffs = _.map(data, (d) => d.observed - d.decision);
 
@@ -139,7 +141,9 @@ class IndividualFairnessView extends Component {
             .datum(coords)
             .attr('class', 'line')
             .style('stroke', function() { // Add the colours dynamically
-                    return 'green'; })
+                    return '#ff9900'; })
+            .style('stroke-width', 8)
+            .style('stroke-opacity', 0.5)
             .style('fill', 'none')
             //.attr('id', 'tag'+i) // assign ID
             .attr('d', d3.line()
@@ -177,7 +181,7 @@ class IndividualFairnessView extends Component {
       .datum(combineCoords)
       .attr("class", "area")
       .attr("d", area)
-      .style('fill', 'red');
+      .style('fill', 'none');
 
     return (
       <div className={styles.IndividualFairnessView}>
@@ -191,7 +195,7 @@ class IndividualFairnessView extends Component {
     console.log(r, w, n);
     const coordsArray = [];
     let x, y, angle, distortion, i,
-        distortionScale = 10;
+        distortionScale = 7;
 
     for(i=0; i<n-1; i++){
       console.log(i);
@@ -238,7 +242,7 @@ class RankingView extends Component {
                 .domain(d3.extent(wholeRankingData, (d) => d.score));
     
     var rectTopKRankingScale = d3.scaleLinear()
-                .range([15, 50])
+                .range([15, 100])
                 .domain(d3.extent(rankingData, (d) => d.score));
 
     var groupColorScale = d3.scaleOrdinal()
@@ -251,7 +255,7 @@ class RankingView extends Component {
     
     const gTopKRanking = d3.select(svg).append('g')
                         .attr('class', 'g_top_k_ranking')
-                        .attr('transform', 'translate(100,0)');
+                        .attr('transform', 'translate(150,0)');
 
     console.log('g and data: ', gGlobalRanking, rankingData);
 
@@ -272,8 +276,8 @@ class RankingView extends Component {
             .style('fill', function(d){
                 return groupColorScale(d.group);
             })
-            .style('stroke', 'black')
-            .style('stroke-width', 0.5)
+            .style('stroke', 'white')
+            .style('stroke-width', 1)
             .style('shape-rendering', 'crispEdges');
 
     gTopKRanking.selectAll('.rect_global')
@@ -289,14 +293,14 @@ class RankingView extends Component {
                 return 20 * i;
             })
             .attr('width', function(d){
-                return 100 - rectTopKRankingScale(d.score);
+                return rectTopKRankingScale(d.score);
             })
             .attr('height', 20)
             .style('fill', function(d){
                 return groupColorScale(d.group);
             })
-            .style('stroke', 'black')
-            .style('stroke-width', 0.5)
+            .style('stroke', 'white')
+            .style('stroke-width', 1)
             .style('shape-rendering', 'crispEdges');
 
     
@@ -323,7 +327,7 @@ class GroupFairnessView extends Component {
     const svg = new ReactFauxDOM.Element('svg');
 
     svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '100%');
+    svg.setAttribute('height', '50px');
     svg.setAttribute('0 0 100 100');
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
@@ -333,7 +337,7 @@ class GroupFairnessView extends Component {
                 .domain([0, 100]);
     
     const yScale = d3.scaleLinear()
-                .range([50, 0])
+                .range([45, 0])
                 .domain([0, 10]);
 
     const groupBins1 = d3.histogram()
@@ -341,7 +345,10 @@ class GroupFairnessView extends Component {
           .thresholds(xScale.ticks(20))
           (groupData1);
 
-    console.log('group1 bins: ', groupBins1);
+    const xAxis = d3.select(svg)
+          .append('g')
+          .attr('transform', 'translate(0,45)')
+          .call(d3.axisBottom(xScale).tickSize(0).tickFormat(""));
 
     const groupBins2 = d3.histogram()
           .domain(xScale.domain())
@@ -360,7 +367,7 @@ class GroupFairnessView extends Component {
     groupHistogramBar1.append('rect')
         .attr('x', 0)
         .attr('width', function(d) { return 4; })
-        .attr('height', function(d) { return 50 - yScale(d.length); })
+        .attr('height', function(d) { return 45 - yScale(d.length); })
         .style('fill', 'red')
         .style('opacity', 0.5);
 
@@ -376,7 +383,7 @@ class GroupFairnessView extends Component {
     groupHistogramBar2.append('rect')
         .attr('x', 0)
         .attr('width', function(d) { return 4; })
-        .attr('height', function(d) { return 50 - yScale(d.length); })
+        .attr('height', function(d) { return 45 - yScale(d.length); })
         .style('fill', 'blue')
         .style('opacity', 0.5);
 
@@ -390,6 +397,8 @@ class GroupFairnessView extends Component {
         </div>
         <div className={styles.conditionalParityPlot}>
           <div className={styles.subTitle}>Conditional Parity</div>
+          {svg.toReact()}
+          {svg.toReact()}
         </div>
         
       </div>

@@ -17,7 +17,6 @@ class App extends Component {
       dataset: {},
       sensitiveAttr: 'sex',
       selectedRanking: 0, // Index of a ranking selected among rankings in 'rankings'
-
       rankings: [
         [
           { ranking: 1, score: 90, group: 1 },
@@ -91,6 +90,27 @@ class App extends Component {
         { ranking: 48, score: 33, group: 1 },
         { ranking: 49, score: 26, group: 2 },
         { ranking: 50, score: 20, group: 2 }
+      ],
+      distortions: [
+        {observed: 1, decision: 1},
+        {observed: 3, decision: 4},
+        {observed: 5, decision: 4},
+        {observed: 7, decision: 10},
+        {observed: 8, decision: 7},
+        {observed: 8, decision: 7},
+        {observed: 10, decision: 12},
+        {observed: 13, decision: 13},
+        {observed: 15, decision: 16},
+        {observed: 16, decision: 15},
+        {observed: 18, decision: 13},
+        {observed: 19, decision: 22},
+        {observed: 20, decision: 24},
+        {observed: 21, decision: 23},
+        {observed: 23, decision: 25},
+        {observed: 25, decision: 22},
+        {observed: 27, decision: 30},
+        {observed: 30, decision: 32},
+        {observed: 32, decision: 28}
       ]
     };
   }
@@ -116,7 +136,7 @@ class App extends Component {
         <Generator dataset='german.csv' />
         <RankingsListView rankings={this.state.rankings} />
         <TableView />
-        <RankingInspector wholeRanking={this.state.wholeRanking} ranking={selectedRanking} />
+        <RankingInspector distortions={this.state.distortions} wholeRanking={this.state.wholeRanking} ranking={selectedRanking} />
         <Footer />
       </div>
     );

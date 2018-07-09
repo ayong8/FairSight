@@ -4,8 +4,20 @@ import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 
 import styles from './styles.scss';
-import index from "../../index.css";
+import index from '../../index.css';
 import gs from '../../config/_variables.scss'; // gs (=global style)
+
+_.rename = function(obj, key, newKey) {
+  
+  if(_.includes(_.keys(obj), key)) {
+    obj[newKey] = _.clone(obj[key], true);
+
+    delete obj[key];
+  }
+  
+  return obj;
+};
+
 
 class RankingInspector extends Component {
   constructor(props) {
@@ -16,7 +28,7 @@ class RankingInspector extends Component {
 
     return (
       <div className={styles.RankingInspector}>
-        <IndividualFairnessView ranking={this.props.ranking} className={styles.IndividualFairnessView} />
+        <IndividualFairnessView distortions={this.props.distortions} ranking={this.props.ranking} className={styles.IndividualFairnessView} />
         <RankingView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.RankingView} />
         <GroupFairnessView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.GroupFairnessView} />
         <UtilityView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.UtilityView} />
@@ -55,19 +67,151 @@ class IndividualFairnessView extends Component {
   }
 
   render() {
-    // var circles = this.props.ranking.map(d => {
-    //         return (
-    //           <circle cx='3' cy='4' r={d}></circle>
-    //         );
-    //       });
+    const svg = new ReactFauxDOM.Element('svg');
+
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('0 0 300 300');
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+
+    console.log('this.props: ', this.props);
+
+    const data = this.props.distortions;
+
+    const layout = {
+      width: 400,
+      height: 400,
+      get r() {
+        return d3.min([this.width, this.height]) / 2;
+      },
+      get centroid() {
+        return {
+          x: this.width / 2,
+          y: this.height / 2
+        };
+      }
+    }
+
+    const xObservedScale = d3.scaleLinear()
+            .range([0, layout.width])
+            .domain([0, d3.max(data, (d) => d.observed)]);
+
+    const yDecisionScale = d3.scaleLinear()
+            .range([layout.height, 0])
+            .domain([0, d3.max(data, (d) => d.decision)]);
+
+    const circles = d3.select(svg)
+            .selectAll('.circles')
+            .data(data)
+            .enter().append('circle')
+            .attr('class', 'circles')
+            .attr('cx', (d) => xObservedScale(d.observed))
+            .attr('cy', (d) => yDecisionScale(d.decision))
+            .attr('r', 1)
+            .style('fill', 'black');
+
+    const bigCircle = d3.select(svg)
+            .append('circle')
+            .attr('class', 'bigCircle')
+            .attr('cx', (d) => layout.centroid.x)
+            .attr('cy', (d) => layout.centroid.y)
+            .attr('r', layout.r)
+            .style('stroke', 'blue')
+            .style('fill', 'none');
+
+    const diffs = _.map(data, (d) => d.observed - d.decision);
+
+    const coords = this.calculateCoords(layout.r, layout.width, data.length, diffs);
+    const circleCoords = this.calculateCoords(layout.r, layout.width, data.length, new Array(data.length).fill(0));
+
+    const coordsCircles = d3.select(svg)
+            .selectAll('.coordsCircles')
+            .data(coords)
+            .enter().append('circle')
+            .attr('class', 'coordsCircles')
+            .attr('cx', (d) => d.x)
+            .attr('cy', (d) => d.y)
+            .attr('r', 2)
+            .style('fill', 'red');
+
+    const distortionCurvedPath =  d3.select(svg)
+            .append('path')
+            .datum(coords)
+            .attr('class', 'line')
+            .style('stroke', function() { // Add the colours dynamically
+                    return 'green'; })
+            .style('fill', 'none')
+            //.attr('id', 'tag'+i) // assign ID
+            .attr('d', d3.line()
+                        .curve(d3.curveCardinalOpen.tension(0))
+                        .x(function(d) { return d.x; })
+                        .y(function(d) { return d.y; })
+                    );
+
+    const renameCircleCoords = _.map(circleCoords, (d) => _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0'));
+    console.log(renameCircleCoords)
+    const renameCoords       = _.map(coords, (d) => _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
+    console.log(renameCircleCoords)
+
+    const combineCoords = _.map(renameCircleCoords, function(d){
+        return _.merge(
+            d, 
+            _.find(renameCoords, {idx: d.idx})
+        )
+    });
+
+    console.log("combined: ", combineCoords);
+
+    // // Rename the keys of circleCoords(x0, y0) and coords(x1, y1) and concatenate them
+    // const combinedCoords = _.assign(renameCircleCoords, renameCoords);
+    // console.log(renameCircleCoords, renameCoords);
+    // console.log("combinedCoords: ", combinedCoords);
+
+    const area = d3.area()
+            .curve(d3.curveCardinalOpen.tension(0))
+            .x(function(d) { return d.x0; })
+            .y0((d) => d.y0)
+            .y1((d) => d.y1);
+
+    d3.select(svg).append("path")
+      .datum(combineCoords)
+      .attr("class", "area")
+      .attr("d", area)
+      .style('fill', 'red');
 
     return (
-      <div>
+      <div className={styles.IndividualFairnessView}>
         <div className={index.title}>Individual Fairness</div>
-        <svg>
-        </svg>
+        {svg.toReact()}
       </div>
     );
+  }
+
+  calculateCoords(r, w, n, diffs) {
+    console.log(r, w, n);
+    const coordsArray = [];
+    let x, y, angle, distortion, i,
+        distortionScale = 10;
+
+    for(i=0; i<n-1; i++){
+      console.log(i);
+      angle = (i / (n/2)) * Math.PI;
+      distortion = diffs[i] * distortionScale;
+      //angle += 360/n * i;
+      x = w/2 + ((r+distortion) * Math.sin(angle));
+      y = w/2 + ((r+distortion) * Math.cos(angle));
+
+      console.log(x, y, angle, r)
+
+      coordsArray.push({
+        idx: i+1,
+        x: x,
+        y: y,
+        angle: angle,
+      });
+    }
+    
+    return coordsArray;
   }
 }
 
@@ -175,15 +319,13 @@ class GroupFairnessView extends Component {
     const groupData1 = d3.range(30).map(d3.randomNormal(70, 15)), // Generate a 1000 data points using normal distribution with mean=20, deviation=5
           groupData2 = d3.range(30).map(d3.randomNormal(60, 10));
 
-    console.log("group data: ", groupData1, groupData2);
-
     // Set up the layout
     const svg = new ReactFauxDOM.Element('svg');
 
     svg.setAttribute('width', '100%');
     svg.setAttribute('height', '100%');
     svg.setAttribute('0 0 100 100');
-    svg.setAttribute('preserveAspectRatio', "xMidYMid meet");
+    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
     // Both groups share the same x and y scale
     const xScale = d3.scaleLinear()
@@ -199,7 +341,7 @@ class GroupFairnessView extends Component {
           .thresholds(xScale.ticks(20))
           (groupData1);
 
-    console.log("group1 bins: ", groupBins1);
+    console.log('group1 bins: ', groupBins1);
 
     const groupBins2 = d3.histogram()
           .domain(xScale.domain())

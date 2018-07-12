@@ -117,9 +117,14 @@ class App extends Component {
 
   componentDidMount() {
     // data file loading here
-    d3.csv('../../data/german_credit_sample.csv', function(data) {
-      console.log("sample dataset: ", data);
-    });
+    // fetch("./data/german_credit_sample.json")
+    //   .then( (response) => {
+    //       console.log(response);
+    //       return response.json() })   
+    //           .then( (json) => {
+    //               console.log(json);
+    //               this.setState({dataset: json});
+    //           });
   }
 
   render() {

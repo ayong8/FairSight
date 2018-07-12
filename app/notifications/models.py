@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
-from nomadgram.users import models as user_models
-from nomadgram.images import models as image_models
+from app.users import models as user_models
+from app.images import models as image_models
 
 
 @python_2_unicode_compatible

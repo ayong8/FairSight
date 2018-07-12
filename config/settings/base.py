@@ -1,5 +1,5 @@
 """
-Django settings for nomadgram project.
+Django settings for app project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/dev/topics/settings/
@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 """
 import environ
 
-# (nomadgram/config/settings/base.py - 3 = nomadgram/)
+# (app/config/settings/base.py - 3 = app/)
 ROOT_DIR = environ.Path(__file__) - 3
-APPS_DIR = ROOT_DIR.path('nomadgram')
+APPS_DIR = ROOT_DIR.path('app')
 
 # Load operating system environment variables and then prepare to use them
 env = environ.Env()
@@ -62,10 +62,10 @@ THIRD_PARTY_APPS = [
 # Apps specific for this project go here.
 LOCAL_APPS = [
     # custom users app
-    'nomadgram.users.apps.UsersConfig',
+    'app.users.apps.UsersConfig',
     # Your stuff: custom apps go here
-    'nomadgram.images.apps.ImagesConfig',  # images app
-    'nomadgram.notifications.apps.NotificationsConfig'  # notifications app
+    'app.images.apps.ImagesConfig',  # images app
+    'app.notifications.apps.NotificationsConfig'  # notifications app
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -87,7 +87,7 @@ MIDDLEWARE = [
 # MIGRATIONS CONFIGURATION
 # ------------------------------------------------------------------------------
 MIGRATION_MODULES = {
-    'sites': 'nomadgram.contrib.sites.migrations'
+    'sites': 'app.contrib.sites.migrations'
 }
 
 # DEBUG
@@ -123,7 +123,7 @@ MANAGERS = ADMINS
 # Uses django-environ to accept uri format
 # See: https://django-environ.readthedocs.io/en/latest/#supported-types
 DATABASES = {
-    'default': env.db('DATABASE_URL', default='postgres:///nomadgram'),
+    'default': env.db('DATABASE_URL', default='postgres:///fairsight'),
 }
 DATABASES['default']['ATOMIC_REQUESTS'] = True
 
@@ -266,8 +266,8 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 ACCOUNT_ALLOW_REGISTRATION = env.bool(
     'DJANGO_ACCOUNT_ALLOW_REGISTRATION', True)
-ACCOUNT_ADAPTER = 'nomadgram.users.adapters.AccountAdapter'
-SOCIALACCOUNT_ADAPTER = 'nomadgram.users.adapters.SocialAccountAdapter'
+ACCOUNT_ADAPTER = 'app.users.adapters.AccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'app.users.adapters.SocialAccountAdapter'
 
 # Custom user app defaults
 # Select the correct user model

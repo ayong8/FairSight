@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
 from taggit.managers import TaggableManager
-from nomadgram.users import models as user_models
+from app.users import models as user_models
 
 
 @python_2_unicode_compatible

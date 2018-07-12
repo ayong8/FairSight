@@ -192,20 +192,16 @@ class IndividualFairnessView extends Component {
   }
 
   calculateCoords(r, w, n, diffs) {
-    console.log(r, w, n);
     const coordsArray = [];
     let x, y, angle, distortion, i,
         distortionScale = 7;
 
     for(i=0; i<n-1; i++){
-      console.log(i);
       angle = (i / (n/2)) * Math.PI;
       distortion = diffs[i] * distortionScale;
       //angle += 360/n * i;
       x = w/2 + ((r+distortion) * Math.sin(angle));
       y = w/2 + ((r+distortion) * Math.cos(angle));
-
-      console.log(x, y, angle, r)
 
       coordsArray.push({
         idx: i+1,
@@ -227,7 +223,6 @@ class RankingView extends Component {
     super(props);
   }
   render() {
-    console.log('gs: ', gs);
     const rankingData = this.props.ranking,
           wholeRankingData = this.props.wholeRanking;
 
@@ -256,8 +251,6 @@ class RankingView extends Component {
     const gTopKRanking = d3.select(svg).append('g')
                         .attr('class', 'g_top_k_ranking')
                         .attr('transform', 'translate(150,0)');
-
-    console.log('g and data: ', gGlobalRanking, rankingData);
 
     gGlobalRanking.selectAll('.rect_global')
             .data(wholeRankingData)
@@ -360,7 +353,6 @@ class GroupFairnessView extends Component {
         .enter().append('g')
         .attr('class', 'bar1')
         .attr('transform', function(d) {
-          console.log('d in bar: ', d, typeof(d.x0));
           return 'translate(' + xScale(d.x0) + ',' + yScale(d.length) + ')'; 
         });
 
@@ -376,7 +368,6 @@ class GroupFairnessView extends Component {
         .enter().append('g')
         .attr('class', 'bar2')
         .attr('transform', function(d) {
-          console.log('d in bar: ', d, typeof(d.x0));
           return 'translate(' + xScale(d.x0) + ',' + yScale(d.length) + ')'; 
         });
 

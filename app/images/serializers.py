@@ -2,7 +2,7 @@ from rest_framework import serializers
 from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer)
 from . import models
-from nomadgram.users import models as user_models
+from app.users import models as user_models
 
 
 class SmallImageSerializer(serializers.ModelSerializer):

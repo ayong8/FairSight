@@ -2,9 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from . import models, serializers
-from nomadgram.users import models as user_models
-from nomadgram.users import serializers as user_serializers
-from nomadgram.notifications import views as notification_views
+from app.users import models as user_models
+from app.users import serializers as user_serializers
+from app.notifications import views as notification_views
 
 
 class Images(APIView):

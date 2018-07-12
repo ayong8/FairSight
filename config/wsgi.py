@@ -1,5 +1,5 @@
 """
-WSGI config for nomadgram project.
+WSGI config for app project.
 
 This module contains the WSGI application used by Django's development server
 and any production WSGI deployments. It should expose a module-level variable
@@ -19,9 +19,9 @@ import sys
 from django.core.wsgi import get_wsgi_application
 
 # This allows easy placement of apps within the interior
-# nomadgram directory.
+# app directory.
 app_path = os.path.dirname(os.path.abspath(__file__)).replace('/config', '')
-sys.path.append(os.path.join(app_path, 'nomadgram'))
+sys.path.append(os.path.join(app_path, 'app'))
 
 
 

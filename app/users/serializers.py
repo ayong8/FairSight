@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from . import models
-from nomadgram.images import serializers as images_serializers
+from app.images import serializers as images_serializers
 
 
 class UserProfileSerializer(serializers.ModelSerializer):

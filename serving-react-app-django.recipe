@@ -4,13 +4,13 @@
 4) Add 'corsheaders.middleware.CorsMiddleware' before 'CommonMiddleware' Done
 5) Add CORS_ORIGIN_ALLOW_ALL = True on base settings Done.
 6) Make Django load the bundles as static files with 'str(ROOT_DIR.path('frontend', 'build', 'static'))' Done
-7) Create a views.py file on 'nomadgram' folder. Done
+7) Create a views.py file on 'app' folder. Done
 6) Create ReactAppView that reads the file. Done
 7) Add the ReactAppView as a URL Done
 
 
 urls.py: 
-from nomadgram import views
+from app import views
 url(r'^', views.ReactAppView.as_view()),
 
 

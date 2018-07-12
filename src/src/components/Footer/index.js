@@ -20,7 +20,7 @@ const Footer = (props, context) => (
       </nav>
     </div>
     <div className={styles.column}>
-      <span className={styles.copyright}>© 2017 Nomadgram</span>
+      <span className={styles.copyright}>© 2017 app</span>
     </div>
   </footer>
 );

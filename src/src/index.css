@@ -9,6 +9,8 @@
     /* font-weight: 600; */
     /* background-color: #747373;
     border: 1px solid #565555; */
-    border-radius: 5px;
-    color: darkgray;
+    color: #2a4b5a;
+    font-size: 1.2rem;
+    font-weight: 400;
+    text-transform: uppercase;
   }

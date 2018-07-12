@@ -6,15 +6,11 @@
     grid-template-columns: 70% 30%;
     grid-template-rows: 60% 40%;
 
-    background-color: #f2f2f2;
-
     .ProcessView,
     .GroupFairnessView,
     .UtilityView {
         margin: 10px;
         background-color: white;
-        border: 1px solid #e8e8e8;
-        border-radius: 5px;
     }
 
     .ProcessView {
@@ -56,6 +52,8 @@
         grid-template-columns: 70% 30%;
         grid-template-rows: 30px 30% 55%;
 
+        border-left: 1px solid lightgray;
+
         .title {
             grid-column: 1 / 3;
             grid-row: 1;
@@ -96,5 +94,7 @@
     .UtilityView {
         grid-column: 2;
         grid-row: 2 / 3;
+
+        border-left: 1px solid lightgray;
     }
 }

@@ -28,10 +28,29 @@ class RankingInspector extends Component {
 
     return (
       <div className={styles.RankingInspector}>
-        <IndividualFairnessView distortions={this.props.distortions} ranking={this.props.ranking} className={styles.IndividualFairnessView} />
-        <RankingView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.RankingView} />
+        <ProcessView distortions={this.props.distortions} ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.ProcessView} />
         <GroupFairnessView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.GroupFairnessView} />
         <UtilityView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.UtilityView} />
+      </div>
+    );
+  }
+}
+
+class ProcessView extends Component {
+  constructor(props) {
+    super(props);
+  }
+
+  render() {
+    return (
+      <div className={styles.ProcessView}>
+        <div className={styles.processIndicator}>
+          <div className={index.title}>Input</div>
+          <div className={index.title}>Individual Fairness</div>
+          <div className={index.title}>Output</div>
+        </div>
+        <IndividualFairnessView distortions={this.props.distortions} ranking={this.props.ranking} className={styles.IndividualFairnessView} />
+        {/* <RankingView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} /> */}
       </div>
     );
   }
@@ -40,36 +59,10 @@ class RankingInspector extends Component {
 class IndividualFairnessView extends Component {
   constructor(props) {
     super(props);
-
-
-  }
-
-  componentWillMount() {
-    this.calculateDistortions();
-  }
-
-  // Plot the coordinate difference between observed(feature) and decision(ranking) space
-  calculateDistortions() {
-    //this.props.rankings
-    // x: observed space difference, y: decision space difference
-    const distortionMockup = [ 
-              {x: 1, y: 2},
-              {x: 2, y: 1.4},
-              {x: 5, y: 4},
-              {x: 6, y: 6},
-              {x: 8, y: 8.8},
-              {x: 10, y: 14},
-              {x: 13, y: 8},
-              {x: 15, y: 13},
-              {x: 18, y: 17},
-              {x: 20, y: 22}
-            ];
-  }
-
-  render() {
-    const layout = {
-      width: 300,
-      height: 300,
+    this.svg;
+    this.layout = {
+      width: 650,
+      height: 125,
       get r() {
         return d3.min([this.width, this.height]) / 3;
       },
@@ -81,41 +74,128 @@ class IndividualFairnessView extends Component {
       }
     };
 
-    const svg = new ReactFauxDOM.Element('svg');
+  }
 
-    svg.setAttribute('width', layout.width);
-    svg.setAttribute('height', layout.height);
-    svg.setAttribute('0 0 200 200');
-    svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+  componentWillMount() {
+    //this.calculateDistortions();
+  }
+
+  // Plot the coordinate difference between observed(feature) and decision(ranking) space
+  // calculateDistortions() {
+  //   //this.props.rankings
+  //   // x: observed space difference, y: decision space difference
+  //   const distortionMockup = [ 
+  //             {x: 1, y: 2},
+  //             {x: 2, y: 1.4},
+  //             {x: 5, y: 4},
+  //             {x: 6, y: 6},
+  //             {x: 8, y: 8.8},
+  //             {x: 10, y: 14},
+  //             {x: 13, y: 8},
+  //             {x: 15, y: 13},
+  //             {x: 18, y: 17},
+  //             {x: 20, y: 22}
+  //           ];
+  // }
+
+  render() {
+    this.svg = new ReactFauxDOM.Element('svg');
+
+    this.svg.setAttribute('width', this.layout.width);
+    this.svg.setAttribute('height', this.layout.height);
+    this.svg.setAttribute('0 0 200 200');
+    this.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
 
     console.log('this.props: ', this.props);
 
     const data = this.props.distortions;
+    const distortionScale = 2;
+    const diffs = _.map(data, (d) => (d.observed - d.decision) * distortionScale);
+    console.log(diffs);
 
     const xObservedScale = d3.scaleLinear()
-            .range([0, layout.width])
+            .range([0, this.layout.width])
             .domain([0, d3.max(data, (d) => d.observed)]);
 
     const yDecisionScale = d3.scaleLinear()
-            .range([layout.height, 0])
+            .range([0, this.layout.height])
+            .domain(d3.extent(diffs));
+
+    const coords = this.calculateCoords(this.layout.width, data.length, data);
+    const baselineCoords = this.calculateBaselineCoords(this.layout.width, data.length, data);
+    
+    const coordsCircles = d3.select(this.svg)
+            .selectAll('.coords')
+            .data(coords)
+            .enter().append('circle')
+            .attr('class', 'coordsCircles')
+            .attr('cx', function(d) { return xObservedScale(d.x); })
+            .attr('cy', function(d) { return yDecisionScale(d.y); })
+            .attr('r', 2)
+            .style('fill', 'red');
+
+    const distortionCurvedPath =  d3.select(this.svg)
+            .append('path')
+            .datum(coords)
+            .attr('class', 'line')
+            .style('stroke', function() { // Add the colours dynamically
+                    return 'black'; })
+            .style('stroke-width', 1.5)
+            .style('stroke-opacity', 1)
+            .style('fill', 'none')
+            //.attr('id', 'tag'+i) // assign ID
+            .attr('d', d3.line()
+                        .curve(d3.curveCardinalOpen.tension(0))
+                        .x(function(d) { return xObservedScale(d.x); })
+                        .y(function(d) { return yDecisionScale(d.y); })
+                    );
+
+    const renameBaselineCoords = _.map(baselineCoords, (d) => _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0'));
+    const renameCoords       = _.map(coords, (d) => _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
+
+    const combineCoords = _.map(renameBaselineCoords, function(d){
+        return _.merge(
+            d, 
+            _.find(renameCoords, {idx: d.idx})
+        )
+    });
+
+    const area = d3.area()
+            .curve(d3.curveCardinalOpen.tension(0))
+            .x(function(d) { return xObservedScale(d.x0); })
+            .y0((d) => yDecisionScale(d.y0))
+            .y1((d) => yDecisionScale(d.y1));
+
+    d3.select(this.svg).append("path")
+      .datum(combineCoords)
+      .attr("class", "area")
+      .attr("d", area)
+      .style('fill', 'none');
+    
+    return (
+      <div className={styles.IndividualFairnessView}>
+        {this.svg.toReact()}
+      </div>
+    );
+  }
+
+  renderCircularView() {
+    const data = this.props.distortions;
+
+    const xObservedScale = d3.scaleLinear()
+            .range([0, this.layout.width])
+            .domain([0, d3.max(data, (d) => d.observed)]);
+
+    const yDecisionScale = d3.scaleLinear()
+            .range([this.layout.height, 0])
             .domain([0, d3.max(data, (d) => d.decision)]);
 
-    // const circles = d3.select(svg)
-    //         .selectAll('.circles')
-    //         .data(data)
-    //         .enter().append('circle')
-    //         .attr('class', 'circles')
-    //         .attr('cx', (d) => xObservedScale(d.observed))
-    //         .attr('cy', (d) => yDecisionScale(d.decision))
-    //         .attr('r', 1)
-    //         .style('fill', 'black');
-
-    const bigCircle = d3.select(svg)
+    const bigCircle = d3.select(this.svg)
             .append('circle')
             .attr('class', 'bigCircle')
-            .attr('cx', (d) => layout.centroid.x)
-            .attr('cy', (d) => layout.centroid.y)
-            .attr('r', layout.r)
+            .attr('cx', (d) => this.layout.centroid.x)
+            .attr('cy', (d) => this.layout.centroid.y)
+            .attr('r', this.layout.r)
             .style('stroke', '#c18f02')
             .style('stroke-width', 5)
             .style('fill', '#ffbc00')
@@ -123,10 +203,10 @@ class IndividualFairnessView extends Component {
 
     const diffs = _.map(data, (d) => d.observed - d.decision);
 
-    const coords = this.calculateCoords(layout.r, layout.width, data.length, diffs);
-    const circleCoords = this.calculateCoords(layout.r, layout.width, data.length, new Array(data.length).fill(0));
+    const coords = this.calculateCircularCoords(this.layout.r, this.layout.width, data.length, diffs);
+    const circleCoords = this.calculateCircularCoords(this.layout.r, this.layout.width, data.length, new Array(data.length).fill(0));
 
-    const coordsCircles = d3.select(svg)
+    const coordsCircles = d3.select(this.svg)
             .selectAll('.coordsCircles')
             .data(coords)
             .enter().append('circle')
@@ -136,7 +216,7 @@ class IndividualFairnessView extends Component {
             .attr('r', 2)
             .style('fill', 'red');
 
-    const distortionCurvedPath =  d3.select(svg)
+    const distortionCurvedPath =  d3.select(this.svg)
             .append('path')
             .datum(coords)
             .attr('class', 'line')
@@ -153,9 +233,7 @@ class IndividualFairnessView extends Component {
                     );
 
     const renameCircleCoords = _.map(circleCoords, (d) => _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0'));
-    console.log(renameCircleCoords)
     const renameCoords       = _.map(coords, (d) => _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
-    console.log(renameCircleCoords)
 
     const combineCoords = _.map(renameCircleCoords, function(d){
         return _.merge(
@@ -164,34 +242,62 @@ class IndividualFairnessView extends Component {
         )
     });
 
-    console.log("combined: ", combineCoords);
-
-    // // Rename the keys of circleCoords(x0, y0) and coords(x1, y1) and concatenate them
-    // const combinedCoords = _.assign(renameCircleCoords, renameCoords);
-    // console.log(renameCircleCoords, renameCoords);
-    // console.log("combinedCoords: ", combinedCoords);
-
     const area = d3.area()
             .curve(d3.curveCardinalOpen.tension(0))
             .x(function(d) { return d.x0; })
             .y0((d) => d.y0)
             .y1((d) => d.y1);
 
-    d3.select(svg).append("path")
+    d3.select(this.svg).append("path")
       .datum(combineCoords)
       .attr("class", "area")
       .attr("d", area)
       .style('fill', 'none');
-
-    return (
-      <div className={styles.IndividualFairnessView}>
-        <div className={index.title}>Individual Fairness</div>
-        {svg.toReact()}
-      </div>
-    );
   }
 
-  calculateCoords(r, w, n, diffs) {
+  calculateCoords(w, n, data) {
+    const coordsArray = [];
+    let x, y, diff, distortion, i,
+        distortionScale = 3;
+
+    for(i=0; i<n-1; i++){
+      diff = data[i].observed - data[i].decision;
+      distortion = diff * distortionScale;
+      x = data[i].observed;
+      y = distortion;
+
+      coordsArray.push({
+        idx: i+1,
+        x: x,
+        y: y
+      });
+    }
+
+    return coordsArray;
+  }
+
+  calculateBaselineCoords(w, n, data) {
+    const coordsArray = [];
+    let x, y, diff, distortion, i,
+        distortionScale = 3;
+
+    for(i=0; i<n-1; i++){
+      diff = data[i].observed - data[i].decision;
+      distortion = diff * distortionScale;
+      x = data[i].observed;
+      y = 0;
+
+      coordsArray.push({
+        idx: i+1,
+        x: x,
+        y: y
+      });
+    }
+
+    return coordsArray;
+  }
+
+  calculateCircularCoords(r, w, n, diffs) {
     const coordsArray = [];
     let x, y, angle, distortion, i,
         distortionScale = 7;
@@ -215,96 +321,96 @@ class IndividualFairnessView extends Component {
   }
 }
 
-/* props: this.props.ranking
-  => selected ranking data
-*/
-class RankingView extends Component {
-  constructor(props) {
-    super(props);
-  }
-  render() {
-    const rankingData = this.props.ranking,
-          wholeRankingData = this.props.wholeRanking;
+// /* props: this.props.ranking
+//   => selected ranking data
+// */
+// class RankingView extends Component {
+//   constructor(props) {
+//     super(props);
+//   }
+//   render() {
+//     const rankingData = this.props.ranking,
+//           wholeRankingData = this.props.wholeRanking;
 
-    // Set up the layout
-    const svg = new ReactFauxDOM.Element('svg');
+//     // Set up the layout
+//     const svgRankingView = new ReactFauxDOM.Element('svg');
 
-    svg.setAttribute('width', '100%');
-    svg.setAttribute('height', '100%');
+//     svgRankingView.setAttribute('width', '100%');
+//     svgRankingView.setAttribute('height', '100%');
 
-    var rectGlobalRankingScale = d3.scaleLinear()
-                .range([15, 50])
-                .domain(d3.extent(wholeRankingData, (d) => d.score));
+//     var rectGlobalRankingScale = d3.scaleLinear()
+//                 .range([15, 50])
+//                 .domain(d3.extent(wholeRankingData, (d) => d.score));
     
-    var rectTopKRankingScale = d3.scaleLinear()
-                .range([15, 100])
-                .domain(d3.extent(rankingData, (d) => d.score));
+//     var rectTopKRankingScale = d3.scaleLinear()
+//                 .range([15, 100])
+//                 .domain(d3.extent(rankingData, (d) => d.score));
 
-    var groupColorScale = d3.scaleOrdinal()
-                .range([gs.groupColor1, gs.groupColor2])
-                .domain([1, 2]);
+//     var groupColorScale = d3.scaleOrdinal()
+//                 .range([gs.groupColor1, gs.groupColor2])
+//                 .domain([1, 2]);
 
-    const gGlobalRanking = d3.select(svg).append('g')
-                        .attr('class', 'g_global_ranking')
-                        .attr('transform', 'translate(0,0)');
+//     const gGlobalRanking = d3.select(svgRankingView).append('g')
+//                         .attr('class', 'g_global_ranking')
+//                         .attr('transform', 'translate(0,0)');
     
-    const gTopKRanking = d3.select(svg).append('g')
-                        .attr('class', 'g_top_k_ranking')
-                        .attr('transform', 'translate(150,0)');
+//     const gTopKRanking = d3.select(svgRankingView).append('g')
+//                         .attr('class', 'g_top_k_ranking')
+//                         .attr('transform', 'translate(150,0)');
 
-    gGlobalRanking.selectAll('.rect_global')
-            .data(wholeRankingData)
-            .enter().append('rect')
-            .attr('class', function(d, i){
-                return 'rect_global_' + i;
-            })
-            .attr('x', 0)
-            .attr('y', function(d, i){
-                return 8 * i;
-            })
-            .attr('width', function(d){
-                return rectGlobalRankingScale(d.score);
-            })
-            .attr('height', 8)
-            .style('fill', function(d){
-                return groupColorScale(d.group);
-            })
-            .style('stroke', 'white')
-            .style('stroke-width', 1)
-            .style('shape-rendering', 'crispEdges');
+//     gGlobalRanking.selectAll('.rect_global')
+//             .data(wholeRankingData)
+//             .enter().append('rect')
+//             .attr('class', function(d, i){
+//                 return 'rect_global_' + i;
+//             })
+//             .attr('x', 0)
+//             .attr('y', function(d, i){
+//                 return 8 * i;
+//             })
+//             .attr('width', function(d){
+//                 return rectGlobalRankingScale(d.score);
+//             })
+//             .attr('height', 8)
+//             .style('fill', function(d){
+//                 return groupColorScale(d.group);
+//             })
+//             .style('stroke', 'white')
+//             .style('stroke-width', 1)
+//             .style('shape-rendering', 'crispEdges');
 
-    gTopKRanking.selectAll('.rect_global')
-            .data(rankingData)
-            .enter().append('rect')
-            .attr('class', function(d, i){
-                return 'rect_global_' + i;
-            })
-            .attr('x', function(d) {
-              return 100 - rectTopKRankingScale(d.score);
-            })
-            .attr('y', function(d, i){
-                return 20 * i;
-            })
-            .attr('width', function(d){
-                return rectTopKRankingScale(d.score);
-            })
-            .attr('height', 20)
-            .style('fill', function(d){
-                return groupColorScale(d.group);
-            })
-            .style('stroke', 'white')
-            .style('stroke-width', 1)
-            .style('shape-rendering', 'crispEdges');
+//     gTopKRanking.selectAll('.rect_global')
+//             .data(rankingData)
+//             .enter().append('rect')
+//             .attr('class', function(d, i){
+//                 return 'rect_global_' + i;
+//             })
+//             .attr('x', function(d) {
+//               return 100 - rectTopKRankingScale(d.score);
+//             })
+//             .attr('y', function(d, i){
+//                 return 20 * i;
+//             })
+//             .attr('width', function(d){
+//                 return rectTopKRankingScale(d.score);
+//             })
+//             .attr('height', 20)
+//             .style('fill', function(d){
+//                 return groupColorScale(d.group);
+//             })
+//             .style('stroke', 'white')
+//             .style('stroke-width', 1)
+//             .style('shape-rendering', 'crispEdges');
 
     
-    return (
-      <div className={styles.RankingView}>
-        <div className={index.title}>Ranking Output</div>
-        {svg.toReact()}
-      </div>
-    );
-  }
-}
+//     return (
+//       <div className={styles.RankingView}>
+//         <div className={index.title}>Ranking Output</div>
+//         {svgRankingView.toReact()}
+//       </div>
+//     );
+//   }
+// }
 
 class GroupFairnessView extends Component {
   render() {

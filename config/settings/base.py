@@ -65,6 +65,7 @@ LOCAL_APPS = [
     'app.users.apps.UsersConfig',
     # Your stuff: custom apps go here
     'app.images.apps.ImagesConfig',  # images app
+    'app.dataset.apps.DatasetConfig',  # dataset app
     'app.notifications.apps.NotificationsConfig'  # notifications app
 ]
 
@@ -198,7 +199,7 @@ STATIC_URL = '/static/'
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = [
     str(APPS_DIR.path('static')),
-    str(ROOT_DIR.path('frontend', 'build', 'static'))
+    str(ROOT_DIR.path('src', 'build', 'static'))
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
@@ -285,12 +286,12 @@ ADMIN_URL = r'^admin/'
 TAGGIT_CASE_INSENSITIVE = True
 
 REST_FRAMEWORK = {
-    'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated',
-    ),
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
-    ),
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #     'rest_framework.permissions.IsAuthenticated',
+    # ),
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+    # ),
 }
 
 

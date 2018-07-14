@@ -11,5 +11,10 @@ urlpatterns = [
         regex=r'^runModel/$',
         view=views.RunModel.as_view(),
         name='model'
+    ),
+    url(
+        regex=r'^runMDS/$',
+        view=views.RunMDS.as_view(),
+        name='mds'
     )
 ]

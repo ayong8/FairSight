@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 
+import InputSpaceView from './inputSpaceView';
 import RankingView from './rankingView';
 import IndividualFairnessView from './individualFairnessView';
 import GroupFairnessView from './groupFairnessView';
@@ -54,6 +55,7 @@ class ProcessView extends Component {
           <div className={index.title}>Individual Fairness</div>
           <div className={index.title}>Output</div>
         </div>
+        <InputSpaceView className={styles.InputSpaceView} />
         <IndividualFairnessView distortions={this.props.distortions} ranking={this.props.ranking} className={styles.IndividualFairnessView} />
         <RankingView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} />
       </div>

@@ -41,6 +41,7 @@ numpy = "*"
 more-itertools = "*"
 sklearn = "*"
 scipy = "*"
+pandas = "*"
 
 
 [dev-packages]

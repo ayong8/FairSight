@@ -2,18 +2,18 @@ from rest_framework import serializers
 from taggit_serializer.serializers import (TagListSerializerField,
                                            TaggitSerializer)
 from . import models
-from app.users import models as user_models
+from app.dataset import models as dataset_models
 
 
-class SmallImageSerializer(serializers.ModelSerializer):
+# class MDSResultSerializer(serializers.ModelSerializer):
 
-    """ Used for the notifications """
+#     """ Used for the notifications """
 
-    class Meta:
-        model = models.Image
-        fields = (
-            'file',
-        )
+#     class Meta:
+#         model = models.
+#         fields = (
+#             'file',
+#         )
 
 
 class CountImageSerializer(serializers.ModelSerializer):

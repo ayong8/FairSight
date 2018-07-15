@@ -29,71 +29,68 @@ class IndividualFairnessView extends Component {
     }
   
     componentWillMount() {
-      //this.calculateDistortions();
+
     }
-  
-    // Plot the coordinate difference between observed(feature) and decision(ranking) space
-    // calculateDistortions() {
-    //   //this.props.rankings
-    //   // x: observed space difference, y: decision space difference
-    //   const distortionMockup = [ 
-    //             {x: 1, y: 2},
-    //             {x: 2, y: 1.4},
-    //             {x: 5, y: 4},
-    //             {x: 6, y: 6},
-    //             {x: 8, y: 8.8},
-    //             {x: 10, y: 14},
-    //             {x: 13, y: 8},
-    //             {x: 15, y: 13},
-    //             {x: 18, y: 17},
-    //             {x: 20, y: 22}
-    //           ];
-    // }
   
     render() {
       this.svg = new ReactFauxDOM.Element('svg');
   
-      this.svg.setAttribute('width', this.layout.width);
+      this.svg.setAttribute('width', this.layout.width * 0.9);
       this.svg.setAttribute('height', this.layout.height);
       this.svg.setAttribute('0 0 200 200');
       this.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      this.svg.style.setProperty('border-bottom', '1px solid lightgray');
+      this.svg.style.setProperty('margin', '0 5%');
   
       console.log('this.props: ', this.props);
   
-      const data = this.props.distortions;
-      const distortionScale = 2;
-      const diffs = _.map(data, (d) => (d.observed - d.decision) * distortionScale);
-      console.log(diffs);
-  
-      const xObservedScale = d3.scaleLinear()
-              .range([0, this.layout.width])
-              .domain([0, d3.max(data, (d) => d.observed)]);
-  
-      const yDecisionScale = d3.scaleLinear()
-              .range([0, this.layout.height])
-              .domain(d3.extent(diffs));
+      let data = this.props.distortions;
+      console.log('data: ', data);
+
+      // sort by observed space difference
+      data = _.orderBy(data, ['observed']);
   
       const coords = this.calculateCoords(this.layout.width, data.length, data);
       const baselineCoords = this.calculateBaselineCoords(this.layout.width, data.length, data);
+      console.log('coords: ', coords);
+      console.log('baselineCoords: ', baselineCoords);
+
+      const xObservedScale = d3.scaleLinear()
+            .range([0, this.layout.width])
+            .domain([0, d3.max(coords, (d) => d.x)]);
+
+      const yDecisionScale = d3.scaleLinear()
+              .range([this.layout.height * 3/4, this.layout.height * 1/4])
+              .domain(d3.extent(coords, (d) => d.y));
+
+      const gGraph = d3.select(this.svg).append('g')
+              .attr('transform', 'translate(0, 0)');
+
+      const xAxisSetting = d3.axisBottom(xObservedScale).ticks(0);
+
+      const xAxis = gGraph.append('g')
+              .call(xAxisSetting)
+              .attr('transform', 'translate(0,' + this.layout.height/2 + ')');
       
-      const coordsCircles = d3.select(this.svg)
+      const coordsCircles = gGraph
               .selectAll('.coords')
               .data(coords)
               .enter().append('circle')
               .attr('class', 'coordsCircles')
               .attr('cx', function(d) { return xObservedScale(d.x); })
               .attr('cy', function(d) { return yDecisionScale(d.y); })
-              .attr('r', 2)
-              .style('fill', 'red');
+              .attr('r', 0.5)
+              .style('fill', 'black')
+              .style('opacity', 0.8);
   
-      const distortionCurvedPath =  d3.select(this.svg)
+      const distortionCurvedPath =  gGraph
               .append('path')
               .datum(coords)
               .attr('class', 'line')
               .style('stroke', function() { // Add the colours dynamically
-                      return 'black'; })
-              .style('stroke-width', 1.5)
-              .style('stroke-opacity', 1)
+                      return 'gray'; })
+              .style('stroke-width', 0.5)
+              .style('stroke-opacity', 0.8)
               .style('fill', 'none')
               //.attr('id', 'tag'+i) // assign ID
               .attr('d', d3.line()
@@ -102,8 +99,8 @@ class IndividualFairnessView extends Component {
                           .y(function(d) { return yDecisionScale(d.y); })
                       );
   
-      const renameBaselineCoords = _.map(baselineCoords, (d) => _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0'));
-      const renameCoords       = _.map(coords, (d) => _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
+      const renameBaselineCoords = _.map([...baselineCoords], (d) => _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0'));
+      const renameCoords       = _.map([...coords], (d) => _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
   
       const combineCoords = _.map(renameBaselineCoords, function(d){
           return _.merge(
@@ -111,18 +108,43 @@ class IndividualFairnessView extends Component {
               _.find(renameCoords, {idx: d.idx})
           )
       });
+
+      console.log(combineCoords);
   
       const area = d3.area()
               .curve(d3.curveCardinalOpen.tension(0))
               .x(function(d) { return xObservedScale(d.x0); })
               .y0((d) => yDecisionScale(d.y0))
               .y1((d) => yDecisionScale(d.y1));
+
+      const areaColorScale = d3.scaleLinear()
+              .domain(combineCoords, (d) => d.y1 - d.y0)
+              .range(["lavender", "mediumpurple", "indigo"])
   
-      d3.select(this.svg).append("path")
+      gGraph.append("path")
         .datum(combineCoords)
         .attr("class", "area")
         .attr("d", area)
-        .style('fill', 'none');
+        .style('fill', ' url(#area-gradient)')
+        .style('opacity', 0.7)
+
+      d3.select(this.svg).append("linearGradient")				
+          .attr("id", "area-gradient")			
+          .attr("gradientUnits", "userSpaceOnUse")	
+          .attr("x1", 0).attr("y1", yDecisionScale(0))			
+          .attr("x2", 0).attr("y2", yDecisionScale(1))		
+          .selectAll("stop")						
+          .data([								
+              {offset: "0%", color: "red"},		
+              {offset: "30%", color: "black"},	
+              {offset: "45%", color: "black"},		
+              {offset: "55%", color: "black"},		
+              {offset: "60%", color: "lawngreen"},	
+              {offset: "100%", color: "lawngreen"}	
+          ])						
+          .enter().append("stop")			
+          .attr("offset", function(d) { return d.offset; })	
+          .attr("stop-color", function(d) { return d.color; });
       
       return (
         <div className={styles.IndividualFairnessView}>
@@ -131,6 +153,48 @@ class IndividualFairnessView extends Component {
       );
     }
   
+    calculateCoords(w, n, data) {
+      const coordsArray = [];
+      let x, y, diff, distortion, i,
+          distortionScale = 3;
+  
+      for(i=0; i<n-1; i++){
+        diff = data[i].observed - data[i].decision;
+        distortion = diff * distortionScale;
+        x = data[i].observed;
+        y = distortion;
+  
+        coordsArray.push({
+          idx: i+1,
+          x: x,
+          y: y
+        });
+      }
+  
+      return coordsArray;
+    }
+  
+    calculateBaselineCoords(w, n, data) {
+      const coordsArray = [];
+      let x, y, diff, distortion, i,
+          distortionScale = 3;
+  
+      for(i=0; i<n-1; i++){
+        diff = data[i].observed - data[i].decision;
+        distortion = diff * distortionScale;
+        x = data[i].observed;
+        y = 0;
+  
+        coordsArray.push({
+          idx: i+1,
+          x: x,
+          y: y
+        });
+      }
+  
+      return coordsArray;
+    }
+
     renderCircularView() {
       const data = this.props.distortions;
   
@@ -205,48 +269,6 @@ class IndividualFairnessView extends Component {
         .attr("class", "area")
         .attr("d", area)
         .style('fill', 'none');
-    }
-  
-    calculateCoords(w, n, data) {
-      const coordsArray = [];
-      let x, y, diff, distortion, i,
-          distortionScale = 3;
-  
-      for(i=0; i<n-1; i++){
-        diff = data[i].observed - data[i].decision;
-        distortion = diff * distortionScale;
-        x = data[i].observed;
-        y = distortion;
-  
-        coordsArray.push({
-          idx: i+1,
-          x: x,
-          y: y
-        });
-      }
-  
-      return coordsArray;
-    }
-  
-    calculateBaselineCoords(w, n, data) {
-      const coordsArray = [];
-      let x, y, diff, distortion, i,
-          distortionScale = 3;
-  
-      for(i=0; i<n-1; i++){
-        diff = data[i].observed - data[i].decision;
-        distortion = diff * distortionScale;
-        x = data[i].observed;
-        y = 0;
-  
-        coordsArray.push({
-          idx: i+1,
-          x: x,
-          y: y
-        });
-      }
-  
-      return coordsArray;
     }
   
     calculateCircularCoords(r, w, n, diffs) {

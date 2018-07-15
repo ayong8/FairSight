@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import * as d3 from 'd3';
+import _ from 'lodash';
 import { Button } from 'reactstrap';
 import styles from "./styles.scss";
 
@@ -9,6 +10,15 @@ import RankingInspector from 'components/RankingInspector';
 import RankingsListView from 'components/RankingsListView';
 import TableView from 'components/TableView';
 
+import dimReductionData from '../../data/dim_reduction_result.json';
+
+function pairwise(list) {
+  if (list.length < 2) { return []; }
+  var first = list[0],
+      rest  = list.slice(1),
+      pairs = rest.map(function (x) { return [first, x]; });
+  return pairs.concat(pairwise(rest));
+}
 
 class App extends Component {
   constructor(props) {
@@ -91,7 +101,7 @@ class App extends Component {
         { ranking: 49, score: 26, group: 2 },
         { ranking: 50, score: 20, group: 2 }
       ],
-      distortions: [
+      distortions_mockup: [
         {observed: 1, decision: 1},
         {observed: 3, decision: 4},
         {observed: 5, decision: 4},
@@ -111,7 +121,9 @@ class App extends Component {
         {observed: 27, decision: 30},
         {observed: 30, decision: 32},
         {observed: 32, decision: 28}
-      ]
+      ],
+      inputCoords: dimReductionData,
+      distortions: this.calculateDistortions()
     };
   }
 
@@ -125,6 +137,22 @@ class App extends Component {
     //               console.log(json);
     //               this.setState({dataset: json});
     //           });
+  }
+
+  calculateDistortions() {
+    let dimReductionCoords = _.toArray(dimReductionData);
+    let pairs = pairwise(dimReductionCoords);
+
+    let pairwise_dist = _.map(pairs, (d) => {
+          let observed = Math.sqrt(Math.pow(d[0].dim1 - d[1].dim1, 2) + Math.pow(d[0].dim2 - d[1].dim2, 2));
+          return {
+            observed: observed,
+            decision: observed + (Math.random() - 0.5)
+          }
+        });
+
+    console.log('pairwise_dist: ', pairwise_dist);
+    return pairwise_dist;
   }
 
   render() {
@@ -141,7 +169,7 @@ class App extends Component {
         <Generator dataset='german.csv' />
         <RankingsListView rankings={this.state.rankings} />
         <TableView />
-        <RankingInspector distortions={this.state.distortions} wholeRanking={this.state.wholeRanking} ranking={selectedRanking} />
+        <RankingInspector inputCoords={this.state.inputCoords} distortions={this.state.distortions} wholeRanking={this.state.wholeRanking} ranking={selectedRanking} />
         <Footer />
       </div>
     );

@@ -3,99 +3,94 @@
     grid-row: 3 / 4;
 
     display: grid;
-    grid-template-columns: 70% 30%;
-    grid-template-rows: 60% 40%;
+    grid-template-columns: 30% 50% 20%;
+    grid-template-rows: 50% 50%;
 
-    .ProcessView,
+    .InputSpaceView,
     .GroupFairnessView,
     .UtilityView {
         margin: 10px;
         background-color: white;
     }
 
-    .ProcessView {
+    .InputSpaceView {
         grid-column: 1;
-        grid-row: 1 / 3;
-
-        display: grid;
-        grid-template-columns: 20% 80%;
-        grid-template-rows: 40% 20% 20%;
-
-        .processIndicator {
-            grid-column: 1;
-            grid-row: 1 / 4;
-
-            border-right: 1px solid lightgray;
-        }
-
-        .InputSpaceView {
-            grid-column: 2;
-            grid-row: 1;
-        }
-
-        .IndividualFairnessView {
-            grid-column: 2;
-            grid-row: 2;
-        }
-
-        .RankingView {
-            grid-column: 2;
-            grid-row: 3;
-        }
+        grid-row: 1;
     }
-
-    
 
     .GroupFairnessView {
         grid-column: 2;
-        grid-row: 1 / 2;
+        grid-row: 1;
 
         display: grid;
-        grid-template-columns: 70% 30%;
-        grid-template-rows: 30px 30% 55%;
+        grid-template-columns: 30% 30% 30%;
+        grid-template-rows: 10% 90%;
 
         border-left: 1px solid lightgray;
 
         .title {
-            grid-column: 1 / 3;
+            grid-column: 1 / 4;
             grid-row: 1;
         }
         .subTitle {
             display:flex;
             //align-items: center;
-            justify-content:center;
-
+                /* justify-content: center; */
             width: 80%;
             height: 20px;
-            font-size: 9px;
-            font-weight: 500;
+            margin-left: 10px;
+            font-size: 1rem;
+            color: #2a4b5a;
+            /* font-weight: 500; */
             //background-color: #a7ffe7;
             //border: 1px solid #97dbc8;
         }
-        .groupOverview {
-            grid-column: 1;
-            grid-row: 2 / 4;
+
+        .score {
+            font-size: 1.2rem;
+            margin-left: 50px;
+            color: #2a4b5a;
         }
+        // .groupOverview {
+        //     grid-column: 1;
+        //     grid-row: 2 / 4;
+        // }
         .statParityPlot {
-            grid-column: 2;
+            grid-column: 1;
             grid-row: 2;
 
-            border: 1px solid #d5d5d5;
+            // border: 1px solid #d5d5d5;
             margin: 3px 0px;
         }
         .conditionalParityPlot {
-            grid-column: 2;
-            grid-row: 3;
+            grid-column: 2 / 4;
+            grid-row: 2;
 
-            border: 1px solid #d5d5d5;
+            // border: 1px solid #d5d5d5;
             margin: 3px 0px;
+
+            .conditionalParityPlotWrapper {
+                display: flex;
+            }
         }
 
     }
 
-    .UtilityView {
+    .IndividualFairnessView {
         grid-column: 2;
-        grid-row: 2 / 3;
+        grid-row: 2;
+    }
+
+    .RankingView {
+        grid-column: 3;
+        grid-row: 1;
+
+        border-left: 1px solid lightgray;
+    }
+
+    .UtilityView {
+        grid-column: 3;
+        grid-row: 2;
 
         border-left: 1px solid lightgray;
     }

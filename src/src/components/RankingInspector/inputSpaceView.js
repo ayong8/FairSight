@@ -22,18 +22,17 @@ class InputSpaceView extends Component {
         const svg = new ReactFauxDOM.Element('svg');
     
         svg.setAttribute('width', '90%');
-        svg.setAttribute('height', '100%')
+        svg.setAttribute('height', '80%')
         svg.setAttribute('class', 'svg_inputspace');
-        svg.style.setProperty('border-bottom', '1px solid lightgray');
-        svg.style.setProperty('margin', '0 5%');
+        svg.style.setProperty('margin', '0 10%');
 
         let xScale = d3.scaleLinear()
                 .domain(d3.extent(data, (d) => d.dim1))
-                .range([0, 550]);
+                .range([0, 250]);
 
         let yScale = d3.scaleLinear()
                 .domain(d3.extent(data, (d) => d.dim2))
-                .range([200, 0]);
+                .range([250, 0]);
 
         let gCircles = d3.select(svg)
                 .append('g')
@@ -58,7 +57,8 @@ class InputSpaceView extends Component {
                 .style('opacity', 0.7);
 
         return (
-            <div>
+            <div className={styles.InputSpaceView}>
+                <div className={index.title}>Input space</div>
                 {svg.toReact()}
             </div>
         );

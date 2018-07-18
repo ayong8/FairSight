@@ -23,18 +23,18 @@ class GroupFairnessView extends Component {
       // Set up the layout
       const svg = new ReactFauxDOM.Element('svg');
   
-      svg.setAttribute('width', '100%');
-      svg.setAttribute('height', '50px');
+      svg.setAttribute('width', '100px');
+      svg.setAttribute('height', '100px');
       svg.setAttribute('0 0 100 100');
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
   
       // Both groups share the same x and y scale
       const xScale = d3.scaleLinear()
-                  .range([0, 75])
+                  .range([0, 100])
                   .domain([0, 100]);
       
       const yScale = d3.scaleLinear()
-                  .range([45, 0])
+                  .range([100, 0])
                   .domain([0, 10]);
   
       const groupBins1 = d3.histogram()
@@ -44,8 +44,11 @@ class GroupFairnessView extends Component {
   
       const xAxis = d3.select(svg)
             .append('g')
-            .attr('transform', 'translate(0,45)')
+            .attr('transform', 'translate(0,99)')
             .call(d3.axisBottom(xScale).tickSize(0).tickFormat(""));
+
+      xAxis.select('path')
+            .style('stroke', 'lightgray')
   
       const groupBins2 = d3.histogram()
             .domain(xScale.domain())
@@ -62,9 +65,9 @@ class GroupFairnessView extends Component {
   
       groupHistogramBar1.append('rect')
           .attr('x', 0)
-          .attr('width', function(d) { return 4; })
-          .attr('height', function(d) { return 45 - yScale(d.length); })
-          .style('fill', 'red')
+          .attr('width', function(d) { return 6; })
+          .attr('height', function(d) { return 100 - yScale(d.length); })
+          .style('fill', gs.groupColor1)
           .style('opacity', 0.5);
   
       const groupHistogramBar2 = d3.select(svg).selectAll('.bar2')
@@ -77,23 +80,27 @@ class GroupFairnessView extends Component {
   
       groupHistogramBar2.append('rect')
           .attr('x', 0)
-          .attr('width', function(d) { return 4; })
-          .attr('height', function(d) { return 45 - yScale(d.length); })
-          .style('fill', 'blue')
+          .attr('width', function(d) { return 6; })
+          .attr('height', function(d) { return 100 - yScale(d.length); })
+          .style('fill', gs.groupColor2)
           .style('opacity', 0.5);
   
       return (
         <div className={styles.GroupFairnessView}>
           <div className={index.title + ' ' + styles.title}>Group Fairness</div>
-          <div className={styles.groupOverview}></div>
+          {/* <div className={styles.groupOverview}></div> */}
           <div className={styles.statParityPlot}>
             <div className={styles.subTitle}>Statistical Parity</div>
+            <div className={styles.score}>89</div>
             {svg.toReact()}
           </div>
           <div className={styles.conditionalParityPlot}>
             <div className={styles.subTitle}>Conditional Parity</div>
-            {svg.toReact()}
-            {svg.toReact()}
+            <div className={styles.score}>89&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;92</div>
+            <div className={styles.conditionalParityPlotWrapper}>
+              {svg.toReact()}
+              {svg.toReact()}
+            </div>
           </div>
           
         </div>

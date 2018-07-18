@@ -71,34 +71,26 @@ class IndividualFairnessView extends Component {
       const xAxis = gGraph.append('g')
               .call(xAxisSetting)
               .attr('transform', 'translate(0,' + this.layout.height/2 + ')');
+  
+              
+      // const distortionCurvedPath =  gGraph
+      //         .append('path')
+      //         .datum(coords)
+      //         .attr('class', 'line')
+      //         .style('stroke', function() { // Add the colours dynamically
+      //                 return 'gray'; })
+      //         .style('stroke-width', 0.5)
+      //         .style('stroke-opacity', 0.8)
+      //         .style('fill', 'none')
+      //         //.attr('id', 'tag'+i) // assign ID
+      //         .attr('d', d3.line()
+      //                     .curve(d3.curveCardinalOpen.tension(0))
+      //                     .x(function(d) { return xObservedScale(d.x); })
+      //                     .y(function(d) { return yDecisionScale(d.y); })
+      //                 );
+  
       
-      const coordsCircles = gGraph
-              .selectAll('.coords')
-              .data(coords)
-              .enter().append('circle')
-              .attr('class', 'coordsCircles')
-              .attr('cx', function(d) { return xObservedScale(d.x); })
-              .attr('cy', function(d) { return yDecisionScale(d.y); })
-              .attr('r', 0.5)
-              .style('fill', 'black')
-              .style('opacity', 0.8);
-  
-      const distortionCurvedPath =  gGraph
-              .append('path')
-              .datum(coords)
-              .attr('class', 'line')
-              .style('stroke', function() { // Add the colours dynamically
-                      return 'gray'; })
-              .style('stroke-width', 0.5)
-              .style('stroke-opacity', 0.8)
-              .style('fill', 'none')
-              //.attr('id', 'tag'+i) // assign ID
-              .attr('d', d3.line()
-                          .curve(d3.curveCardinalOpen.tension(0))
-                          .x(function(d) { return xObservedScale(d.x); })
-                          .y(function(d) { return yDecisionScale(d.y); })
-                      );
-  
+
       const renameBaselineCoords = _.map([...baselineCoords], (d) => _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0'));
       const renameCoords       = _.map([...coords], (d) => _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
   
@@ -119,14 +111,49 @@ class IndividualFairnessView extends Component {
 
       const areaColorScale = d3.scaleLinear()
               .domain(combineCoords, (d) => d.y1 - d.y0)
-              .range(["lavender", "mediumpurple", "indigo"])
+              .range(["lavender", "mediumpurple", "indigo"]);
+
+      const rectColorScale = d3.scaleLinear()
+              .domain(d3.extent(combineCoords, (d) => d.y1 - d.y0))
+              .range(['lightgreen', 'pink']);
+
+      const rects = gGraph
+              .selectAll('.coordsRect')
+              .data(combineCoords)
+              .enter().append('rect')
+              .attr('class', 'coordsRect')
+              .attr('x', (d) => xObservedScale(d.x0))
+              .attr('y', (d) => {
+                return d.y1 - d.y0 > 0? yDecisionScale(d.y1 - d.y0) : yDecisionScale(d.y0);
+              
+              })
+              .attr('width', 0.3)
+              .attr('height', (d) => Math.abs(yDecisionScale(d.y1 - d.y0) - this.layout.height/2))
+              .attr('stroke', (d) => {
+                if(Math.random() > 0.5)
+                  return gs.groupColor1;
+                else
+                  return gs.groupColor2;
+              })
+              //.attr('stroke', (d) => 'red');
   
-      gGraph.append("path")
-        .datum(combineCoords)
-        .attr("class", "area")
-        .attr("d", area)
-        .style('fill', ' url(#area-gradient)')
-        .style('opacity', 0.7)
+      const coordsCircles = gGraph
+              .selectAll('.coordsCircles')
+              .data(combineCoords)
+              .enter().append('circle')
+              .attr('class', 'coordsCircles')
+              .attr('cx', function(d) { return xObservedScale(d.x0); })
+              .attr('cy', function(d) { return yDecisionScale(d.y1); })
+              .attr('r', 2)
+              .style('fill', (d) => rectColorScale(d.y1))
+              .style('stroke', (d) => d3.rgb(rectColorScale(d.y1 - d.y0)).darker());
+        
+      // gGraph.append("path")
+      //   .datum(combineCoords)
+      //   .attr("class", "area")
+      //   .attr("d", area)
+      //   .style('fill', ' url(#area-gradient)')
+      //   .style('opacity', 0.7);
 
       d3.select(this.svg).append("linearGradient")				
           .attr("id", "area-gradient")			
@@ -148,6 +175,7 @@ class IndividualFairnessView extends Component {
       
       return (
         <div className={styles.IndividualFairnessView}>
+          <div className={index.title}>Individual Fairness</div>
           {this.svg.toReact()}
         </div>
       );

@@ -34,8 +34,10 @@ class RankingInspector extends Component {
 
     return (
       <div className={styles.RankingInspector}>
-        <ProcessView inputCoords={this.props.inputCoords} distortions={this.props.distortions} ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.ProcessView} />
+        <InputSpaceView inputCoords={this.props.inputCoords} className={styles.InputSpaceView} />
         <GroupFairnessView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.GroupFairnessView} />
+        <IndividualFairnessView distortions={this.props.distortions} ranking={this.props.ranking} className={styles.IndividualFairnessView} />
+        <RankingView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} />
         <UtilityView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.UtilityView} />
       </div>
     );
@@ -53,11 +55,9 @@ class ProcessView extends Component {
         <div className={styles.processIndicator}>
           <div className={index.title}>Input</div>
           <div className={index.title}>Individual Fairness</div>
-          <div className={index.title}>Output</div>
+          <div className={index.title}>Ranking</div>
         </div>
-        <InputSpaceView inputCoords={this.props.inputCoords} className={styles.InputSpaceView} />
-        <IndividualFairnessView distortions={this.props.distortions} ranking={this.props.ranking} className={styles.IndividualFairnessView} />
-        <RankingView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} />
+        
       </div>
     );
   }

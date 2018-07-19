@@ -17,23 +17,23 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.manifold import MDS
 from sklearn.preprocessing import Imputer
+import json
 
 
-# Create your views here.
+
 
 class LoadFile(APIView):
 
     # get method
     def get(self, request, format=None):
         # Create the HttpResponse object with the appropriate CSV header.
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="german_credit_sample.csv"'
+        file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
+        
+        whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
 
-        writer = csv.writer(response)
-        writer.writerow(['First row', 'Foo', 'Bar', 'Baz'])
-        writer.writerow(['Second row', 'A', 'B', 'C', '"Testing"', "Here's a quote"])
 
-        return response
+
+        return Response(whole_dataset_df.to_json(orient='index'))
 
 class RunModel(APIView):
 
@@ -41,14 +41,67 @@ class RunModel(APIView):
     def get(self, request, format=None):
         file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
         
-        df1 = pd.read_csv(open(file_path, 'rU'))
-        dataset = df1[['default', 'credit_amount', 'installment_as_income_perc', 'sex', 'age']]
+        whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
+        X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']].as_matrix()
+        y = whole_dataset_df[['default']].as_matrix()
 
-        train_set, test_set = train_test_split(dataset)
-        #rank_svm = RankSVM().fit(train_set['credit_amount'], train_set['default'])
-        #rank_svm.score(test_set['credit_amount'], test_set['credit_amount'])
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+        rank_svm = RankSVM().fit(X_train, y_train)
+        scores = rank_svm.score(X_test['credit_amount'], y_test['credit_amount'])
 
-        return Response("1")
+        print(scores)
+
+        whole_dataset_df = pd.read_csv(open('./german_credit_sample.csv', 'rU'))
+        whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
+        dataset_df = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default']]
+        X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
+        y = whole_dataset_df['default']
+
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
+
+        rank_svm = RankSVM().fit(X_train, y_train)
+        scores = rank_svm.score(X_test, y_test)
+
+        weight_multiply_X = X.copy()
+        coef_idx = 0
+
+        for feature in X.columns:
+            weight_multiply_X[feature] = X[feature] * rank_svm.coef_[0, coef_idx]
+            coef_idx += 1
+
+        return Response(df)
+
+class GetWeight(APIView):
+    
+    # get method
+    def get(self, request, format=None):
+        file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
+        whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
+        whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
+        dataset_df = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default']]
+        X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
+        y = whole_dataset_df['default']
+
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
+
+        rank_svm = RankSVM().fit(X_train, y_train)
+        scores = rank_svm.score(X_test, y_test)
+        weight_dict = {}
+
+        for idx, feature in enumerate(X.columns):
+            weight_dict[feature] = [ rank_svm.coef_[0, idx] ]
+
+        weight_df = pd.DataFrame(weight_dict, columns=X.columns)
+
+        coef_idx = 0
+        # Multiplied weights to each data point
+        # for feature in X.columns:
+        #     weight_df[feature] = X[feature] * rank_svm.coef_[0, coef_idx]
+        #     coef_idx += 1
+
+        # print('weight_df: ', weight_df)
+
+        return Response(weight_df)
 
 class RunMDS(APIView):
 

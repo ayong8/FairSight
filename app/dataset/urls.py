@@ -16,5 +16,10 @@ urlpatterns = [
         regex=r'^runMDS/$',
         view=views.RunMDS.as_view(),
         name='mds'
+    ),
+    url(
+        regex=r'^getWeight/$',
+        view=views.GetWeight.as_view(),
+        name='weight'
     )
 ]

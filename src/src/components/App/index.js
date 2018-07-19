@@ -24,7 +24,8 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      dataset: {},
+      dataset: [],
+      weights: {},
       sensitiveAttr: 'sex',
       selectedRanking: 0, // Index of a ranking selected among rankings in 'rankings'
       rankings: [
@@ -129,17 +130,38 @@ class App extends Component {
 
   componentDidMount() {
     // data file loading here
-    // fetch("./data/german_credit_sample.json")
-    //   .then( (response) => {
-    //       console.log(response);
-    //       return response.json() })   
-    //           .then( (json) => {
-    //               console.log(json);
-    //               this.setState({dataset: json});
-    //           });
+    fetch('/dataset/file')
+      .then( (response) => {
+          return response.json() 
+        })   
+        .then( (file) => {
+            let dataset = _.values(JSON.parse(file))
+            this.setState({dataset: dataset});
+          });
+
+    fetch('/dataset/getWeight')
+      .then( (response) => {
+        console.log('fetch file: ', response);
+        return response.json() 
+      })   
+      .then( (responseWeight) => {
+          let weights = _.mapValues(responseWeight, (weightArray) => {
+            return weightArray[0];
+          });
+          
+          this.setState({weights: weights});
+        });
+  }
+
+  calculateScores() {
+    let weights = this.state.weights;
+    let dataset = this.state.dataset;
+
+    console.log('weights and dataset from calculateScores: ', weights, dataset);
   }
 
   calculateDistortions() {
+
     let dimReductionCoords = _.toArray(dimReductionData);
     let pairs = pairwise(dimReductionCoords);
 
@@ -156,6 +178,7 @@ class App extends Component {
   }
 
   render() {
+    this.calculateScores();
     // For the Ranking Inspector, only send down the selected ranking data
     let rankingList = this.state.rankings,
         selectedRankingIndex = this.state.selectedRanking,

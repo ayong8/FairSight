@@ -25,6 +25,8 @@ class App extends Component {
     super(props);
     this.state = {
       dataset: [],
+      selectedFeatures: ['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default'],
+      label: 'default',
       weights: {},
       sensitiveAttr: 'sex',
       selectedRanking: 0, // Index of a ranking selected among rankings in 'rankings'
@@ -151,13 +153,37 @@ class App extends Component {
           
           this.setState({weights: weights});
         });
+
+    // fetch('/dataset/getWeight')
+    //     .then( (response) => {
+    //       console.log('fetch file: ', response);
+    //       return response.json() 
+    //     })   
+    //     .then( (responseWeight) => {
+    //         let weights = _.mapValues(responseWeight, (weightArray) => {
+    //           return weightArray[0];
+    //         });
+            
+    //         this.setState({weights: weights});
+    //       });
   }
 
   calculateScores() {
     let weights = this.state.weights;
-    let dataset = this.state.dataset;
+    let wholeDataset = this.state.dataset;
+    let selectedFeatures = this.state.selectedFeatures;
+    let dataset, weightedDataset;
 
-    console.log('weights and dataset from calculateScores: ', weights, dataset);
+    console.log('weights and dataset from calculateScores: ', weights, wholeDataset);
+
+    // Select the subset that has the selected features
+    dataset = _.map(wholeDataset, (d) => _.pick(d, selectedFeatures));
+
+    // Multiply values of features by weight
+    //weightedDataset = _.map(dataset, (d) => )
+
+    // Return
+    //return 
   }
 
   calculateDistortions() {
@@ -165,20 +191,24 @@ class App extends Component {
     let dimReductionCoords = _.toArray(dimReductionData);
     let pairs = pairwise(dimReductionCoords);
 
+    // Get scores => then they are gonna consist of decision space
+
     let pairwise_dist = _.map(pairs, (d) => {
           let observed = Math.sqrt(Math.pow(d[0].dim1 - d[1].dim1, 2) + Math.pow(d[0].dim2 - d[1].dim2, 2));
           return {
+            pair: Math.floor(Math.random() * 3) + 1,  // for now, pair is a random => (1: Woman and Woman, 2: Woman and Man, 3: Man and Man)
             observed: observed,
             decision: observed + (Math.random() - 0.5)
           }
         });
 
-    console.log('pairwise_dist: ', pairwise_dist);
     return pairwise_dist;
   }
 
   render() {
-    this.calculateScores();
+    // let scores = this.calculateScores();
+    // let distortions = this.calculateDistortions(scores);
+
     // For the Ranking Inspector, only send down the selected ranking data
     let rankingList = this.state.rankings,
         selectedRankingIndex = this.state.selectedRanking,

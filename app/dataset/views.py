@@ -73,7 +73,6 @@ class RunModel(APIView):
 
 class GetWeight(APIView):
     
-    # get method
     def get(self, request, format=None):
         file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
         whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
@@ -102,6 +101,33 @@ class GetWeight(APIView):
         # print('weight_df: ', weight_df)
 
         return Response(weight_df)
+
+class GetWeightedDataset(APIView):
+    
+    def get(self, request, format=None):
+        file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
+        whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
+        whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
+        dataset_df = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default']]
+        X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
+        y = whole_dataset_df['default']
+
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
+
+        rank_svm = RankSVM().fit(X_train, y_train)
+        scores = rank_svm.score(X_test, y_test)
+
+        weighted_dataset_df = pd.DataFrame(dataset_df, columns=X.columns)
+
+        coef_idx = 0
+        # Multiplied each data point by weight
+        for feature in X.columns:
+            weighted_dataset_df[feature] = X[feature] * rank_svm.coef_[0, coef_idx]
+            coef_idx += 1
+
+        print('weighted_dataset_df: ', weighted_dataset_df)
+
+        return Response(weighted_dataset_df)
 
 class RunMDS(APIView):
 

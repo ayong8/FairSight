@@ -21,5 +21,10 @@ urlpatterns = [
         regex=r'^getWeight/$',
         view=views.GetWeight.as_view(),
         name='weight'
+    ),
+    url(
+        regex=r'^getWeightedDataset/$',
+        view=views.GetWeightedDataset.as_view(),
+        name='weight'
     )
 ]

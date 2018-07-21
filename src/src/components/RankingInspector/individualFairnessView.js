@@ -14,7 +14,7 @@ class IndividualFairnessView extends Component {
       this.svg;
       this.layout = {
         width: 650,
-        height: 125,
+        height: 300,
         get r() {
           return d3.min([this.width, this.height]) / 3;
         },
@@ -60,36 +60,20 @@ class IndividualFairnessView extends Component {
             .domain([0, d3.max(coords, (d) => d.x)]);
 
       const yDecisionScale = d3.scaleLinear()
-              .range([this.layout.height * 3/4, this.layout.height * 1/4])
+              .range([this.layout.height * 1/2, this.layout.height * 1/4])
               .domain(d3.extent(coords, (d) => d.y));
 
-      const gGraph = d3.select(this.svg).append('g')
-              .attr('transform', 'translate(0, 0)');
+      const gLegend = d3.select(this.svg).append('g')
+              .attr('class', 'g_legend')
+              .attr('transform', 'translate(0, 0)'),
+            gGraph = d3.select(this.svg).append('g')
+              .attr('transform', 'translate(0, 20)');
 
       const xAxisSetting = d3.axisBottom(xObservedScale).ticks(0);
 
       const xAxis = gGraph.append('g')
               .call(xAxisSetting)
-              .attr('transform', 'translate(0,' + this.layout.height/2 + ')');
-  
-              
-      // const distortionCurvedPath =  gGraph
-      //         .append('path')
-      //         .datum(coords)
-      //         .attr('class', 'line')
-      //         .style('stroke', function() { // Add the colours dynamically
-      //                 return 'gray'; })
-      //         .style('stroke-width', 0.5)
-      //         .style('stroke-opacity', 0.8)
-      //         .style('fill', 'none')
-      //         //.attr('id', 'tag'+i) // assign ID
-      //         .attr('d', d3.line()
-      //                     .curve(d3.curveCardinalOpen.tension(0))
-      //                     .x(function(d) { return xObservedScale(d.x); })
-      //                     .y(function(d) { return yDecisionScale(d.y); })
-      //                 );
-  
-      
+              .attr('transform', 'translate(0,' + this.layout.height * 3/4 + ')');
 
       const renameBaselineCoords = _.map([...baselineCoords], (d) => _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0'));
       const renameCoords       = _.map([...coords], (d) => _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
@@ -101,21 +85,74 @@ class IndividualFairnessView extends Component {
           )
       });
 
-      console.log(combineCoords);
-  
-      const area = d3.area()
-              .curve(d3.curveCardinalOpen.tension(0))
-              .x(function(d) { return xObservedScale(d.x0); })
-              .y0((d) => yDecisionScale(d.y0))
-              .y1((d) => yDecisionScale(d.y1));
-
-      const areaColorScale = d3.scaleLinear()
-              .domain(combineCoords, (d) => d.y1 - d.y0)
-              .range(["lavender", "mediumpurple", "indigo"]);
-
+      // scales
       const rectColorScale = d3.scaleLinear()
               .domain(d3.extent(combineCoords, (d) => d.y1 - d.y0))
               .range(['lightgreen', 'pink']);
+
+      const pairColorScale = d3.scaleThreshold()
+              .domain([1, 2, 3])  // pair is one or two or three
+              .range(['white', gs.groupColor1, gs.groupColor2, gs.betweenGroupColor]);      
+      
+      // legend border
+      gLegend.append('rect')
+          .attr('class', 'legend')
+          .attr('x', 3)
+          .attr('y', 3)
+          .attr('width', 120)
+          .attr('height', 70)
+          .style('fill', 'none')
+          .style('shape-rendering','crispEdges')
+          .style('stroke', '#2a4b5b')
+          .style('stroke-width', 1.0)
+          .style('opacity', 0.5);
+      // Pair (node)
+      gLegend.append('text')
+          .attr('x', 5)
+          .attr('y', 15)
+          .text('Pairwise distortion')
+          .style('font-size', '11px');
+
+      // Woman-Man pair
+      gLegend.append('circle')
+          .attr('class', 'legend_rect')
+          .attr('cx', 10)
+          .attr('cy', 30)
+          .attr('r', 4)
+          .style('fill', pairColorScale(3))
+          .style('stroke', d3.rgb(pairColorScale(3)).darker());
+      gLegend.append('text')
+          .attr('x', 30)
+          .attr('y', 33)
+          .text('Woman-Man')
+          .style('font-size', '11px');
+      // Man-Man pair
+      gLegend.append('circle')
+          .attr('class', 'legend_rect')
+          .attr('cx', 10)
+          .attr('cy', 45)
+          .attr('r', 4)
+          .style('fill', pairColorScale(1))
+          .style('stroke', d3.rgb(pairColorScale(1)).darker());
+      gLegend.append('text')
+          .attr('x', 30)
+          .attr('y', 48)
+          .text('Man-Man')
+          .style('font-size', '11px');  
+
+      // Woman-Woman pair
+      gLegend.append('circle')
+          .attr('class', 'legend_rect')
+          .attr('cx', 10)
+          .attr('cy', 60)
+          .attr('r', 4)
+          .style('fill', pairColorScale(2))
+          .style('stroke', d3.rgb(pairColorScale(2)).darker());
+      gLegend.append('text')
+          .attr('x', 30)
+          .attr('y', 63)
+          .text('Woman-Woman')
+          .style('font-size', '11px');  
 
       const rects = gGraph
               .selectAll('.coordsRect')
@@ -127,15 +164,9 @@ class IndividualFairnessView extends Component {
                 return d.y1 - d.y0 > 0? yDecisionScale(d.y1 - d.y0) : yDecisionScale(d.y0);
               
               })
-              .attr('width', 0.3)
+              .attr('width', 0.05)
               .attr('height', (d) => Math.abs(yDecisionScale(d.y1 - d.y0) - this.layout.height/2))
-              .attr('stroke', (d) => {
-                if(Math.random() > 0.5)
-                  return gs.groupColor1;
-                else
-                  return gs.groupColor2;
-              })
-              //.attr('stroke', (d) => 'red');
+              .attr('stroke', 'gray');
   
       const coordsCircles = gGraph
               .selectAll('.coordsCircles')
@@ -145,33 +176,11 @@ class IndividualFairnessView extends Component {
               .attr('cx', function(d) { return xObservedScale(d.x0); })
               .attr('cy', function(d) { return yDecisionScale(d.y1); })
               .attr('r', 2)
-              .style('fill', (d) => rectColorScale(d.y1))
-              .style('stroke', (d) => d3.rgb(rectColorScale(d.y1 - d.y0)).darker());
-        
-      // gGraph.append("path")
-      //   .datum(combineCoords)
-      //   .attr("class", "area")
-      //   .attr("d", area)
-      //   .style('fill', ' url(#area-gradient)')
-      //   .style('opacity', 0.7);
-
-      d3.select(this.svg).append("linearGradient")				
-          .attr("id", "area-gradient")			
-          .attr("gradientUnits", "userSpaceOnUse")	
-          .attr("x1", 0).attr("y1", yDecisionScale(0))			
-          .attr("x2", 0).attr("y2", yDecisionScale(1))		
-          .selectAll("stop")						
-          .data([								
-              {offset: "0%", color: "red"},		
-              {offset: "30%", color: "black"},	
-              {offset: "45%", color: "black"},		
-              {offset: "55%", color: "black"},		
-              {offset: "60%", color: "lawngreen"},	
-              {offset: "100%", color: "lawngreen"}	
-          ])						
-          .enter().append("stop")			
-          .attr("offset", function(d) { return d.offset; })	
-          .attr("stop-color", function(d) { return d.color; });
+              .style('fill', (d) => {
+                console.log(pairColorScale(d.pair))
+                return pairColorScale(d.pair)
+              })
+              .style('stroke', (d) => d3.rgb(pairColorScale(d.pair)).darker());
       
       return (
         <div className={styles.IndividualFairnessView}>
@@ -183,7 +192,7 @@ class IndividualFairnessView extends Component {
   
     calculateCoords(w, n, data) {
       const coordsArray = [];
-      let x, y, diff, distortion, i,
+      let x, y, diff, distortion, pair, i,
           distortionScale = 3;
   
       for(i=0; i<n-1; i++){
@@ -191,11 +200,13 @@ class IndividualFairnessView extends Component {
         distortion = diff * distortionScale;
         x = data[i].observed;
         y = distortion;
+        pair = data[i].pair;
   
         coordsArray.push({
           idx: i+1,
           x: x,
-          y: y
+          y: y,
+          pair: pair
         });
       }
   
@@ -204,7 +215,7 @@ class IndividualFairnessView extends Component {
   
     calculateBaselineCoords(w, n, data) {
       const coordsArray = [];
-      let x, y, diff, distortion, i,
+      let x, y, diff, distortion, pair, i,
           distortionScale = 3;
   
       for(i=0; i<n-1; i++){
@@ -212,11 +223,13 @@ class IndividualFairnessView extends Component {
         distortion = diff * distortionScale;
         x = data[i].observed;
         y = 0;
+        pair = data[i].pair;
   
         coordsArray.push({
           idx: i+1,
           x: x,
-          y: y
+          y: y,
+          pair: pair
         });
       }
   
@@ -292,10 +305,10 @@ class IndividualFairnessView extends Component {
               .y0((d) => d.y0)
               .y1((d) => d.y1);
   
-      d3.select(this.svg).append("path")
+      d3.select(this.svg).append('path')
         .datum(combineCoords)
-        .attr("class", "area")
-        .attr("d", area)
+        .attr('class', 'area')
+        .attr('d', area)
         .style('fill', 'none');
     }
   

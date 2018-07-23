@@ -28,10 +28,7 @@ class LoadFile(APIView):
     def get(self, request, format=None):
         # Create the HttpResponse object with the appropriate CSV header.
         file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
-        
         whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
-
-
 
         return Response(whole_dataset_df.to_json(orient='index'))
 
@@ -100,7 +97,7 @@ class GetWeight(APIView):
 
         # print('weight_df: ', weight_df)
 
-        return Response(weight_df)
+        return Response(weight_df.to_json(orient='index'))
 
 class GetWeightedDataset(APIView):
     

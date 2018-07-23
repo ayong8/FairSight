@@ -42,26 +42,21 @@ class IndividualFairnessView extends Component {
       this.svg.style.setProperty('border-bottom', '1px solid lightgray');
       this.svg.style.setProperty('margin', '0 5%');
   
-      console.log('this.props: ', this.props);
-  
       let data = this.props.distortions;
       console.log('data: ', data);
 
       // sort by observed space difference
       data = _.orderBy(data, ['observed']);
   
-      const coords = this.calculateCoords(this.layout.width, data.length, data);
-      const baselineCoords = this.calculateBaselineCoords(this.layout.width, data.length, data);
-      console.log('coords: ', coords);
-      console.log('baselineCoords: ', baselineCoords);
+      const coords = this.calculateCoords(this.layout.width, data.length, data),
+            baselineCoords = this.calculateBaselineCoords(this.layout.width, data.length, data);
 
       const xObservedScale = d3.scaleLinear()
-            .range([0, this.layout.width])
-            .domain([0, d3.max(coords, (d) => d.x)]);
-
-      const yDecisionScale = d3.scaleLinear()
-              .range([this.layout.height * 1/2, this.layout.height * 1/4])
-              .domain(d3.extent(coords, (d) => d.y));
+                .range([0, this.layout.width * 0.85])
+                .domain([0, d3.max(coords, (d) => d.x)]),
+            yDecisionScale = d3.scaleLinear()
+                .range([this.layout.height * 1/2, this.layout.height * 1/4])
+                .domain(d3.extent(coords, (d) => d.y));
 
       const gLegend = d3.select(this.svg).append('g')
               .attr('class', 'g_legend')
@@ -69,14 +64,15 @@ class IndividualFairnessView extends Component {
             gGraph = d3.select(this.svg).append('g')
               .attr('transform', 'translate(0, 20)');
 
-      const xAxisSetting = d3.axisBottom(xObservedScale).ticks(0);
-
-      const xAxis = gGraph.append('g')
+      const xAxisSetting = d3.axisBottom(xObservedScale).ticks(0),
+            xAxis = gGraph.append('g')
               .call(xAxisSetting)
-              .attr('transform', 'translate(0,' + this.layout.height * 3/4 + ')');
+              .attr('transform', 'translate(0,' + this.layout.height * 3/8 + ')');
 
-      const renameBaselineCoords = _.map([...baselineCoords], (d) => _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0'));
-      const renameCoords       = _.map([...coords], (d) => _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
+      const renameBaselineCoords = _.map([...baselineCoords], (d) => 
+                _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0')),
+            renameCoords       = _.map([...coords], (d) => 
+                _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
   
       const combineCoords = _.map(renameBaselineCoords, function(d){
           return _.merge(
@@ -88,9 +84,8 @@ class IndividualFairnessView extends Component {
       // scales
       const rectColorScale = d3.scaleLinear()
               .domain(d3.extent(combineCoords, (d) => d.y1 - d.y0))
-              .range(['lightgreen', 'pink']);
-
-      const pairColorScale = d3.scaleThreshold()
+              .range(['lightgreen', 'pink']),
+            pairColorScale = d3.scaleThreshold()
               .domain([1, 2, 3])  // pair is one or two or three
               .range(['white', gs.groupColor1, gs.groupColor2, gs.betweenGroupColor]);      
       
@@ -154,16 +149,31 @@ class IndividualFairnessView extends Component {
           .text('Woman-Woman')
           .style('font-size', '11px');  
 
+      const margin = 10;
+
+      const marginRect = gGraph
+              .append('rect')
+              .attr('class', 'margin_rect')
+              .attr('x', 0)
+              .attr('y', (this.layout.height * 3/8 - margin))
+              .attr('width', this.layout.width * 0.85)
+              .attr('height', margin * 2)
+              .style('fill', 'lightgreen')
+              .style('opacity', 0.5)
+              .style('stroke', d3.rgb('lightgreen').darker())
+              .style('stroke-dasharray', '2, 2');
+
       const rects = gGraph
               .selectAll('.coordsRect')
               .data(combineCoords)
               .enter().append('rect')
               .attr('class', 'coordsRect')
               .attr('x', (d) => xObservedScale(d.x0))
-              .attr('y', (d) => {
-                return d.y1 - d.y0 > 0? yDecisionScale(d.y1 - d.y0) : yDecisionScale(d.y0);
-              
-              })
+              .attr('y', (d) => 
+                  d.y1 - d.y0 > 0
+                  ? yDecisionScale(d.y1 - d.y0) 
+                  : yDecisionScale(d.y0)
+              )
               .attr('width', 0.05)
               .attr('height', (d) => Math.abs(yDecisionScale(d.y1 - d.y0) - this.layout.height/2))
               .attr('stroke', 'gray');
@@ -173,13 +183,10 @@ class IndividualFairnessView extends Component {
               .data(combineCoords)
               .enter().append('circle')
               .attr('class', 'coordsCircles')
-              .attr('cx', function(d) { return xObservedScale(d.x0); })
-              .attr('cy', function(d) { return yDecisionScale(d.y1); })
+              .attr('cx', (d) => xObservedScale(d.x0))
+              .attr('cy', (d) => yDecisionScale(d.y1))
               .attr('r', 2)
-              .style('fill', (d) => {
-                console.log(pairColorScale(d.pair))
-                return pairColorScale(d.pair)
-              })
+              .style('fill', (d) => pairColorScale(d.pair))
               .style('stroke', (d) => d3.rgb(pairColorScale(d.pair)).darker());
       
       return (

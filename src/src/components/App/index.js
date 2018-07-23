@@ -153,19 +153,6 @@ class App extends Component {
           
           this.setState({weights: weights});
         });
-
-    // fetch('/dataset/getWeight')
-    //     .then( (response) => {
-    //       console.log('fetch file: ', response);
-    //       return response.json() 
-    //     })   
-    //     .then( (responseWeight) => {
-    //         let weights = _.mapValues(responseWeight, (weightArray) => {
-    //           return weightArray[0];
-    //         });
-            
-    //         this.setState({weights: weights});
-    //       });
   }
 
   calculateScores() {

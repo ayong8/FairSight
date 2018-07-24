@@ -1972,6 +1972,10 @@ d3-axis@1:
   version "1.0.8"
   resolved "https://registry.yarnpkg.com/d3-axis/-/d3-axis-1.0.8.tgz#31a705a0b535e65759de14173a31933137f18efa"
 
+d3-beeswarm@^0.0.5:
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/d3-beeswarm/-/d3-beeswarm-0.0.5.tgz#23dc2ac9ca086ff3113a93f4c4a2ad204011df6a"
+
 d3-brush@1:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/d3-brush/-/d3-brush-1.0.4.tgz#00c2f238019f24f6c0a194a26d41a1530ffe7bc4"

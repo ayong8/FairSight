@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
+import { beeswarm } from 'd3-beeswarm';
 
 import styles from './styles.scss';
 import index from '../../index.css';
@@ -15,6 +16,18 @@ class IndividualFairnessView extends Component {
       this.layout = {
         width: 650,
         height: 300,
+        svg: {
+          width: 585, // 90% of whole layout
+          height: 250 // 100% of whole layout
+        },
+        groupSkew: {
+          width: 55,
+          height: 250
+        },
+        plot: {
+          width: 530,
+          height: 250
+        },
         get r() {
           return d3.min([this.width, this.height]) / 3;
         },
@@ -35,11 +48,10 @@ class IndividualFairnessView extends Component {
     render() {
       this.svg = new ReactFauxDOM.Element('svg');
   
-      this.svg.setAttribute('width', this.layout.width * 0.9);
-      this.svg.setAttribute('height', this.layout.height);
+      this.svg.setAttribute('width', this.layout.svg.width);
+      this.svg.setAttribute('height', this.layout.svg.height);
       this.svg.setAttribute('0 0 200 200');
       this.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      this.svg.style.setProperty('border-bottom', '1px solid lightgray');
       this.svg.style.setProperty('margin', '0 5%');
   
       let data = this.props.distortions;
@@ -48,26 +60,31 @@ class IndividualFairnessView extends Component {
       // sort by observed space difference
       data = _.orderBy(data, ['observed']);
   
-      const coords = this.calculateCoords(this.layout.width, data.length, data),
-            baselineCoords = this.calculateBaselineCoords(this.layout.width, data.length, data);
+      const coords = this.calculateCoords(this.layout.plot.width, data.length, data),
+            baselineCoords = this.calculateBaselineCoords(this.layout.plot.width, data.length, data);
 
+      // Coordinate scales
       const xObservedScale = d3.scaleLinear()
-                .range([0, this.layout.width * 0.85])
+                .range([0, this.layout.plot.width])
                 .domain([0, d3.max(coords, (d) => d.x)]),
             yDecisionScale = d3.scaleLinear()
-                .range([this.layout.height * 1/2, this.layout.height * 1/4])
+                .range([this.layout.plot.height, this.layout.plot.height * 1/2])
                 .domain(d3.extent(coords, (d) => d.y));
 
       const gLegend = d3.select(this.svg).append('g')
               .attr('class', 'g_legend')
               .attr('transform', 'translate(0, 0)'),
-            gGraph = d3.select(this.svg).append('g')
-              .attr('transform', 'translate(0, 20)');
+            gPlot = d3.select(this.svg).append('g')
+              .attr('transform', 'translate(0, 0)');
 
-      const xAxisSetting = d3.axisBottom(xObservedScale).ticks(0),
-            xAxis = gGraph.append('g')
+      const xAxisSetting = d3.axisTop(xObservedScale).ticks(0),
+            xAxis = gPlot.append('g')
               .call(xAxisSetting)
-              .attr('transform', 'translate(0,' + this.layout.height * 3/8 + ')');
+              .attr('class', 'indi_x_axis')
+              .attr('transform', 'translate(0,' + this.layout.plot.height * 3/4 + ')'),
+            xAxisLine = xAxis.select('path')
+              .style('stroke-width', 3);
+            
 
       const renameBaselineCoords = _.map([...baselineCoords], (d) => 
                 _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0')),
@@ -81,7 +98,7 @@ class IndividualFairnessView extends Component {
           )
       });
 
-      // scales
+      // Color scales
       const rectColorScale = d3.scaleLinear()
               .domain(d3.extent(combineCoords, (d) => d.y1 - d.y0))
               .range(['lightgreen', 'pink']),
@@ -149,21 +166,21 @@ class IndividualFairnessView extends Component {
           .text('Woman-Woman')
           .style('font-size', '11px');  
 
-      const margin = 10;
+      const margin = 20;
 
-      const marginRect = gGraph
+      const marginRect = gPlot
               .append('rect')
               .attr('class', 'margin_rect')
               .attr('x', 0)
-              .attr('y', (this.layout.height * 3/8 - margin))
-              .attr('width', this.layout.width * 0.85)
+              .attr('y', (this.layout.plot.height * 3/4 - margin))
+              .attr('width', this.layout.plot.width * 0.85)
               .attr('height', margin * 2)
               .style('fill', 'lightgreen')
               .style('opacity', 0.5)
               .style('stroke', d3.rgb('lightgreen').darker())
               .style('stroke-dasharray', '2, 2');
 
-      const rects = gGraph
+      const rects = gPlot
               .selectAll('.coordsRect')
               .data(combineCoords)
               .enter().append('rect')
@@ -174,20 +191,47 @@ class IndividualFairnessView extends Component {
                   ? yDecisionScale(d.y1 - d.y0) 
                   : yDecisionScale(d.y0)
               )
-              .attr('width', 0.05)
-              .attr('height', (d) => Math.abs(yDecisionScale(d.y1 - d.y0) - this.layout.height/2))
+              .attr('width', 1)
+              .attr('height', (d) => Math.abs(yDecisionScale(d.y1 - d.y0) - this.layout.plot.height * 3/4))
               .attr('stroke', 'gray');
   
-      const coordsCircles = gGraph
+      const coordsCircles = gPlot
               .selectAll('.coordsCircles')
               .data(combineCoords)
               .enter().append('circle')
               .attr('class', 'coordsCircles')
               .attr('cx', (d) => xObservedScale(d.x0))
               .attr('cy', (d) => yDecisionScale(d.y1))
-              .attr('r', 2)
+              .attr('r', 3)
               .style('fill', (d) => pairColorScale(d.pair))
-              .style('stroke', (d) => d3.rgb(pairColorScale(d.pair)).darker());
+              .style('stroke', (d) => d3.rgb(pairColorScale(d.pair)).darker())
+              .style('opacity', 0.8)
+              .style('stroke-opacity', 0.8);
+
+      const swarm = beeswarm()
+              .data([...combineCoords].slice(0, 100))
+              .distributeOn((d) => 
+              yDecisionScale(d.y1))
+              .radius(2)
+              .orientation('vertical')
+              .side('positive')
+              .arrange();
+
+      gPlot.selectAll('.beeswarm_circle')
+        .data(swarm)
+        .enter()
+        .append('circle')
+        .attr('class', 'beeswarm_circle')
+        .attr('cx', function(bee) {
+          return bee.x;
+        })
+        .attr('cy', function(bee) {
+          return bee.y;
+        })
+        .attr('r', 2)
+        .style('fill', function(bee) {
+          return 'black';
+        });
       
       return (
         <div className={styles.IndividualFairnessView}>

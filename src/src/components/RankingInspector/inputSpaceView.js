@@ -47,12 +47,16 @@ class InputSpaceView extends Component {
                 .attr('cy', (d) => yScale(d.dim2))
                 .attr('r', 3)
                 .style('fill', (d) => {
-                    let sex = d.sex.replace(" ", "")
-                    
-                    if(sex == 'female')
-                        return gs.groupColor1;
-                    else
-                        return gs.groupColor2;
+                    let sex = d.sex.replace(" ", "");
+                    return sex === 'female'
+                        ? gs.groupColor1 
+                        : gs.groupColor2;
+                })
+                .style('stroke', (d) => {
+                    let sex = d.sex.replace(" ", "");
+                    return sex === 'female'
+                        ? d3.rgb(gs.groupColor1).darker()
+                        : d3.rgb(gs.groupColor2).darker();
                 })
                 .style('opacity', 0.7);
 

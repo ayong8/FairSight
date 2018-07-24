@@ -9,9 +9,12 @@
     .InputSpaceView,
     .IndividualFairnessView,
     .GroupFairnessView,
+    .RankingView,
     .UtilityView {
         margin: 10px;
         background-color: white;
+        border-left: 1px solid lightgray;
+        border-bottom: 1px solid lightgray;
     }
 
     .InputSpaceView {
@@ -27,7 +30,7 @@
         grid-template-columns: 30% 30% 30%;
         grid-template-rows: 10% 90%;
 
-        border-left: 1px solid lightgray;
+        
 
         .title {
             grid-column: 1 / 4;
@@ -81,21 +84,18 @@
         grid-column: 2;
         grid-row: 1;
 
-        border-left: 1px solid lightgray;
-        border-bottom: 1px solid lightgray;
+        // .indi_x_axis > path {
+        //     stroke: 3px;
+        // }
     }
 
     .RankingView {
         grid-column: 3;
         grid-row: 1;
-
-        border-left: 1px solid lightgray;
     }
 
     .UtilityView {
         grid-column: 3;
         grid-row: 2;
-
-        border-left: 1px solid lightgray;
     }
 }

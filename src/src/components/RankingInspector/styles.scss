@@ -19,7 +19,7 @@
 
     .InputSpaceView {
         grid-column: 1;
-        grid-row: 1;
+        grid-row: 1 / 3;
     }
 
     .GroupFairnessView {
@@ -87,15 +87,19 @@
         // .indi_x_axis > path {
         //     stroke: 3px;
         // }
+
+        .sortIndividualPlot {
+            margin-left: 10px;
+        }
     }
 
     .RankingView {
         grid-column: 3;
-        grid-row: 1;
+        grid-row: 1 / 3;
     }
 
-    .UtilityView {
-        grid-column: 3;
-        grid-row: 2;
-    }
+    // .UtilityView {
+    //     grid-column: 3;
+    //     grid-row: 2;
+    // }
 }

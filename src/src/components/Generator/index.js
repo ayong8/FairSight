@@ -179,9 +179,15 @@ class FairnessOrganizer extends Component {
     return (
       <div className={styles.FairnessOrganizer}>
         <div className={styles.generatorSubtitle}>4. Adjust the fairness</div>
-        <div className={styles.groupFairness}>Statistical parity</div>
-        <div className={styles.groupFairness}>Conditional parity(TP)</div>
-        <div className={styles.groupFairness}>Conditional parity(FP)</div>
+        <div className={styles.groupFairness}>
+          <input type="checkbox" />&nbsp;&nbsp;Statistical parity
+        </div>
+        <div className={styles.groupFairness}>
+          <input type="checkbox" />&nbsp;&nbsp;Conditional parity(TP)
+        </div>
+        <div className={styles.groupFairness}>
+          <input type="checkbox" />&nbsp;&nbsp;Conditional parity(FP)
+        </div>
         <div className={styles.runButtonWrapper}>
           <Button classNmae={styles.buttonGenerateRanking} color="danger">RUN</Button>
         </div>

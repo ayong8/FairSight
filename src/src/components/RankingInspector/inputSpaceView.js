@@ -21,8 +21,8 @@ class InputSpaceView extends Component {
         // Set up the layout
         const svg = new ReactFauxDOM.Element('svg');
     
-        svg.setAttribute('width', '90%');
-        svg.setAttribute('height', '80%')
+        svg.setAttribute('width', '85%');
+        svg.setAttribute('height', '35%')
         svg.setAttribute('class', 'svg_inputspace');
         svg.style.setProperty('margin', '0 10%');
 

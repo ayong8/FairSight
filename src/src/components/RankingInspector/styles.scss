@@ -3,12 +3,12 @@
     grid-row: 3 / 4;
 
     display: grid;
-    grid-template-columns: 30% 50% 20%;
+    grid-template-columns: 20% 60% 20%;
     grid-template-rows: 50% 50%;
 
     .InputSpaceView,
     .IndividualFairnessView,
-    .GroupFairnessView,
+    .GroupFairnessUtilityViewWrapper,
     .RankingView,
     .UtilityView {
         margin: 10px;
@@ -22,62 +22,78 @@
         grid-row: 1 / 3;
     }
 
-    .GroupFairnessView {
+    .GroupFairnessUtilityViewWrapper {
         grid-column: 2;
         grid-row: 2;
 
         display: grid;
-        grid-template-columns: 30% 30% 30%;
-        grid-template-rows: 10% 90%;
+        grid-template-columns: 70% 30%;     // Group Fairness View / Utility View
+        grid-template-rows: 10% 30% 60%;
 
-        
-
-        .title {
-            grid-column: 1 / 4;
-            grid-row: 1;
-        }
-        .subTitle {
-            display:flex;
-            //align-items: center;
-                /* justify-content: center; */
-            width: 80%;
-            height: 20px;
-            margin-left: 10px;
-            font-size: 1rem;
-            color: #2a4b5a;
-            /* font-weight: 500; */
-            //background-color: #a7ffe7;
-            //border: 1px solid #97dbc8;
-        }
-
-        .score {
-            font-size: 1.2rem;
-            margin-left: 50px;
-            color: #2a4b5a;
-        }
-        // .groupOverview {
-        //     grid-column: 1;
-        //     grid-row: 2 / 4;
-        // }
-        .statParityPlot {
+        .GroupFairnessView {
             grid-column: 1;
-            grid-row: 2;
+            grid-row: 1 / 4;
 
-            // border: 1px solid #d5d5d5;
-            margin: 3px 0px;
-        }
-        .conditionalParityPlot {
-            grid-column: 2 / 4;
-            grid-row: 2;
+            .title {
 
-            // border: 1px solid #d5d5d5;
-            margin: 3px 0px;
+            }
+            .subTitle {
+                display:flex;
+                //align-items: center;
+                    /* justify-content: center; */
+                width: 80%;
+                height: 20px;
+                margin-left: 10px;
+                font-size: 1rem;
+                color: #2a4b5a;
+                /* font-weight: 500; */
+                //background-color: #a7ffe7;
+                //border: 1px solid #97dbc8;
+            }
 
-            .conditionalParityPlotWrapper {
-                display: flex;
+            .statParityPlotsWrapper,
+            .conditionalParityPlotWrapper,
+            .conditionalParityPlotWrapper2 
+            {
+                display: grid;
+                grid-template-columns: 30% 10% 60%;
+
+                .topKPlot {
+                    grid-column: 1;
+                }
+
+                .score {
+                    grid-column: 2;
+
+                    font-size: 1.2rem;
+                    color: #2a4b5a;
+                }
+                
+                .wholeDistribution {
+                    grid-column: 3;
+        
+                    margin: 3px 0px;
+                }
+            }
+    
+            
+            .conditionalParityPlot {
+                grid-column: 2 / 4;
+                grid-row: 2;
+    
+                // border: 1px solid #d5d5d5;
+                margin: 3px 0px;
+    
+                .conditionalParityPlotWrapper {
+                    display: flex;
+                }
             }
         }
 
+        .UtilityView {
+            grid-column: 2;
+            grid-row: 1 / 4;
+        }
     }
 
     .IndividualFairnessView {

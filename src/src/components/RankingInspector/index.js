@@ -57,7 +57,6 @@ class ProcessView extends Component {
           <div className={index.title}>Individual Fairness</div>
           <div className={index.title}>Ranking</div>
         </div>
-        
       </div>
     );
   }

@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { beeswarm } from 'd3-beeswarm';
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 
 import styles from './styles.scss';
 import index from '../../index.css';
@@ -12,6 +13,17 @@ import gs from '../../config/_variables.scss'; // gs (=global style)
 class IndividualFairnessView extends Component {
     constructor(props) {
       super(props);
+
+      this.sortDistortion = this.sortDistortion.bind(this);
+      this.handleSelectSorting = this.handleSelectSorting.bind(this);
+      this.combinedCoordsData = [],
+      this.xObservedScale;
+      this.yDecisionScale;
+      this.state = {
+        dropdownOpen: false,
+        sortBy: 'close to far'
+      };
+
       this.svg;
       this.layout = {
         width: 650,
@@ -46,6 +58,8 @@ class IndividualFairnessView extends Component {
     }
   
     render() {
+      let self = this;
+
       this.svg = new ReactFauxDOM.Element('svg');
   
       this.svg.setAttribute('width', this.layout.svg.width);
@@ -64,22 +78,23 @@ class IndividualFairnessView extends Component {
             baselineCoords = this.calculateBaselineCoords(this.layout.plot.width, data.length, data);
 
       // Coordinate scales
-      const xObservedScale = d3.scaleLinear()
-                .range([70, this.layout.plot.width])
-                .domain([0, d3.max(coords, (d) => d.x)]),
-            yDecisionScale = d3.scaleLinear()
-                .range([this.layout.plot.height - 5, this.layout.plot.height * 1/2])
-                .domain(d3.extent(coords, (d) => d.y));
+      this.xObservedScale = d3.scaleLinear()
+            .range([70, this.layout.plot.width])
+            .domain([0, d3.max(coords, (d) => d.x)]),
+      this.yDecisionScale = d3.scaleLinear()
+            .range([this.layout.plot.height - 5, this.layout.plot.height * 1/2])
+            .domain(d3.extent(coords, (d) => d.y));
 
       const gLegend = d3.select(this.svg).append('g')
               .attr('class', 'g_legend')
               .attr('transform', 'translate(0, 0)'),
             gPlot = d3.select(this.svg).append('g')
+              .attr('class', 'g_plot')
               .attr('transform', 'translate(30, 0)'),
             gGroupSkew = d3.select(this.svg).append('g')
               .attr('transform', 'translate(540, 125)');
 
-      const xAxisSetting = d3.axisTop(xObservedScale).ticks(0),
+      const xAxisSetting = d3.axisTop(this.xObservedScale).ticks(0),
             xAxis = gPlot.append('g')
               .call(xAxisSetting)
               .attr('class', 'indi_x_axis')
@@ -93,7 +108,7 @@ class IndividualFairnessView extends Component {
             renameCoords       = _.map([...coords], (d) => 
                 _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
   
-      const combineCoords = _.map(renameBaselineCoords, function(d){
+      this.combinedCoordsData = _.map(renameBaselineCoords, function(d){
           return _.merge(
               d, 
               _.find(renameCoords, {idx: d.idx})
@@ -102,7 +117,7 @@ class IndividualFairnessView extends Component {
 
       // Color scales
       const rectColorScale = d3.scaleLinear()
-              .domain(d3.extent(combineCoords, (d) => d.y1 - d.y0))
+              .domain(d3.extent(this.combinedCoordsData, (d) => d.y1 - d.y0))
               .range(['lightgreen', 'pink']),
             pairColorScale = d3.scaleThreshold()
               .domain([1, 2, 3])  // pair is one or two or three
@@ -184,27 +199,27 @@ class IndividualFairnessView extends Component {
 
       const rects = gPlot
               .selectAll('.coords_rect')
-              .data(combineCoords)
+              .data(this.combinedCoordsData)
               .enter().append('rect')
               .attr('class', 'coords_rect')
-              .attr('x', (d) => xObservedScale(d.x0))
+              .attr('x', (d) => this.xObservedScale(d.x0))
               .attr('y', (d) => 
                   d.y1 - d.y0 > 0
-                  ? yDecisionScale(d.y1 - d.y0) 
-                  : yDecisionScale(d.y0)
+                  ? this.yDecisionScale(d.y1 - d.y0) 
+                  : this.yDecisionScale(d.y0)
               )
               .attr('width', 0.05)
-              .attr('height', (d) => Math.abs(yDecisionScale(d.y1 - d.y0) - this.layout.plot.height * 3/4))
+              .attr('height', (d) => Math.abs(this.yDecisionScale(d.y1 - d.y0) - this.layout.plot.height * 3/4))
               .style('stroke', 'black')
               .style('stroke-width', 0.5);
   
       const coordsCircles = gPlot
               .selectAll('.coords_circle')
-              .data(combineCoords)
+              .data(this.combinedCoordsData)
               .enter().append('circle')
               .attr('class', 'coords_circle')
-              .attr('cx', (d) => xObservedScale(d.x0))
-              .attr('cy', (d) => yDecisionScale(d.y1))
+              .attr('cx', (d) => this.xObservedScale(d.x0))
+              .attr('cy', (d) => this.yDecisionScale(d.y1))
               .attr('r', 3)
               .style('fill', (d) => pairColorScale(d.pair))
               .style('stroke', (d) => d3.rgb(pairColorScale(d.pair)).darker())
@@ -219,10 +234,46 @@ class IndividualFairnessView extends Component {
                   })
                   .style('opacity', 0.2);
                 
-                d3.select(this).attr('opacity','1.0');
+                d3.select(this).attr('opacity','0');
 
                 d3.selectAll('.coords_rect')
                   .style('opacity', 0.2);
+
+                // Draw half circle heading the arc toward what it goes
+
+                console.log('gPlot: ', gPlot);
+                console.log('margin: ', margin);
+
+                var circleArc = d3.arc()
+                  .innerRadius(0)
+                  .outerRadius(5)
+                  .startAngle(0)
+                  .endAngle(Math.PI);
+
+                d3.select('.g_plot')
+                  .append("path")
+                  .attr("class", function(d){
+                      return 'class1';
+                  })
+                  .attr("d", circleArc)
+                  .attr("transform", function(d){
+                      return "translate(30,30)rotate(0)";
+                  })
+                  .style("stroke", "black")
+                  .style("fill", "mediumpurple");
+
+                d3.select('.g_plot')
+                  .append("path")
+                  .attr("class", function(d){
+                      return 'class2';
+                  })
+                  .attr("d", circleArc)
+                  .attr("transform", function(e) {
+                    console.log(d);
+                    return "translate(" + self.xObservedScale(d.x0) + "," + self.yDecisionScale(d.y1) + ")" + "rotate(180)"
+                  })
+                  .style("stroke", "black")
+                  .style("fill", "mediumpurple");
               })
               .on('mouseout', (d) => {
                 d3.selectAll('.coords_circle')
@@ -232,9 +283,11 @@ class IndividualFairnessView extends Component {
                   .style('opacity', 1);
               });
 
+      
+
       const swarm = beeswarm()
-              .data(_.filter(combineCoords, (d) => d.pair === 1).slice(0, 50))
-              .distributeOn((d) => yDecisionScale(d.y1))
+              .data(_.filter(this.combinedCoordsData, (d) => d.pair === 1).slice(0, 50))
+              .distributeOn((d) => this.yDecisionScale(d.y1))
               .radius(2)
               .orientation('vertical')
               .side('symmetric')
@@ -256,8 +309,8 @@ class IndividualFairnessView extends Component {
         .style('stroke', (bee) => d3.rgb(pairColorScale(bee.datum.pair)).darker());
 
       const swarm2 = beeswarm()
-              .data(_.filter(combineCoords, (d) => d.pair === 2).slice(0, 50))
-              .distributeOn((d) => yDecisionScale(d.y1))
+              .data(_.filter(this.combinedCoordsData, (d) => d.pair === 2).slice(0, 50))
+              .distributeOn((d) => this.yDecisionScale(d.y1))
               .radius(2)
               .orientation('vertical')
               .side('symmetric')
@@ -340,13 +393,74 @@ class IndividualFairnessView extends Component {
         <div className={styles.IndividualFairnessView}>
           <div className={styles.individualTitleWrapper}>
             <div className={index.title}>Individual Fairness</div>
-            <div className={styles.sortIndividualPlot}> 
-              sort by: close to far
+            <div className={styles.sortIndividualPlot}>
+              sort by: &nbsp;
+              <Dropdown direction='down' className={styles.DistortionSortingDropdown} isOpen={this.state.dropdownOpen}  size="sm" toggle={this.sortDistortion}>
+                <DropdownToggle caret>
+                  close to far
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem value='pairwiseDistance' onClick={this.handleSelectSorting}>Pairwise distance (close to far)</DropdownItem>
+                  <DropdownItem value='distortion' onClick={this.handleSelectSorting}>Distortion (small to large)</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
             </div>
           </div>
           {this.svg.toReact()}
         </div>
       );
+    }
+
+    sortDistortion() {
+      this.setState(prevState => ({
+        dropdownOpen: !prevState.dropdownOpen
+      }));
+
+      console.log("dropdown selected")
+    }
+
+    handleSelectSorting(e) {
+      this.setState({ sortBy: e.target.value });
+
+      let sortBy = e.target.value,
+          data = this.combinedCoordsData,
+          transition = d3.transition().duration(750);
+
+      console.log('sortBy: ', e.target.value);
+
+      if(sortBy === 'distortion') {
+        this.xObservedScale.domain(d3.extent(data, (d) => d.y1 - d.y0));
+
+        transition.select(".indi_x_axis").call(d3.axisTop(this.xObservedScale).tickSize(0));
+        d3.selectAll(".coords_circle")
+                .data(data)
+                .transition(transition)
+                .attr("cx", (d) => this.xObservedScale(d.y1 - d.y0));
+
+        d3.selectAll(".coords_rect")
+                .data(data)
+                .transition(transition)
+                .attr("x", (d) => this.xObservedScale(d.y1 - d.y0));
+      } else if(sortBy === 'pairwiseDistance') {
+        this.xObservedScale.domain(d3.extent(data, (d) => d.x0));
+
+        transition.select(".indi_x_axis").call(d3.axisTop(this.xObservedScale).tickSize(0));
+        d3.selectAll(".coords_circle")
+                .data(data)
+                .transition(transition)
+                .attr("cx", (d) => this.xObservedScale(d.x0));
+
+        d3.selectAll(".coords_rect")
+                .data(data)
+                .transition(transition)
+                .attr("x", (d) => this.xObservedScale(d.x0));
+      }
+
+      
+
+      // Redefine scale
+      // Assign the new scale to axis
+      // Select all lines and circles, and update the coordinates according to the new scale
     }
   
     calculateCoords(w, n, data) {
@@ -394,105 +508,10 @@ class IndividualFairnessView extends Component {
   
       return coordsArray;
     }
+  }
 
-    renderCircularView() {
-      const data = this.props.distortions;
-  
-      const xObservedScale = d3.scaleLinear()
-              .range([0, this.layout.width])
-              .domain([0, d3.max(data, (d) => d.observed)]);
-  
-      const yDecisionScale = d3.scaleLinear()
-              .range([this.layout.height, 0])
-              .domain([0, d3.max(data, (d) => d.decision)]);
-  
-      const bigCircle = d3.select(this.svg)
-              .append('circle')
-              .attr('class', 'bigCircle')
-              .attr('cx', (d) => this.layout.centroid.x)
-              .attr('cy', (d) => this.layout.centroid.y)
-              .attr('r', this.layout.r)
-              .style('stroke', '#c18f02')
-              .style('stroke-width', 5)
-              .style('fill', '#ffbc00')
-              .style('opacity', 0.5);
-  
-      const diffs = _.map(data, (d) => d.observed - d.decision);
-  
-      const coords = this.calculateCircularCoords(this.layout.r, this.layout.width, data.length, diffs);
-      const circleCoords = this.calculateCircularCoords(this.layout.r, this.layout.width, data.length, new Array(data.length).fill(0));
-  
-      const coordsCircles = d3.select(this.svg)
-              .selectAll('.coordsCircles')
-              .data(coords)
-              .enter().append('circle')
-              .attr('class', 'coordsCircles')
-              .attr('cx', (d) => d.x)
-              .attr('cy', (d) => d.y)
-              .attr('r', 2)
-              .style('fill', 'red');
-  
-      const distortionCurvedPath =  d3.select(this.svg)
-              .append('path')
-              .datum(coords)
-              .attr('class', 'line')
-              .style('stroke', function() { // Add the colours dynamically
-                      return '#ff9900'; })
-              .style('stroke-width', 8)
-              .style('stroke-opacity', 0.5)
-              .style('fill', 'none')
-              //.attr('id', 'tag'+i) // assign ID
-              .attr('d', d3.line()
-                          .curve(d3.curveCardinalOpen.tension(0))
-                          .x(function(d) { return d.x; })
-                          .y(function(d) { return d.y; })
-                      );
-  
-      const renameCircleCoords = _.map(circleCoords, (d) => _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0'));
-      const renameCoords       = _.map(coords, (d) => _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
-  
-      const combineCoords = _.map(renameCircleCoords, function(d){
-          return _.merge(
-              d, 
-              _.find(renameCoords, {idx: d.idx})
-          )
-      });
-  
-      const area = d3.area()
-              .curve(d3.curveCardinalOpen.tension(0))
-              .x(function(d) { return d.x0; })
-              .y0((d) => d.y0)
-              .y1((d) => d.y1);
-  
-      d3.select(this.svg).append('path')
-        .datum(combineCoords)
-        .attr('class', 'area')
-        .attr('d', area)
-        .style('fill', 'none');
-    }
-  
-    calculateCircularCoords(r, w, n, diffs) {
-      const coordsArray = [];
-      let x, y, angle, distortion, i,
-          distortionScale = 7;
-  
-      for(i=0; i<n-1; i++){
-        angle = (i / (n/2)) * Math.PI;
-        distortion = diffs[i] * distortionScale;
-        //angle += 360/n * i;
-        x = w/2 + ((r+distortion) * Math.sin(angle));
-        y = w/2 + ((r+distortion) * Math.cos(angle));
-  
-        coordsArray.push({
-          idx: i+1,
-          x: x,
-          y: y,
-          angle: angle,
-        });
-      }
-      
-      return coordsArray;
-    }
+  Dropdown.propTypes = {
+    direction: 'down'
   }
 
   export default IndividualFairnessView;

@@ -55,7 +55,7 @@ class GroupFairnessView extends Component {
                 .range([0, this.layout.wholeDistribution.width])
                 .domain([0, 100]);
       yScale = d3.scaleLinear()
-                .range([0, this.layout.wholeDistribution.height])
+                .range([this.layout.wholeDistribution.height, 0])
                 .domain([0, 10]);
 
       groupBins1 = d3.histogram()
@@ -162,11 +162,14 @@ class GroupFairnessView extends Component {
           i, j, k = 0;
       
       xScale = d3.scaleBand()
-          .domain([0, xThreshold])
-          .range([0, this.layout.topKPlot.width]);
+          .domain(d3.range(xThreshold))
+        .range([0, this.layout.topKPlot.width]);
+
+      console.log(xScale(5));
+      console.log(d3.range(xThreshold));
 
       yScale = d3.scaleBand()
-          .domain([0, yThreshold])
+          .domain(d3.range(yThreshold))
           .range([this.layout.topKPlot.height, 0]),
 
       groupColorScale = d3.scaleBand()

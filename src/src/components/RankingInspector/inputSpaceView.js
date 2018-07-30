@@ -64,6 +64,7 @@ class InputSpaceView extends Component {
             <div className={styles.InputSpaceView}>
                 <div className={index.title}>Input space</div>
                 {svg.toReact()}
+                <div className={index.title}>Features</div>
             </div>
         );
     }

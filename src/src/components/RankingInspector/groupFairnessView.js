@@ -112,7 +112,6 @@ class GroupFairnessView extends Component {
             <div className={index.title + ' ' + styles.title}>
               Group Fairness
             </div>
-            {/* <div className={styles.groupOverview}></div> */}
             <div className={styles.statParityPlot}>
               <div className={styles.subTitle}>
                 Statistical Parity
@@ -140,7 +139,7 @@ class GroupFairnessView extends Component {
                   {svg.toReact()}
                 </div>
               </div>
-              <div className={styles.conditionalParityPlotWrapper2}>
+              <div className={styles.conditionalParityPlotWrapper}>
                 <div className={styles.topKPlot}>
                   {this.svgTopKPlot.toReact()}
                 </div>

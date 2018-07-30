@@ -26,17 +26,18 @@ class UtilityView extends Component {
   
     render() {
       let sampleData = [
-            { topK: 10,  statParity: 0},
-            { topK: 15,  statParity: 0.5},
-            { topK: 20,  statParity: -0.8},
-            { topK: 25,  statParity: -0.6},
-            { topK: 30,  statParity: 0},
-            { topK: 35,  statParity: 1.2}
+            { topK: 10,  statParity: 0, conditionalParity: 0 },
+            { topK: 15,  statParity: 0.5, conditionalParity: -0.3 },
+            { topK: 20,  statParity: -0.8, conditionalParity: 0.4 },
+            { topK: 25,  statParity: -0.6, conditionalParity: -0.7 },
+            { topK: 30,  statParity: 0, conditionalParity: 0.6 },
+            { topK: 35,  statParity: 1.2, conditionalParity: 1.1 }
           ],
           gPlot,
           xTopKScale, yLogScoreScale,
           xAxisSetting, yAxisSetting, xAxis, yAxis,
-          statParityDots, statParityLine;
+          statParityDots, statParityLine, statParityPath,
+          conditionalParityDots, conditionalParityLine, conditionalParityPath;
 
       this.svg = new ReactFauxDOM.Element('svg');
 
@@ -70,6 +71,17 @@ class UtilityView extends Component {
           .attr('class', 'xAxis')
           .attr('transform', 'translate(0,0)');
 
+      statParityLine = d3.line()
+          .x((d) => xTopKScale(d.topK))
+          .y((d) => yLogScoreScale(d.statParity));
+
+      statParityPath = gPlot.append('path')
+          .datum(sampleData)
+          .style('fill', 'none')
+          .style('stroke', d3.rgb('lightblue').darker())
+          .style('stroke-width', 1)
+          .attr('d', statParityLine);
+
       statParityDots = gPlot.selectAll('.statParitydot')
           .data(sampleData)
           .enter().append('circle')
@@ -80,9 +92,31 @@ class UtilityView extends Component {
           .style('fill', 'lightblue')
           .style('stroke', d3.rgb('lightblue').darker());
 
+      conditionalParityLine = d3.line()
+          .x((d) => xTopKScale(d.topK))
+          .y((d) => yLogScoreScale(d.conditionalParity));
+
+      conditionalParityPath = gPlot.append('path')
+          .datum(sampleData)
+          .style('fill', 'none')
+          .style('stroke', d3.rgb('mediumpurple').darker())
+          .style('stroke-width', 1)
+          .attr('d', conditionalParityLine);
+
+      conditionalParityDots = gPlot.selectAll('.conditionalParitydot')
+          .data(sampleData)
+          .enter().append('circle')
+          .attr('class', 'conditionalParitydot')
+          .attr('cx', (d) => xTopKScale(d.topK))
+          .attr('cy', (d) => yLogScoreScale(d.conditionalParity))
+          .attr('r', 2)
+          .style('fill', 'mediumpurple')
+          .style('stroke', d3.rgb('mediumpurple').darker());
+
       return (
         <div className={styles.UtilityView}>
           <div className={index.title}>Utility</div>
+          <div>(Statistical parity, Conditional parity)</div>
           {this.svg.toReact()}
         </div>
       );

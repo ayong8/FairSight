@@ -212,7 +212,35 @@ class IndividualFairnessView extends Component {
           .attr('cy', 60)
           .attr('r', 4)
           .style('fill', pairColorScale(2))
-          .style('stroke', d3.rgb(pairColorScale(2)).darker());
+          .style('stroke', d3.rgb(pairColorScale(2)).darker())
+          .on('mouseover', (d) => {
+              d3.selectAll('circle.coords_circle_group2')
+                .style('stroke', 'black')
+                .style('stroke-width', 2);
+
+              d3.selectAll('.coords_rect')
+                .style('opacity', 0.2);
+
+              d3.select('.g_plot')
+                .append('line')
+                .attr('class', 'group_fitting_line')
+                .attr('x1', 0)
+                .attr('y1', 200)
+                .attr('x2', 540)
+                .attr('y2', 180)
+                .style('stroke', pairColorScale(2))
+                .style('stroke-width', 3);
+          })
+          .on('mouseout', (d) => {
+              d3.selectAll('circle.coords_circle_group2')
+                .style('stroke', d3.rgb(pairColorScale(2)).darker())
+                .style('stroke-width', 1);
+
+              d3.selectAll('.coords_rect')
+                .style('opacity', 1);
+
+              d3.select('.group_fitting_line').remove();
+          })
       gLegend.append('text')
           .attr('x', 30)
           .attr('y', 63)
@@ -223,16 +251,38 @@ class IndividualFairnessView extends Component {
             outLierMargin = 5;
 
       const marginRect = gPlot
-              .append('rect')
-              .attr('class', 'margin_rect')
-              .attr('x', 0)
-              .attr('y', (this.layout.plot.height * 3/4 - margin))
-              .attr('width', this.layout.plot.width)
-              .attr('height', margin * 2)
-              .style('fill', 'lightblue')
-              .style('opacity', 0.5)
-              .style('stroke', d3.rgb('lightgreen').darker())
-              .style('stroke-dasharray', '2, 2');
+                .append('rect')
+                .attr('class', 'margin_rect')
+                .attr('x', 0)
+                .attr('y', (this.layout.plot.height * 3/4 - margin))
+                .attr('width', this.layout.plot.width)
+                .attr('height', margin * 2)
+                .style('fill', 'lightblue')
+                .style('opacity', 0.5)
+                .style('stroke', d3.rgb('lightgreen').darker())
+                .style('stroke-dasharray', '2, 2'),
+            outLierMarginRect = gPlot
+                .append('rect')
+                .attr('class', 'margin_rect')
+                .attr('x', 0)
+                .attr('y', (this.layout.plot.height * 2/4 - outLierMargin))
+                .attr('width', this.layout.plot.width)
+                .attr('height', outLierMargin * 2)
+                .style('fill', 'pink')
+                .style('opacity', 0.5)
+                .style('stroke', d3.rgb('pink').darker())
+                .style('stroke-dasharray', '2, 2'),
+            outLierMarginRect2 = gPlot
+                .append('rect')
+                .attr('class', 'margin_rect')
+                .attr('x', 0)
+                .attr('y', (this.layout.plot.height * 4/4 - outLierMargin - 5))
+                .attr('width', this.layout.plot.width)
+                .attr('height', outLierMargin * 2)
+                .style('fill', 'pink')
+                .style('opacity', 0.5)
+                .style('stroke', d3.rgb('pink').darker())
+                .style('stroke-dasharray', '2, 2');
 
       const rects = gPlot
               .selectAll('.coords_rect')
@@ -254,7 +304,18 @@ class IndividualFairnessView extends Component {
               .selectAll('.coords_circle')
               .data(this.combinedCoordsData)
               .enter().append('circle')
-              .attr('class', 'coords_circle')
+              .attr('class', (d) => {
+                let groupClass;
+
+                if(d.pair === 1)
+                  groupClass = 'coords_circle_group1';
+                else if(d.pair === 2)
+                  groupClass = 'coords_circle_group2';
+                else
+                  groupClass = 'coords_circle_betweenGroup';
+
+                return 'coords_circle ' + groupClass;
+              })
               .attr('cx', (d) => this.xObservedScale(d.x0))
               .attr('cy', (d) => this.yDecisionScale(d.y1))
               .attr('r', 3)
@@ -275,11 +336,6 @@ class IndividualFairnessView extends Component {
 
                     d3.selectAll('.coords_rect')
                       .style('opacity', 0.2);
-
-                    // Draw half circle heading the arc toward what it goes
-
-                    console.log('gPlot: ', gPlot);
-                    console.log('margin: ', margin);
 
                     var circleArc = d3.arc()
                       .innerRadius(0)
@@ -410,52 +466,6 @@ class IndividualFairnessView extends Component {
         
         idx++;
       });
-
-      // groupSkewRect1 = gGroupSkew
-      //     .append('rect')
-      //     .attr('class', 'groupSkewRect')
-      //     .attr('x', 68.5)
-      //     .attr('y', (d) => 
-      //       sampleGroupSkewSum.betweenPairs > 0
-      //         ? this.yGroupSkewScale(sampleGroupSkewSum.betweenPairs) 
-      //         : this.yGroupSkewScale(0)
-      //     )
-      //     .attr('width', 3)
-      //     .attr('height', Math.abs(this.yGroupSkewScale(sampleGroupSkewSum.betweenPairs) - this.yGroupSkewScale(0)))
-      //     .style('fill', pairColorScale(3))
-      //     .style('stroke', 'black')
-      //     .style('stroke-width', 0.5);
-
-      // groupSkewCircle1 = gGroupSkew
-      //     .append('circle')
-      //     .attr('class', 'groupSkewCircle')
-      //     .attr('cx', 70)
-      //     .attr('cy', this.yGroupSkewScale(sampleGroupSkewSum.betweenPairs))
-      //     .attr('r', 6)
-      //     .style('fill', pairColorScale(3))
-      //     .style('stroke', d3.rgb(pairColorScale(3)).darker())
-      //     .style('stroke-opacity', 0.8);
-
-      // const groupSkewRect2 = gGroupSkew
-      //         .append('rect')
-      //         .attr('class', 'groupSkewRect')
-      //         .attr('x', 48.5)
-      //         .attr('y', 60)
-      //         .attr('width', 3)
-      //         .attr('height', 20)
-      //         .style('fill', 'dimgray')
-      //         .style('stroke', 'black')
-      //         .style('stroke-width', 0.5);
-  
-      // const groupSkewCircle2 = gGroupSkew
-      //         .append('circle')
-      //         .attr('class', 'groupSkewCircle')
-      //         .attr('cx', 50)
-      //         .attr('cy', 80)
-      //         .attr('r', 6)
-      //         .style('fill', pairColorScale(1))
-      //         .style('stroke', d3.rgb(pairColorScale(1)).darker())
-      //         .style('stroke-opacity', 0.8);
 
       const groupSkewLine = gGroupSkew
             .append('line')

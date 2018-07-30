@@ -19,6 +19,9 @@ class IndividualFairnessView extends Component {
       this.combinedCoordsData = [],
       this.xObservedScale;
       this.yDecisionScale;
+      this.xGroupSkewScale
+      this.yGroupSkewScale;
+
       this.state = {
         dropdownOpen: false,
         sortBy: 'close to far'
@@ -29,7 +32,7 @@ class IndividualFairnessView extends Component {
         width: 650,
         height: 300,
         svg: {
-          width: 640, // 90% of whole layout
+          width: 750, // 90% of whole layout
           height: 250 // 100% of whole layout
         },
         groupSkew: {
@@ -79,27 +82,60 @@ class IndividualFairnessView extends Component {
 
       // Coordinate scales
       this.xObservedScale = d3.scaleLinear()
-            .range([70, this.layout.plot.width])
+            .range([0, this.layout.plot.width])
             .domain([0, d3.max(coords, (d) => d.x)]),
       this.yDecisionScale = d3.scaleLinear()
             .range([this.layout.plot.height - 5, this.layout.plot.height * 1/2])
-            .domain(d3.extent(coords, (d) => d.y));
+            .domain(d3.extent(coords, (d) => d.y)),
+      this.xGroupSkewScale = d3.scaleBand()
+            .range([0, this.layout.groupSkew.width])
+            .domain([0, 1, 2, 3, 4]);
+      this.yGroupSkewScale = d3.scaleLinear()
+            .range([this.layout.plot.height - 5, this.layout.plot.height * 1/2])
+            .domain([-10, 10]);
 
       const gLegend = d3.select(this.svg).append('g')
               .attr('class', 'g_legend')
               .attr('transform', 'translate(0, 0)'),
             gPlot = d3.select(this.svg).append('g')
               .attr('class', 'g_plot')
-              .attr('transform', 'translate(30, 0)'),
-            gGroupSkew = d3.select(this.svg).append('g')
-              .attr('transform', 'translate(540, 125)');
+              .attr('transform', 'translate(0, 0)'),
+            gViolinPlot = gPlot.append('g')
+              .attr('class', 'g_violin_plot')
+              .attr('transform', 'translate(570, 0)'),
+            gGroupSkew = gPlot.append('g')
+              .attr('transform', 'translate(650, 0)');
 
-      const xAxisSetting = d3.axisTop(this.xObservedScale).ticks(0),
+      const xAxisSetting = d3.axisTop(this.xObservedScale).tickSize(0).ticks(0),
+            yAxisSetting = d3.axisRight(this.yDecisionScale).tickSize(0).ticks(0),
+            xAxisGroupSkewSetting = d3.axisTop(this.xObservedScale).tickSize(0).ticks(0),
+            yAxisGroupSkewSetting = d3.axisLeft(this.yGroupSkewScale).tickSize(0).ticks(0),
+
             xAxis = gPlot.append('g')
               .call(xAxisSetting)
               .attr('class', 'indi_x_axis')
               .attr('transform', 'translate(0,' + this.layout.plot.height * 3/4 + ')'),
+            yAxis = gPlot.append('g')
+              .call(yAxisSetting)
+              .attr('class', 'indi_y_axis')
+              .attr('transform', 'translate(0,0)'),
+            yAxisGroupSkew = gGroupSkew.append('g')
+              .call(yAxisSetting)
+              .attr('class', 'group_skew_y_axis')
+              .attr('transform', 'translate(60,0)'),
             xAxisLine = xAxis.select('path')
+              .style('stroke-width', 3),
+            yAxisLine = yAxis.select('path')
+              .style('stroke-width', 3),
+            xAxisViolinPlotLine = gViolinPlot.append('line')
+              .attr('x1', -20)
+              .attr('y1', this.layout.plot.height * 3/4)
+              .attr('x2', 70)
+              .attr('y2', this.layout.plot.height * 3/4)
+              .style('stroke-dasharray', '3,3')
+              .style('stroke', 'lightgray')
+              .style('stroke-width', 3),
+            yAxisGroupSkewLine = yAxisGroupSkew.select('path')
               .style('stroke-width', 3);
             
 
@@ -183,16 +219,17 @@ class IndividualFairnessView extends Component {
           .text('Woman-Woman')
           .style('font-size', '11px');  
 
-      const margin = 20;
+      const margin = 20,
+            outLierMargin = 5;
 
       const marginRect = gPlot
               .append('rect')
               .attr('class', 'margin_rect')
-              .attr('x', 50)
+              .attr('x', 0)
               .attr('y', (this.layout.plot.height * 3/4 - margin))
-              .attr('width', this.layout.plot.width * 0.9)
+              .attr('width', this.layout.plot.width)
               .attr('height', margin * 2)
-              .style('fill', 'lightgreen')
+              .style('fill', 'lightblue')
               .style('opacity', 0.5)
               .style('stroke', d3.rgb('lightgreen').darker())
               .style('stroke-dasharray', '2, 2');
@@ -226,65 +263,64 @@ class IndividualFairnessView extends Component {
               .style('opacity', 0.8)
               .style('stroke-opacity', 0.8)
               .on('mouseover', function(d, i) {
-                var selectedCircleIdx = i;
-                
-                d3.selectAll('circle.coords_circle')
-                  .filter(function(d, i) {
-                    return (i !== selectedCircleIdx);
-                  })
-                  .style('opacity', 0.2);
-                
-                d3.select(this).attr('opacity','0');
+                    var selectedCircleIdx = i;
+                    
+                    d3.selectAll('circle.coords_circle')
+                      .filter(function(e, i) {
+                        return (i !== selectedCircleIdx);
+                      })
+                      .style('opacity', 0.2);
+                    
+                    d3.select(this).attr('opacity','0');
 
-                d3.selectAll('.coords_rect')
-                  .style('opacity', 0.2);
+                    d3.selectAll('.coords_rect')
+                      .style('opacity', 0.2);
 
-                // Draw half circle heading the arc toward what it goes
+                    // Draw half circle heading the arc toward what it goes
 
-                console.log('gPlot: ', gPlot);
-                console.log('margin: ', margin);
+                    console.log('gPlot: ', gPlot);
+                    console.log('margin: ', margin);
 
-                var circleArc = d3.arc()
-                  .innerRadius(0)
-                  .outerRadius(5)
-                  .startAngle(0)
-                  .endAngle(Math.PI);
+                    var circleArc = d3.arc()
+                      .innerRadius(0)
+                      .outerRadius(5)
+                      .startAngle(0)
+                      .endAngle(Math.PI);
 
-                d3.select('.g_plot')
-                  .append("path")
-                  .attr("class", function(d){
-                      return 'class1';
-                  })
-                  .attr("d", circleArc)
-                  .attr("transform", function(d){
-                      return "translate(30,30)rotate(0)";
-                  })
-                  .style("stroke", "black")
-                  .style("fill", "mediumpurple");
+                    // left semicircle
+                    d3.select('.g_plot')
+                      .append("path")
+                      .attr("class", 'mouseoverPairColor mouseoverPairCircleRight')
+                      .attr("d", circleArc)
+                      .attr("transform", function(e) {
+                        return "translate(" + (self.xObservedScale(d.x0) - 1) + "," + self.yDecisionScale(d.y1) + ")" + "rotate(180)"
+                      })
+                      .style("stroke", (e) => d3.rgb(pairColorScale(d.pair)).darker())
+                      .style("fill", (e) => pairColorScale(d.pair));
 
-                d3.select('.g_plot')
-                  .append("path")
-                  .attr("class", function(d){
-                      return 'class2';
-                  })
-                  .attr("d", circleArc)
-                  .attr("transform", function(e) {
-                    console.log(d);
-                    return "translate(" + self.xObservedScale(d.x0) + "," + self.yDecisionScale(d.y1) + ")" + "rotate(180)"
-                  })
-                  .style("stroke", "black")
-                  .style("fill", "mediumpurple");
+                    // right semicircle
+                    d3.select('.g_plot')
+                      .append("path")
+                      .attr("class", 'mouseoverPairColor mouseoverPairCircleRight')
+                      .attr("d", circleArc)
+                      .attr("transform", function(e) {
+                        return "translate(" + (self.xObservedScale(d.x0) + 1) + "," + self.yDecisionScale(d.y1) + ")" + "rotate(0)"
+                      })
+                      .style("stroke", (e) => d3.rgb(pairColorScale(d.pair)).darker())
+                      .style("fill", (e) => pairColorScale(d.pair));
               })
               .on('mouseout', (d) => {
-                d3.selectAll('.coords_circle')
-                  .style('opacity', 0.8);
+                    d3.selectAll('.coords_circle')
+                      .style('opacity', 0.8);
 
-                d3.selectAll('.coords_rect')
-                  .style('opacity', 1);
+                    d3.selectAll('.coords_rect')
+                      .style('opacity', 1);
+
+                    d3.selectAll('.mouseoverPairColor').remove();
               });
 
       
-
+      // Violin plot for summary
       const swarm = beeswarm()
               .data(_.filter(this.combinedCoordsData, (d) => d.pair === 1).slice(0, 50))
               .distributeOn((d) => this.yDecisionScale(d.y1))
@@ -293,7 +329,7 @@ class IndividualFairnessView extends Component {
               .side('symmetric')
               .arrange();
 
-      gPlot.selectAll('.beeswarm_circle')
+      gViolinPlot.selectAll('.beeswarm_circle')
         .data(swarm)
         .enter()
         .append('circle')
@@ -316,7 +352,7 @@ class IndividualFairnessView extends Component {
               .side('symmetric')
               .arrange();
 
-      gPlot.selectAll('.beeswarm_circle2')
+      gViolinPlot.selectAll('.beeswarm_circle2')
         .data(swarm2)
         .enter()
         .append('circle')
@@ -332,62 +368,109 @@ class IndividualFairnessView extends Component {
         .style('stroke', (bee) => d3.rgb(pairColorScale(bee.datum.pair)).darker());
 
       // Group skew
-      const groupSkewRect1 = gGroupSkew
-              .append('rect')
-              .attr('class', 'groupSkewRect')
-              .attr('x', 68.5)
-              .attr('y', 20)
-              .attr('width', 3)
-              .attr('height', 40)
-              .style('fill', pairColorScale(3))
-              .style('stroke', 'black')
-              .style('stroke-width', 0.5);
-  
-      const groupSkewCircle1 = gGroupSkew
-              .append('circle')
-              .attr('class', 'groupSkewCircle')
-              .attr('cx', 70)
-              .attr('cy', 20)
-              .attr('r', 6)
-              .style('fill', pairColorScale(3))
-              .style('stroke', d3.rgb(pairColorScale(3)).darker())
-              .style('stroke-opacity', 0.8);
+      const sampleGroupSkewSum = {
+            groupPairs1: -3,
+            groupPairs2: -5,
+            betweenPairs: 8
+          };
+      let groupSkewRect1, groupSkewCircle1,
+          idx = 1;
 
-      const groupSkewRect2 = gGroupSkew
-              .append('rect')
-              .attr('class', 'groupSkewRect')
-              .attr('x', 48.5)
-              .attr('y', 60)
-              .attr('width', 3)
-              .attr('height', 20)
-              .style('fill', 'dimgray')
-              .style('stroke', 'black')
-              .style('stroke-width', 0.5);
+      console.log('dddd');
+      console.log(this.layout.groupSkew.width);
+      
+      // Go over all sum of skews
+      // idx => 1: groupPairs1, 2: groupPairs2, 3: betweenPairs
+      _.mapValues(sampleGroupSkewSum, (sumSkew) => {
+        console.log(sumSkew, this.xGroupSkewScale(idx));
+        gGroupSkew
+            .append('rect')
+            .attr('class', 'groupSkewRect')
+            .attr('x', this.xGroupSkewScale(idx))
+            .attr('y', (d) => 
+              sumSkew > 0
+                ? this.yGroupSkewScale(sumSkew) 
+                : this.yGroupSkewScale(0)
+            )
+            .attr('width', idx)
+            .attr('height', Math.abs(this.yGroupSkewScale(sumSkew) - this.yGroupSkewScale(0)))
+            .style('fill', pairColorScale(idx))
+            .style('stroke', 'black')
+            .style('stroke-width', 0.5);
+
+        gGroupSkew
+            .append('circle')
+            .attr('class', 'groupSkewCircle')
+            .attr('cx', this.xGroupSkewScale(idx))
+            .attr('cy', this.yGroupSkewScale(sumSkew))
+            .attr('r', 6)
+            .style('fill', pairColorScale(idx))
+            .style('stroke', d3.rgb(pairColorScale(idx)).darker())
+            .style('stroke-opacity', 0.8);
+        
+        idx++;
+      });
+
+      // groupSkewRect1 = gGroupSkew
+      //     .append('rect')
+      //     .attr('class', 'groupSkewRect')
+      //     .attr('x', 68.5)
+      //     .attr('y', (d) => 
+      //       sampleGroupSkewSum.betweenPairs > 0
+      //         ? this.yGroupSkewScale(sampleGroupSkewSum.betweenPairs) 
+      //         : this.yGroupSkewScale(0)
+      //     )
+      //     .attr('width', 3)
+      //     .attr('height', Math.abs(this.yGroupSkewScale(sampleGroupSkewSum.betweenPairs) - this.yGroupSkewScale(0)))
+      //     .style('fill', pairColorScale(3))
+      //     .style('stroke', 'black')
+      //     .style('stroke-width', 0.5);
+
+      // groupSkewCircle1 = gGroupSkew
+      //     .append('circle')
+      //     .attr('class', 'groupSkewCircle')
+      //     .attr('cx', 70)
+      //     .attr('cy', this.yGroupSkewScale(sampleGroupSkewSum.betweenPairs))
+      //     .attr('r', 6)
+      //     .style('fill', pairColorScale(3))
+      //     .style('stroke', d3.rgb(pairColorScale(3)).darker())
+      //     .style('stroke-opacity', 0.8);
+
+      // const groupSkewRect2 = gGroupSkew
+      //         .append('rect')
+      //         .attr('class', 'groupSkewRect')
+      //         .attr('x', 48.5)
+      //         .attr('y', 60)
+      //         .attr('width', 3)
+      //         .attr('height', 20)
+      //         .style('fill', 'dimgray')
+      //         .style('stroke', 'black')
+      //         .style('stroke-width', 0.5);
   
-      const groupSkewCircle2 = gGroupSkew
-              .append('circle')
-              .attr('class', 'groupSkewCircle')
-              .attr('cx', 50)
-              .attr('cy', 80)
-              .attr('r', 6)
-              .style('fill', pairColorScale(1))
-              .style('stroke', d3.rgb(pairColorScale(1)).darker())
-              .style('stroke-opacity', 0.8);
+      // const groupSkewCircle2 = gGroupSkew
+      //         .append('circle')
+      //         .attr('class', 'groupSkewCircle')
+      //         .attr('cx', 50)
+      //         .attr('cy', 80)
+      //         .attr('r', 6)
+      //         .style('fill', pairColorScale(1))
+      //         .style('stroke', d3.rgb(pairColorScale(1)).darker())
+      //         .style('stroke-opacity', 0.8);
 
       const groupSkewLine = gGroupSkew
             .append('line')
-            .attr('x1', 40)
-            .attr('y1', 60)
-            .attr('x2', 90)
-            .attr('y2', 60)
+            .attr('x1', 0)
+            .attr('y1', this.yGroupSkewScale(0))
+            .attr('x2', 60)
+            .attr('y2', this.yGroupSkewScale(0))
             .style('stroke', 'black')
             .style('stroke-width', 3);
 
       const groupSkewText = gGroupSkew
             .append('text')
-            .attr('x', 30)
-            .attr('y', 0)
-            .text('Group skew');
+            .attr('x', -10)
+            .attr('y', 100)
+            .text('Group skew: 1.03');
       
       return (
         <div className={styles.IndividualFairnessView}>
@@ -455,8 +538,6 @@ class IndividualFairnessView extends Component {
                 .transition(transition)
                 .attr("x", (d) => this.xObservedScale(d.x0));
       }
-
-      
 
       // Redefine scale
       // Assign the new scale to axis

@@ -40,7 +40,7 @@ class GroupFairnessView extends Component {
       const svg = new ReactFauxDOM.Element('svg');
   
       svg.setAttribute('width', this.layout.wholeDistribution.width);
-      svg.setAttribute('height', this.layout.wholeDistribution.height);
+      svg.setAttribute('height', this.layout.wholeDistribution.height - 50);
       svg.setAttribute('0 0 100 100');
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       svg.setAttribute('class', 'wholeDistribution');
@@ -55,7 +55,7 @@ class GroupFairnessView extends Component {
                 .range([0, this.layout.wholeDistribution.width])
                 .domain([0, 100]);
       yScale = d3.scaleLinear()
-                .range([this.layout.wholeDistribution.height, 0])
+                .range([this.layout.wholeDistribution.height - 50, 0])
                 .domain([0, 10]);
 
       groupBins1 = d3.histogram()
@@ -65,7 +65,7 @@ class GroupFairnessView extends Component {
   
       xAxis = d3.select(svg)
           .append('g')
-          .attr('transform', 'translate(0,99)')
+          .attr('transform', 'translate(0,49)')
           .call(d3.axisBottom(xScale).tickSize(0).tickFormat(""));
 
       xAxis.select('path')
@@ -86,7 +86,7 @@ class GroupFairnessView extends Component {
   
       groupHistogramBar1.append('rect')
           .attr('x', 0)
-          .attr('width', function(d) { return 6; })
+          .attr('width', function(d) { return 15; })
           .attr('height', function(d) { return 100 - yScale(d.length); })
           .style('fill', gs.groupColor1)
           .style('opacity', 0.5);
@@ -101,7 +101,7 @@ class GroupFairnessView extends Component {
   
       groupHistogramBar2.append('rect')
           .attr('x', 0)
-          .attr('width', function(d) { return 6; })
+          .attr('width', function(d) { return 15; })
           .attr('height', function(d) { return 100 - yScale(d.length); })
           .style('fill', gs.groupColor2)
           .style('opacity', 0.5);
@@ -118,24 +118,36 @@ class GroupFairnessView extends Component {
                 Statistical Parity
               </div>
               <div className={styles.statParityPlotsWrapper}>
-                {this.svgTopKPlot.toReact()}
+                <div className={styles.topKPlot}>
+                  {this.svgTopKPlot.toReact()}
+                </div>
                 <div className={styles.score}>89</div>
-                {svg.toReact()}
+                <div className={styles.wholeDistribution}>
+                  {svg.toReact()}
+                </div>
               </div>
             </div>
             <div className={styles.conditionalParityPlot}>
               <div className={styles.subTitle}>
-                Conditional Parity
+                Conditional Parity (TP/FP)
               </div>
               <div className={styles.conditionalParityPlotWrapper}>
-                <div className={styles.topKPlot}></div>
-                <div className={styles.score}>89</div>
-                {svg.toReact()}
+                <div className={styles.topKPlot}>
+                  {this.svgTopKPlot.toReact()}
+                </div>
+                <div className={styles.score}>92</div>
+                <div className={styles.wholeDistribution}>
+                  {svg.toReact()}
+                </div>
               </div>
               <div className={styles.conditionalParityPlotWrapper2}>
-                <div className={styles.topKPlot}></div>
-                <div className={styles.score}>92</div>
-                {svg.toReact()}
+                <div className={styles.topKPlot}>
+                  {this.svgTopKPlot.toReact()}
+                </div>
+                <div className={styles.score}>89</div>
+                <div className={styles.wholeDistribution}>
+                  {svg.toReact()}
+                </div>
               </div>
             </div>
           </div>
@@ -163,16 +175,16 @@ class GroupFairnessView extends Component {
       
       xScale = d3.scaleBand()
           .domain(d3.range(xThreshold))
-        .range([0, this.layout.topKPlot.width]);
+          .range([40, this.layout.topKPlot.width - 70]);
 
       console.log(xScale(5));
       console.log(d3.range(xThreshold));
 
       yScale = d3.scaleBand()
           .domain(d3.range(yThreshold))
-          .range([this.layout.topKPlot.height, 0]),
+          .range([this.layout.topKPlot.height, 10]),
 
-      groupColorScale = d3.scaleBand()
+      groupColorScale = d3.scaleOrdinal()
           .domain([0, 1])
           .range([gs.groupColor1, gs.groupColor2]);
 
@@ -189,7 +201,7 @@ class GroupFairnessView extends Component {
           circleIdx.push({
             x: i,
             y: j,
-            sensitiveGroup: k
+            sensitiveGroup: group
           });
         }
       }
@@ -200,8 +212,13 @@ class GroupFairnessView extends Component {
         .attr('class', 'topKPlotCircle')
         .attr('cx', (d) => xScale(d.x))
         .attr('cy', (d) => yScale(d.y))
-        .attr('r', 2)
-        .style('fill', (d) => groupColorScale(d.sensitiveGroup));
+        .attr('r', 3)
+        .style('fill', (d) => {
+          console.log(groupColorScale(d.sensitiveGroup))
+          console.log(d.sensitiveGroup)
+          return groupColorScale(d.sensitiveGroup)
+        })
+        .style('stroke', (d) => d3.rgb(groupColorScale(d.sensitiveGroup)).darker());
     }
   }
 

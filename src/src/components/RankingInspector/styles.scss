@@ -60,10 +60,16 @@
 
                 .topKPlot {
                     grid-column: 1;
+                    align-self: center;
+
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 }
 
                 .score {
                     grid-column: 2;
+                    align-self: center;
 
                     font-size: 1.2rem;
                     color: #2a4b5a;
@@ -71,6 +77,10 @@
                 
                 .wholeDistribution {
                     grid-column: 3;
+                    align-self: center;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
         
                     margin: 3px 0px;
                 }

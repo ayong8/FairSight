@@ -36,7 +36,11 @@ class RankingInspector extends Component {
       <div className={styles.RankingInspector}>
         <InputSpaceView inputCoords={this.props.inputCoords} className={styles.InputSpaceView} />
         <GroupFairnessView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.GroupFairnessView} />
-        <IndividualFairnessView distortions={this.props.distortions} ranking={this.props.ranking} className={styles.IndividualFairnessView} />
+        <IndividualFairnessView inputCoords={this.props.inputCoords} 
+                                distortions={this.props.distortions} 
+                                distortionsInPermutations={this.props.distortionsInPermutations}
+                                ranking={this.props.ranking} 
+                                className={styles.IndividualFairnessView} />
         <RankingView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} />
         <UtilityView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.UtilityView} />
       </div>

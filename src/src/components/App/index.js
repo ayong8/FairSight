@@ -104,7 +104,7 @@ class App extends Component {
         { ranking: 49, score: 26, group: 2 },
         { ranking: 50, score: 20, group: 2 }
       ],
-      distortions_mockup: [
+      observedAndDecisions: [
         {observed: 1, decision: 1},
         {observed: 3, decision: 4},
         {observed: 5, decision: 4},
@@ -126,7 +126,8 @@ class App extends Component {
         {observed: 32, decision: 28}
       ],
       inputCoords: dimReductionData,
-      distortions: this.calculateDistortions()
+      distortions: this.calculateDistortions(),
+      distortionsInPermutations: this.calculatePermutationDistortions()
     };
   }
 
@@ -174,15 +175,18 @@ class App extends Component {
   }
 
   calculateDistortions() {
-
-    let dimReductionCoords = _.toArray(dimReductionData);
-    let pairs = pairwise(dimReductionCoords);
+    let dimReductions = _.map(dimReductionData, (value, key) => 
+                          _.assign(value, {'idx': parseInt(key)}));
+    let pairs = pairwise(dimReductions);
 
     // Get scores => then they are gonna consist of decision space
+    console.log('pairs after pairwise(): ', pairs);
 
     let pairwise_dist = _.map(pairs, (d) => {
           let observed = Math.sqrt(Math.pow(d[0].dim1 - d[1].dim1, 2) + Math.pow(d[0].dim2 - d[1].dim2, 2));
           return {
+            idx1: d[0].idx,
+            idx2: d[1].idx,
             pair: Math.floor(Math.random() * 3) + 1,  // for now, pair is a random => (1: Woman and Woman, 2: Woman and Man, 3: Man and Man)
             observed: observed,
             decision: observed + (Math.random() - 0.5)
@@ -190,6 +194,31 @@ class App extends Component {
         });
 
     return pairwise_dist;
+  }
+
+  calculatePermutationDistortions() {
+    let dimReductions = _.map(dimReductionData, (value, key) => 
+                          _.assign(value, {'idx': parseInt(key)})),
+        pairs = [];
+
+    _.forEach(dimReductions, (obj1) => {
+        _.forEach(dimReductions, (obj2) => {
+          let observed = Math.sqrt(Math.pow(obj1.dim1 - obj2.dim1, 2) + Math.pow(obj1.dim2 - obj2.dim2, 2));
+          
+          pairs.push({
+            idx1: obj1.idx,
+            idx2: obj2.idx,
+            pair: Math.floor(Math.random() * 3) + 1,  // for now, pair is a random => (1: Woman and Woman, 2: Woman and Man, 3: Man and Man)
+            observed: observed,
+            decision: observed + (Math.random() - 0.5)
+          });
+        });
+    });
+
+    // Get scores => then they are gonna consist of decision space
+    console.log('pairs from permutations: ', pairs);
+
+    return pairs;
   }
 
   render() {
@@ -209,7 +238,12 @@ class App extends Component {
         <Generator dataset='german.csv' />
         <RankingsListView rankings={this.state.rankings} />
         <TableView />
-        <RankingInspector inputCoords={this.state.inputCoords} distortions={this.state.distortions} wholeRanking={this.state.wholeRanking} ranking={selectedRanking} />
+        <RankingInspector inputCoords={this.state.inputCoords} 
+                          observedAndDecisions={this.state.observedAndDecisions} 
+                          distortions={this.state.distortions} 
+                          distortionsInPermutations={this.state.distortionsInPermutations}
+                          wholeRanking={this.state.wholeRanking} 
+                          ranking={selectedRanking} />
         <Footer />
       </div>
     );

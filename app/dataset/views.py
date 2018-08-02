@@ -132,6 +132,7 @@ class RunMDS(APIView):
         file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
         
         df1 = pd.read_csv(open(file_path, 'rU'), index_col=0) # 0 = 'id' column
+        print(df1)
         dataset = df1[['default', 'credit_amount', 'installment_as_income_perc', 'sex', 'age']]
         dataset_mds = pd.DataFrame(dataset[['credit_amount', 'installment_as_income_perc', 'age']])
         
@@ -139,7 +140,7 @@ class RunMDS(APIView):
         # should do normalization
 
         # calculate pairwise distance
-        #dataset_mds = dataset_mds.transpose()
+
         d = pairwise_distances(dataset_mds)
 
         df_mds_result = pd.DataFrame(MDS(n_components=2, metric=False).fit_transform(d), dataset_mds.index)

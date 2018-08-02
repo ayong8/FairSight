@@ -176,9 +176,6 @@ class GroupFairnessView extends Component {
           .domain(d3.range(xThreshold))
           .range([40, this.layout.topKPlot.width - 70]);
 
-      console.log(xScale(5));
-      console.log(d3.range(xThreshold));
-
       yScale = d3.scaleBand()
           .domain(d3.range(yThreshold))
           .range([this.layout.topKPlot.height, 10]),
@@ -212,11 +209,7 @@ class GroupFairnessView extends Component {
         .attr('cx', (d) => xScale(d.x))
         .attr('cy', (d) => yScale(d.y))
         .attr('r', 3)
-        .style('fill', (d) => {
-          console.log(groupColorScale(d.sensitiveGroup))
-          console.log(d.sensitiveGroup)
-          return groupColorScale(d.sensitiveGroup)
-        })
+        .style('fill', (d) => groupColorScale(d.sensitiveGroup))
         .style('stroke', (d) => d3.rgb(groupColorScale(d.sensitiveGroup)).darker());
     }
   }

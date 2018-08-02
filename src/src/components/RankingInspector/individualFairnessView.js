@@ -18,9 +18,14 @@ class IndividualFairnessView extends Component {
       this.handleSelectSorting = this.handleSelectSorting.bind(this);
       this.combinedCoordsData = [],
       this.xObservedScale;
-      this.yDecisionScale;
-      this.xGroupSkewScale
+      this.yDistortionScale;
+      this.xGroupSkewScale;
       this.yGroupSkewScale;
+      this.rectColorScale;
+      this.pairColorScale;
+
+      this.xObservedScale2;
+      this.yDecisionScale;
 
       this.state = {
         dropdownOpen: false,
@@ -28,12 +33,24 @@ class IndividualFairnessView extends Component {
       };
 
       this.svg;
+      this.svgMatrix;
+      this.svgPlot;
       this.layout = {
         width: 650,
         height: 300,
         svg: {
           width: 750, // 90% of whole layout
           height: 250 // 100% of whole layout
+        },
+        svgMatrix: {
+          width: 400,
+          height: 400,
+          margin: 10
+        },
+        svgPlot: {
+          width: 100,
+          height: 100,
+          margin: 5
         },
         groupSkew: {
           width: 55,
@@ -59,6 +76,105 @@ class IndividualFairnessView extends Component {
     componentWillMount() {
 
     }
+
+    renderPlot() {
+      let self = this;
+
+      this.svgPlot = new ReactFauxDOM.Element('svg');
+  
+      this.svgPlot.setAttribute('width', this.layout.svgPlot.width);
+      this.svgPlot.setAttribute('height', this.layout.svgPlot.height);
+      this.svgPlot.setAttribute('0 0 200 200');
+      this.svgPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      this.svgPlot.style.setProperty('margin', '0 5%');
+
+      let data = this.props.distortions;
+
+      // sort by observed space difference
+      data = _.orderBy(data, ['observed']);
+
+      // Coordinate scales
+      this.xObservedScale2 = d3.scaleLinear()
+            .range([0, this.layout.svgPlot.width - this.layout.svgPlot.margin])
+            .domain(d3.extent(data, (d) => d.observed));
+      this.yDecisionScale = d3.scaleLinear()
+            .range([this.layout.svgPlot.height - this.layout.svgPlot.margin, this.layout.svgPlot.margin])
+            .domain(d3.extent(data, (d) => d.decision));
+
+      let gPlot = d3.select(this.svgPlot).append('g')
+          .attr('class', 'g_plot')
+          .attr('transform', 'translate(0, 0)');
+
+      const xAxisSetting = d3.axisTop(this.xObservedScale).tickSize(0).ticks(0),
+          yAxisSetting = d3.axisRight(this.yDistortionScale).tickSize(0).ticks(0);
+
+    }
+
+    renderMatrix() {
+      let self = this;
+
+      this.svgMatrix = new ReactFauxDOM.Element('svg');
+  
+      this.svgMatrix.setAttribute('width', this.layout.svgMatrix.width);
+      this.svgMatrix.setAttribute('height', this.layout.svgMatrix.height);
+      this.svgMatrix.setAttribute('0 0 200 200');
+      this.svgMatrix.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      this.svgMatrix.style.setProperty('margin', '0 5%');
+
+      let dataDistortions = this.props.distortions,
+          dataDistortionsForMatrix = this.props.distortionsInPermutations,
+          dataInputs = this.props.inputCoords,
+          dataObservedAndDecisions = this.props.dataObservedAndDecisions;
+      
+      let xMatrixScale = d3.scaleBand()
+              .domain(_.map(dataInputs, (d) => d.idx))  // For now, it's just an index of items(from observed)
+              .range([0, this.layout.svgMatrix.width - this.layout.svgMatrix.margin]),
+          yMatrixScale = d3.scaleBand()
+              .domain(_.map(dataInputs, (d) => d.idx))  // For now, it's just an index of items(from observed)
+              .range([this.layout.svgMatrix.height - this.layout.svgMatrix.margin, 0]),
+          cellWidth = xMatrixScale.bandwidth(),
+          cellHeight = yMatrixScale.bandwidth(),
+          circleDistortionScale = d3.scaleLinear()
+              .domain(d3.extent(dataDistortionsForMatrix, (d) => Math.abs(d.observed - d.decision)))
+              .range([0, cellWidth / 2]);
+
+      console.log(circleDistortionScale.domain());
+
+      let gMatrix = d3.select(this.svgMatrix).append('g')
+          .attr("class", "g_matrix")
+          .attr("transform", "translate(" + this.layout.svgMatrix.margin + "," + this.layout.svgMatrix.margin + ")");
+
+      let gCells = gMatrix.selectAll('.g_row')
+          .data(dataDistortionsForMatrix)
+          .enter().append('g')
+          .attr('class', 'g_row')
+          .attr('transform', function(d){
+            return "translate(" + xMatrixScale(d.idx1) + "," + yMatrixScale(d.idx2) + ")";
+        });
+
+      gCells.append('rect')
+        .attr('class', 'pair_rect')
+        .attr('x', 0)
+        .attr('y', 0)
+        .attr('width', cellWidth)
+        .attr('height', cellHeight)
+        .style('fill', (d) => self.pairColorScale(d.pair))
+        .style('stroke', 'white');
+
+      gCells
+        .each(function(d) {
+          d3.select(this).append('circle')
+            .attr('class', 'distortion_circle')
+            .attr('cx', cellWidth / 2)
+            .attr('cy', cellHeight / 2)
+            .attr('r', (d) => {
+              return circleDistortionScale(Math.abs(d.observed - d.decision));
+            })
+            .style('fill', 'red')
+            .style('stroke', 'black');
+        });
+        
+    }
   
     render() {
       let self = this;
@@ -72,7 +188,6 @@ class IndividualFairnessView extends Component {
       this.svg.style.setProperty('margin', '0 5%');
   
       let data = this.props.distortions;
-      console.log('data: ', data);
 
       // sort by observed space difference
       data = _.orderBy(data, ['observed']);
@@ -84,7 +199,7 @@ class IndividualFairnessView extends Component {
       this.xObservedScale = d3.scaleLinear()
             .range([0, this.layout.plot.width])
             .domain([0, d3.max(coords, (d) => d.x)]),
-      this.yDecisionScale = d3.scaleLinear()
+      this.yDistortionScale = d3.scaleLinear()
             .range([this.layout.plot.height - 5, this.layout.plot.height * 1/2])
             .domain(d3.extent(coords, (d) => d.y)),
       this.xGroupSkewScale = d3.scaleBand()
@@ -107,7 +222,7 @@ class IndividualFairnessView extends Component {
               .attr('transform', 'translate(650, 0)');
 
       const xAxisSetting = d3.axisTop(this.xObservedScale).tickSize(0).ticks(0),
-            yAxisSetting = d3.axisRight(this.yDecisionScale).tickSize(0).ticks(0),
+            yAxisSetting = d3.axisRight(this.yDistortionScale).tickSize(0).ticks(0),
             xAxisGroupSkewSetting = d3.axisTop(this.xObservedScale).tickSize(0).ticks(0),
             yAxisGroupSkewSetting = d3.axisLeft(this.yGroupSkewScale).tickSize(0).ticks(0),
 
@@ -152,12 +267,15 @@ class IndividualFairnessView extends Component {
       });
 
       // Color scales
-      const rectColorScale = d3.scaleLinear()
-              .domain(d3.extent(this.combinedCoordsData, (d) => d.y1 - d.y0))
-              .range(['lightgreen', 'pink']),
-            pairColorScale = d3.scaleThreshold()
-              .domain([1, 2, 3])  // pair is one or two or three
-              .range(['white', gs.groupColor1, gs.groupColor2, gs.betweenGroupColor]);      
+      this.rectColorScale = d3.scaleLinear()
+            .domain(d3.extent(this.combinedCoordsData, (d) => d.y1 - d.y0))
+            .range(['lightgreen', 'pink']),
+      this.pairColorScale = d3.scaleThreshold()
+            .domain([1, 2, 3])  // pair is one or two or three
+            .range(['white', gs.groupColor1, gs.groupColor2, gs.betweenGroupColor]);      
+
+      this.renderMatrix();
+      this.renderPlot();
       
       // legend border
       gLegend.append('rect')
@@ -184,8 +302,8 @@ class IndividualFairnessView extends Component {
           .attr('cx', 10)
           .attr('cy', 30)
           .attr('r', 4)
-          .style('fill', pairColorScale(3))
-          .style('stroke', d3.rgb(pairColorScale(3)).darker());
+          .style('fill', this.pairColorScale(3))
+          .style('stroke', d3.rgb(this.pairColorScale(3)).darker());
       gLegend.append('text')
           .attr('x', 30)
           .attr('y', 33)
@@ -197,8 +315,8 @@ class IndividualFairnessView extends Component {
           .attr('cx', 10)
           .attr('cy', 45)
           .attr('r', 4)
-          .style('fill', pairColorScale(1))
-          .style('stroke', d3.rgb(pairColorScale(1)).darker());
+          .style('fill', this.pairColorScale(1))
+          .style('stroke', d3.rgb(this.pairColorScale(1)).darker());
       gLegend.append('text')
           .attr('x', 30)
           .attr('y', 48)
@@ -211,8 +329,8 @@ class IndividualFairnessView extends Component {
           .attr('cx', 10)
           .attr('cy', 60)
           .attr('r', 4)
-          .style('fill', pairColorScale(2))
-          .style('stroke', d3.rgb(pairColorScale(2)).darker())
+          .style('fill', this.pairColorScale(2))
+          .style('stroke', d3.rgb(this.pairColorScale(2)).darker())
           .on('mouseover', (d) => {
               d3.selectAll('circle.coords_circle_group2')
                 .style('stroke', 'black')
@@ -228,12 +346,12 @@ class IndividualFairnessView extends Component {
                 .attr('y1', 200)
                 .attr('x2', 540)
                 .attr('y2', 180)
-                .style('stroke', pairColorScale(2))
+                .style('stroke', this.pairColorScale(2))
                 .style('stroke-width', 3);
           })
           .on('mouseout', (d) => {
               d3.selectAll('circle.coords_circle_group2')
-                .style('stroke', d3.rgb(pairColorScale(2)).darker())
+                .style('stroke', d3.rgb(this.pairColorScale(2)).darker())
                 .style('stroke-width', 1);
 
               d3.selectAll('.coords_rect')
@@ -292,11 +410,11 @@ class IndividualFairnessView extends Component {
               .attr('x', (d) => this.xObservedScale(d.x0))
               .attr('y', (d) => 
                   d.y1 - d.y0 > 0
-                  ? this.yDecisionScale(d.y1 - d.y0) 
-                  : this.yDecisionScale(d.y0)
+                  ? this.yDistortionScale(d.y1 - d.y0) 
+                  : this.yDistortionScale(d.y0)
               )
               .attr('width', 0.05)
-              .attr('height', (d) => Math.abs(this.yDecisionScale(d.y1 - d.y0) - this.layout.plot.height * 3/4))
+              .attr('height', (d) => Math.abs(this.yDistortionScale(d.y1 - d.y0) - this.layout.plot.height * 3/4))
               .style('stroke', 'black')
               .style('stroke-width', 0.5);
   
@@ -317,10 +435,10 @@ class IndividualFairnessView extends Component {
                 return 'coords_circle ' + groupClass;
               })
               .attr('cx', (d) => this.xObservedScale(d.x0))
-              .attr('cy', (d) => this.yDecisionScale(d.y1))
+              .attr('cy', (d) => this.yDistortionScale(d.y1))
               .attr('r', 3)
-              .style('fill', (d) => pairColorScale(d.pair))
-              .style('stroke', (d) => d3.rgb(pairColorScale(d.pair)).darker())
+              .style('fill', (d) => this.pairColorScale(d.pair))
+              .style('stroke', (d) => d3.rgb(this.pairColorScale(d.pair)).darker())
               .style('opacity', 0.8)
               .style('stroke-opacity', 0.8)
               .on('mouseover', function(d, i) {
@@ -351,8 +469,8 @@ class IndividualFairnessView extends Component {
                       .attr("transform", function(e) {
                         return "translate(" + (self.xObservedScale(d.x0) - 1) + "," + self.yDecisionScale(d.y1) + ")" + "rotate(180)"
                       })
-                      .style("stroke", (e) => d3.rgb(pairColorScale(d.pair)).darker())
-                      .style("fill", (e) => pairColorScale(d.pair));
+                      .style("stroke", (e) => d3.rgb(self.pairColorScale(d.pair)).darker())
+                      .style("fill", (e) => self.pairColorScale(d.pair));
 
                     // right semicircle
                     d3.select('.g_plot')
@@ -362,8 +480,10 @@ class IndividualFairnessView extends Component {
                       .attr("transform", function(e) {
                         return "translate(" + (self.xObservedScale(d.x0) + 1) + "," + self.yDecisionScale(d.y1) + ")" + "rotate(0)"
                       })
-                      .style("stroke", (e) => d3.rgb(pairColorScale(d.pair)).darker())
-                      .style("fill", (e) => pairColorScale(d.pair));
+                      .style("stroke", (e) => {
+                        return d3.rgb(self.pairColorScale(d.pair)).darker()
+                      })
+                      .style("fill", (e) => self.pairColorScale(d.pair));
               })
               .on('mouseout', (d) => {
                     d3.selectAll('.coords_circle')
@@ -379,7 +499,7 @@ class IndividualFairnessView extends Component {
       // Violin plot for summary
       const swarm = beeswarm()
               .data(_.filter(this.combinedCoordsData, (d) => d.pair === 1).slice(0, 50))
-              .distributeOn((d) => this.yDecisionScale(d.y1))
+              .distributeOn((d) => this.yDistortionScale(d.y1))
               .radius(2)
               .orientation('vertical')
               .side('symmetric')
@@ -397,12 +517,12 @@ class IndividualFairnessView extends Component {
           return bee.y;
         })
         .attr('r', 3)
-        .style('fill', (bee) => pairColorScale(bee.datum.pair))
-        .style('stroke', (bee) => d3.rgb(pairColorScale(bee.datum.pair)).darker());
+        .style('fill', (bee) => this.pairColorScale(bee.datum.pair))
+        .style('stroke', (bee) => d3.rgb(this.pairColorScale(bee.datum.pair)).darker());
 
       const swarm2 = beeswarm()
               .data(_.filter(this.combinedCoordsData, (d) => d.pair === 2).slice(0, 50))
-              .distributeOn((d) => this.yDecisionScale(d.y1))
+              .distributeOn((d) => this.yDistortionScale(d.y1))
               .radius(2)
               .orientation('vertical')
               .side('symmetric')
@@ -420,8 +540,8 @@ class IndividualFairnessView extends Component {
           return bee.y;
         })
         .attr('r', 3)
-        .style('fill', (bee) => pairColorScale(bee.datum.pair))
-        .style('stroke', (bee) => d3.rgb(pairColorScale(bee.datum.pair)).darker());
+        .style('fill', (bee) => this.pairColorScale(bee.datum.pair))
+        .style('stroke', (bee) => d3.rgb(this.pairColorScale(bee.datum.pair)).darker());
 
       // Group skew
       const sampleGroupSkewSum = {
@@ -431,14 +551,10 @@ class IndividualFairnessView extends Component {
           };
       let groupSkewRect1, groupSkewCircle1,
           idx = 1;
-
-      console.log('dddd');
-      console.log(this.layout.groupSkew.width);
       
       // Go over all sum of skews
       // idx => 1: groupPairs1, 2: groupPairs2, 3: betweenPairs
       _.mapValues(sampleGroupSkewSum, (sumSkew) => {
-        console.log(sumSkew, this.xGroupSkewScale(idx));
         gGroupSkew
             .append('rect')
             .attr('class', 'groupSkewRect')
@@ -450,7 +566,7 @@ class IndividualFairnessView extends Component {
             )
             .attr('width', idx)
             .attr('height', Math.abs(this.yGroupSkewScale(sumSkew) - this.yGroupSkewScale(0)))
-            .style('fill', pairColorScale(idx))
+            .style('fill', this.pairColorScale(idx))
             .style('stroke', 'black')
             .style('stroke-width', 0.5);
 
@@ -460,8 +576,8 @@ class IndividualFairnessView extends Component {
             .attr('cx', this.xGroupSkewScale(idx))
             .attr('cy', this.yGroupSkewScale(sumSkew))
             .attr('r', 6)
-            .style('fill', pairColorScale(idx))
-            .style('stroke', d3.rgb(pairColorScale(idx)).darker())
+            .style('fill', this.pairColorScale(idx))
+            .style('stroke', d3.rgb(this.pairColorScale(idx)).darker())
             .style('stroke-opacity', 0.8);
         
         idx++;
@@ -499,6 +615,8 @@ class IndividualFairnessView extends Component {
               </Dropdown>
             </div>
           </div>
+          {this.svgPlot.toReact()}
+          {this.svgMatrix.toReact()}
           {this.svg.toReact()}
         </div>
       );
@@ -508,8 +626,6 @@ class IndividualFairnessView extends Component {
       this.setState(prevState => ({
         dropdownOpen: !prevState.dropdownOpen
       }));
-
-      console.log("dropdown selected")
     }
 
     handleSelectSorting(e) {
@@ -518,8 +634,6 @@ class IndividualFairnessView extends Component {
       let sortBy = e.target.value,
           data = this.combinedCoordsData,
           transition = d3.transition().duration(750);
-
-      console.log('sortBy: ', e.target.value);
 
       if(sortBy === 'distortion') {
         this.xObservedScale.domain(d3.extent(data, (d) => d.y1 - d.y0));

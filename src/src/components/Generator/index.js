@@ -189,7 +189,7 @@ class FairnessOrganizer extends Component {
           <input type="checkbox" />&nbsp;&nbsp;Conditional parity(FP)
         </div>
         <div className={styles.runButtonWrapper}>
-          <Button classNmae={styles.buttonGenerateRanking} color="danger">RUN</Button>
+          <Button className={styles.buttonGenerateRanking} color="danger">RUN</Button>
         </div>
       </div>
     );

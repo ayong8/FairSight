@@ -27,6 +27,17 @@ class IndividualFairnessView extends Component {
       this.xObservedScale2;
       this.yDecisionScale;
 
+      // For legend view
+      this.svgLegend;
+
+      // For matrix view
+      this.xMatrixScale;
+      this.yMatrixScale;
+      this.cellWidth;
+      this.cellHeight;
+      this.cellColorDistortionScale;
+      this.sumDistortionScale;
+
       this.state = {
         dropdownOpen: false,
         sortBy: 'close to far'
@@ -43,9 +54,29 @@ class IndividualFairnessView extends Component {
           height: 250 // 100% of whole layout
         },
         svgMatrix: {
-          width: 400,
-          height: 400,
-          margin: 10
+          width: 300,
+          height: 300,
+          margin: 10,
+          matrixPlot: {
+            width: 200,
+            height: 200
+          },
+          attrPlotLeft: {
+            width: 50,
+            height: 200
+          },
+          attrPlotBottom: {
+            width: 200,
+            height: 30
+          },
+          distortionSumPlotUpper: {
+            width: 200,
+            height: 30
+          },
+          distortionSumPlotRight: {
+            width: 30,
+            height: 200
+          }
         },
         svgPlot: {
           width: 100,
@@ -78,205 +109,226 @@ class IndividualFairnessView extends Component {
     }
 
     renderPlot() {
-      let self = this;
+      let _self = this;
 
-      this.svgPlot = new ReactFauxDOM.Element('svg');
-  
-      this.svgPlot.setAttribute('width', this.layout.svgPlot.width);
-      this.svgPlot.setAttribute('height', this.layout.svgPlot.height);
-      this.svgPlot.setAttribute('0 0 200 200');
-      this.svgPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      this.svgPlot.style.setProperty('margin', '0 5%');
-
-      let data = this.props.distortions;
+      let dataDistortions = this.props.distortions;
 
       // sort by observed space difference
-      data = _.orderBy(data, ['observed']);
+      dataDistortions = _.orderBy(dataDistortions, ['observed']);
+      console.log(dataDistortions);
 
       // Coordinate scales
       this.xObservedScale2 = d3.scaleLinear()
-            .range([0, this.layout.svgPlot.width - this.layout.svgPlot.margin])
-            .domain(d3.extent(data, (d) => d.observed));
+          .domain(d3.extent(dataDistortions, (d) => d.observed))
+          .range([0, this.layout.svgPlot.width - this.layout.svgPlot.margin]);
       this.yDecisionScale = d3.scaleLinear()
-            .range([this.layout.svgPlot.height - this.layout.svgPlot.margin, this.layout.svgPlot.margin])
-            .domain(d3.extent(data, (d) => d.decision));
+          .domain(d3.extent(dataDistortions, (d) => d.decision))  
+          .range([this.layout.svgPlot.height, 0]);
 
-      let gPlot = d3.select(this.svgPlot).append('g')
+      console.log(this.yDecisionScale.domain());
+      console.log(this.yDecisionScale.range());
+            
+      let gPlot = d3.select(this.svg).append('g')
           .attr('class', 'g_plot')
-          .attr('transform', 'translate(0, 0)');
+          .attr('transform', 'translate(140, 0)');
 
-      const xAxisSetting = d3.axisTop(this.xObservedScale).tickSize(0).ticks(0),
-          yAxisSetting = d3.axisRight(this.yDistortionScale).tickSize(0).ticks(0);
+      const xAxisSetting = d3.axisTop(this.xObservedScale2).tickSize(0).ticks(0),
+            yAxisSetting = d3.axisRight(this.yDecisionScale).tickSize(0).ticks(0),
+            xAxis = gPlot.append('g')
+                .call(xAxisSetting)
+                .attr('class', 'indi_x_axis')
+                .attr('transform', 'translate(' + this.layout.svgPlot.margin + ',' + (this.layout.svgPlot.height - this.layout.svgPlot.margin) + ')'),
+            yAxis = gPlot.append('g')
+                .call(yAxisSetting)
+                .attr('class', 'indi_y_axis')
+                .attr('transform', 'translate(0,0)');
 
+      const coordsCircles = gPlot
+            .selectAll('.plot_circle')
+            .data(dataDistortions)
+            .enter().append('circle')
+            .attr('class', (d) => {
+              let groupClass;
+
+              if(d.pair === 1)
+                groupClass = 'plot_circle_group1';
+              else if(d.pair === 2)
+                groupClass = 'plot_circle_group2';
+              else
+                groupClass = 'plot_circle_betweenGroup';
+
+              return 'plot_circle ' + groupClass;
+            })
+            .attr('cx', (d) => this.xObservedScale2(d.observed))
+            .attr('cy', (d) => this.yDecisionScale(d.decision))
+            .attr('r', 1)
+            .style('fill', (d) => this.pairColorScale(d.pair))
+            .style('stroke', (d) => d3.rgb(this.pairColorScale(d.pair)).darker())
+            .style('opacity', 0.8)
+            .style('stroke-opacity', 0.8);
     }
 
     renderMatrix() {
-      let self = this;
+      let _self = this;
 
-      this.svgMatrix = new ReactFauxDOM.Element('svg');
+      _self.svgMatrix = new ReactFauxDOM.Element('svg');
   
-      this.svgMatrix.setAttribute('width', this.layout.svgMatrix.width);
-      this.svgMatrix.setAttribute('height', this.layout.svgMatrix.height);
-      this.svgMatrix.setAttribute('0 0 200 200');
-      this.svgMatrix.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      this.svgMatrix.style.setProperty('margin', '0 5%');
+      _self.svgMatrix.setAttribute('width', _self.layout.svgMatrix.width);
+      _self.svgMatrix.setAttribute('height', _self.layout.svgMatrix.height);
+      _self.svgMatrix.setAttribute('0 0 200 200');
+      _self.svgMatrix.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      _self.svgMatrix.style.setProperty('margin', '0 5%');
 
       let dataDistortions = this.props.distortions,
           dataDistortionsForMatrix = this.props.distortionsInPermutations,
           dataInputs = this.props.inputCoords,
-          dataObservedAndDecisions = this.props.dataObservedAndDecisions;
+          dataObservedAndDecisions = this.props.dataObservedAndDecisions,
+          distortionMin = d3.extent(dataDistortionsForMatrix, (d) => Math.abs(d.observed - d.decision))[0],
+          distortionMax = d3.extent(dataDistortionsForMatrix, (d) => Math.abs(d.observed - d.decision))[1];
+
+      dataInputs = this.calculateTotalSum(dataInputs);
+      console.log(distortionMin, distortionMax);
+      console.log('Data - dataInputs:', dataInputs);
       
-      let xMatrixScale = d3.scaleBand()
-              .domain(_.map(dataInputs, (d) => d.idx))  // For now, it's just an index of items(from observed)
-              .range([0, this.layout.svgMatrix.width - this.layout.svgMatrix.margin]),
-          yMatrixScale = d3.scaleBand()
-              .domain(_.map(dataInputs, (d) => d.idx))  // For now, it's just an index of items(from observed)
-              .range([this.layout.svgMatrix.height - this.layout.svgMatrix.margin, 0]),
-          cellWidth = xMatrixScale.bandwidth(),
-          cellHeight = yMatrixScale.bandwidth(),
-          circleDistortionScale = d3.scaleLinear()
-              .domain(d3.extent(dataDistortionsForMatrix, (d) => Math.abs(d.observed - d.decision)))
-              .range([0, cellWidth / 2]);
+      _self.xMatrixScale = d3.scaleBand()
+          .domain(_.map(dataInputs, (d) => d.idx))  // For now, it's just an index of items(from observed)
+          .range([0, _self.layout.svgMatrix.matrixPlot.width]),
+      _self.yMatrixScale = d3.scaleBand()
+          .domain(_.map(dataInputs, (d) => d.idx))  // For now, it's just an index of items(from observed)
+          .range([_self.layout.svgMatrix.matrixPlot.height, 0]),
+      _self.cellWidth = _self.xMatrixScale.bandwidth(),
+      _self.cellHeight = _self.yMatrixScale.bandwidth(),
+      _self.cellColorDistortionScale = d3.scaleLinear()
+              .domain([distortionMin, (distortionMin+distortionMax)/2, distortionMax])
+              .range(['slateblue', 'white', 'PALEVIOLETRED']),
+      _self.sumDistortionScale = d3.scaleLinear()
+              .domain([0, 1])
+              .range([5, _self.layout.svgMatrix.distortionSumPlotRight.width - 10]);
 
-      console.log(circleDistortionScale.domain());
+      let gMatrix = d3.select(_self.svgMatrix).append('g')
+              .attr('class', 'g_matrix')
+              .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',' + _self.layout.svgMatrix.distortionSumPlotUpper.height + ')'),
+          gCells = gMatrix.selectAll('.g_row')
+              .data(dataDistortionsForMatrix)
+              .enter().append('g')
+              .attr('class', 'g_row')
+              .attr('transform', function(d){
+                return 'translate(' + _self.xMatrixScale(d.idx1) + ',' + _self.yMatrixScale(d.idx2) + ')';
+              }),
+          gAttrPlotLeft = d3.select(_self.svgMatrix).append('g')
+              .attr('class', 'g_attr_plot_x')
+              .attr('transform', 'translate(0,' + _self.layout.svgMatrix.distortionSumPlotUpper.height + ')'),
+          gAttrPlotBottom = d3.select(_self.svgMatrix).append('g')
+              .attr('class', 'g_attr_plot_y')
+              .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',' + 
+                                                (_self.layout.svgMatrix.matrixPlot.height + _self.layout.svgMatrix.distortionSumPlotUpper.height) + ')'),
+          gDistortionSumPlotRight = d3.select(_self.svgMatrix).append('g')
+              .attr('class', 'g_distortion_plot_right')
+              .attr('transform', 'translate(' + (_self.layout.svgMatrix.attrPlotLeft.width + _self.layout.svgMatrix.matrixPlot.width + 35) + ',' + 
+                                                _self.layout.svgMatrix.distortionSumPlotUpper.height + ')');
 
-      let gMatrix = d3.select(this.svgMatrix).append('g')
-          .attr("class", "g_matrix")
-          .attr("transform", "translate(" + this.layout.svgMatrix.margin + "," + this.layout.svgMatrix.margin + ")");
-
-      let gCells = gMatrix.selectAll('.g_row')
-          .data(dataDistortionsForMatrix)
-          .enter().append('g')
-          .attr('class', 'g_row')
-          .attr('transform', function(d){
-            return "translate(" + xMatrixScale(d.idx1) + "," + yMatrixScale(d.idx2) + ")";
-        });
-
+      // For Matrix plot
       gCells.append('rect')
-        .attr('class', 'pair_rect')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', cellWidth)
-        .attr('height', cellHeight)
-        .style('fill', (d) => self.pairColorScale(d.pair))
-        .style('stroke', 'white');
-
-      gCells
-        .each(function(d) {
-          d3.select(this).append('circle')
-            .attr('class', 'distortion_circle')
-            .attr('cx', cellWidth / 2)
-            .attr('cy', cellHeight / 2)
-            .attr('r', (d) => {
-              return circleDistortionScale(Math.abs(d.observed - d.decision));
-            })
-            .style('fill', 'red')
-            .style('stroke', 'black');
-        });
-        
-    }
-  
-    render() {
-      let self = this;
-
-      this.svg = new ReactFauxDOM.Element('svg');
-  
-      this.svg.setAttribute('width', this.layout.svg.width);
-      this.svg.setAttribute('height', this.layout.svg.height);
-      this.svg.setAttribute('0 0 200 200');
-      this.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      this.svg.style.setProperty('margin', '0 5%');
-  
-      let data = this.props.distortions;
-
-      // sort by observed space difference
-      data = _.orderBy(data, ['observed']);
-  
-      const coords = this.calculateCoords(this.layout.plot.width, data.length, data),
-            baselineCoords = this.calculateBaselineCoords(this.layout.plot.width, data.length, data);
-
-      // Coordinate scales
-      this.xObservedScale = d3.scaleLinear()
-            .range([0, this.layout.plot.width])
-            .domain([0, d3.max(coords, (d) => d.x)]),
-      this.yDistortionScale = d3.scaleLinear()
-            .range([this.layout.plot.height - 5, this.layout.plot.height * 1/2])
-            .domain(d3.extent(coords, (d) => d.y)),
-      this.xGroupSkewScale = d3.scaleBand()
-            .range([0, this.layout.groupSkew.width])
-            .domain([0, 1, 2, 3, 4]);
-      this.yGroupSkewScale = d3.scaleLinear()
-            .range([this.layout.plot.height - 5, this.layout.plot.height * 1/2])
-            .domain([-10, 10]);
-
-      const gLegend = d3.select(this.svg).append('g')
-              .attr('class', 'g_legend')
-              .attr('transform', 'translate(0, 0)'),
-            gPlot = d3.select(this.svg).append('g')
-              .attr('class', 'g_plot')
-              .attr('transform', 'translate(0, 0)'),
-            gViolinPlot = gPlot.append('g')
-              .attr('class', 'g_violin_plot')
-              .attr('transform', 'translate(570, 0)'),
-            gGroupSkew = gPlot.append('g')
-              .attr('transform', 'translate(650, 0)');
-
-      const xAxisSetting = d3.axisTop(this.xObservedScale).tickSize(0).ticks(0),
-            yAxisSetting = d3.axisRight(this.yDistortionScale).tickSize(0).ticks(0),
-            xAxisGroupSkewSetting = d3.axisTop(this.xObservedScale).tickSize(0).ticks(0),
-            yAxisGroupSkewSetting = d3.axisLeft(this.yGroupSkewScale).tickSize(0).ticks(0),
-
-            xAxis = gPlot.append('g')
-              .call(xAxisSetting)
-              .attr('class', 'indi_x_axis')
-              .attr('transform', 'translate(0,' + this.layout.plot.height * 3/4 + ')'),
-            yAxis = gPlot.append('g')
-              .call(yAxisSetting)
-              .attr('class', 'indi_y_axis')
-              .attr('transform', 'translate(0,0)'),
-            yAxisGroupSkew = gGroupSkew.append('g')
-              .call(yAxisSetting)
-              .attr('class', 'group_skew_y_axis')
-              .attr('transform', 'translate(60,0)'),
-            xAxisLine = xAxis.select('path')
-              .style('stroke-width', 3),
-            yAxisLine = yAxis.select('path')
-              .style('stroke-width', 3),
-            xAxisViolinPlotLine = gViolinPlot.append('line')
-              .attr('x1', -20)
-              .attr('y1', this.layout.plot.height * 3/4)
-              .attr('x2', 70)
-              .attr('y2', this.layout.plot.height * 3/4)
-              .style('stroke-dasharray', '3,3')
-              .style('stroke', 'lightgray')
-              .style('stroke-width', 3),
-            yAxisGroupSkewLine = yAxisGroupSkew.select('path')
-              .style('stroke-width', 3);
+          .attr('class', 'pair_rect')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', _self.cellWidth)
+          .attr('height', _self.cellHeight)
+          .style('fill', (d) => _self.cellColorDistortionScale(Math.abs(d.observed - d.decision)))
+          .style('stroke', (d) => {
+            const distortion = Math.abs(d.observed - d.decision),
+                  distortionMin = _self.cellColorDistortionScale.domain()[0],
+                  distortionMax = _self.cellColorDistortionScale.domain()[1],
+                  distortionInterval = distortionMax - distortionMin,
+                  fairThreshold = _self.cellColorDistortionScale.domain()[0] + distortionInterval * 0.05,
+                  outlierThreshold = _self.cellColorDistortionScale.domain()[1] - distortionInterval * 0.05;
+            let strokeColor = 'white';
             
+            if(distortion < fairThreshold) {
+              strokeColor = 'red';
+            } else if (distortion > outlierThreshold) {
+              strokeColor = 'blue';
+            }
 
-      const renameBaselineCoords = _.map([...baselineCoords], (d) => 
-                _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0')),
-            renameCoords       = _.map([...coords], (d) => 
-                _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
-  
-      this.combinedCoordsData = _.map(renameBaselineCoords, function(d){
-          return _.merge(
-              d, 
-              _.find(renameCoords, {idx: d.idx})
-          )
-      });
+            return 'gray';
+          });
 
-      // Color scales
-      this.rectColorScale = d3.scaleLinear()
-            .domain(d3.extent(this.combinedCoordsData, (d) => d.y1 - d.y0))
-            .range(['lightgreen', 'pink']),
-      this.pairColorScale = d3.scaleThreshold()
-            .domain([1, 2, 3])  // pair is one or two or three
-            .range(['white', gs.groupColor1, gs.groupColor2, gs.betweenGroupColor]);      
+      // gCells
+      //   .each(function(d) {
+      //     d3.select(this).append('circle')
+      //       .attr('class', 'distortion_circle')
+      //       .attr('cx', _self.cellWidth / 2)
+      //       .attr('cy', _self.cellHeight / 2)
+      //       .attr('r', (d) => {
+      //         return _self.circleDistortionScale(Math.abs(d.observed - d.decision));
+      //       })
+      //       .style('fill', 'red')
+      //       .style('stroke', 'black');
+      //   });
 
-      this.renderMatrix();
-      this.renderPlot();
+      // For Attribute plot on the left
+      gAttrPlotLeft.selectAll('.attr_rect_left')
+          .data(dataInputs)
+          .enter().append('rect')
+          .attr('class', 'attr_rect_left')
+          .attr('x', 10)
+          .attr('y', (d) => _self.yMatrixScale(d.idx))
+          .attr('width', 20)
+          .attr('height', _self.cellHeight)
+          .attr('fill', 'red')
+          .attr('stroke', 'white');
+
+      gAttrPlotLeft.selectAll('.pair_rect_left')
+          .data(dataInputs)
+          .enter().append('rect')
+          .attr('class', 'pair_rect_left')
+          .attr('x', 30)
+          .attr('y', (d) => _self.yMatrixScale(d.idx))
+          .attr('width', 10)
+          .attr('height', _self.cellHeight)
+          .attr('fill', (d) => {
+            return d.sex === 'female '? gs.groupColor1 : gs.groupColor2;
+          })
+          .attr('stroke', 'black')
+          .attr('stroke-width', 0.3);
+
+      // For distortion sum plot on the right
+      gDistortionSumPlotRight.selectAll('.sum_distortion_rect_right')
+          .data(dataInputs)
+          .enter().append('rect')
+          .attr('class', 'sum_distortion_rect_right')
+          .attr('x', 0)
+          .attr('y', (d) => _self.yMatrixScale(d.idx) + _self.cellHeight / 2)
+          .attr('width', (d) => _self.sumDistortionScale(d.sumDistortion))
+          .attr('height', 0.5)
+          .attr('fill', (d) => {
+            return d.sex === 'female '? gs.groupColor1 : gs.groupColor2;
+          })
+          .attr('stroke', 'black')
+          .attr('stroke-width', 0.2);
+
+      gDistortionSumPlotRight.selectAll('.sum_distortion_circle_right')
+          .data(dataInputs)
+          .enter().append('circle')
+          .attr('class', 'sum_distortion_circle_right')
+          .attr('cx', (d) => _self.sumDistortionScale(d.sumDistortion))
+          .attr('cy', (d) => _self.yMatrixScale(d.idx) + _self.cellHeight / 2)
+          .attr('r', 2)
+          .attr('fill', (d) => {
+            return d.sex === 'female '? gs.groupColor1 : gs.groupColor2;
+          })
+          .attr('stroke', 'black')
+          .attr('stroke-width', 0.2);
+
+    }
+
+    renderLegend() {
+      let _self = this;
       
+      const gLegend = d3.select(_self.svg).append('g')
+              .attr('class', 'g_legend')
+              .attr('transform', 'translate(0, 0)');
+
       // legend border
       gLegend.append('rect')
           .attr('class', 'legend')
@@ -302,8 +354,8 @@ class IndividualFairnessView extends Component {
           .attr('cx', 10)
           .attr('cy', 30)
           .attr('r', 4)
-          .style('fill', this.pairColorScale(3))
-          .style('stroke', d3.rgb(this.pairColorScale(3)).darker());
+          .style('fill', _self.pairColorScale(3))
+          .style('stroke', d3.rgb(_self.pairColorScale(3)).darker());
       gLegend.append('text')
           .attr('x', 30)
           .attr('y', 33)
@@ -315,8 +367,8 @@ class IndividualFairnessView extends Component {
           .attr('cx', 10)
           .attr('cy', 45)
           .attr('r', 4)
-          .style('fill', this.pairColorScale(1))
-          .style('stroke', d3.rgb(this.pairColorScale(1)).darker());
+          .style('fill', _self.pairColorScale(1))
+          .style('stroke', d3.rgb(_self.pairColorScale(1)).darker());
       gLegend.append('text')
           .attr('x', 30)
           .attr('y', 48)
@@ -329,297 +381,47 @@ class IndividualFairnessView extends Component {
           .attr('cx', 10)
           .attr('cy', 60)
           .attr('r', 4)
-          .style('fill', this.pairColorScale(2))
-          .style('stroke', d3.rgb(this.pairColorScale(2)).darker())
+          .style('fill', _self.pairColorScale(2))
+          .style('stroke', d3.rgb(_self.pairColorScale(2)).darker())
           .on('mouseover', (d) => {
-              d3.selectAll('circle.coords_circle_group2')
+              // Interact with svgPlot
+              const svgPlot = d3.select('.svg_legend');
+
+              svgPlot.selectAll('circle.coords_circle_group2')
                 .style('stroke', 'black')
                 .style('stroke-width', 2);
 
-              d3.selectAll('.coords_rect')
+              svgPlot.selectAll('.coords_rect')
                 .style('opacity', 0.2);
 
-              d3.select('.g_plot')
+              svgPlot.select('.g_plot')
                 .append('line')
                 .attr('class', 'group_fitting_line')
                 .attr('x1', 0)
                 .attr('y1', 200)
                 .attr('x2', 540)
                 .attr('y2', 180)
-                .style('stroke', this.pairColorScale(2))
+                .style('stroke', _self.pairColorScale(2))
                 .style('stroke-width', 3);
           })
           .on('mouseout', (d) => {
-              d3.selectAll('circle.coords_circle_group2')
-                .style('stroke', d3.rgb(this.pairColorScale(2)).darker())
+              // Interact with svgPlot
+              const svgPlot = d3.select('.svg_legend');
+
+              svgPlot.selectAll('circle.coords_circle_group2')
+                .style('stroke', d3.rgb(_self.pairColorScale(2)).darker())
                 .style('stroke-width', 1);
 
-              d3.selectAll('.coords_rect')
+              svgPlot.selectAll('.coords_rect')
                 .style('opacity', 1);
 
-              d3.select('.group_fitting_line').remove();
+              svgPlot.select('.group_fitting_line').remove();
           })
       gLegend.append('text')
           .attr('x', 30)
           .attr('y', 63)
           .text('Woman-Woman')
           .style('font-size', '11px');  
-
-      const margin = 20,
-            outLierMargin = 5;
-
-      const marginRect = gPlot
-                .append('rect')
-                .attr('class', 'margin_rect')
-                .attr('x', 0)
-                .attr('y', (this.layout.plot.height * 3/4 - margin))
-                .attr('width', this.layout.plot.width)
-                .attr('height', margin * 2)
-                .style('fill', 'lightblue')
-                .style('opacity', 0.5)
-                .style('stroke', d3.rgb('lightgreen').darker())
-                .style('stroke-dasharray', '2, 2'),
-            outLierMarginRect = gPlot
-                .append('rect')
-                .attr('class', 'margin_rect')
-                .attr('x', 0)
-                .attr('y', (this.layout.plot.height * 2/4 - outLierMargin))
-                .attr('width', this.layout.plot.width)
-                .attr('height', outLierMargin * 2)
-                .style('fill', 'pink')
-                .style('opacity', 0.5)
-                .style('stroke', d3.rgb('pink').darker())
-                .style('stroke-dasharray', '2, 2'),
-            outLierMarginRect2 = gPlot
-                .append('rect')
-                .attr('class', 'margin_rect')
-                .attr('x', 0)
-                .attr('y', (this.layout.plot.height * 4/4 - outLierMargin - 5))
-                .attr('width', this.layout.plot.width)
-                .attr('height', outLierMargin * 2)
-                .style('fill', 'pink')
-                .style('opacity', 0.5)
-                .style('stroke', d3.rgb('pink').darker())
-                .style('stroke-dasharray', '2, 2');
-
-      const rects = gPlot
-              .selectAll('.coords_rect')
-              .data(this.combinedCoordsData)
-              .enter().append('rect')
-              .attr('class', 'coords_rect')
-              .attr('x', (d) => this.xObservedScale(d.x0))
-              .attr('y', (d) => 
-                  d.y1 - d.y0 > 0
-                  ? this.yDistortionScale(d.y1 - d.y0) 
-                  : this.yDistortionScale(d.y0)
-              )
-              .attr('width', 0.05)
-              .attr('height', (d) => Math.abs(this.yDistortionScale(d.y1 - d.y0) - this.layout.plot.height * 3/4))
-              .style('stroke', 'black')
-              .style('stroke-width', 0.5);
-  
-      const coordsCircles = gPlot
-              .selectAll('.coords_circle')
-              .data(this.combinedCoordsData)
-              .enter().append('circle')
-              .attr('class', (d) => {
-                let groupClass;
-
-                if(d.pair === 1)
-                  groupClass = 'coords_circle_group1';
-                else if(d.pair === 2)
-                  groupClass = 'coords_circle_group2';
-                else
-                  groupClass = 'coords_circle_betweenGroup';
-
-                return 'coords_circle ' + groupClass;
-              })
-              .attr('cx', (d) => this.xObservedScale(d.x0))
-              .attr('cy', (d) => this.yDistortionScale(d.y1))
-              .attr('r', 3)
-              .style('fill', (d) => this.pairColorScale(d.pair))
-              .style('stroke', (d) => d3.rgb(this.pairColorScale(d.pair)).darker())
-              .style('opacity', 0.8)
-              .style('stroke-opacity', 0.8)
-              .on('mouseover', function(d, i) {
-                    var selectedCircleIdx = i;
-                    
-                    d3.selectAll('circle.coords_circle')
-                      .filter(function(e, i) {
-                        return (i !== selectedCircleIdx);
-                      })
-                      .style('opacity', 0.2);
-                    
-                    d3.select(this).attr('opacity','0');
-
-                    d3.selectAll('.coords_rect')
-                      .style('opacity', 0.2);
-
-                    var circleArc = d3.arc()
-                      .innerRadius(0)
-                      .outerRadius(5)
-                      .startAngle(0)
-                      .endAngle(Math.PI);
-
-                    // left semicircle
-                    d3.select('.g_plot')
-                      .append("path")
-                      .attr("class", 'mouseoverPairColor mouseoverPairCircleRight')
-                      .attr("d", circleArc)
-                      .attr("transform", function(e) {
-                        return "translate(" + (self.xObservedScale(d.x0) - 1) + "," + self.yDecisionScale(d.y1) + ")" + "rotate(180)"
-                      })
-                      .style("stroke", (e) => d3.rgb(self.pairColorScale(d.pair)).darker())
-                      .style("fill", (e) => self.pairColorScale(d.pair));
-
-                    // right semicircle
-                    d3.select('.g_plot')
-                      .append("path")
-                      .attr("class", 'mouseoverPairColor mouseoverPairCircleRight')
-                      .attr("d", circleArc)
-                      .attr("transform", function(e) {
-                        return "translate(" + (self.xObservedScale(d.x0) + 1) + "," + self.yDecisionScale(d.y1) + ")" + "rotate(0)"
-                      })
-                      .style("stroke", (e) => {
-                        return d3.rgb(self.pairColorScale(d.pair)).darker()
-                      })
-                      .style("fill", (e) => self.pairColorScale(d.pair));
-              })
-              .on('mouseout', (d) => {
-                    d3.selectAll('.coords_circle')
-                      .style('opacity', 0.8);
-
-                    d3.selectAll('.coords_rect')
-                      .style('opacity', 1);
-
-                    d3.selectAll('.mouseoverPairColor').remove();
-              });
-
-      
-      // Violin plot for summary
-      const swarm = beeswarm()
-              .data(_.filter(this.combinedCoordsData, (d) => d.pair === 1).slice(0, 50))
-              .distributeOn((d) => this.yDistortionScale(d.y1))
-              .radius(2)
-              .orientation('vertical')
-              .side('symmetric')
-              .arrange();
-
-      gViolinPlot.selectAll('.beeswarm_circle')
-        .data(swarm)
-        .enter()
-        .append('circle')
-        .attr('class', 'beeswarm_circle')
-        .attr('cx', function(bee) {
-          return bee.x;
-        })
-        .attr('cy', function(bee) {
-          return bee.y;
-        })
-        .attr('r', 3)
-        .style('fill', (bee) => this.pairColorScale(bee.datum.pair))
-        .style('stroke', (bee) => d3.rgb(this.pairColorScale(bee.datum.pair)).darker());
-
-      const swarm2 = beeswarm()
-              .data(_.filter(this.combinedCoordsData, (d) => d.pair === 2).slice(0, 50))
-              .distributeOn((d) => this.yDistortionScale(d.y1))
-              .radius(2)
-              .orientation('vertical')
-              .side('symmetric')
-              .arrange();
-
-      gViolinPlot.selectAll('.beeswarm_circle2')
-        .data(swarm2)
-        .enter()
-        .append('circle')
-        .attr('class', 'beeswarm_circle2')
-        .attr('cx', function(bee) {
-          return bee.x + 30;
-        })
-        .attr('cy', function(bee) {
-          return bee.y;
-        })
-        .attr('r', 3)
-        .style('fill', (bee) => this.pairColorScale(bee.datum.pair))
-        .style('stroke', (bee) => d3.rgb(this.pairColorScale(bee.datum.pair)).darker());
-
-      // Group skew
-      const sampleGroupSkewSum = {
-            groupPairs1: -3,
-            groupPairs2: -5,
-            betweenPairs: 8
-          };
-      let groupSkewRect1, groupSkewCircle1,
-          idx = 1;
-      
-      // Go over all sum of skews
-      // idx => 1: groupPairs1, 2: groupPairs2, 3: betweenPairs
-      _.mapValues(sampleGroupSkewSum, (sumSkew) => {
-        gGroupSkew
-            .append('rect')
-            .attr('class', 'groupSkewRect')
-            .attr('x', this.xGroupSkewScale(idx))
-            .attr('y', (d) => 
-              sumSkew > 0
-                ? this.yGroupSkewScale(sumSkew) 
-                : this.yGroupSkewScale(0)
-            )
-            .attr('width', idx)
-            .attr('height', Math.abs(this.yGroupSkewScale(sumSkew) - this.yGroupSkewScale(0)))
-            .style('fill', this.pairColorScale(idx))
-            .style('stroke', 'black')
-            .style('stroke-width', 0.5);
-
-        gGroupSkew
-            .append('circle')
-            .attr('class', 'groupSkewCircle')
-            .attr('cx', this.xGroupSkewScale(idx))
-            .attr('cy', this.yGroupSkewScale(sumSkew))
-            .attr('r', 6)
-            .style('fill', this.pairColorScale(idx))
-            .style('stroke', d3.rgb(this.pairColorScale(idx)).darker())
-            .style('stroke-opacity', 0.8);
-        
-        idx++;
-      });
-
-      const groupSkewLine = gGroupSkew
-            .append('line')
-            .attr('x1', 0)
-            .attr('y1', this.yGroupSkewScale(0))
-            .attr('x2', 60)
-            .attr('y2', this.yGroupSkewScale(0))
-            .style('stroke', 'black')
-            .style('stroke-width', 3);
-
-      const groupSkewText = gGroupSkew
-            .append('text')
-            .attr('x', -10)
-            .attr('y', 100)
-            .text('Group skew: 1.03');
-      
-      return (
-        <div className={styles.IndividualFairnessView}>
-          <div className={styles.individualTitleWrapper}>
-            <div className={index.title}>Individual Fairness</div>
-            <div className={styles.sortIndividualPlot}>
-              sort by: &nbsp;
-              <Dropdown direction='down' className={styles.DistortionSortingDropdown} isOpen={this.state.dropdownOpen}  size="sm" toggle={this.sortDistortion}>
-                <DropdownToggle caret>
-                  close to far
-                </DropdownToggle>
-                <DropdownMenu>
-                  <DropdownItem value='pairwiseDistance' onClick={this.handleSelectSorting}>Pairwise distance (close to far)</DropdownItem>
-                  <DropdownItem value='distortion' onClick={this.handleSelectSorting}>Distortion (small to large)</DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-            </div>
-          </div>
-          {this.svgPlot.toReact()}
-          {this.svgMatrix.toReact()}
-          {this.svg.toReact()}
-        </div>
-      );
     }
 
     sortDistortion() {
@@ -629,6 +431,8 @@ class IndividualFairnessView extends Component {
     }
 
     handleSelectSorting(e) {
+      let _self = this;
+
       this.setState({ sortBy: e.target.value });
 
       let sortBy = e.target.value,
@@ -636,31 +440,31 @@ class IndividualFairnessView extends Component {
           transition = d3.transition().duration(750);
 
       if(sortBy === 'distortion') {
-        this.xObservedScale.domain(d3.extent(data, (d) => d.y1 - d.y0));
+        _self.xObservedScale.domain(d3.extent(data, (d) => d.y1 - d.y0));
 
-        transition.select(".indi_x_axis").call(d3.axisTop(this.xObservedScale).tickSize(0));
-        d3.selectAll(".coords_circle")
+        transition.select('.indi_x_axis').call(d3.axisTop(_self.xObservedScale).tickSize(0));
+        d3.selectAll('.coords_circle')
                 .data(data)
                 .transition(transition)
-                .attr("cx", (d) => this.xObservedScale(d.y1 - d.y0));
+                .attr('cx', (d) => _self.xObservedScale(d.y1 - d.y0));
 
-        d3.selectAll(".coords_rect")
+        d3.selectAll('.coords_rect')
                 .data(data)
                 .transition(transition)
-                .attr("x", (d) => this.xObservedScale(d.y1 - d.y0));
+                .attr('x', (d) => _self.xObservedScale(d.y1 - d.y0));
       } else if(sortBy === 'pairwiseDistance') {
-        this.xObservedScale.domain(d3.extent(data, (d) => d.x0));
+        _self.xObservedScale.domain(d3.extent(data, (d) => d.x0));
 
-        transition.select(".indi_x_axis").call(d3.axisTop(this.xObservedScale).tickSize(0));
-        d3.selectAll(".coords_circle")
+        transition.select('.indi_x_axis').call(d3.axisTop(_self.xObservedScale).tickSize(0));
+        d3.selectAll('.coords_circle')
                 .data(data)
                 .transition(transition)
-                .attr("cx", (d) => this.xObservedScale(d.x0));
+                .attr('cx', (d) => _self.xObservedScale(d.x0));
 
-        d3.selectAll(".coords_rect")
+        d3.selectAll('.coords_rect')
                 .data(data)
                 .transition(transition)
-                .attr("x", (d) => this.xObservedScale(d.x0));
+                .attr('x', (d) => _self.xObservedScale(d.x0));
       }
 
       // Redefine scale
@@ -712,6 +516,370 @@ class IndividualFairnessView extends Component {
       }
   
       return coordsArray;
+    }
+
+    calculateTotalSum(dataInputs) {
+      _.forEach(dataInputs, (d, i) => {
+        dataInputs[i].sumDistortion = Math.random();
+      });
+
+      return dataInputs;
+    }
+  
+    render() {
+      let _self = this;
+
+      _self.svg = new ReactFauxDOM.Element('svg');
+  
+      _self.svg.setAttribute('width', _self.layout.svg.width);
+      _self.svg.setAttribute('height', _self.layout.svg.height);
+      _self.svg.setAttribute('0 0 200 200');
+      _self.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      _self.svg.style.setProperty('margin', '0 5%');
+  
+      let data = _self.props.distortions;
+
+      // sort by observed space difference
+      data = _.orderBy(data, ['observed']);
+  
+      const coords = _self.calculateCoords(_self.layout.plot.width, data.length, data),
+            baselineCoords = _self.calculateBaselineCoords(_self.layout.plot.width, data.length, data);
+
+      // Coordinate scales
+      _self.xObservedScale = d3.scaleLinear()
+            .range([0, _self.layout.plot.width])
+            .domain([0, d3.max(coords, (d) => d.x)]),
+      _self.yDistortionScale = d3.scaleLinear()
+            .range([_self.layout.plot.height - 5, _self.layout.plot.height * 1/2])
+            .domain(d3.extent(coords, (d) => d.y)),
+      _self.xGroupSkewScale = d3.scaleBand()
+            .range([0, _self.layout.groupSkew.width])
+            .domain([0, 1, 2, 3, 4]);
+      _self.yGroupSkewScale = d3.scaleLinear()
+            .range([_self.layout.plot.height - 5, _self.layout.plot.height * 1/2])
+            .domain([-10, 10]);
+
+      const gPlot = d3.select(_self.svg).append('g')
+              .attr('class', 'g_plot')
+              .attr('transform', 'translate(0, 0)'),
+            gViolinPlot = gPlot.append('g')
+              .attr('class', 'g_violin_plot')
+              .attr('transform', 'translate(570, 0)'),
+            gGroupSkew = gPlot.append('g')
+              .attr('transform', 'translate(650, 0)');
+
+      const xAxisSetting = d3.axisTop(_self.xObservedScale).tickSize(0).ticks(0),
+            yAxisSetting = d3.axisRight(_self.yDistortionScale).tickSize(0).ticks(0),
+            xAxisGroupSkewSetting = d3.axisTop(_self.xObservedScale).tickSize(0).ticks(0),
+            yAxisGroupSkewSetting = d3.axisLeft(_self.yGroupSkewScale).tickSize(0).ticks(0),
+
+            xAxis = gPlot.append('g')
+              .call(xAxisSetting)
+              .attr('class', 'indi_x_axis')
+              .attr('transform', 'translate(0,' + _self.layout.plot.height * 3/4 + ')'),
+            yAxis = gPlot.append('g')
+              .call(yAxisSetting)
+              .attr('class', 'indi_y_axis')
+              .attr('transform', 'translate(0,0)'),
+            yAxisGroupSkew = gGroupSkew.append('g')
+              .call(yAxisSetting)
+              .attr('class', 'group_skew_y_axis')
+              .attr('transform', 'translate(60,0)'),
+            xAxisLine = xAxis.select('path')
+              .style('stroke-width', 3),
+            yAxisLine = yAxis.select('path')
+              .style('stroke-width', 3),
+            xAxisViolinPlotLine = gViolinPlot.append('line')
+              .attr('x1', -20)
+              .attr('y1', _self.layout.plot.height * 3/4)
+              .attr('x2', 70)
+              .attr('y2', _self.layout.plot.height * 3/4)
+              .style('stroke-dasharray', '3,3')
+              .style('stroke', 'lightgray')
+              .style('stroke-width', 3),
+            yAxisGroupSkewLine = yAxisGroupSkew.select('path')
+              .style('stroke-width', 3);
+            
+
+      const renameBaselineCoords = _.map([...baselineCoords], (d) => 
+                _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0')),
+            renameCoords       = _.map([...coords], (d) => 
+                _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
+  
+      _self.combinedCoordsData = _.map(renameBaselineCoords, function(d){
+          return _.merge(
+              d, 
+              _.find(renameCoords, {idx: d.idx})
+          )
+      });
+
+      // Color scales
+      _self.rectColorScale = d3.scaleLinear()
+            .domain(d3.extent(_self.combinedCoordsData, (d) => d.y1 - d.y0))
+            .range(['lightgreen', 'pink']),
+      _self.pairColorScale = d3.scaleThreshold()
+            .domain([1, 2, 3])  // pair is one or two or three
+            .range(['white', gs.groupColor1, gs.groupColor2, gs.betweenGroupColor]);      
+
+      _self.renderMatrix();
+      _self.renderPlot();
+      _self.renderLegend();
+
+      const margin = 20,
+            outLierMargin = 5;
+
+      const marginRect = gPlot
+                .append('rect')
+                .attr('class', 'margin_rect')
+                .attr('x', 0)
+                .attr('y', (_self.layout.plot.height * 3/4 - margin))
+                .attr('width', _self.layout.plot.width)
+                .attr('height', margin * 2)
+                .style('fill', 'lightblue')
+                .style('opacity', 0.5)
+                .style('stroke', d3.rgb('lightgreen').darker())
+                .style('stroke-dasharray', '2, 2'),
+            outLierMarginRect = gPlot
+                .append('rect')
+                .attr('class', 'margin_rect')
+                .attr('x', 0)
+                .attr('y', (_self.layout.plot.height * 2/4 - outLierMargin))
+                .attr('width', _self.layout.plot.width)
+                .attr('height', outLierMargin * 2)
+                .style('fill', 'pink')
+                .style('opacity', 0.5)
+                .style('stroke', d3.rgb('pink').darker())
+                .style('stroke-dasharray', '2, 2'),
+            outLierMarginRect2 = gPlot
+                .append('rect')
+                .attr('class', 'margin_rect')
+                .attr('x', 0)
+                .attr('y', (_self.layout.plot.height * 4/4 - outLierMargin - 5))
+                .attr('width', _self.layout.plot.width)
+                .attr('height', outLierMargin * 2)
+                .style('fill', 'pink')
+                .style('opacity', 0.5)
+                .style('stroke', d3.rgb('pink').darker())
+                .style('stroke-dasharray', '2, 2');
+
+      const rects = gPlot
+              .selectAll('.coords_rect')
+              .data(_self.combinedCoordsData)
+              .enter().append('rect')
+              .attr('class', 'coords_rect')
+              .attr('x', (d) => _self.xObservedScale(d.x0))
+              .attr('y', (d) => 
+                  d.y1 - d.y0 > 0
+                  ? _self.yDistortionScale(d.y1 - d.y0) 
+                  : _self.yDistortionScale(d.y0)
+              )
+              .attr('width', 0.05)
+              .attr('height', (d) => Math.abs(_self.yDistortionScale(d.y1 - d.y0) - _self.layout.plot.height * 3/4))
+              .style('stroke', 'gray')
+              //.style('shape-rendering', 'crispEdge')
+              .style('stroke-dasharray', '3,3')
+              .style('stroke-width', 0.3);
+  
+      const coordsCircles = gPlot
+              .selectAll('.coords_circle')
+              .data(_self.combinedCoordsData)
+              .enter().append('circle')
+              .attr('class', (d) => {
+                let groupClass;
+
+                if(d.pair === 1)
+                  groupClass = 'coords_circle_group1';
+                else if(d.pair === 2)
+                  groupClass = 'coords_circle_group2';
+                else
+                  groupClass = 'coords_circle_betweenGroup';
+
+                return 'coords_circle ' + groupClass;
+              })
+              .attr('cx', (d) => _self.xObservedScale(d.x0))
+              .attr('cy', (d) => _self.yDistortionScale(d.y1))
+              .attr('r', 3)
+              .style('fill', (d) => _self.pairColorScale(d.pair))
+              .style('stroke', (d) => 'black')
+              .style('opacity', 0.8)
+              .style('stroke-opacity', 0.8)
+              .on('mouseover', function(d, i) {
+                    var selectedCircleIdx = i;
+                    
+                    d3.selectAll('circle.coords_circle')
+                      .filter(function(e, i) {
+                        return (i !== selectedCircleIdx);
+                      })
+                      .style('opacity', 0.2);
+                    
+                    d3.select(this).attr('opacity','0');
+
+                    d3.selectAll('.coords_rect')
+                      .style('opacity', 0.2);
+
+                    var circleArc = d3.arc()
+                      .innerRadius(0)
+                      .outerRadius(5)
+                      .startAngle(0)
+                      .endAngle(Math.PI);
+
+                    // left semicircle
+                    d3.select('.g_plot')
+                      .append('path')
+                      .attr('class', 'mouseoverPairColor mouseoverPairCircleRight')
+                      .attr('d', circleArc)
+                      .attr('transform', function(e) {
+                        return 'translate(' + (_self.xObservedScale(d.x0) - 1) + ',' + _self.yDistortionScale(d.y1) + ')' + 'rotate(180)'
+                      })
+                      .style('stroke', (e) => d3.rgb(_self.pairColorScale(d.pair)).darker())
+                      .style('fill', (e) => _self.pairColorScale(d.pair));
+
+                    // right semicircle
+                    d3.select('.g_plot')
+                      .append('path')
+                      .attr('class', 'mouseoverPairColor mouseoverPairCircleRight')
+                      .attr('d', circleArc)
+                      .attr('transform', function(e) {
+                        return 'translate(' + (_self.xObservedScale(d.x0) + 1) + ',' + _self.yDistortionScale(d.y1) + ')' + 'rotate(0)'
+                      })
+                      .style('stroke', (e) => {
+                        return d3.rgb(_self.pairColorScale(d.pair)).darker()
+                      })
+                      .style('fill', (e) => _self.pairColorScale(d.pair));
+              })
+              .on('mouseout', (d) => {
+                    d3.selectAll('.coords_circle')
+                      .style('opacity', 0.8);
+
+                    d3.selectAll('.coords_rect')
+                      .style('opacity', 1);
+
+                    d3.selectAll('.mouseoverPairColor').remove();
+              });
+
+      
+      // Violin plot for summary
+      const swarm = beeswarm()
+              .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 1).slice(0, 50))
+              .distributeOn((d) => _self.yDistortionScale(d.y1))
+              .radius(2)
+              .orientation('vertical')
+              .side('symmetric')
+              .arrange();
+
+      gViolinPlot.selectAll('.beeswarm_circle')
+        .data(swarm)
+        .enter()
+        .append('circle')
+        .attr('class', 'beeswarm_circle')
+        .attr('cx', function(bee) {
+          return bee.x;
+        })
+        .attr('cy', function(bee) {
+          return bee.y;
+        })
+        .attr('r', 3)
+        .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
+        .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
+
+      const swarm2 = beeswarm()
+              .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 2).slice(0, 50))
+              .distributeOn((d) => _self.yDistortionScale(d.y1))
+              .radius(2)
+              .orientation('vertical')
+              .side('symmetric')
+              .arrange();
+
+      gViolinPlot.selectAll('.beeswarm_circle2')
+        .data(swarm2)
+        .enter()
+        .append('circle')
+        .attr('class', 'beeswarm_circle2')
+        .attr('cx', function(bee) {
+          return bee.x + 30;
+        })
+        .attr('cy', function(bee) {
+          return bee.y;
+        })
+        .attr('r', 3)
+        .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
+        .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
+
+      // Group skew
+      const sampleGroupSkewSum = {
+            groupPairs1: -3,
+            groupPairs2: -5,
+            betweenPairs: 8
+          };
+      let groupSkewRect1, groupSkewCircle1,
+          idx = 1;
+      
+      // Go over all sum of skews
+      // idx => 1: groupPairs1, 2: groupPairs2, 3: betweenPairs
+      _.mapValues(sampleGroupSkewSum, (sumSkew) => {
+        gGroupSkew
+            .append('rect')
+            .attr('class', 'groupSkewRect')
+            .attr('x', _self.xGroupSkewScale(idx))
+            .attr('y', (d) => 
+              sumSkew > 0
+                ? _self.yGroupSkewScale(sumSkew) 
+                : _self.yGroupSkewScale(0)
+            )
+            .attr('width', idx)
+            .attr('height', Math.abs(_self.yGroupSkewScale(sumSkew) - _self.yGroupSkewScale(0)))
+            .style('fill', _self.pairColorScale(idx))
+            .style('stroke', 'black')
+            .style('stroke-width', 0.5);
+
+        gGroupSkew
+            .append('circle')
+            .attr('class', 'groupSkewCircle')
+            .attr('cx', _self.xGroupSkewScale(idx))
+            .attr('cy', _self.yGroupSkewScale(sumSkew))
+            .attr('r', 6)
+            .style('fill', _self.pairColorScale(idx))
+            .style('stroke', d3.rgb(_self.pairColorScale(idx)).darker())
+            .style('stroke-opacity', 0.8);
+        
+        idx++;
+      });
+
+      const groupSkewLine = gGroupSkew
+            .append('line')
+            .attr('x1', 0)
+            .attr('y1', _self.yGroupSkewScale(0))
+            .attr('x2', 60)
+            .attr('y2', _self.yGroupSkewScale(0))
+            .style('stroke', 'black')
+            .style('stroke-width', 3);
+
+      const groupSkewText = gGroupSkew
+            .append('text')
+            .attr('x', -10)
+            .attr('y', 100)
+            .text('Group skew: 1.03');
+      
+      return (
+        <div className={styles.IndividualFairnessView}>
+          <div className={index.title + ' ' + styles.individualFairnessViewTitle}>Distortions</div>
+          <div className={styles.IndividualFairnessViewBar}>
+            sort by: &nbsp;
+            <Dropdown direction='down' className={styles.DistortionSortingDropdown} isOpen={this.state.dropdownOpen}  size='sm' toggle={this.sortDistortion}>
+              <DropdownToggle caret>
+                close to far
+              </DropdownToggle>
+              <DropdownMenu>
+                <DropdownItem value='pairwiseDistance' onClick={this.handleSelectSorting}>Pairwise distance (close to far)</DropdownItem>
+                <DropdownItem value='distortion' onClick={this.handleSelectSorting}>Distortion (small to large)</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+          </div>
+          <div className={styles.IndividualStatus}> Name and features </div>
+          <div className={styles.MatrixView}> {this.svgMatrix.toReact()} </div>
+          <div className={styles.DistortionPlot}> {this.svg.toReact()} </div>
+        </div>
+      );
     }
   }
 

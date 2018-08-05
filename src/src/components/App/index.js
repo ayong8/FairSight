@@ -125,7 +125,7 @@ class App extends Component {
         {observed: 30, decision: 32},
         {observed: 32, decision: 28}
       ],
-      inputCoords: dimReductionData,
+      inputCoords: _.toArray(dimReductionData),
       distortions: this.calculateDistortions(),
       distortionsInPermutations: this.calculatePermutationDistortions()
     };

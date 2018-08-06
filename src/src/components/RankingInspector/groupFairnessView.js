@@ -89,7 +89,10 @@ class GroupFairnessView extends Component {
           .attr('width', function(d) { return 15; })
           .attr('height', function(d) { return 100 - yScale(d.length); })
           .style('fill', gs.groupColor1)
-          .style('opacity', 0.5);
+          .style('opacity', 0.5)
+          .style('stroke', 'black')
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.5);
   
       groupHistogramBar2 = d3.select(svg).selectAll('.bar2')
           .data(groupBins2)
@@ -104,7 +107,10 @@ class GroupFairnessView extends Component {
           .attr('width', function(d) { return 15; })
           .attr('height', function(d) { return 100 - yScale(d.length); })
           .style('fill', gs.groupColor2)
-          .style('opacity', 0.5);
+          .style('opacity', 0.5)
+          .style('stroke', 'black')
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.5);
   
       return (
         <div className={styles.GroupFairnessUtilityViewWrapper}>

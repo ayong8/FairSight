@@ -42,25 +42,7 @@ class RankingInspector extends Component {
                                 ranking={this.props.ranking} 
                                 className={styles.IndividualFairnessView} />
         <RankingView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} />
-        <UtilityView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.UtilityView} />
-      </div>
-    );
-  }
-}
-
-class ProcessView extends Component {
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    return (
-      <div className={styles.ProcessView}>
-        <div className={styles.processIndicator}>
-          <div className={index.title}>Input</div>
-          <div className={index.title}>Individual Fairness</div>
-          <div className={index.title}>Ranking</div>
-        </div>
+        {/* <UtilityView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.UtilityView} /> */}
       </div>
     );
   }

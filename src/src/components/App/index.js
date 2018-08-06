@@ -237,7 +237,6 @@ class App extends Component {
         </div>
         <Generator dataset='german.csv' />
         <RankingsListView rankings={this.state.rankings} />
-        <TableView />
         <RankingInspector inputCoords={this.state.inputCoords} 
                           observedAndDecisions={this.state.observedAndDecisions} 
                           distortions={this.state.distortions} 

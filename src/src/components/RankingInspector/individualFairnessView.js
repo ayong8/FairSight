@@ -51,7 +51,7 @@ class IndividualFairnessView extends Component {
         height: 300,
         svg: {
           width: 750, // 90% of whole layout
-          height: 250 // 100% of whole layout
+          height: 150 // 100% of whole layout
         },
         svgMatrix: {
           width: 300,
@@ -62,7 +62,7 @@ class IndividualFairnessView extends Component {
             height: 200
           },
           attrPlotLeft: {
-            width: 50,
+            width: 40,
             height: 200
           },
           attrPlotBottom: {
@@ -83,13 +83,18 @@ class IndividualFairnessView extends Component {
           height: 100,
           margin: 5
         },
+        svgLegend: {
+          width: 130,
+          height: 150
+        },
         groupSkew: {
           width: 55,
           height: 250
         },
         plot: {
           width: 530,
-          height: 250
+          height: 150,
+          padding: 10
         },
         get r() {
           return d3.min([this.width, this.height]) / 3;
@@ -111,6 +116,14 @@ class IndividualFairnessView extends Component {
     renderPlot() {
       let _self = this;
 
+      _self.svgPlot = new ReactFauxDOM.Element('svg');
+
+      _self.svgPlot.setAttribute('width', _self.layout.svgPlot.width);
+      _self.svgPlot.setAttribute('height', _self.layout.svgPlot.height);
+      _self.svgPlot.setAttribute('0 0 200 200');
+      _self.svgPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      _self.svgPlot.style.setProperty('margin', '0 5%');
+
       let dataDistortions = this.props.distortions;
 
       // sort by observed space difference
@@ -124,13 +137,10 @@ class IndividualFairnessView extends Component {
       this.yDecisionScale = d3.scaleLinear()
           .domain(d3.extent(dataDistortions, (d) => d.decision))  
           .range([this.layout.svgPlot.height, 0]);
-
-      console.log(this.yDecisionScale.domain());
-      console.log(this.yDecisionScale.range());
             
-      let gPlot = d3.select(this.svg).append('g')
+      let gPlot = d3.select(this.svgPlot).append('g')
           .attr('class', 'g_plot')
-          .attr('transform', 'translate(140, 0)');
+          .attr('transform', 'translate(0, 0)');
 
       const xAxisSetting = d3.axisTop(this.xObservedScale2).tickSize(0).ticks(0),
             yAxisSetting = d3.axisRight(this.yDecisionScale).tickSize(0).ticks(0),
@@ -203,7 +213,10 @@ class IndividualFairnessView extends Component {
               .range(['slateblue', 'white', 'PALEVIOLETRED']),
       _self.sumDistortionScale = d3.scaleLinear()
               .domain([0, 1])
-              .range([5, _self.layout.svgMatrix.distortionSumPlotRight.width - 10]);
+              .range([5, _self.layout.svgMatrix.distortionSumPlotRight.width - 10]),
+      _self.yAttributeScale = d3.scaleLinear()
+          .domain([0, 1])
+          .range(['white', '#5598b7']);
 
       let gMatrix = d3.select(_self.svgMatrix).append('g')
               .attr('class', 'g_matrix')
@@ -234,7 +247,25 @@ class IndividualFairnessView extends Component {
           .attr('y', 0)
           .attr('width', _self.cellWidth)
           .attr('height', _self.cellHeight)
-          .style('fill', (d) => _self.cellColorDistortionScale(Math.abs(d.observed - d.decision)))
+          .style('fill', (d) => {
+            const distortion = Math.abs(d.observed - d.decision),
+                  distortionMin = _self.cellColorDistortionScale.domain()[0],
+                  distortionMax = _self.cellColorDistortionScale.domain()[1],
+                  distortionInterval = distortionMax - distortionMin,
+                  fairThreshold = _self.cellColorDistortionScale.domain()[0] + distortionInterval * 0.05,
+                  outlierThreshold = _self.cellColorDistortionScale.domain()[1] - 0.000000000000000000000000000000000000000000000005;
+            
+            console.log(distortionMin, distortionMax, outlierThreshold);
+            let fillColor = _self.cellColorDistortionScale(Math.abs(d.observed - d.decision));
+            
+            if(distortion < fairThreshold) {
+              fillColor = 'blue';
+            } else if (distortion > outlierThreshold) {
+              fillColor = 'red';
+            }
+            
+            return _self.cellColorDistortionScale(Math.abs(d.observed - d.decision));
+          })
           .style('stroke', (d) => {
             const distortion = Math.abs(d.observed - d.decision),
                   distortionMin = _self.cellColorDistortionScale.domain()[0],
@@ -250,33 +281,24 @@ class IndividualFairnessView extends Component {
               strokeColor = 'blue';
             }
 
-            return 'gray';
-          });
-
-      // gCells
-      //   .each(function(d) {
-      //     d3.select(this).append('circle')
-      //       .attr('class', 'distortion_circle')
-      //       .attr('cx', _self.cellWidth / 2)
-      //       .attr('cy', _self.cellHeight / 2)
-      //       .attr('r', (d) => {
-      //         return _self.circleDistortionScale(Math.abs(d.observed - d.decision));
-      //       })
-      //       .style('fill', 'red')
-      //       .style('stroke', 'black');
-      //   });
+            return 'black';
+          })
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.3);
 
       // For Attribute plot on the left
       gAttrPlotLeft.selectAll('.attr_rect_left')
           .data(dataInputs)
           .enter().append('rect')
           .attr('class', 'attr_rect_left')
-          .attr('x', 10)
+          .attr('x', 0)
           .attr('y', (d) => _self.yMatrixScale(d.idx))
-          .attr('width', 20)
+          .attr('width', 5)
           .attr('height', _self.cellHeight)
-          .attr('fill', 'red')
-          .attr('stroke', 'white');
+          .attr('fill', (d) => _self.yAttributeScale(Math.random()))
+          .style('stroke', 'black')
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.3);
 
       gAttrPlotLeft.selectAll('.pair_rect_left')
           .data(dataInputs)
@@ -284,20 +306,21 @@ class IndividualFairnessView extends Component {
           .attr('class', 'pair_rect_left')
           .attr('x', 30)
           .attr('y', (d) => _self.yMatrixScale(d.idx))
-          .attr('width', 10)
+          .attr('width', 3)
           .attr('height', _self.cellHeight)
           .attr('fill', (d) => {
             return d.sex === 'female '? gs.groupColor1 : gs.groupColor2;
           })
           .attr('stroke', 'black')
-          .attr('stroke-width', 0.3);
+          .attr('shape-rendering', 'crispEdge')
+          .attr('stroke-width', 0.5);
 
       // For distortion sum plot on the right
-      gDistortionSumPlotRight.selectAll('.sum_distortion_rect_right')
+      gAttrPlotLeft.selectAll('.sum_distortion_rect_right')
           .data(dataInputs)
           .enter().append('rect')
           .attr('class', 'sum_distortion_rect_right')
-          .attr('x', 0)
+          .attr('x', (d) => 30 - _self.sumDistortionScale(d.sumDistortion))
           .attr('y', (d) => _self.yMatrixScale(d.idx) + _self.cellHeight / 2)
           .attr('width', (d) => _self.sumDistortionScale(d.sumDistortion))
           .attr('height', 0.5)
@@ -307,11 +330,11 @@ class IndividualFairnessView extends Component {
           .attr('stroke', 'black')
           .attr('stroke-width', 0.2);
 
-      gDistortionSumPlotRight.selectAll('.sum_distortion_circle_right')
+      gAttrPlotLeft.selectAll('.sum_distortion_circle_right')
           .data(dataInputs)
           .enter().append('circle')
           .attr('class', 'sum_distortion_circle_right')
-          .attr('cx', (d) => _self.sumDistortionScale(d.sumDistortion))
+          .attr('cx', (d) => 30 - _self.sumDistortionScale(d.sumDistortion))
           .attr('cy', (d) => _self.yMatrixScale(d.idx) + _self.cellHeight / 2)
           .attr('r', 2)
           .attr('fill', (d) => {
@@ -319,13 +342,20 @@ class IndividualFairnessView extends Component {
           })
           .attr('stroke', 'black')
           .attr('stroke-width', 0.2);
-
     }
 
     renderLegend() {
       let _self = this;
+
+      _self.svgLegend = new ReactFauxDOM.Element('svg');
+  
+      _self.svgLegend.setAttribute('width', _self.layout.svgLegend.width);
+      _self.svgLegend.setAttribute('height', _self.layout.svgLegend.height);
+      _self.svgLegend.setAttribute('0 0 200 200');
+      _self.svgLegend.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      _self.svgLegend.style.setProperty('margin', '30px 0px 5%');
       
-      const gLegend = d3.select(_self.svg).append('g')
+      const gLegend = d3.select(_self.svgLegend).append('g')
               .attr('class', 'g_legend')
               .attr('transform', 'translate(0, 0)');
 
@@ -535,7 +565,7 @@ class IndividualFairnessView extends Component {
       _self.svg.setAttribute('height', _self.layout.svg.height);
       _self.svg.setAttribute('0 0 200 200');
       _self.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      _self.svg.style.setProperty('margin', '0 5%');
+      _self.svg.style.setProperty('margin', '0 10px');
   
       let data = _self.props.distortions;
 
@@ -550,13 +580,13 @@ class IndividualFairnessView extends Component {
             .range([0, _self.layout.plot.width])
             .domain([0, d3.max(coords, (d) => d.x)]),
       _self.yDistortionScale = d3.scaleLinear()
-            .range([_self.layout.plot.height - 5, _self.layout.plot.height * 1/2])
+            .range([_self.layout.plot.height - _self.layout.plot.padding, _self.layout.plot.padding])
             .domain(d3.extent(coords, (d) => d.y)),
       _self.xGroupSkewScale = d3.scaleBand()
             .range([0, _self.layout.groupSkew.width])
             .domain([0, 1, 2, 3, 4]);
       _self.yGroupSkewScale = d3.scaleLinear()
-            .range([_self.layout.plot.height - 5, _self.layout.plot.height * 1/2])
+            .range([_self.layout.plot.height - 5, 0])
             .domain([-10, 10]);
 
       const gPlot = d3.select(_self.svg).append('g')
@@ -576,7 +606,7 @@ class IndividualFairnessView extends Component {
             xAxis = gPlot.append('g')
               .call(xAxisSetting)
               .attr('class', 'indi_x_axis')
-              .attr('transform', 'translate(0,' + _self.layout.plot.height * 3/4 + ')'),
+              .attr('transform', 'translate(0,' + _self.yDistortionScale(0) + ')'),
             yAxis = gPlot.append('g')
               .call(yAxisSetting)
               .attr('class', 'indi_y_axis')
@@ -591,9 +621,9 @@ class IndividualFairnessView extends Component {
               .style('stroke-width', 3),
             xAxisViolinPlotLine = gViolinPlot.append('line')
               .attr('x1', -20)
-              .attr('y1', _self.layout.plot.height * 3/4)
+              .attr('y1', _self.yDistortionScale(0))
               .attr('x2', 70)
-              .attr('y2', _self.layout.plot.height * 3/4)
+              .attr('y2', _self.yDistortionScale(0))
               .style('stroke-dasharray', '3,3')
               .style('stroke', 'lightgray')
               .style('stroke-width', 3),
@@ -632,7 +662,7 @@ class IndividualFairnessView extends Component {
                 .append('rect')
                 .attr('class', 'margin_rect')
                 .attr('x', 0)
-                .attr('y', (_self.layout.plot.height * 3/4 - margin))
+                .attr('y', _self.yDecisionScale(0) - (outLierMargin/2))
                 .attr('width', _self.layout.plot.width)
                 .attr('height', margin * 2)
                 .style('fill', 'lightblue')
@@ -643,7 +673,7 @@ class IndividualFairnessView extends Component {
                 .append('rect')
                 .attr('class', 'margin_rect')
                 .attr('x', 0)
-                .attr('y', (_self.layout.plot.height * 2/4 - outLierMargin))
+                .attr('y', _self.layout.plot.margin)
                 .attr('width', _self.layout.plot.width)
                 .attr('height', outLierMargin * 2)
                 .style('fill', 'pink')
@@ -654,7 +684,7 @@ class IndividualFairnessView extends Component {
                 .append('rect')
                 .attr('class', 'margin_rect')
                 .attr('x', 0)
-                .attr('y', (_self.layout.plot.height * 4/4 - outLierMargin - 5))
+                .attr('y', _self.layout.plot.height - outLierMargin)
                 .attr('width', _self.layout.plot.width)
                 .attr('height', outLierMargin * 2)
                 .style('fill', 'pink')
@@ -857,7 +887,7 @@ class IndividualFairnessView extends Component {
       const groupSkewText = gGroupSkew
             .append('text')
             .attr('x', -10)
-            .attr('y', 100)
+            .attr('y', 10)
             .text('Group skew: 1.03');
       
       return (
@@ -875,9 +905,21 @@ class IndividualFairnessView extends Component {
               </DropdownMenu>
             </Dropdown>
           </div>
-          <div className={styles.IndividualStatus}> Name and features </div>
-          <div className={styles.MatrixView}> {this.svgMatrix.toReact()} </div>
-          <div className={styles.DistortionPlot}> {this.svg.toReact()} </div>
+          <div className={styles.IndividualStatusView}> 
+            <div className={styles.IndividualStatus}>Selected individual(pair) </div>
+          </div>
+          <div className={styles.MatrixView}> 
+            <div>Individual Distortions</div>
+            {this.svgMatrix.toReact()} 
+          </div>
+          <div className={styles.Legend}>
+            {this.svgLegend.toReact()}
+            {this.svgPlot.toReact()}
+          </div>
+          <div className={styles.DistortionPlot}> 
+            <div className={index.subTitle}>Pairwise Distortions</div>
+            {this.svg.toReact()}
+          </div>
         </div>
       );
     }

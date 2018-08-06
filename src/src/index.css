@@ -14,3 +14,7 @@
     font-weight: 400;
     /* text-transform: uppercase; */
   }
+
+.subTitle {
+  margin: 10px;
+}

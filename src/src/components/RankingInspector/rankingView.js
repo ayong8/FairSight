@@ -85,9 +85,9 @@ class RankingView extends Component {
               .style('fill', function(d){
                   return groupColorScale(d.group);
               })
-              .style('stroke', 'white')
-              .style('stroke-width', 1)
-              .style('shape-rendering', 'crispEdges');
+              .style('stroke', 'black')
+              .style('shape-rendering', 'crispEdge')
+              .style('stroke-width', 0.3);
 
       gGlobalRanking.selectAll('.rect_global')
               .data(_.sortBy(wholeRankingData, ['score'], ['asc']).reverse())
@@ -106,9 +106,9 @@ class RankingView extends Component {
               .style('fill', function(d){
                   return groupColorScale(d.group);
               })
-              .style('stroke', 'white')
-              .style('stroke-width', 1)
-              .style('shape-rendering', 'crispEdges');
+              .style('stroke', 'black')
+              .style('shape-rendering', 'crispEdge')
+              .style('stroke-width', 0.3);
   
     //   gTopKRanking.selectAll('.rect_global')
     //           .data(rankingData)

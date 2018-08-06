@@ -2,29 +2,49 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
+import { Table } from 'reactstrap';
+import { Slider, Button, Tag } from "@blueprintjs/core";
 
 import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss'; // gs (=global style)
 
-
-
 class InputSpaceView extends Component {
     constructor(props) {
       super(props);
+      this.state = {
+          value2: 2.5
+      };
+    }
+
+    getChangeHandler(key) {
+        return (value) => this.setState({ [key]: value });
+    }
+
+    renderFeatureTable() {
+        const svgFeatureTable = new ReactFauxDOM.Element('svg');
+    
+        svgFeatureTable.setAttribute('width', '95%');
+        svgFeatureTable.setAttribute('height', '300px')
+        svgFeatureTable.setAttribute('class', 'svg_input_space');
+        svgFeatureTable.style.setProperty('margin', '0 5%');
+        svgFeatureTable.style.setProperty('background-color', '#f7f7f7');
+        svgFeatureTable.style.setProperty('border', '1px solid #dfdfdf');
+
+        d3.select(svgFeatureTable)
     }
 
     render() {
         const data = _.toArray(this.props.inputCoords);
-        console.log(data);
 
-        // Set up the layout
         const svg = new ReactFauxDOM.Element('svg');
     
-        svg.setAttribute('width', '85%');
-        svg.setAttribute('height', '35%')
-        svg.setAttribute('class', 'svg_inputspace');
-        svg.style.setProperty('margin', '0 10%');
+        svg.setAttribute('width', '95%');
+        svg.setAttribute('height', '300px')
+        svg.setAttribute('class', 'svg_input_space');
+        svg.style.setProperty('margin', '0 5%');
+        svg.style.setProperty('background-color', '#f7f7f7');
+        svg.style.setProperty('border', '1px solid #dfdfdf');
 
         let xScale = d3.scaleLinear()
                 .domain(d3.extent(data, (d) => d.dim1))
@@ -52,22 +72,57 @@ class InputSpaceView extends Component {
                         ? gs.groupColor1 
                         : gs.groupColor2;
                 })
-                .style('stroke', (d) => {
-                    let sex = d.sex.replace(" ", "");
-                    return sex === 'female'
-                        ? d3.rgb(gs.groupColor1).darker()
-                        : d3.rgb(gs.groupColor2).darker();
-                })
+                .style('stroke', 'darkgray')
                 .style('opacity', 0.7);
 
         return (
             <div className={styles.InputSpaceView}>
                 <div className={index.title}>Input space</div>
                 {svg.toReact()}
-                <div className={index.title}>Features</div>
+                <div className={styles.FeatureTableView}>
+                    <div className={index.title}>Features</div>
+                    <Table borderless className={styles.FeatureTable}>
+                        <thead>
+                            <tr>
+                                <th>Features</th>
+                                <th>Custom weight</th>
+                                <th>Weight from model</th>
+                            </tr>
+                        </thead>
+                        <tbody className={styles.FeatureTableTbody}>
+                            <tr>
+                                <td>Age</td>
+                                <td>
+                                    <Slider
+                                        min={0}
+                                        max={10}
+                                        stepSize={0.1}
+                                        labelStepSize={10}
+                                        onChange={this.getChangeHandler("value2")}
+                                        value={3}
+                                        //vertical={vertical}
+                                    />
+                                </td>
+                                <td>
+                                    <Tag
+                                        key='+1.15'
+                                        //onRemove={removable && onRemove}
+                                        //icon={icon === true ? "home" : undefined}
+                                        //rightIcon={rightIcon === true ? "map" : undefined}
+                                        minimal={true}
+                                    >
+                                        {'+1.15'}
+                                    </Tag>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </Table>
+                </div>
             </div>
         );
     }
+
+    handleErrorOpen = () => this.setState({ isOpenError: true });
 }
 
 export default InputSpaceView;

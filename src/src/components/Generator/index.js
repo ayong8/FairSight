@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Alert, Button, FormGroup, FormText, Input, Label,
+import { Alert, Button, FormGroup, FormText, Input, Label, Badge,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import Slider from 'react-rangeslider';
 import styles from "./styles.scss";
@@ -26,10 +26,17 @@ class Generator extends Component {
     return (
       <div className={styles.Generator}>
         <div className={styles.GeneratorNavBar}>
-          <div>Dataset</div>
-          <div>Sensitive Attribute, Features: 17</div>
-          <div>Method</div>
-          <div>Fairness</div>
+          <div className={styles.navBarDataset}>Dataset</div>
+          <div className={styles.navBarInput}>
+            <div className={styles.rankingId}>R-3</div>
+            <div className={styles.inputSummary}>
+              <div className={styles.inputTitle}>Input</div>
+              <Badge className={styles.inputFeatures} color="success" pill>17 features</Badge>
+              <Badge className={styles.inputSensitiveAttribute} color="warning" pill>Sex(Male, Female)</Badge>
+            </div>
+          </div>
+          <div className={styles.navBarMethod}>Method</div>
+          <div className={styles.navBarFairness}>Fairness</div>
         </div>
         <DataLoader dataset={this.state.dataset} className={styles.DataLoader}/>
         <FeatureSelector className={styles.FeatureSelector}/>

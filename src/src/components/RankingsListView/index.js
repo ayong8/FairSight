@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import * as d3 from 'd3';
 import ReactFauxDOM from 'react-faux-dom';
 import _ from 'lodash';
+import { Table } from 'reactstrap';
 
 import styles from "./styles.scss";
 import index from "../../index.css";
@@ -89,7 +90,30 @@ class RankingsListView extends Component {
         <div className={index.title}> RANKINGS </div>
         <div className={styles.addRanking}>+</div>
         <div className={styles.rankingCondition}>RANKING SVM + FEATURE 17</div>
+        <div className={styles.rankingCondition}>RANKING SVM + FEATURE 17</div>
         {rankingInstances}
+        <Table borderless className={styles.FeatureTable}>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Ranking</th>
+                    <th>SD</th>
+                    <th>SP</th>
+                    <th>TP</th>
+                    <th>FP</th>
+                </tr>
+            </thead>
+            <tbody className={styles.FeatureTableTbody}>
+                <tr>
+                    <td>R-1</td>
+                    <td></td>
+                    <th>..</th>
+                    <td>89</td>
+                    <td>92</td>
+                    <td>92</td>
+                </tr>
+            </tbody>
+        </Table>
       </div>
     );
   }
@@ -129,7 +153,9 @@ class RankingInstance extends Component {
           .style('fill', function(e) {
             return groupColorScale(e.group);
           })
-          .style('stroke', 'white');
+          .style('stroke', 'black')
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.3);
 
     return (
       <div className={styles.rankingInstanceWrapper}>

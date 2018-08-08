@@ -11,10 +11,10 @@ import gs from '../../config/_variables.scss'; // gs (=global style)
 
 class InputSpaceView extends Component {
     constructor(props) {
-      super(props);
-      this.state = {
-          value2: 2.5
-      };
+        super(props);
+        this.state = {
+            value2: 2.5
+        };
     }
 
     getChangeHandler(key) {
@@ -23,11 +23,11 @@ class InputSpaceView extends Component {
 
     renderFeatureTable() {
         const svgFeatureTable = new ReactFauxDOM.Element('svg');
-    
+
         svgFeatureTable.setAttribute('width', '95%');
         svgFeatureTable.setAttribute('height', '300px')
         svgFeatureTable.setAttribute('class', 'svg_input_space');
-        svgFeatureTable.style.setProperty('margin', '0 5%');
+        svgFeatureTable.style.setProperty('margin', '0 10px');
         svgFeatureTable.style.setProperty('background-color', '#f7f7f7');
         svgFeatureTable.style.setProperty('border', '1px solid #dfdfdf');
 
@@ -38,47 +38,50 @@ class InputSpaceView extends Component {
         const data = _.toArray(this.props.inputCoords);
 
         const svg = new ReactFauxDOM.Element('svg');
-    
-        svg.setAttribute('width', '95%');
-        svg.setAttribute('height', '300px')
+
+        svg.setAttribute('width', '60%');
+        svg.setAttribute('height', '250px')
         svg.setAttribute('class', 'svg_input_space');
-        svg.style.setProperty('margin', '0 5%');
+        svg.style.setProperty('margin', '0 10px');
         svg.style.setProperty('background-color', '#f7f7f7');
         svg.style.setProperty('border', '1px solid #dfdfdf');
 
         let xScale = d3.scaleLinear()
-                .domain(d3.extent(data, (d) => d.dim1))
-                .range([0, 250]);
+            .domain(d3.extent(data, (d) => d.dim1))
+            .range([0, 250]);
 
         let yScale = d3.scaleLinear()
-                .domain(d3.extent(data, (d) => d.dim2))
-                .range([250, 0]);
+            .domain(d3.extent(data, (d) => d.dim2))
+            .range([250, 0]);
 
         let gCircles = d3.select(svg)
-                .append('g')
-                .attr('transform', 'translate(10,10)');
+            .append('g')
+            .attr('transform', 'translate(10,10)');
 
         const circles = gCircles
-                .selectAll('.item')
-                .data(data)
-                .enter().append('circle')
-                .attr('class', 'item')
-                .attr('cx', (d) => xScale(d.dim1))
-                .attr('cy', (d) => yScale(d.dim2))
-                .attr('r', 3)
-                .style('fill', (d) => {
-                    let sex = d.sex.replace(" ", "");
-                    return sex === 'female'
-                        ? gs.groupColor1 
-                        : gs.groupColor2;
-                })
-                .style('stroke', 'darkgray')
-                .style('opacity', 0.7);
+            .selectAll('.item')
+            .data(data)
+            .enter().append('circle')
+            .attr('class', 'item')
+            .attr('cx', (d) => xScale(d.dim1))
+            .attr('cy', (d) => yScale(d.dim2))
+            .attr('r', 3)
+            .style('fill', (d) => {
+                let sex = d.sex.replace(" ", "");
+                return sex === 'female'
+                    ? gs.groupColor1
+                    : gs.groupColor2;
+            })
+            .style('stroke', 'darkgray')
+            .style('opacity', 0.7);
 
         return (
             <div className={styles.InputSpaceView}>
                 <div className={index.title}>Input space</div>
-                {svg.toReact()}
+                <div className={styles.IndividualPlotStatusView}>
+                    {svg.toReact()}
+                    <div className={styles.IndividualStatus}>Selected individual(pair) </div>
+                </div>
                 <div className={styles.FeatureTableView}>
                     <div className={index.title}>Features</div>
                     <Table borderless className={styles.FeatureTable}>
@@ -100,7 +103,7 @@ class InputSpaceView extends Component {
                                         labelStepSize={10}
                                         onChange={this.getChangeHandler("value2")}
                                         value={3}
-                                        //vertical={vertical}
+                                    //vertical={vertical}
                                     />
                                 </td>
                                 <td>

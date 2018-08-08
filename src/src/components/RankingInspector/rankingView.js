@@ -13,127 +13,128 @@ import gs from '../../config/_variables.scss'; // gs (=global style)
 class RankingView extends Component {
     constructor(props) {
       super(props);
+    
+      this.numTopK = 10;
+      this.numWholeRanking;
+      this.layout = {
+          svgRanking: {
+              width: 800,
+              height: 100
+          },
+          rankingPlot: {
+              width: 700,
+              height: 70,
+              margin: 10
+          }
+      };
     }
     render() {
-      const rankingData = this.props.ranking,
-            wholeRankingData = this.props.wholeRanking;
-  
-      // Set up the layout
-      const svgRankingView = new ReactFauxDOM.Element('svg');
-  
-      svgRankingView.setAttribute('width', '50%');
-      svgRankingView.setAttribute('height', '100%');
-  
-      var rectGlobalRankingScale = d3.scaleLinear()
-                  .range([0, 125])
-                  .domain(d3.extent(wholeRankingData, (d) => d.score));
-      
-      var rectTopKRankingScale = d3.scaleLinear()
-                  .range([125, 0])
-                  .domain(d3.extent(rankingData, (d) => d.score));
-  
-      var groupColorScale = d3.scaleOrdinal()
-                  .range([gs.groupColor1, gs.groupColor2])
-                  .domain([1, 2]);
-  
-      const gGlobalRanking = d3.select(svgRankingView).append('g')
-                          .attr('class', 'g_global_ranking')
-                          .attr('transform', 'translate(10,150)');
-      
-      const gTopKRanking = d3.select(svgRankingView).append('g')
-                          .attr('class', 'g_top_k_ranking')
-                          .attr('transform', 'translate(10,0)');
-  
-      // gGlobalRanking.selectAll('.rect_global')
-      //         .data(wholeRankingData)
-      //         .enter().append('rect')
-      //         .attr('class', function(d, i){
-      //             return 'rect_global_' + i;
-      //         })
-      //         .attr('x', function(d, i){
-      //             return (625 / wholeRankingData.length) * i;
-      //         })
-      //         .attr('y', function(d){
-      //             return 45 + rectGlobalRankingScale(d.score);
-      //         })
-      //         .attr('width', 625 / wholeRankingData.length)
-      //         .attr('height', function(d) {
-      //             return 80 - rectGlobalRankingScale(d.score);
-      //         })
-      //         .style('fill', function(d){
-      //             return groupColorScale(d.group);
-      //         })
-      //         .style('stroke', 'white')
-      //         .style('stroke-width', 2)
-      //         .style('shape-rendering', 'crispEdges');
+        let _self = this;
 
+        let data = this.props.wholeRanking;
 
-      gTopKRanking.selectAll('.rect_topk')
-              .data(_.sortBy(wholeRankingData.slice(0, 10), ['score'], ['asc']).reverse())
-              .enter().append('rect')
-              .attr('class', function(d, i){
-                  return 'rect_topk_' + i;
-              })
-              .attr('x', 0)
-              .attr('y', function(d, i){
-                  return 15 * i;
-              })
-              .attr('width', function(d){
-                  return rectGlobalRankingScale(d.score);
-              })
-              .attr('height', 15)
-              .style('fill', function(d){
-                  return groupColorScale(d.group);
-              })
-              .style('stroke', 'black')
-              .style('shape-rendering', 'crispEdge')
-              .style('stroke-width', 0.3);
+        // Split the data into topK and the rest
+        let dataTopK = data.slice(0, _self.numTopK),
+              dataWholeRanking = data.slice(_self.numTopK + 1);
+        _self.numWholeRanking = dataWholeRanking.length;
 
-      gGlobalRanking.selectAll('.rect_global')
-              .data(_.sortBy(wholeRankingData, ['score'], ['asc']).reverse())
-              .enter().append('rect')
-              .attr('class', function(d, i){
-                  return 'rect_global_' + i;
-              })
-              .attr('x', 0)
-              .attr('y', function(d, i){
-                  return 5 * i;
-              })
-              .attr('width', function(d){
-                  return rectGlobalRankingScale(d.score) * 0.5;
-              })
-              .attr('height', 5)
-              .style('fill', function(d){
-                  return groupColorScale(d.group);
-              })
-              .style('stroke', 'black')
-              .style('shape-rendering', 'crispEdge')
-              .style('stroke-width', 0.3);
+        // Sort
+        dataTopK = _.sortBy(dataTopK, ['score'], ['desc']).reverse();
+        dataWholeRanking = _.sortBy(dataWholeRanking, ['score'], ['desc']).reverse();
   
-    //   gTopKRanking.selectAll('.rect_global')
-    //           .data(rankingData)
-    //           .enter().append('rect')
-    //           .attr('class', function(d, i){
-    //               return 'rect_global_' + i;
-    //           })
-    //           .attr('x', function(d) {
-    //             return 100 - rectTopKRankingScale(d.score);
-    //           })
-    //           .attr('y', function(d, i){
-    //               return 20 * i;
-    //           })
-    //           .attr('width', function(d){
-    //               return rectTopKRankingScale(d.score);
-    //           })
-    //           .attr('height', 20)
-    //           .style('fill', function(d){
-    //               return groupColorScale(d.group);
-    //           })
-    //           .style('stroke', 'white')
-    //           .style('stroke-width', 1)
-    //           .style('shape-rendering', 'crispEdges');
-  
+        // Set up the layout
+        const svgRankingView = new ReactFauxDOM.Element('svg');
+
+        svgRankingView.setAttribute('width', _self.layout.svgRanking.width);
+        svgRankingView.setAttribute('height', _self.layout.svgRanking.height);
+
+        const xTopKRatio = _self.numTopK / _self.numWholeRanking + 0.1,
+              xWholeRankingRatio = 1 - xTopKRatio;
+
+        const xRectTopKRankingScale = d3.scaleBand()
+                    .domain(_.map(dataTopK, (d) => d.ranking))
+                    .range([0, _self.layout.rankingPlot.width * xTopKRatio]),
+            xRectWholeRankingScale = d3.scaleBand()
+                    .domain(_.map(dataWholeRanking, (d) => d.ranking))
+                    .range([0, _self.layout.rankingPlot.width * xWholeRankingRatio]),
+            yRectTopKRankingScale = d3.scaleLinear()
+                    .domain(d3.extent(data, (d) => d.score))
+                    .range([0, _self.layout.rankingPlot.height]),
+            yRectWholeRankingScale = d3.scaleLinear()
+                    .domain(d3.extent(data, (d) => d.score))
+                    .range([_self.layout.rankingPlot.height, 0]),
+            groupColorScale = d3.scaleOrdinal()
+                    .range([gs.groupColor1, gs.groupColor2])
+                    .domain([1, 2]);
+
+        const gTopKRanking = d3.select(svgRankingView).append('g')
+                    .attr('class', 'g_top_k_ranking')
+                    .attr('transform', 'translate(' + _self.layout.rankingPlot.margin + ',' + '0)'),
+              gWholeRanking = d3.select(svgRankingView).append('g')
+                    .attr('class', 'g_whole_ranking')
+                    .attr('transform', 'translate(' + (_self.layout.rankingPlot.width * xTopKRatio + _self.layout.rankingPlot.margin) + ',' + '0)');
+
+        gTopKRanking.selectAll('.rect_topk')
+                .data(dataTopK)
+                .enter().append('rect')
+                .attr('class', (d) => 'rect_topk rect_topk_' + d.ranking)
+                .attr('x', (d) => xRectTopKRankingScale(d.ranking))
+                .attr('y', (d) => _self.layout.rankingPlot.height - yRectTopKRankingScale(d.score))
+                .attr('width', xRectTopKRankingScale.bandwidth())
+                .attr('height', (d) => yRectTopKRankingScale(d.score))
+                .style('fill', (d) => groupColorScale(d.group))
+                .style('stroke', 'white')
+                .style('shape-rendering', 'crispEdge')
+                .style('stroke-width', 1.5);
+
+        gWholeRanking.selectAll('.rect_whole_ranking')
+                .data(dataWholeRanking)
+                .enter().append('rect')
+                .attr('class', (d) => 'rect_whole_ranking rect_whole_ranking_' + d.ranking)
+                .attr('x', (d) => xRectWholeRankingScale(d.ranking))
+                .attr('y', (d) => _self.layout.rankingPlot.height - yRectTopKRankingScale(d.score))
+                .attr('width', xRectWholeRankingScale.bandwidth())
+                .attr('height', (d) => yRectTopKRankingScale(d.score))
+                .style('fill', (d) => groupColorScale(d.group))
+                .style('stroke', 'white')
+                .style('shape-rendering', 'crispEdge')
+                .style('stroke-width', 1.5);
+
+        // define the line
+        let wholeRankingLine = d3.line()
+                .x((d) => xRectWholeRankingScale(d.ranking))
+                .y((d) => _self.layout.rankingPlot.height - yRectTopKRankingScale(d.score)),
+            wholeRankingArea = d3.area()
+                .x(function(d) { return xRectWholeRankingScale(d.ranking); })
+                .y0(_self.layout.rankingPlot.height)
+                .y1(function(d) { return _self.layout.rankingPlot.height - yRectTopKRankingScale(d.score); }),
+            selectedArea = gTopKRanking.append('rect')
+                .attr('class', 'selected_area')
+                .attr('x', xRectTopKRankingScale(1))
+                .attr('y', 0)
+                .attr('width', xRectTopKRankingScale(7))
+                .attr('height', _self.layout.rankingPlot.height)
+                .style('fill', '#96cfea')
+                .style('stroke', '#294b5b')
+                .style('stroke-dasharray', '3,3')
+                .style('opacity', 0.4);
+
+        gWholeRanking.append("path")
+                .datum(dataWholeRanking)
+                .attr("class", "whole_ranking_line")
+                .attr("d", wholeRankingLine)
+                .style('stroke', '#294b5b')
+                .style('stroke-dasharray', '3,3')
+                .style('fill', 'none');
       
+        // add the area
+        gWholeRanking.append("path")
+                .datum(dataWholeRanking)
+                .attr("class", "whole_ranking_area")
+                .attr("d", wholeRankingArea)
+                .style('fill', 'lightgray')
+                .style('opacity', 0.5);
+
       return (
         <div className={styles.RankingView}>
           <div className={index.title}>Ranking</div>

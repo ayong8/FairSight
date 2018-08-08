@@ -85,13 +85,44 @@ class RankingsListView extends Component {
   render() {
     const rankingInstances = _.map(this.props.rankings, (ranking) => this.renderRankingInstance(ranking));
 
+
+    const svg = new ReactFauxDOM.Element('svg');
+
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('class', 'svg_ranking_list1');
+
+    let xScale = d3.scaleBand()
+            .range([0, 100])
+            .domain([0,1,2,3,4,5,6,7,8,9,10]);
+      
+    const groupColorScale = d3.scaleOrdinal()
+            .range([gs.groupColor1, gs.groupColor2])
+            .domain([1, 2]);
+
+    const gRanking = d3.select(svg)
+          .selectAll('.instance')
+          .data(this.props.rankings[0])
+          .enter().append('rect')
+          .attr('class', 'instance')
+          .attr('x', function(e, i) {
+            return 15 * (i+1);
+          })
+          .attr('y', 0)
+          .attr('width', 15)
+          .attr('height', 20)
+          .style('fill', function(e) {
+            return groupColorScale(e.group);
+          })
+          .style('stroke', 'black')
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.3);
+
     return (
       <div className={styles.RankingsListView}>
         <div className={index.title}> RANKINGS </div>
         <div className={styles.addRanking}>+</div>
         <div className={styles.rankingCondition}>RANKING SVM + FEATURE 17</div>
-        <div className={styles.rankingCondition}>RANKING SVM + FEATURE 17</div>
-        {rankingInstances}
         <Table borderless className={styles.FeatureTable}>
             <thead>
                 <tr>
@@ -106,7 +137,7 @@ class RankingsListView extends Component {
             <tbody className={styles.FeatureTableTbody}>
                 <tr>
                     <td>R-1</td>
-                    <td></td>
+                    <td>{svg.toReact()}</td>
                     <th>..</th>
                     <td>89</td>
                     <td>92</td>
@@ -127,9 +158,9 @@ class RankingInstance extends Component {
   render() {
     const svg = new ReactFauxDOM.Element('svg');
 
-    svg.setAttribute('width', '500px');
-    svg.setAttribute('height', '100px');
-    svg.setAttribute('class', 'svgRankingList');
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', '100%');
+    svg.setAttribute('class', 'svg_ranking_list');
 
     let xScale = d3.scaleBand()
             .range([0, 100])
@@ -159,9 +190,7 @@ class RankingInstance extends Component {
 
     return (
       <div className={styles.rankingInstanceWrapper}>
-      <div className={styles.rankingIndex}>R1</div>
-      {svg.toReact()}
-      <div className={styles.rankingScores}>89</div>
+        {svg.toReact()}
       </div>
     );
   }

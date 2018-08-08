@@ -128,7 +128,6 @@ class IndividualFairnessView extends Component {
 
       // sort by observed space difference
       dataDistortions = _.orderBy(dataDistortions, ['observed']);
-      console.log(dataDistortions);
 
       // Coordinate scales
       this.xObservedScale2 = d3.scaleLinear()
@@ -821,19 +820,42 @@ class IndividualFairnessView extends Component {
               .arrange();
 
       gViolinPlot.selectAll('.beeswarm_circle2')
-        .data(swarm2)
-        .enter()
-        .append('circle')
-        .attr('class', 'beeswarm_circle2')
-        .attr('cx', function(bee) {
-          return bee.x + 30;
-        })
-        .attr('cy', function(bee) {
-          return bee.y;
-        })
-        .attr('r', 3)
-        .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
-        .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
+          .data(swarm2)
+          .enter()
+          .append('circle')
+          .attr('class', 'beeswarm_circle2')
+          .attr('cx', function(bee) {
+            return bee.x + 30;
+          })
+          .attr('cy', function(bee) {
+            return bee.y;
+          })
+          .attr('r', 3)
+          .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
+          .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
+      
+      const swarm3 = beeswarm()
+            .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 3).slice(0, 50))
+            .distributeOn((d) => _self.yDistortionScale(d.y1))
+            .radius(2)
+            .orientation('vertical')
+            .side('symmetric')
+            .arrange();
+
+      gViolinPlot.selectAll('.beeswarm_circle3')
+          .data(swarm3)
+          .enter()
+          .append('circle')
+          .attr('class', 'beeswarm_circle3')
+          .attr('cx', function(bee) {
+            return bee.x + 60;
+          })
+          .attr('cy', function(bee) {
+            return bee.y;
+          })
+          .attr('r', 3)
+          .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
+          .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
 
       // Group skew
       const sampleGroupSkewSum = {
@@ -905,15 +927,12 @@ class IndividualFairnessView extends Component {
               </DropdownMenu>
             </Dropdown>
           </div>
-          <div className={styles.IndividualStatusView}> 
-            <div className={styles.IndividualStatus}>Selected individual(pair) </div>
-          </div>
           <div className={styles.MatrixView}> 
-            <div>Individual Distortions</div>
+            <div className={index.subTitle}>Individual Distortions</div>
             {this.svgMatrix.toReact()} 
           </div>
           <div className={styles.Legend}>
-            {this.svgLegend.toReact()}
+            <div> {this.svgLegend.toReact()} </div>
             {this.svgPlot.toReact()}
           </div>
           <div className={styles.DistortionPlot}> 

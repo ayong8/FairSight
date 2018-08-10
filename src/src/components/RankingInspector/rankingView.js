@@ -117,7 +117,7 @@ class RankingView extends Component {
                 .style('fill', '#96cfea')
                 .style('stroke', '#294b5b')
                 .style('stroke-dasharray', '3,3')
-                .style('opacity', 0.4);
+                .style('fill-opacity', 0.4);
 
         gWholeRanking.append("path")
                 .datum(dataWholeRanking)

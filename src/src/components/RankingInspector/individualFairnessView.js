@@ -196,8 +196,6 @@ class IndividualFairnessView extends Component {
           distortionMax = d3.extent(dataDistortionsForMatrix, (d) => Math.abs(d.observed - d.decision))[1];
 
       dataInputs = this.calculateTotalSum(dataInputs);
-      console.log(distortionMin, distortionMax);
-      console.log('Data - dataInputs:', dataInputs);
       
       _self.xMatrixScale = d3.scaleBand()
           .domain(_.map(dataInputs, (d) => d.idx))  // For now, it's just an index of items(from observed)
@@ -253,8 +251,7 @@ class IndividualFairnessView extends Component {
                   distortionInterval = distortionMax - distortionMin,
                   fairThreshold = _self.cellColorDistortionScale.domain()[0] + distortionInterval * 0.05,
                   outlierThreshold = _self.cellColorDistortionScale.domain()[1] - 0.000000000000000000000000000000000000000000000005;
-            
-            console.log(distortionMin, distortionMax, outlierThreshold);
+          
             let fillColor = _self.cellColorDistortionScale(Math.abs(d.observed - d.decision));
             
             if(distortion < fairThreshold) {

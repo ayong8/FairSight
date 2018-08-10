@@ -26,5 +26,15 @@ urlpatterns = [
         regex=r'^getWeightedDataset/$',
         view=views.GetWeightedDataset.as_view(),
         name='weight'
+    ),
+    url(
+        regex=r'^getSelectedFeatureDataset/$',
+        view=views.GetSelectedFeatureDataset.as_view(),
+        name='selectedFeatures'
+    ),
+    url(
+        regex=r'^setSensitiveAttr/$',
+        view=views.SetSensitiveAttr.as_view(),
+        name='sensitiveAttr'
     )
 ]

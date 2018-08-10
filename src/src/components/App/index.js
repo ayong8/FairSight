@@ -26,8 +26,10 @@ class App extends Component {
     this.state = {
       dataset: [],
       selectedFeatures: ['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default'],
+      selectedFeatureDataset: [],
       label: 'default',
       weights: {},
+      output: [],
       sensitiveAttr: 'sex',
       selectedRanking: 0, // Index of a ranking selected among rankings in 'rankings'
       rankings: [
@@ -145,15 +147,49 @@ class App extends Component {
     fetch('/dataset/getWeight')
       .then( (response) => {
         console.log('fetch file: ', response);
-        return response.json() 
+        return response.json();
       })   
       .then( (responseWeight) => {
-          let weights = _.mapValues(responseWeight, (weightArray) => {
-            return weightArray[0];
-          });
+          let weights = JSON.parse(responseWeight)[0];
           
           this.setState({weights: weights});
         });
+    
+    // Response: All features and values multiplied by 
+    fetch('/dataset/runModel')
+      .then( (response) => {
+        return response.json();
+      })   
+      .then( (responseOutput) => {
+          let output = _.values(JSON.parse(responseOutput));
+          
+          this.setState({output: output});
+        });
+
+    fetch('/dataset/getSelectedFeatureDataset')
+      .then( (response) => {
+        return response.json();
+      })   
+      .then( (response) => {
+          let selectedFeatureDataset = _.values(JSON.parse(response));
+          console.log('selectedFeatureDataset: ', selectedFeatureDataset);
+          
+          this.setState({selectedFeatureDataset: selectedFeatureDataset});
+        });
+
+    // fetch('/dataset/setSensitiveAttr', {
+    //     method: 'post',
+    //     body: JSON.stringify(this.state.sensitiveAttr)
+    //   })
+    //   .then( (response) => {
+    //     return response.json();
+    //   })   
+    //   .then( (response) => {
+    //       let selectedFeatureDataset = _.values(JSON.parse(response));
+    //       console.log('selectedFeatureDataset: ', selectedFeatureDataset);
+          
+    //       this.setState({selectedFeatureDataset: selectedFeatureDataset});
+    //     });
   }
 
   calculateScores() {

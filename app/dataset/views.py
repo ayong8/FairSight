@@ -9,6 +9,7 @@ import os
 from config.settings.base import STATIC_ROOT, ROOT_DIR, STATICFILES_DIRS
 
 from ..static.lib.rankSVM import RankSVM
+#from ..static.lib.rankSVM2 import RankSVM
 from io import StringIO
 import csv
 import pandas as pd
@@ -17,14 +18,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.manifold import MDS
 from sklearn.preprocessing import Imputer
+from sklearn import preprocessing
 import json
-
-
-
 
 class LoadFile(APIView):
 
-    # get method
     def get(self, request, format=None):
         # Create the HttpResponse object with the appropriate CSV header.
         file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
@@ -32,41 +30,59 @@ class LoadFile(APIView):
 
         return Response(whole_dataset_df.to_json(orient='index'))
 
-class RunModel(APIView):
+class GetSelectedFeatureDataset(APIView):
 
-    # get method
     def get(self, request, format=None):
         file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
         
         whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
-        X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']].as_matrix()
-        y = whole_dataset_df[['default']].as_matrix()
-
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-        rank_svm = RankSVM().fit(X_train, y_train)
-        scores = rank_svm.score(X_test['credit_amount'], y_test['credit_amount'])
-
-        print(scores)
-
-        whole_dataset_df = pd.read_csv(open('./german_credit_sample.csv', 'rU'))
         whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
-        dataset_df = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default']]
+        X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
+        y = whole_dataset_df['default']
+
+        selected_dataset = pd.concat([X, y], axis=1)
+        print(selected_dataset)
+
+        return Response(selected_dataset.to_json(orient='index'))
+
+
+class RunModel(APIView):
+
+    def get(self, request, format=None):
+        file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
+        
+        whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
+        whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
         X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
         y = whole_dataset_df['default']
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
-
         rank_svm = RankSVM().fit(X_train, y_train)
-        scores = rank_svm.score(X_test, y_test)
+        accuracy = rank_svm.score(X_test, y_test)
 
         weight_multiply_X = X.copy()
-        coef_idx = 0
 
-        for feature in X.columns:
-            weight_multiply_X[feature] = X[feature] * rank_svm.coef_[0, coef_idx]
-            coef_idx += 1
+        for idx, feature in enumerate(X.columns):
+            weight_multiply_X[feature] = X[feature] * rank_svm.coef_[0, idx]
+        
+        weight_multiply_X['weighted_sum'] = weight_multiply_X.sum(axis=1)
+        # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
+        weight_from_leader = 100 / weight_multiply_X['weighted_sum'].max()
 
-        return Response(df)
+        min_max_scaler = preprocessing.MinMaxScaler()
+        scaled_sum = min_max_scaler.fit_transform(weight_multiply_X['weighted_sum'].values.reshape(-1, 1))
+        weight_multiply_X['score'] = scaled_sum * 100
+        weight_multiply_X = weight_multiply_X.sort_values(by='score', ascending=False).sort_index(level=0, ascending=[False])
+
+        ranking_list = []
+        for idx, row in weight_multiply_X.iterrows():
+            ranking_list.append(idx + 1)
+
+        weight_multiply_X['ranking'] = ranking_list
+
+        print(weight_multiply_X)
+
+        return Response(weight_multiply_X.to_json(orient='index'))
 
 class GetWeight(APIView):
     
@@ -74,10 +90,12 @@ class GetWeight(APIView):
         file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
         whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
         whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
+        
         dataset_df = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default']]
         X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
         y = whole_dataset_df['default']
 
+        print(X, y)
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
 
         rank_svm = RankSVM().fit(X_train, y_train)
@@ -88,14 +106,6 @@ class GetWeight(APIView):
             weight_dict[feature] = [ rank_svm.coef_[0, idx] ]
 
         weight_df = pd.DataFrame(weight_dict, columns=X.columns)
-
-        coef_idx = 0
-        # Multiplied weights to each data point
-        # for feature in X.columns:
-        #     weight_df[feature] = X[feature] * rank_svm.coef_[0, coef_idx]
-        #     coef_idx += 1
-
-        # print('weight_df: ', weight_df)
 
         return Response(weight_df.to_json(orient='index'))
 

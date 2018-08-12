@@ -124,17 +124,17 @@ class IndividualFairnessView extends Component {
       _self.svgPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       _self.svgPlot.style.setProperty('margin', '0 5%');
 
-      let dataDistortions = this.props.distortions;
+      let dataDiffs = this.props.diffs;
 
       // sort by observed space difference
-      dataDistortions = _.orderBy(dataDistortions, ['observed']);
+      dataDiffs = _.orderBy(dataDiffs, ['observed']);
 
       // Coordinate scales
       this.xObservedScale2 = d3.scaleLinear()
-          .domain(d3.extent(dataDistortions, (d) => d.observed))
+          .domain(d3.extent(dataDiffs, (d) => d.observed))
           .range([0, this.layout.svgPlot.width - this.layout.svgPlot.margin]);
       this.yDecisionScale = d3.scaleLinear()
-          .domain(d3.extent(dataDistortions, (d) => d.decision))  
+          .domain(d3.extent(dataDiffs, (d) => d.decision))  
           .range([this.layout.svgPlot.height, 0]);
             
       let gPlot = d3.select(this.svgPlot).append('g')
@@ -154,7 +154,7 @@ class IndividualFairnessView extends Component {
 
       const coordsCircles = gPlot
             .selectAll('.plot_circle')
-            .data(dataDistortions)
+            .data(dataDiffs)
             .enter().append('circle')
             .attr('class', (d) => {
               let groupClass;
@@ -188,8 +188,8 @@ class IndividualFairnessView extends Component {
       _self.svgMatrix.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       _self.svgMatrix.style.setProperty('margin', '0 5%');
 
-      let dataDistortions = this.props.distortions,
-          dataDistortionsForMatrix = this.props.distortionsInPermutations,
+      let dataDistortions = this.props.diffs,
+          dataDistortionsForMatrix = this.props.diffsInPermutations,
           dataInputs = this.props.inputCoords,
           dataObservedAndDecisions = this.props.dataObservedAndDecisions,
           distortionMin = d3.extent(dataDistortionsForMatrix, (d) => Math.abs(d.observed - d.decision))[0],

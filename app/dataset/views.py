@@ -7,6 +7,7 @@ from django.http import HttpResponse
 from django.core.files import File
 import os
 from config.settings.base import STATIC_ROOT, ROOT_DIR, STATICFILES_DIRS
+from decorator import decorator
 
 from ..static.lib.rankSVM import RankSVM
 #from ..static.lib.rankSVM2 import RankSVM
@@ -21,21 +22,23 @@ from sklearn.preprocessing import Imputer
 from sklearn import preprocessing
 import json
 
-class LoadFile(APIView):
+def open_dataset(file_path):
+    entire_file_path = os.path.join(STATICFILES_DIRS[0], file_path)
+    whole_dataset_df = pd.read_csv(open(entire_file_path, 'rU'))
 
+    return whole_dataset_df
+
+class LoadFile(APIView):
     def get(self, request, format=None):
-        # Create the HttpResponse object with the appropriate CSV header.
-        file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
-        whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
+        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+        print(whole_dataset_df)
 
         return Response(whole_dataset_df.to_json(orient='index'))
 
 class GetSelectedFeatureDataset(APIView):
 
     def get(self, request, format=None):
-        file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
-        
-        whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
+        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
         X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
         y = whole_dataset_df['default']
@@ -49,10 +52,23 @@ class GetSelectedFeatureDataset(APIView):
 class RunModel(APIView):
 
     def get(self, request, format=None):
-        file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
+        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+
+        # Figure out all categories in a feature
+        categories = whole_dataset_df['sex'].unique()
         
-        whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
-        whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
+        # Identify sensitive attribute, and the rest... then assign integer
+        sensitive_attr = 'female'
+        another_attr = 'male'
+
+        # Replace categorical values with integers
+        print('before changing')
+        print(whole_dataset_df['sex'])
+        whole_dataset_df['sex'] = np.where(whole_dataset_df['sex']=='female', 2, 1)
+        print('after changing')
+        print(whole_dataset_df['sex'])
+        group_col = np.copy(whole_dataset_df['sex'])
+        
         X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
         y = whole_dataset_df['default']
 
@@ -79,7 +95,8 @@ class RunModel(APIView):
             ranking_list.append(idx + 1)
 
         weight_multiply_X['ranking'] = ranking_list
-
+        weight_multiply_X['group'] = group_col
+        print('weight_multiply_X:')
         print(weight_multiply_X)
 
         return Response(weight_multiply_X.to_json(orient='index'))
@@ -87,8 +104,7 @@ class RunModel(APIView):
 class GetWeight(APIView):
     
     def get(self, request, format=None):
-        file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
-        whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
+        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
         
         dataset_df = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default']]
@@ -112,8 +128,7 @@ class GetWeight(APIView):
 class GetWeightedDataset(APIView):
     
     def get(self, request, format=None):
-        file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
-        whole_dataset_df = pd.read_csv(open(file_path, 'rU'))
+        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
         dataset_df = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default']]
         X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
@@ -136,20 +151,20 @@ class GetWeightedDataset(APIView):
 
         return Response(weighted_dataset_df)
 
+
+class SetSensitiveAttr(APIView):
+
+    def post(self, request, format=None):
+        sensitiveAttr = self.request.body
+
+
 class RunMDS(APIView):
 
     def get(self, request, format=None):
-        file_path = os.path.join(STATICFILES_DIRS[0], './data/german_credit_sample.csv')
-        
-        df1 = pd.read_csv(open(file_path, 'rU'), index_col=0) # 0 = 'id' column
+        df1 = open_dataset('./data/german_credit_sample.csv')
         print(df1)
         dataset = df1[['default', 'credit_amount', 'installment_as_income_perc', 'sex', 'age']]
         dataset_mds = pd.DataFrame(dataset[['credit_amount', 'installment_as_income_perc', 'age']])
-        
-
-        # should do normalization
-
-        # calculate pairwise distance
 
         d = pairwise_distances(dataset_mds)
 

@@ -12,17 +12,10 @@ import TableView from 'components/TableView';
 
 import dimReductionData from '../../data/dim_reduction_result.json';
 
-function pairwise(list) {
-  if (list.length < 2) { return []; }
-  var first = list[0],
-      rest  = list.slice(1),
-      pairs = rest.map(function (x) { return [first, x]; });
-  return pairs.concat(pairwise(rest));
-}
-
 class App extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       dataset: [],
       selectedFeatures: ['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default'],
@@ -127,9 +120,7 @@ class App extends Component {
         {observed: 30, decision: 32},
         {observed: 32, decision: 28}
       ],
-      inputCoords: _.toArray(dimReductionData),
-      distortions: this.calculateDistortions(),
-      distortionsInPermutations: this.calculatePermutationDistortions()
+      inputCoords: []
     };
   }
 
@@ -140,7 +131,9 @@ class App extends Component {
           return response.json() 
         })   
         .then( (file) => {
-            let dataset = _.values(JSON.parse(file))
+            let dataset = _.values(JSON.parse(file));
+
+            console.log(dataset);
             this.setState({dataset: dataset});
           });
 
@@ -155,13 +148,14 @@ class App extends Component {
           this.setState({weights: weights});
         });
     
-    // Response: All features and values multiplied by 
+    // Response: All features, and values multiplied by weight
     fetch('/dataset/runModel')
       .then( (response) => {
         return response.json();
       })   
       .then( (responseOutput) => {
           let output = _.values(JSON.parse(responseOutput));
+          console.log('run model dataset: ', output);
           
           this.setState({output: output});
         });
@@ -177,6 +171,17 @@ class App extends Component {
           this.setState({selectedFeatureDataset: selectedFeatureDataset});
         });
 
+    // Response: Dim coordinates
+    fetch('/dataset/runMDS')
+      .then( (response) => {
+        return response.json();
+      })   
+      .then( (responseOutput) => {
+          let dimReductions = _.values(JSON.parse(responseOutput));
+          console.log('dim reduction dataset: ', dimReductions);
+          
+          this.setState({inputCoords: dimReductions});
+        });
     // fetch('/dataset/setSensitiveAttr', {
     //     method: 'post',
     //     body: JSON.stringify(this.state.sensitiveAttr)
@@ -192,6 +197,21 @@ class App extends Component {
     //     });
   }
 
+  setGroupsFromSensitiveAttr() {
+    const sensitiveAttr = this.state.sensitiveAttr,
+          output = this.state.output,
+          dataSensitiveAttr = this.state.selectedFeatureDataset[sensitiveAttr];
+    let groups = [];
+
+    // Extract all categories from the feature
+    groups = ['male', 'female'];
+
+    // Set the group key as 1 or 2 to this.state.output
+    // Sensitive attribute can be obtained from selectedFeatureDataset
+    
+    this.state.selectedFeatureDataset;
+  }
+
   calculateScores() {
     let weights = this.state.weights;
     let wholeDataset = this.state.dataset;
@@ -202,65 +222,9 @@ class App extends Component {
 
     // Select the subset that has the selected features
     dataset = _.map(wholeDataset, (d) => _.pick(d, selectedFeatures));
-
-    // Multiply values of features by weight
-    //weightedDataset = _.map(dataset, (d) => )
-
-    // Return
-    //return 
-  }
-
-  calculateDistortions() {
-    let dimReductions = _.map(dimReductionData, (value, key) => 
-                          _.assign(value, {'idx': parseInt(key)}));
-    let pairs = pairwise(dimReductions);
-
-    // Get scores => then they are gonna consist of decision space
-    console.log('pairs after pairwise(): ', pairs);
-
-    let pairwise_dist = _.map(pairs, (d) => {
-          let observed = Math.sqrt(Math.pow(d[0].dim1 - d[1].dim1, 2) + Math.pow(d[0].dim2 - d[1].dim2, 2));
-          return {
-            idx1: d[0].idx,
-            idx2: d[1].idx,
-            pair: Math.floor(Math.random() * 3) + 1,  // for now, pair is a random => (1: Woman and Woman, 2: Woman and Man, 3: Man and Man)
-            observed: observed,
-            decision: observed + (Math.random() - 0.5)
-          }
-        });
-
-    return pairwise_dist;
-  }
-
-  calculatePermutationDistortions() {
-    let dimReductions = _.map(dimReductionData, (value, key) => 
-                          _.assign(value, {'idx': parseInt(key)})),
-        pairs = [];
-
-    _.forEach(dimReductions, (obj1) => {
-        _.forEach(dimReductions, (obj2) => {
-          let observed = Math.sqrt(Math.pow(obj1.dim1 - obj2.dim1, 2) + Math.pow(obj1.dim2 - obj2.dim2, 2));
-          
-          pairs.push({
-            idx1: obj1.idx,
-            idx2: obj2.idx,
-            pair: Math.floor(Math.random() * 3) + 1,  // for now, pair is a random => (1: Woman and Woman, 2: Woman and Man, 3: Man and Man)
-            observed: observed,
-            decision: observed + (Math.random() - 0.5)
-          });
-        });
-    });
-
-    // Get scores => then they are gonna consist of decision space
-    console.log('pairs from permutations: ', pairs);
-
-    return pairs;
   }
 
   render() {
-    // let scores = this.calculateScores();
-    // let distortions = this.calculateDistortions(scores);
-
     // For the Ranking Inspector, only send down the selected ranking data
     let rankingList = this.state.rankings,
         selectedRankingIndex = this.state.selectedRanking,
@@ -274,10 +238,8 @@ class App extends Component {
         <Generator dataset='german.csv' />
         <RankingsListView rankings={this.state.rankings} />
         <RankingInspector inputCoords={this.state.inputCoords} 
-                          observedAndDecisions={this.state.observedAndDecisions} 
-                          distortions={this.state.distortions} 
-                          distortionsInPermutations={this.state.distortionsInPermutations}
-                          wholeRanking={this.state.wholeRanking} 
+                          observedAndDecisions={this.state.observedAndDecisions}
+                          wholeRanking={this.state.output} 
                           ranking={selectedRanking} />
         <Footer />
       </div>

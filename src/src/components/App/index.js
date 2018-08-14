@@ -18,8 +18,9 @@ class App extends Component {
 
     this.state = {
       dataset: [],
-      selectedFeatures: ['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default'],
-      selectedFeatureDataset: [],
+      selectedFeatures: ['credit_amount', 'installment_as_income_perc', 'sex', 'age'],
+      y: 'default',
+      selectedDataset: [],
       label: 'default',
       weights: {},
       output: [],
@@ -133,7 +134,6 @@ class App extends Component {
         .then( (file) => {
             let dataset = _.values(JSON.parse(file));
 
-            console.log(dataset);
             this.setState({dataset: dataset});
           });
 
@@ -160,15 +160,15 @@ class App extends Component {
           this.setState({output: output});
         });
 
-    fetch('/dataset/getSelectedFeatureDataset')
+    fetch('/dataset/getSelectedDataset')
       .then( (response) => {
         return response.json();
       })   
       .then( (response) => {
-          let selectedFeatureDataset = _.values(JSON.parse(response));
-          console.log('selectedFeatureDataset: ', selectedFeatureDataset);
+          let selectedDataset = _.values(JSON.parse(response));
+          console.log('selectedDataset: ', selectedDataset);
           
-          this.setState({selectedFeatureDataset: selectedFeatureDataset});
+          this.setState({selectedDataset: selectedDataset});
         });
 
     // Response: Dim coordinates
@@ -190,26 +190,26 @@ class App extends Component {
     //     return response.json();
     //   })   
     //   .then( (response) => {
-    //       let selectedFeatureDataset = _.values(JSON.parse(response));
-    //       console.log('selectedFeatureDataset: ', selectedFeatureDataset);
+    //       let selectedDataset = _.values(JSON.parse(response));
+    //       console.log('selectedDataset: ', selectedDataset);
           
-    //       this.setState({selectedFeatureDataset: selectedFeatureDataset});
+    //       this.setState({selectedDataset: selectedDataset});
     //     });
   }
 
   setGroupsFromSensitiveAttr() {
     const sensitiveAttr = this.state.sensitiveAttr,
           output = this.state.output,
-          dataSensitiveAttr = this.state.selectedFeatureDataset[sensitiveAttr];
+          dataSensitiveAttr = this.state.selectedDataset[sensitiveAttr];
     let groups = [];
 
     // Extract all categories from the feature
     groups = ['male', 'female'];
 
     // Set the group key as 1 or 2 to this.state.output
-    // Sensitive attribute can be obtained from selectedFeatureDataset
+    // Sensitive attribute can be obtained from selectedDataset
     
-    this.state.selectedFeatureDataset;
+    this.state.selectedDataset;
   }
 
   calculateScores() {
@@ -225,10 +225,19 @@ class App extends Component {
   }
 
   render() {
+    if ((!this.state.selectedDataset || this.state.output.length === 0) || 
+        (!this.state.output || this.state.output.length === 0) ||
+        (!this.state.inputCoords || this.state.inputCoords.length === 0)
+       ) {
+      return <div />
+    }
     // For the Ranking Inspector, only send down the selected ranking data
     let rankingList = this.state.rankings,
         selectedRankingIndex = this.state.selectedRanking,
         selectedRanking = rankingList[selectedRankingIndex];
+
+    console.log('this.state.output: ', this.state.output);
+    console.log('this.state: ', this.state);
 
     return (
       <div className={styles.App}>
@@ -237,9 +246,13 @@ class App extends Component {
         </div>
         <Generator dataset='german.csv' />
         <RankingsListView rankings={this.state.rankings} />
-        <RankingInspector inputCoords={this.state.inputCoords} 
+        <RankingInspector selectedDataset={this.state.selectedDataset}
+                          selectedFeatures={this.state.selectedFeatures}
+                          sensitiveAttr={this.state.sensitiveAttr}
+                          y={this.state.y}
+                          inputCoords={this.state.inputCoords}
                           observedAndDecisions={this.state.observedAndDecisions}
-                          wholeRanking={this.state.output} 
+                          output={this.state.output} 
                           ranking={selectedRanking} />
         <Footer />
       </div>

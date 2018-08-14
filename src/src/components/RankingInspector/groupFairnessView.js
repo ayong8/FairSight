@@ -27,6 +27,8 @@ class GroupFairnessView extends Component {
       };
     }
     render() {
+      
+
       this.renderTopKPlot();
       const wholeRankingData = this.props.wholeRanking;
             // groupData1 = _.filter(wholeRankingData, (d) => d.group === 1),

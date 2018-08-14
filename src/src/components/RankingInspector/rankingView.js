@@ -31,12 +31,15 @@ class RankingView extends Component {
     render() {
         let _self = this;
 
-        let data = this.props.wholeRanking;
+        let data = this.props.output;
+        data = _.sortBy(data, ['score'], ['desc']).reverse();
 
         // Split the data into topK and the rest
         let dataTopK = data.slice(0, _self.numTopK),
-              dataWholeRanking = data.slice(_self.numTopK + 1);
+            dataWholeRanking = data.slice(_self.numTopK + 1);
         _self.numWholeRanking = dataWholeRanking.length;
+
+        console.log('data in rankingview: ', _.map(dataTopK, (d) => d.score), _.map(dataWholeRanking, (d) => d.score));
 
         // Sort
         dataTopK = _.sortBy(dataTopK, ['score'], ['desc']).reverse();

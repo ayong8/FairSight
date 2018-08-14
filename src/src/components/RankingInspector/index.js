@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
+import * as _unionBy from 'lodash.unionby';
 import ReactFauxDOM from 'react-faux-dom';
 
 import InputSpaceView from './inputSpaceView';
@@ -36,94 +37,173 @@ function pairwise(list) {
 class RankingInspector extends Component {
   constructor(props) {
     super(props);
-    this.observedScale;
-    this.decisionScale;
+    this.inputScale;
+    this.outputScale;
 
     //this.calculatePairwiseDistortions = this.calculatePairwiseDistortions.bind(this);
   }
 
+  combineData() {
+    const dataInputCoords = this.props.inputCoords,
+          dataOutput = this.props.output,
+          idx = _.map(dataOutput, (d) => d.idx);
+
+    console.log('inputCoords: ', dataInputCoords);
+
+    let data = [];
+
+    // Union 
+    data = _.map(idx, (currentIdx) => {
+        let inputObj = _.find(dataInputCoords, {'idx': currentIdx}),
+            outputObj = _.find(dataOutput, {'idx': currentIdx});
+
+        return {
+          idx: currentIdx,
+          group: inputObj.group,
+          inputCoords: inputObj,
+          output: outputObj
+        }
+      });
+
+    return data;
+  }
   // Calculate distortions of combinatorial pairs (For pairwise distortion plot)
   calculatePairwiseDifferences() {
-    let dataDimReductions = this.props.inputCoords,
-          pairs = pairwise(dataDimReductions);
+    const data = this.combineData(),
+          dataPairs = pairwise(data);    
 
-    _.map(dataDimReductions, (value, key) => 
-          _.assign(value, {'idx': parseInt(key)}));
+    this.setScalesFromDataPairs(dataPairs);
 
-    console.log('dimReduction: ', dataDimReductions);
-    // Get scores => then they are gonna consist of decision space
-    console.log('pairs after pairwise(): ', pairs);
+    let dataPairwiseDiffs = [];
+    
+    dataPairwiseDiffs = _.map(dataPairs, (d) => {
+          let diffInput = Math.sqrt(Math.pow(d[0].inputCoords.dim1 - d[1].inputCoords.dim1, 2) + Math.pow(d[0].inputCoords.dim2 - d[1].inputCoords.dim2, 2)),
+              diffOutput = Math.abs(d[0].output.ranking - d[1].output.ranking),
+              pair = 0;
 
-    this.observedScale = d3.scaleLinear()
-        .domain(d3.extent(pairs, (d) => Math.sqrt(Math.pow(d[0].dim1 - d[1].dim1, 2) + Math.pow(d[0].dim2 - d[1].dim2, 2))))
-        .range([0, 1]);
-    this.observedScale = d3.scaleLinear()
-        .domain(d3.extent(pairs, (d) => Math.sqrt(Math.pow(d[0].dim1 - d[1].dim1, 2) + Math.pow(d[0].dim2 - d[1].dim2, 2))))
-        .range([0, 1]);
-
-    let pairwise_dist = _.map(pairs, (d) => {
-          let diffObserved = Math.sqrt(Math.pow(d[0].dim1 - d[1].dim1, 2) + Math.pow(d[0].dim2 - d[1].dim2, 2)),
-              diffDecision = d[0].ranking - d[1].ranking;
+          if((d[0].group === 1) && (d[1].group === 1))
+            pair = 1;
+          else if((d[0].group === 2) && (d[1].group === 2))
+            pair = 2;
+          else if(d[0].group !== d[1].group)
+            pair = 3;
 
           return {
             idx1: d[0].idx,
             idx2: d[1].idx,
-            pair: Math.floor(Math.random() * 3) + 1,  // for now, pair is a random => (1: Woman and Woman, 2: Woman and Man, 3: Man and Man)
-            observed: diffObserved,
-            decision: diffDecision,
-            scaled_observed: this.observedScale(diffObserved),
-            scaled_decision: this.observedScale(diffDecision)
+            pair: pair,
+            diffInput: diffInput,
+            diffOutput: diffOutput,
+            scaledDiffInput: this.inputScale(diffInput),
+            scaledDiffOutput: this.outputScale(diffOutput)
           }
         });
 
-    return pairwise_dist;
+    return dataPairwiseDiffs;
   }
 
   // Calculate distortions of permutational pairs (For matrix view)
   calculatePermutationPairwiseDifferences() {
-    const dataDimReductions = this.props.inputCoords;
-    let pairs = [];
+    const data = this.combineData();
 
-    console.log('dataDimReductions: ', dataDimReductions);
+    let dataPermutationDiffs = [];
 
-    _.forEach(dataDimReductions, (obj1) => {
-        _.forEach(dataDimReductions, (obj2) => {
-          let observed = Math.sqrt(Math.pow(obj1.dim1 - obj2.dim1, 2) + Math.pow(obj1.dim2 - obj2.dim2, 2));
+    _.forEach(data, (obj1) => {
+        _.forEach(data, (obj2) => {
+          let diffInput = Math.sqrt(Math.pow(obj1.inputCoords.dim1 - obj2.inputCoords.dim1, 2) + 
+                         Math.pow(obj1.inputCoords.dim2 - obj2.inputCoords.dim2, 2)),
+              diffOutput = Math.abs(obj1.output.ranking - obj2.output.ranking),
+              pair = 0;
+
+            if((obj1.group === 1) && (obj2.group === 1))
+              pair = 1;
+            else if((obj1.group === 2) && (obj2.group === 2))
+              pair = 2;
+            else if(obj1.group !== obj2.group)
+              pair = 3;
           
-          pairs.push({
+          dataPermutationDiffs.push({
             idx1: obj1.idx,
             idx2: obj2.idx,
-            pair: Math.floor(Math.random() * 3) + 1,  // for now, pair is a random => (1: Woman and Woman, 2: Woman and Man, 3: Man and Man)
-            observed: observed,
-            decision: observed + (Math.random() - 0.5)
+            pair: pair,
+            diffInput: diffInput,
+            diffOutput: diffOutput,
+            scaledDiffInput: this.inputScale(diffInput),
+            scaledDiffOutput: this.outputScale(diffOutput),
+            x1: obj1.output['credit_amount'],
+            x2: obj2.output['age']
           });
         });
     });
 
-    // Get scores => then they are gonna consist of decision space
-    console.log('pairs from permutations: ', pairs);
+    return dataPermutationDiffs;
+  }
 
-    return pairs;
+  setScalesFromDataPairs(dataPairs){
+    this.inputScale = d3.scaleLinear()
+        .domain(d3.extent(dataPairs, (d) => 
+            Math.sqrt(Math.pow(d[0].inputCoords.dim1 - d[1].inputCoords.dim1, 2) + 
+                      Math.pow(d[0].inputCoords.dim2 - d[1].inputCoords.dim2, 2))
+                    )
+        )
+        .range([0, 1]);
+    this.outputScale = d3.scaleLinear()
+        .domain(d3.extent(dataPairs, (d) => 
+            Math.abs(d[0].output.ranking - d[1].output.ranking))
+        )
+        .range([0, 1]);
   }
 
   render() {
     var data = [1,2,3,4,5];
 
-    const diffs = this.calculatePairwiseDifferences(),
-          diffsInPermutation = this.calculatePermutationPairwiseDifferences();
+    // Data
+    let selectedFeatures = this.props.selectedFeatures,
+        selectedDataset = this.props.selectedDataset,
+        sensitiveAttr = this.props.sensitiveAttr,
+        output = this.props.output;
 
-    console.log(diffs);
+    console.log(this.props);
+    console.log('sensitiveAttr: ', sensitiveAttr);
+    console.log('output: ', output);
+          
+    let idx = _.map(selectedDataset, (d) => d.idx),
+          x = _.map(selectedDataset, (d) => _.pick(d, [...selectedFeatures, 'idx'])),
+          y = _.map(selectedDataset, (d) => _.pick(d, ['default', 'idx'])),
+          groups = _.map(selectedDataset, (d) => _.pick(d, [sensitiveAttr, 'idx'])),
+          rankings = _.map(output, (d) => _.pick(d, ['ranking', 'idx'])),
+          scores = _.map(output, (d) => _.pick(d, ['score', 'idx']));
+
+    // Merge multiple datasets (objects) as one object with all attributes together in each data point
+    // x, y, diffs, diffsInPermutations
+    let dataIndividualFairnessView = [];
+    
+    dataIndividualFairnessView = _.map(idx, (currentIdx) => {
+            const xObj = _.find(x, {'idx': currentIdx}),
+                  yObj = _.find(y, {'idx': currentIdx})['default'],
+                  groupObj = _.find(groups, {'idx': currentIdx}),
+                  rankingObj = _.find(rankings, {'idx': currentIdx}),
+                  scoreObj = _.find(scores, {'idx': currentIdx});
+
+            return {
+              idx: currentIdx,
+              x: xObj,
+              y: yObj,
+              group: groupObj[sensitiveAttr],
+              ranking: rankingObj.ranking,
+              score: scoreObj.score
+            }
+          });
 
     return (
       <div className={styles.RankingInspector}>
-        <RankingView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} />
+        <RankingView ranking={this.props.ranking} output={this.props.output} />
         <InputSpaceView inputCoords={this.props.inputCoords} className={styles.InputSpaceView} />
         <GroupFairnessView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.GroupFairnessView} />
-        <IndividualFairnessView inputCoords={this.props.inputCoords} 
-                                diffs={diffs}
-                                diffsInPermutations={diffsInPermutation}
-                                ranking={this.props.ranking} 
-                                className={styles.IndividualFairnessView} />
+        <IndividualFairnessView data={dataIndividualFairnessView}
+                                pairwiseDiffs={this.calculatePairwiseDifferences()}
+                                pairwiseDiffsInPermutation={this.calculatePermutationPairwiseDifferences()}
+                                />
         {/* <UtilityView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.UtilityView} /> */}
       </div>
     );

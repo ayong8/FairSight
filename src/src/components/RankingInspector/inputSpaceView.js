@@ -36,6 +36,7 @@ class InputSpaceView extends Component {
 
     render() {
         const data = _.toArray(this.props.inputCoords);
+        console.log('data in inputspaceview: ', data);
 
         const svg = new ReactFauxDOM.Element('svg');
 
@@ -48,11 +49,11 @@ class InputSpaceView extends Component {
 
         let xScale = d3.scaleLinear()
             .domain(d3.extent(data, (d) => d.dim1))
-            .range([0, 250]);
+            .range([0, 240]);
 
         let yScale = d3.scaleLinear()
             .domain(d3.extent(data, (d) => d.dim2))
-            .range([250, 0]);
+            .range([240, 0]);
 
         let gCircles = d3.select(svg)
             .append('g')
@@ -67,8 +68,8 @@ class InputSpaceView extends Component {
             .attr('cy', (d) => yScale(d.dim2))
             .attr('r', 3)
             .style('fill', (d) => {
-                let sex = d.sex.replace(" ", "");
-                return sex === 'female'
+                let group = d.group;
+                return group === 1
                     ? gs.groupColor1
                     : gs.groupColor2;
             })

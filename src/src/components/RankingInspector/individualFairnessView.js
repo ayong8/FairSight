@@ -31,6 +31,10 @@ class IndividualFairnessView extends Component {
       this.svgLegend;
 
       // For matrix view
+      this.xSelectedFeature = 'credit_amount'
+      this.ySelectedFeature = 'age'
+      this.xSortingFeature = 'credit_amount'
+      this.ySortingFeature = 'age'
       this.xMatrixScale;
       this.yMatrixScale;
       this.cellWidth;
@@ -124,17 +128,17 @@ class IndividualFairnessView extends Component {
       _self.svgPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       _self.svgPlot.style.setProperty('margin', '0 5%');
 
-      let dataDiffs = this.props.diffs;
+      let dataPairwiseDiffs = this.props.pairwiseDiffs;
 
       // sort by observed space difference
-      dataDiffs = _.orderBy(dataDiffs, ['observed']);
+      dataPairwiseDiffs = _.orderBy(dataPairwiseDiffs, ['scaledObserved']);
 
       // Coordinate scales
       this.xObservedScale2 = d3.scaleLinear()
-          .domain(d3.extent(dataDiffs, (d) => d.observed))
+          .domain(d3.extent(dataPairwiseDiffs, (d) => d.scaledDiffInput))
           .range([0, this.layout.svgPlot.width - this.layout.svgPlot.margin]);
       this.yDecisionScale = d3.scaleLinear()
-          .domain(d3.extent(dataDiffs, (d) => d.decision))  
+          .domain(d3.extent(dataPairwiseDiffs, (d) => d.scaledDiffOutput))  
           .range([this.layout.svgPlot.height, 0]);
             
       let gPlot = d3.select(this.svgPlot).append('g')
@@ -154,7 +158,7 @@ class IndividualFairnessView extends Component {
 
       const coordsCircles = gPlot
             .selectAll('.plot_circle')
-            .data(dataDiffs)
+            .data(dataPairwiseDiffs)
             .enter().append('circle')
             .attr('class', (d) => {
               let groupClass;
@@ -168,8 +172,8 @@ class IndividualFairnessView extends Component {
 
               return 'plot_circle ' + groupClass;
             })
-            .attr('cx', (d) => this.xObservedScale2(d.observed))
-            .attr('cy', (d) => this.yDecisionScale(d.decision))
+            .attr('cx', (d) => this.xObservedScale2(d.scaledDiffInput))
+            .attr('cy', (d) => this.yDecisionScale(d.scaledDiffOutput))
             .attr('r', 1)
             .style('fill', (d) => this.pairColorScale(d.pair))
             .style('stroke', (d) => d3.rgb(this.pairColorScale(d.pair)).darker())
@@ -188,38 +192,60 @@ class IndividualFairnessView extends Component {
       _self.svgMatrix.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       _self.svgMatrix.style.setProperty('margin', '0 5%');
 
-      let dataDistortions = this.props.diffs,
-          dataDistortionsForMatrix = this.props.diffsInPermutations,
-          dataInputs = this.props.inputCoords,
+      let data = this.props.data,
+          dataPairwiseDiffs = this.props.pairwiseDiffs,
+          dataPermutationDiffsForMatrix = this.props.pairwiseDiffsInPermutation,
           dataObservedAndDecisions = this.props.dataObservedAndDecisions,
-          distortionMin = d3.extent(dataDistortionsForMatrix, (d) => Math.abs(d.observed - d.decision))[0],
-          distortionMax = d3.extent(dataDistortionsForMatrix, (d) => Math.abs(d.observed - d.decision))[1];
+          distortionMin = d3.extent(dataPermutationDiffsForMatrix, (d) => d.scaledDiffInput - d.scaledDiffOutput)[0],
+          distortionMax = d3.extent(dataPermutationDiffsForMatrix, (d) => d.scaledDiffInput - d.scaledDiffOutput)[1];
 
-      dataInputs = this.calculateTotalSum(dataInputs);
+      this.calculateSumDistortion(data, dataPermutationDiffsForMatrix);
+      console.log('data: ', data);
+
+      // For x and y axis
+      let dataX = [...data],
+          dataY = [...data];
+        
+      // Sorting
+      let sortedFeatureX = _(dataX)
+                            .sortBy(['d.' + _self.xSortingFeature])
+                            .forEach((d, i) => d.xSortingIdx = i + 1);
+      
+      _.forEach(dataPermutationDiffsForMatrix, (d, i) => {
+          let xSortingIdx = sortedFeatureX
+                              .filter((e) => d.x1[_self.xSortingFeature] === e.x[_self.xSortingFeature])
+                              .map((e) => d.xSortingIdx);
+
+          dataPermutationDiffsForMatrix[i].xSortingIdx = xSortingIdx;
+      });
+     // _.sortBy(dataY, ['d.' + this.ySortingFeature]);
+      // Sort the feature for sorting, and assign idx to each value
+
+      _.sortBy(dataPermutationDiffsForMatrix, ['d.' + this.xSortingFeature])
       
       _self.xMatrixScale = d3.scaleBand()
-          .domain(_.map(dataInputs, (d) => d.idx))  // For now, it's just an index of items(from observed)
+          .domain(_.map(dataX, (d) => d.idx))  // For now, it's just an index of items(from observed)
           .range([0, _self.layout.svgMatrix.matrixPlot.width]),
       _self.yMatrixScale = d3.scaleBand()
-          .domain(_.map(dataInputs, (d) => d.idx))  // For now, it's just an index of items(from observed)
+          .domain(_.map(dataY, (d) => d.idx))  // For now, it's just an index of items(from observed)
           .range([_self.layout.svgMatrix.matrixPlot.height, 0]),
       _self.cellWidth = _self.xMatrixScale.bandwidth(),
       _self.cellHeight = _self.yMatrixScale.bandwidth(),
       _self.cellColorDistortionScale = d3.scaleLinear()
-              .domain([distortionMin, (distortionMin+distortionMax)/2, distortionMax])
-              .range(['slateblue', 'white', 'PALEVIOLETRED']),
+              .domain([distortionMin, (distortionMin + distortionMax)/2, distortionMax])
+              .range(['slateblue', 'white', 'palevioletred']),
       _self.sumDistortionScale = d3.scaleLinear()
-              .domain([0, 1])
+              .domain(d3.extent(data, (d) => d.sumDistortion))
               .range([5, _self.layout.svgMatrix.distortionSumPlotRight.width - 10]),
       _self.yAttributeScale = d3.scaleLinear()
-          .domain([0, 1])
+          .domain(d3.extent(data, (d) => d.x[this.ySelectedFeature]))
           .range(['white', '#5598b7']);
 
       let gMatrix = d3.select(_self.svgMatrix).append('g')
               .attr('class', 'g_matrix')
               .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',' + _self.layout.svgMatrix.distortionSumPlotUpper.height + ')'),
           gCells = gMatrix.selectAll('.g_row')
-              .data(dataDistortionsForMatrix)
+              .data(dataPermutationDiffsForMatrix)
               .enter().append('g')
               .attr('class', 'g_row')
               .attr('transform', function(d){
@@ -245,14 +271,14 @@ class IndividualFairnessView extends Component {
           .attr('width', _self.cellWidth)
           .attr('height', _self.cellHeight)
           .style('fill', (d) => {
-            const distortion = Math.abs(d.observed - d.decision),
+            const distortion = d.scaledDiffInput - d.scaledDiffOutput,
                   distortionMin = _self.cellColorDistortionScale.domain()[0],
                   distortionMax = _self.cellColorDistortionScale.domain()[1],
                   distortionInterval = distortionMax - distortionMin,
                   fairThreshold = _self.cellColorDistortionScale.domain()[0] + distortionInterval * 0.05,
                   outlierThreshold = _self.cellColorDistortionScale.domain()[1] - 0.000000000000000000000000000000000000000000000005;
           
-            let fillColor = _self.cellColorDistortionScale(Math.abs(d.observed - d.decision));
+            let fillColor = _self.cellColorDistortionScale(d.scaledDiffInput - d.scaledDiffOutput);
             
             if(distortion < fairThreshold) {
               fillColor = 'blue';
@@ -260,10 +286,10 @@ class IndividualFairnessView extends Component {
               fillColor = 'red';
             }
             
-            return _self.cellColorDistortionScale(Math.abs(d.observed - d.decision));
+            return _self.cellColorDistortionScale(d.scaledDiffInput - d.scaledDiffOutput);
           })
           .style('stroke', (d) => {
-            const distortion = Math.abs(d.observed - d.decision),
+            const distortion = d.scaledDiffInput - d.scaledDiffOutput,
                   distortionMin = _self.cellColorDistortionScale.domain()[0],
                   distortionMax = _self.cellColorDistortionScale.domain()[1],
                   distortionInterval = distortionMax - distortionMin,
@@ -284,58 +310,64 @@ class IndividualFairnessView extends Component {
 
       // For Attribute plot on the left
       gAttrPlotLeft.selectAll('.attr_rect_left')
-          .data(dataInputs)
+          .data(data)
           .enter().append('rect')
           .attr('class', 'attr_rect_left')
           .attr('x', 0)
           .attr('y', (d) => _self.yMatrixScale(d.idx))
           .attr('width', 5)
           .attr('height', _self.cellHeight)
-          .attr('fill', (d) => _self.yAttributeScale(Math.random()))
+          .attr('fill', (d) => _self.yAttributeScale(d.x[this.ySelectedFeature]))
           .style('stroke', 'black')
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.3);
 
       gAttrPlotLeft.selectAll('.pair_rect_left')
-          .data(dataInputs)
+          .data(data)
           .enter().append('rect')
           .attr('class', 'pair_rect_left')
           .attr('x', 30)
           .attr('y', (d) => _self.yMatrixScale(d.idx))
           .attr('width', 3)
           .attr('height', _self.cellHeight)
-          .attr('fill', (d) => {
-            return d.sex === 'female '? gs.groupColor1 : gs.groupColor2;
-          })
+          .attr('fill', (d) => 
+            d.group === 'female '? 
+              gs.groupColor1 : 
+              gs.groupColor2
+          )
           .attr('stroke', 'black')
           .attr('shape-rendering', 'crispEdge')
           .attr('stroke-width', 0.5);
 
       // For distortion sum plot on the right
-      gAttrPlotLeft.selectAll('.sum_distortion_rect_right')
-          .data(dataInputs)
+      gAttrPlotLeft.selectAll('.sum_distortion_rect_left')
+          .data(data)
           .enter().append('rect')
-          .attr('class', 'sum_distortion_rect_right')
+          .attr('class', 'sum_distortion_rect_left')
           .attr('x', (d) => 30 - _self.sumDistortionScale(d.sumDistortion))
           .attr('y', (d) => _self.yMatrixScale(d.idx) + _self.cellHeight / 2)
           .attr('width', (d) => _self.sumDistortionScale(d.sumDistortion))
           .attr('height', 0.5)
-          .attr('fill', (d) => {
-            return d.sex === 'female '? gs.groupColor1 : gs.groupColor2;
-          })
+          .attr('fill', (d) => 
+            d.group === 'female '? 
+              gs.groupColor1 : 
+              gs.groupColor2
+          )
           .attr('stroke', 'black')
           .attr('stroke-width', 0.2);
 
-      gAttrPlotLeft.selectAll('.sum_distortion_circle_right')
-          .data(dataInputs)
+      gAttrPlotLeft.selectAll('.sum_distortion_circle_left')
+          .data(data)
           .enter().append('circle')
-          .attr('class', 'sum_distortion_circle_right')
+          .attr('class', 'sum_distortion_circle_left')
           .attr('cx', (d) => 30 - _self.sumDistortionScale(d.sumDistortion))
           .attr('cy', (d) => _self.yMatrixScale(d.idx) + _self.cellHeight / 2)
           .attr('r', 2)
-          .attr('fill', (d) => {
-            return d.sex === 'female '? gs.groupColor1 : gs.groupColor2;
-          })
+          .attr('fill', (d) => 
+            d.group === 'female '? 
+              gs.groupColor1 : 
+              gs.groupColor2
+          )
           .attr('stroke', 'black')
           .attr('stroke-width', 0.2);
     }
@@ -504,9 +536,9 @@ class IndividualFairnessView extends Component {
           distortionScale = 3;
   
       for(i=0; i<n-1; i++){
-        diff = data[i].observed - data[i].decision;
+        diff = data[i].scaledDiffInput - data[i].scaledDiffOutput;
         distortion = diff * distortionScale;
-        x = data[i].observed;
+        x = data[i].scaledDiffInput;
         y = distortion;
         pair = data[i].pair;
   
@@ -527,9 +559,9 @@ class IndividualFairnessView extends Component {
           distortionScale = 3;
   
       for(i=0; i<n-1; i++){
-        diff = data[i].observed - data[i].decision;
+        diff = data[i].scaledDiffInput - data[i].scaledDiffOutput;
         distortion = diff * distortionScale;
-        x = data[i].observed;
+        x = data[i].scaledDiffInput;
         y = 0;
         pair = data[i].pair;
   
@@ -544,15 +576,26 @@ class IndividualFairnessView extends Component {
       return coordsArray;
     }
 
-    calculateTotalSum(dataInputs) {
-      _.forEach(dataInputs, (d, i) => {
-        dataInputs[i].sumDistortion = Math.random();
+    calculateSumDistortion(data, dataPermutationDiffsForMatrix) {
+      console.log('calculateSumDistortion called');
+      console.log('data: ', data);
+      console.log('dataPermutationDiffsForMatrix: ', dataPermutationDiffsForMatrix);
+      _.forEach(data, (d, i) => {
+        data[i].sumDistortion = dataPermutationDiffsForMatrix
+            .filter((e) => e.idx1 === data[i].idx)
+            .map((e) => e.scaledDiffInput - e.scaledDiffOutput)
+            .reduce((sum, e) => sum + e);
       });
 
-      return dataInputs;
+      return data;
     }
   
     render() {
+      if ((!this.props.pairwiseDiffs || this.props.pairwiseDiffs.length === 0) || 
+          (!this.props.pairwiseDiffsInPermutation || this.props.pairwiseDiffsInPermutation.length === 0)
+         ) {
+        return <div />
+      }
       let _self = this;
 
       _self.svg = new ReactFauxDOM.Element('svg');
@@ -563,13 +606,16 @@ class IndividualFairnessView extends Component {
       _self.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       _self.svg.style.setProperty('margin', '0 10px');
   
-      let data = _self.props.distortions;
+      let data = _self.props.pairwiseDiffs;
+      console.log('data distortions? ', data);
 
       // sort by observed space difference
-      data = _.orderBy(data, ['observed']);
+      data = _.orderBy(data, ['scaledDiffInput']);
   
       const coords = _self.calculateCoords(_self.layout.plot.width, data.length, data),
             baselineCoords = _self.calculateBaselineCoords(_self.layout.plot.width, data.length, data);
+
+      console.log('coords data: ', coords);
 
       // Coordinate scales
       _self.xObservedScale = d3.scaleLinear()
@@ -786,7 +832,7 @@ class IndividualFairnessView extends Component {
       
       // Violin plot for summary
       const swarm = beeswarm()
-              .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 1).slice(0, 50))
+              .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 1))
               .distributeOn((d) => _self.yDistortionScale(d.y1))
               .radius(2)
               .orientation('vertical')
@@ -809,7 +855,7 @@ class IndividualFairnessView extends Component {
         .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
 
       const swarm2 = beeswarm()
-              .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 2).slice(0, 50))
+              .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 2))
               .distributeOn((d) => _self.yDistortionScale(d.y1))
               .radius(2)
               .orientation('vertical')
@@ -832,7 +878,7 @@ class IndividualFairnessView extends Component {
           .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
       
       const swarm3 = beeswarm()
-            .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 3).slice(0, 50))
+            .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 3))
             .distributeOn((d) => _self.yDistortionScale(d.y1))
             .radius(2)
             .orientation('vertical')

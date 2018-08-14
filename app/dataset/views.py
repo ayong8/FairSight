@@ -28,49 +28,56 @@ def open_dataset(file_path):
 
     return whole_dataset_df
 
+def get_selected_dataset(whole_dataset_df, selected_x, selected_y):
+    selected_x_df = whole_dataset_df[selected_x]
+    selected_y_col = whole_dataset_df[selected_y]
+    idx_col = whole_dataset_df['idx']
+    dataset_df = pd.concat([selected_x_df, selected_y_col, idx_col], axis=1)
+
+    return dataset_df
+
+def do_encoding_categorical_vars(whole_dataset_df, categorical_var):
+    # Figure out all categories in a feature
+    categories = whole_dataset_df[categorical_var].unique()
+    
+    # Identify sensitive attribute, and the rest... then assign integer
+    sensitive_attr = 'female'
+    another_attr = 'male'
+
+    # Replace categorical values with integers
+    whole_dataset_df['sex'] = np.where(whole_dataset_df['sex']=='female', 2, 1)
+    group_col = np.copy(whole_dataset_df['sex'])
+
+    return whole_dataset_df
+
+
 class LoadFile(APIView):
     def get(self, request, format=None):
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
-        print(whole_dataset_df)
 
         return Response(whole_dataset_df.to_json(orient='index'))
 
-class GetSelectedFeatureDataset(APIView):
+
+class GetSelectedDataset(APIView):
 
     def get(self, request, format=None):
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
-        whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
-        X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
-        y = whole_dataset_df['default']
+        whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
+        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
 
-        selected_dataset = pd.concat([X, y], axis=1)
-        print(selected_dataset)
-
-        return Response(selected_dataset.to_json(orient='index'))
+        return Response(dataset_df.to_json(orient='index'))
 
 
 class RunModel(APIView):
 
     def get(self, request, format=None):
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+        whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
+        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
 
-        # Figure out all categories in a feature
-        categories = whole_dataset_df['sex'].unique()
-        
-        # Identify sensitive attribute, and the rest... then assign integer
-        sensitive_attr = 'female'
-        another_attr = 'male'
-
-        # Replace categorical values with integers
-        print('before changing')
-        print(whole_dataset_df['sex'])
-        whole_dataset_df['sex'] = np.where(whole_dataset_df['sex']=='female', 2, 1)
-        print('after changing')
-        print(whole_dataset_df['sex'])
-        group_col = np.copy(whole_dataset_df['sex'])
-        
-        X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
-        y = whole_dataset_df['default']
+        print(dataset_df)
+        X = dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
+        y = dataset_df['default']
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
         rank_svm = RankSVM().fit(X_train, y_train)
@@ -94,10 +101,9 @@ class RunModel(APIView):
         for idx, row in weight_multiply_X.iterrows():
             ranking_list.append(idx + 1)
 
+        weight_multiply_X['idx'] = dataset_df['idx']
         weight_multiply_X['ranking'] = ranking_list
-        weight_multiply_X['group'] = group_col
-        print('weight_multiply_X:')
-        print(weight_multiply_X)
+        weight_multiply_X['group'] = weight_multiply_X['sex']
 
         return Response(weight_multiply_X.to_json(orient='index'))
 
@@ -111,7 +117,6 @@ class GetWeight(APIView):
         X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
         y = whole_dataset_df['default']
 
-        print(X, y)
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
 
         rank_svm = RankSVM().fit(X_train, y_train)
@@ -147,8 +152,6 @@ class GetWeightedDataset(APIView):
             weighted_dataset_df[feature] = X[feature] * rank_svm.coef_[0, coef_idx]
             coef_idx += 1
 
-        print('weighted_dataset_df: ', weighted_dataset_df)
-
         return Response(weighted_dataset_df)
 
 
@@ -161,17 +164,17 @@ class SetSensitiveAttr(APIView):
 class RunMDS(APIView):
 
     def get(self, request, format=None):
-        df1 = open_dataset('./data/german_credit_sample.csv')
-        print(df1)
-        dataset = df1[['default', 'credit_amount', 'installment_as_income_perc', 'sex', 'age']]
-        dataset_mds = pd.DataFrame(dataset[['credit_amount', 'installment_as_income_perc', 'age']])
+        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+        whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
+        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
+        dataset_mds = pd.DataFrame(dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']])
 
         d = pairwise_distances(dataset_mds)
 
         df_mds_result = pd.DataFrame(MDS(n_components=2, metric=False).fit_transform(d), dataset_mds.index)
-        df_mds_result['sex'] = dataset['sex']
-        df_mds_result['default'] = dataset['default']
-        df_mds_result.columns = ['dim1', 'dim2', 'sex', 'default']
-        print(df_mds_result)
+        df_mds_result['idx'] = dataset_df['idx']
+        df_mds_result['group'] = dataset_df['sex']
+        df_mds_result['default'] = dataset_df['default']
+        df_mds_result.columns = ['dim1', 'dim2', 'idx', 'group', 'default']
 
         return Response(df_mds_result.to_json(orient='index'))

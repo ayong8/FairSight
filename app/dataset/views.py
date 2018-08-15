@@ -74,38 +74,40 @@ class RunModel(APIView):
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
         dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
+        dataset_df = dataset_df.sort_values(by='idx', ascending=True)
 
-        print(dataset_df)
         X = dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
         y = dataset_df['default']
+        idx_col = dataset_df['idx']
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
         rank_svm = RankSVM().fit(X_train, y_train)
         accuracy = rank_svm.score(X_test, y_test)
 
-        weight_multiply_X = X.copy()
+        weighted_X = X.copy()
+        weighted_X['idx'] = idx_col
+        weighted_X['group'] = weighted_X['sex']
 
+        print(rank_svm.coef_);
         for idx, feature in enumerate(X.columns):
-            weight_multiply_X[feature] = X[feature] * rank_svm.coef_[0, idx]
-        
-        weight_multiply_X['weighted_sum'] = weight_multiply_X.sum(axis=1)
-        # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
-        weight_from_leader = 100 / weight_multiply_X['weighted_sum'].max()
+            weighted_X[feature] = X[feature] * rank_svm.coef_[0, idx]
+        weighted_X['weighted_sum'] = weighted_X.sum(axis=1)
 
+        print(weighted_X)
+        # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
+        weight_from_leader = 100 / weighted_X['weighted_sum'].max()
         min_max_scaler = preprocessing.MinMaxScaler()
-        scaled_sum = min_max_scaler.fit_transform(weight_multiply_X['weighted_sum'].values.reshape(-1, 1))
-        weight_multiply_X['score'] = scaled_sum * 100
-        weight_multiply_X = weight_multiply_X.sort_values(by='score', ascending=False).sort_index(level=0, ascending=[False])
+        scaled_sum = min_max_scaler.fit_transform(weighted_X['weighted_sum'].values.reshape(-1, 1))
+        weighted_X['score'] = scaled_sum * 100
+        weighted_X = weighted_X.sort_values(by='score', ascending=False).sort_index(level=0, ascending=[False])
+        print(weighted_X)
 
         ranking_list = []
-        for idx, row in weight_multiply_X.iterrows():
+        for idx, row in weighted_X.iterrows():
             ranking_list.append(idx + 1)
+        weighted_X['ranking'] = ranking_list
 
-        weight_multiply_X['idx'] = dataset_df['idx']
-        weight_multiply_X['ranking'] = ranking_list
-        weight_multiply_X['group'] = weight_multiply_X['sex']
-
-        return Response(weight_multiply_X.to_json(orient='index'))
+        return Response(weighted_X.to_json(orient='index'))
 
 class GetWeight(APIView):
     

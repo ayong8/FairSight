@@ -83,8 +83,7 @@ class RankingsListView extends Component {
   }
 
   render() {
-    const rankingInstances = _.map(this.props.rankings, (ranking) => this.renderRankingInstance(ranking));
-
+    let rankingInstances = _.map(this.props.rankings, (ranking) => this.renderRankingInstance(ranking));
 
     const svg = new ReactFauxDOM.Element('svg');
 

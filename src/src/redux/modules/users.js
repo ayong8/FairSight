@@ -1,15 +1,12 @@
 // imports
 
-// actions
+// actions and action creator => actions.js
 
-// action creators
 
-// initial state
 
 // reducer
-
 const initialState = {
-  isLoggedIn: localStorage.getItem("jwt") || false
+  topK: 30
 };
 
 function reducer(state = initialState, action) {

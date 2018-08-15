@@ -50,6 +50,23 @@
 
 # From frontend
 
+## In redux store (hyperparameters)
+
+top-k: 20
+selectedRanking: 1
+selectedRankingInstance: {
+    idx
+    model
+    sensitiveAttr
+    selectedFeatures
+    summary: {
+        groupFairness
+        individualFairness
+        accuracy/utility
+        ranking
+    }
+}
+
 ## this.state
 
 ### this.state.output
@@ -113,8 +130,8 @@ pairwiseDiffs (in RankingInspector/index.js)
         pair: Math.floor(Math.random() * 3) + 1,  // for now, pair is a random => (1: Woman and Woman, 2: Woman and Man, 3: Man and Man)
         diffInput: diffInput,
         diffOutput: diffOutput,
-        scaledInput: this.observedScale(diffInput),
-        scaledOutput: this.observedScale(diffOutput)
+        scaledDiffInput: this.observedScale(diffInput),
+        scaledDiffOutput: this.observedScale(diffOutput)
     }
 ]
 
@@ -139,7 +156,9 @@ distortion (in individualFairnessView.js)
       y: yObj,
       group: groupObj[sensitiveAttr],
       ranking: rankingObj.ranking,
-      score: scoreObj.score
+      score: scoreObj.score,
+      // computed (and added by method)
+      sumDistortion: 3.04
     }
 ]
 

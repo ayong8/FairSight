@@ -93,19 +93,16 @@ class RunModel(APIView):
             weighted_X[feature] = X[feature] * rank_svm.coef_[0, idx]
         weighted_X['weighted_sum'] = weighted_X.sum(axis=1)
 
-        print(weighted_X)
         # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
         weight_from_leader = 100 / weighted_X['weighted_sum'].max()
         min_max_scaler = preprocessing.MinMaxScaler()
         scaled_sum = min_max_scaler.fit_transform(weighted_X['weighted_sum'].values.reshape(-1, 1))
         weighted_X['score'] = scaled_sum * 100
-        weighted_X = weighted_X.sort_values(by='score', ascending=False).sort_index(level=0, ascending=[False])
+        weighted_X = weighted_X.sort_values(by='score', ascending=False)
         print(weighted_X)
 
-        ranking_list = []
-        for idx, row in weighted_X.iterrows():
-            ranking_list.append(idx + 1)
-        weighted_X['ranking'] = ranking_list
+        weighted_X['ranking'] = range(1, len(weighted_X) + 1)
+        print(weighted_X)
 
         return Response(weighted_X.to_json(orient='index'))
 

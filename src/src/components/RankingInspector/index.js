@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
-import * as _unionBy from 'lodash.unionby';
 import ReactFauxDOM from 'react-faux-dom';
 
 import InputSpaceView from './inputSpaceView';
@@ -37,10 +36,17 @@ function pairwise(list) {
 class RankingInspector extends Component {
   constructor(props) {
     super(props);
+
     this.inputScale;
     this.outputScale;
 
-    //this.calculatePairwiseDistortions = this.calculatePairwiseDistortions.bind(this);
+    this.state = {
+      selectedIndividual: 2, // idx
+      selectedRankingInterval: {
+        start: 10,
+        end: 20
+      }
+    }
   }
 
   combineData() {
@@ -68,7 +74,7 @@ class RankingInspector extends Component {
     return data;
   }
   // Calculate distortions of combinatorial pairs (For pairwise distortion plot)
-  calculatePairwiseDifferences() {
+  calculatePairwiseDiffs() {
     const data = this.combineData(),
           dataPairs = pairwise(data);    
 
@@ -103,17 +109,17 @@ class RankingInspector extends Component {
   }
 
   // Calculate distortions of permutational pairs (For matrix view)
-  calculatePermutationPairwiseDifferences() {
+  calculatePermutationPairwiseDiffs() {
     const data = this.combineData();
-
-    let dataPermutationDiffs = [];
+    let dataPermutationDiffs = []; // 2D-array
 
     _.forEach(data, (obj1) => {
+        let row = [];
         _.forEach(data, (obj2) => {
-          let diffInput = Math.sqrt(Math.pow(obj1.inputCoords.dim1 - obj2.inputCoords.dim1, 2) + 
+          const diffInput = Math.sqrt(Math.pow(obj1.inputCoords.dim1 - obj2.inputCoords.dim1, 2) + 
                          Math.pow(obj1.inputCoords.dim2 - obj2.inputCoords.dim2, 2)),
-              diffOutput = Math.abs(obj1.output.ranking - obj2.output.ranking),
-              pair = 0;
+                diffOutput = Math.abs(obj1.output.ranking - obj2.output.ranking);
+          let pair = 0;
 
             if((obj1.group === 1) && (obj2.group === 1))
               pair = 1;
@@ -122,7 +128,7 @@ class RankingInspector extends Component {
             else if(obj1.group !== obj2.group)
               pair = 3;
           
-          dataPermutationDiffs.push({
+          row.push({
             idx1: obj1.idx,
             idx2: obj2.idx,
             pair: pair,
@@ -134,6 +140,7 @@ class RankingInspector extends Component {
             x2: obj2.output['age']
           });
         });
+        dataPermutationDiffs.push(row);
     });
 
     return dataPermutationDiffs;
@@ -197,12 +204,12 @@ class RankingInspector extends Component {
 
     return (
       <div className={styles.RankingInspector}>
-        <RankingView ranking={this.props.ranking} output={this.props.output} />
+        <RankingView topk={this.props.topk} ranking={this.props.ranking} output={this.props.output} />
         <InputSpaceView inputCoords={this.props.inputCoords} className={styles.InputSpaceView} />
         <GroupFairnessView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.GroupFairnessView} />
         <IndividualFairnessView data={dataIndividualFairnessView}
-                                pairwiseDiffs={this.calculatePairwiseDifferences()}
-                                pairwiseDiffsInPermutation={this.calculatePermutationPairwiseDifferences()}
+                                pairwiseDiffs={this.calculatePairwiseDiffs()}
+                                pairwiseDiffsInPermutation={this.calculatePermutationPairwiseDiffs()}
                                 />
         {/* <UtilityView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.UtilityView} /> */}
       </div>

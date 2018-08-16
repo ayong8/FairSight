@@ -1,4 +1,7 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux';
+//import { setTopk } from './actions';
+
 import * as d3 from 'd3';
 import _ from 'lodash';
 import { Button } from 'reactstrap';
@@ -19,7 +22,8 @@ class App extends Component {
     this.state = {
       dataset: [],
       selectedFeatures: ['credit_amount', 'installment_as_income_perc', 'sex', 'age'],
-      y: 'default',
+      selectedTarget: 'default',
+      topk: 20,
       selectedDataset: [],
       label: 'default',
       weights: {},
@@ -227,29 +231,29 @@ class App extends Component {
   render() {
     if ((!this.state.selectedDataset || this.state.output.length === 0) || 
         (!this.state.output || this.state.output.length === 0) ||
-        (!this.state.inputCoords || this.state.inputCoords.length === 0)
+        (!this.state.inputCoords || this.state.inputCoords.length === 0) ||
+        (!this.state.topk)
        ) {
       return <div />
     }
     // For the Ranking Inspector, only send down the selected ranking data
-    let rankingList = this.state.rankings,
+    let topk = this.state.topk,
+        rankingList = this.state.rankings,
         selectedRankingIndex = this.state.selectedRanking,
         selectedRanking = rankingList[selectedRankingIndex];
-
-    console.log('this.state.output: ', this.state.output);
-    console.log('this.state: ', this.state);
 
     return (
       <div className={styles.App}>
         <div className={styles.titleBar}>
           <div className={styles.appTitle}>FairSight</div>
         </div>
-        <Generator dataset='german.csv' />
+        <Generator topk={topk} dataset='german.csv' />
         <RankingsListView rankings={this.state.rankings} />
-        <RankingInspector selectedDataset={this.state.selectedDataset}
+        <RankingInspector topk={topk}
+                          selectedDataset={this.state.selectedDataset}
                           selectedFeatures={this.state.selectedFeatures}
+                          selectedTarget={this.state.selectedTarget}
                           sensitiveAttr={this.state.sensitiveAttr}
-                          y={this.state.y}
                           inputCoords={this.state.inputCoords}
                           observedAndDecisions={this.state.observedAndDecisions}
                           output={this.state.output} 
@@ -258,7 +262,6 @@ class App extends Component {
       </div>
     );
   }
-
   // componentWillMount() {
   //   csv('./data/german.csv', (error, data) => {
   //     if (error) {
@@ -270,5 +273,9 @@ class App extends Component {
   //   })
   // }
 }
+
+// function select(state) {
+    
+// }
 
 export default App;

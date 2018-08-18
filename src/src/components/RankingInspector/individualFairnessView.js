@@ -4,6 +4,7 @@ import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { beeswarm } from 'd3-beeswarm';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import regression from 'regression';
 
 import styles from './styles.scss';
 import index from '../../index.css';
@@ -197,8 +198,8 @@ class IndividualFairnessView extends Component {
           dataPermutationDiffs = this.props.pairwiseDiffsInPermutation, // 2D-array
           dataPermutationDiffsFlattened = _.flatten(dataPermutationDiffs),
           dataObservedAndDecisions = this.props.dataObservedAndDecisions,
-          distortionMin = d3.extent(dataPermutationDiffsFlattened, (d) => d.scaledDiffInput - d.scaledDiffOutput)[0],
-          distortionMax = d3.extent(dataPermutationDiffsFlattened, (d) => d.scaledDiffInput - d.scaledDiffOutput)[1];
+          distortionMin = d3.extent(dataPermutationDiffsFlattened, (d) => d.scaledDiffOutput - d.scaledDiffInput)[0],
+          distortionMax = d3.extent(dataPermutationDiffsFlattened, (d) => d.scaledDiffOutput - d.scaledDiffInput)[1];
       
       this.calculateSumDistortion(data, dataPermutationDiffsFlattened);
 
@@ -231,7 +232,6 @@ class IndividualFairnessView extends Component {
       }
 
       //*** Sort feature plot */
-      
       dataPermutationDiffsFlattened = _.flatten(dataPermutationDiffs);
       
       _self.xMatrixScale = d3.scaleBand()
@@ -281,14 +281,14 @@ class IndividualFairnessView extends Component {
           .attr('width', _self.cellWidth)
           .attr('height', _self.cellHeight)
           .style('fill', (d) => {
-            const distortion = d.scaledDiffInput - d.scaledDiffOutput,
+            const distortion = d.scaledDiffOutput - d.scaledDiffInput,
                   distortionMin = _self.cellColorDistortionScale.domain()[0],
                   distortionMax = _self.cellColorDistortionScale.domain()[1],
                   distortionInterval = distortionMax - distortionMin,
                   fairThreshold = _self.cellColorDistortionScale.domain()[0] + distortionInterval * 0.05,
                   outlierThreshold = _self.cellColorDistortionScale.domain()[1] - 0.000000000000000000000000000000000000000000000005;
           
-            let fillColor = _self.cellColorDistortionScale(d.scaledDiffInput - d.scaledDiffOutput);
+            let fillColor = _self.cellColorDistortionScale(d.scaledDiffOutput - d.scaledDiffInput);
             
             if(distortion < fairThreshold) {
               fillColor = 'blue';
@@ -296,10 +296,10 @@ class IndividualFairnessView extends Component {
               fillColor = 'red';
             }
             
-            return _self.cellColorDistortionScale(d.scaledDiffInput - d.scaledDiffOutput);
+            return _self.cellColorDistortionScale(d.scaledDiffOutput - d.scaledDiffInput);
           })
           .style('stroke', (d) => {
-            const distortion = d.scaledDiffInput - d.scaledDiffOutput,
+            const distortion = d.scaledDiffOutput - d.scaledDiffInput,
                   distortionMin = _self.cellColorDistortionScale.domain()[0],
                   distortionMax = _self.cellColorDistortionScale.domain()[1],
                   distortionInterval = distortionMax - distortionMin,
@@ -603,52 +603,6 @@ class IndividualFairnessView extends Component {
       // Assign the new scale to axis
       // Select all lines and circles, and update the coordinates according to the new scale
     }
-  
-    calculateCoords(w, n, data) {
-      const coordsArray = [];
-      let x, y, diff, distortion, pair, i,
-          distortionScale = 3;
-  
-      for(i=0; i<n-1; i++){
-        diff = data[i].scaledDiffInput - data[i].scaledDiffOutput;
-        distortion = diff * distortionScale;
-        x = data[i].scaledDiffInput;
-        y = distortion;
-        pair = data[i].pair;
-  
-        coordsArray.push({
-          idx: i+1,
-          x: x,
-          y: y,
-          pair: pair
-        });
-      }
-  
-      return coordsArray;
-    }
-  
-    calculateBaselineCoords(w, n, data) {
-      const coordsArray = [];
-      let x, y, diff, distortion, pair, i,
-          distortionScale = 3;
-  
-      for(i=0; i<n-1; i++){
-        diff = data[i].scaledDiffInput - data[i].scaledDiffOutput;
-        distortion = diff * distortionScale;
-        x = data[i].scaledDiffInput;
-        y = 0;
-        pair = data[i].pair;
-  
-        coordsArray.push({
-          idx: i+1,
-          x: x,
-          y: y,
-          pair: pair
-        });
-      }
-  
-      return coordsArray;
-    }
 
     calculateSumDistortion(data, dataPermutationDiffsForMatrix) {
       _.forEach(data, (d, i) => {
@@ -679,25 +633,42 @@ class IndividualFairnessView extends Component {
   
       let data = _self.props.pairwiseDiffs;
 
-      // sort by observed space difference
+      // data
       data = _.orderBy(data, ['scaledDiffInput']);
-  
-      const coords = _self.calculateCoords(_self.layout.plot.width, data.length, data),
-            baselineCoords = _self.calculateBaselineCoords(_self.layout.plot.width, data.length, data);
+      const dataWithinGroupPair1 = _.filter(data, (d) => d.pair === 1),
+            dataWithinGroupPair2 = _.filter(data, (d) => d.pair === 2),
+            dataBetweenGroupPair = _.filter(data, (d) => d.pair === 3),
+            sumWithinGroupPair1 = dataWithinGroupPair1
+                    .map((d) => d.scaledDiffOutput - d.scaledDiffInput)
+                    .reduce((sum, curr) => sum + curr),
+            sumWithinGroupPair2 = dataWithinGroupPair2
+                    .map((d) => d.scaledDiffOutput - d.scaledDiffInput)
+                    .reduce((sum, curr) => sum + curr),
+            sumBetweenGroupPair = dataBetweenGroupPair
+                    .map((d) => d.scaledDiffOutput - d.scaledDiffInput)
+                    .reduce((sum, curr) => sum + curr),
+            groupSkewSums = [
+              sumWithinGroupPair1,
+              sumWithinGroupPair2,
+              sumBetweenGroupPair
+            ];
+
+      console.log(groupSkewSums);
 
       // Coordinate scales
       _self.xObservedScale = d3.scaleLinear()
-            .range([0, _self.layout.plot.width])
-            .domain([0, d3.max(coords, (d) => d.x)]),
+            .domain(d3.extent(data, (d) => Math.abs(d.scaledDiffInput)))
+            .range([0, _self.layout.plot.width]),
       _self.yDistortionScale = d3.scaleLinear()
-            .range([_self.layout.plot.height - _self.layout.plot.padding, _self.layout.plot.padding])
-            .domain(d3.extent(coords, (d) => d.y)),
+            .domain(d3.extent(data, (d) => d.scaledDiffOutput - d.scaledDiffInput))
+            .range([_self.layout.plot.height - _self.layout.plot.padding, _self.layout.plot.padding]),
       _self.xGroupSkewScale = d3.scaleBand()
-            .range([0, _self.layout.groupSkew.width])
-            .domain([0, 1, 2, 3, 4]);
-      _self.yGroupSkewScale = d3.scaleLinear()
-            .range([_self.layout.plot.height - 5, 0])
-            .domain([-10, 10]);
+            .domain([0, 1, 2, 3, 4])
+            .range([0, _self.layout.groupSkew.width]),
+      _self.yGroupSkewScale = d3.scaleLinear()  // Max value among sum of pairs
+            .domain([ -Math.max(Math.abs(sumWithinGroupPair1), Math.abs(sumWithinGroupPair2), Math.abs(sumBetweenGroupPair)),
+                       Math.max(Math.abs(sumWithinGroupPair1), Math.abs(sumWithinGroupPair2), Math.abs(sumBetweenGroupPair)) ])
+            .range([_self.layout.plot.height - 5, 0]);
 
       const gPlot = d3.select(_self.svg).append('g')
               .attr('class', 'g_plot')
@@ -706,7 +677,9 @@ class IndividualFairnessView extends Component {
               .attr('class', 'g_violin_plot')
               .attr('transform', 'translate(570, 0)'),
             gGroupSkew = gPlot.append('g')
-              .attr('transform', 'translate(650, 0)');
+              .attr('transform', 'translate(690, 0)');
+
+      console.log(_self.yGroupSkewScale.domain())
 
       const xAxisSetting = d3.axisTop(_self.xObservedScale).tickSize(0).ticks(0),
             yAxisSetting = d3.axisRight(_self.yDistortionScale).tickSize(0).ticks(0),
@@ -739,24 +712,11 @@ class IndividualFairnessView extends Component {
               .style('stroke-width', 3),
             yAxisGroupSkewLine = yAxisGroupSkew.select('path')
               .style('stroke-width', 3);
-            
-
-      const renameBaselineCoords = _.map([...baselineCoords], (d) => 
-                _.rename(_.rename(d, 'x', 'x0'), 'y', 'y0')),
-            renameCoords       = _.map([...coords], (d) => 
-                _.rename(_.rename(d, 'x', 'x1'), 'y', 'y1'));
-  
-      _self.combinedCoordsData = _.map(renameBaselineCoords, function(d){
-          return _.merge(
-              d, 
-              _.find(renameCoords, {idx: d.idx})
-          )
-      });
 
       // Color scales
-      _self.rectColorScale = d3.scaleLinear()
-            .domain(d3.extent(_self.combinedCoordsData, (d) => d.y1 - d.y0))
-            .range(['lightgreen', 'pink']),
+      // _self.rectColorScale = d3.scaleLinear()
+      //       .domain(d3.extent(_self.combinedCoordsData, (d) => d.y1 - d.y0))
+      //       .range(['lightgreen', 'pink']),
       _self.pairColorScale = d3.scaleThreshold()
             .domain([1, 2, 3])  // pair is one or two or three
             .range(['white', gs.groupColor1, gs.groupColor2, gs.betweenGroupColor]);      
@@ -802,27 +762,29 @@ class IndividualFairnessView extends Component {
                 .style('stroke', d3.rgb('pink').darker())
                 .style('stroke-dasharray', '2, 2');
 
-      const rects = gPlot
-              .selectAll('.coords_rect')
-              .data(_self.combinedCoordsData)
-              .enter().append('rect')
-              .attr('class', 'coords_rect')
-              .attr('x', (d) => _self.xObservedScale(d.x0))
-              .attr('y', (d) => 
-                  d.y1 - d.y0 > 0
-                  ? _self.yDistortionScale(d.y1 - d.y0) 
-                  : _self.yDistortionScale(d.y0)
-              )
-              .attr('width', 0.05)
-              .attr('height', (d) => Math.abs(_self.yDistortionScale(d.y1 - d.y0) - _self.layout.plot.height * 3/4))
-              .style('stroke', 'gray')
-              //.style('shape-rendering', 'crispEdge')
-              .style('stroke-dasharray', '3,3')
-              .style('stroke-width', 0.3);
+      // const rects = gPlot
+      //         .selectAll('.coords_rect')
+      //         .data(_self.combinedCoordsData)
+      //         .enter().append('rect')
+      //         .attr('class', 'coords_rect')
+      //         .attr('x', (d) => _self.xObservedScale(d.x0))
+      //         .attr('y', (d) => 
+      //             d.y1 - d.y0 > 0
+      //             ? _self.yDistortionScale(d.y1 - d.y0) 
+      //             : _self.yDistortionScale(d.y0)
+      //         )
+      //         .attr('width', 0.05)
+      //         .attr('height', (d) => Math.abs(_self.yDistortionScale(d.y1 - d.y0) - _self.layout.plot.height * 3/4))
+      //         .style('stroke', 'gray')
+      //         //.style('shape-rendering', 'crispEdge')
+      //         .style('stroke-dasharray', '3,3')
+      //         .style('stroke-width', 0.3);
+
+      console.log('data in pairwise plot: ', data);
   
       const coordsCircles = gPlot
               .selectAll('.coords_circle')
-              .data(_self.combinedCoordsData)
+              .data(data)
               .enter().append('circle')
               .attr('class', (d) => {
                 let groupClass;
@@ -836,8 +798,8 @@ class IndividualFairnessView extends Component {
 
                 return 'coords_circle ' + groupClass;
               })
-              .attr('cx', (d) => _self.xObservedScale(d.x0))
-              .attr('cy', (d) => _self.yDistortionScale(d.y1))
+              .attr('cx', (d) => _self.xObservedScale(Math.abs(d.scaledDiffInput)))
+              .attr('cy', (d) => _self.yDistortionScale(d.scaledDiffOutput - d.scaledDiffInput))
               .attr('r', 3)
               .style('fill', (d) => _self.pairColorScale(d.pair))
               .style('stroke', (d) => 'black')
@@ -869,7 +831,7 @@ class IndividualFairnessView extends Component {
                       .attr('class', 'mouseoverPairColor mouseoverPairCircleRight')
                       .attr('d', circleArc)
                       .attr('transform', function(e) {
-                        return 'translate(' + (_self.xObservedScale(d.x0) - 1) + ',' + _self.yDistortionScale(d.y1) + ')' + 'rotate(180)'
+                        return 'translate(' + (_self.xObservedScale(Math.abs(d.scaledDiffInput)) - 1) + ',' + _self.yDistortionScale(d.scaledDiffOutput - d.scaledDiffInput) + ')' + 'rotate(180)'
                       })
                       .style('stroke', (e) => d3.rgb(_self.pairColorScale(d.pair)).darker())
                       .style('fill', (e) => _self.pairColorScale(d.pair));
@@ -880,7 +842,7 @@ class IndividualFairnessView extends Component {
                       .attr('class', 'mouseoverPairColor mouseoverPairCircleRight')
                       .attr('d', circleArc)
                       .attr('transform', function(e) {
-                        return 'translate(' + (_self.xObservedScale(d.x0) + 1) + ',' + _self.yDistortionScale(d.y1) + ')' + 'rotate(0)'
+                        return 'translate(' + (_self.xObservedScale(Math.abs(d.scaledDiffInput)) + 1) + ',' + _self.yDistortionScale(d.scaledDiffOutput - d.scaledDiffInput) + ')' + 'rotate(0)'
                       })
                       .style('stroke', (e) => {
                         return d3.rgb(_self.pairColorScale(d.pair)).darker()
@@ -897,116 +859,218 @@ class IndividualFairnessView extends Component {
                     d3.selectAll('.mouseoverPairColor').remove();
               });
 
+      // Fit non-linear curved line
+      const fit = regression.polynomial(_.map(data, (d) => 
+              [ Math.abs(d.scaledDiffInput), d.scaledDiffOutput - d.scaledDiffInput ]
+            ), {order: 9}),
+            fitBetweenGroup = regression.polynomial(
+              _.chain(data)
+                .filter((d) => d.pair === 3)
+                .map((d) => 
+                  [ Math.abs(d.scaledDiffInput), d.scaledDiffOutput - d.scaledDiffInput ]
+                )
+                .value(), 
+              {order: 9}
+            ),
+            fitWithinGroup = regression.polynomial(
+              _.chain(data)
+                .filter((d) => d.pair === 1)
+                .map((d) => 
+                  [ Math.abs(d.scaledDiffInput), d.scaledDiffOutput - d.scaledDiffInput ]
+                )
+                .value(), 
+              {order: 9}
+            );
+
+      console.log('fitted model: ', fitBetweenGroup);
+
+      const fittedLine = d3.line()
+              .x((d) => _self.xObservedScale(d[0]))
+              .y((d) => _self.yDistortionScale(d[1])),
+            fittedPath1 = gPlot.append('path')
+              .datum(fit.points)
+              .attr('d', fittedLine)
+              .style('stroke', 'black')
+              .style('fill', 'none'),
+            fittedPath2 = gPlot.append('path')
+              .datum(fitBetweenGroup.points)
+              .attr('d', fittedLine)
+              .style('stroke', 'blue')
+              .style('fill', 'none'),
+            fittedPath3 = gPlot.append('path')
+              .datum(fitWithinGroup.points)
+              .attr('d', fittedLine)
+              .style('stroke', 'red')
+              .style('fill', 'none');
       
       // Violin plot for summary
-      const swarm = beeswarm()
-              .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 1))
-              .distributeOn((d) => _self.yDistortionScale(d.y1))
-              .radius(2)
-              .orientation('vertical')
-              .side('symmetric')
-              .arrange();
 
-      gViolinPlot.selectAll('.beeswarm_circle')
-        .data(swarm)
-        .enter()
-        .append('circle')
-        .attr('class', 'beeswarm_circle')
-        .attr('cx', function(bee) {
-          return bee.x;
-        })
-        .attr('cy', function(bee) {
-          return bee.y;
-        })
-        .attr('r', 3)
-        .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
-        .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
+      const histoChart = d3.histogram()
+              .domain(_self.yDistortionScale.domain())
+              .thresholds([-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
+              .value(d => d),
+            histoChartWhole = histoChart(_.map(data, (d) => d.scaledDiffOutput - d.scaledDiffInput)),
+            histoChartWithinGroupPair1 = histoChart(_.map(dataWithinGroupPair1, (d) => d.scaledDiffOutput - d.scaledDiffInput)),
+            histoChartWithinGroupPair2 = histoChart(_.map(dataWithinGroupPair2, (d) => d.scaledDiffOutput - d.scaledDiffInput)),
+            histoChartBetweenGroupPair = histoChart(_.map(dataBetweenGroupPair, (d) => d.scaledDiffOutput - d.scaledDiffInput)),
+            xViolinPlotWithinGroupPair1Scale = d3.scaleLinear()
+              .domain(d3.extent(histoChartWithinGroupPair1, (d) => d.length))
+              .range([0, 15]),
+            xViolinPlotWithinGroupPair2Scale = d3.scaleLinear()
+              .domain(d3.extent(histoChartWithinGroupPair2, (d) => d.length))
+              .range([0, 15]),
+            xViolinPlotBetweenGroupPairScale = d3.scaleLinear()
+              .domain(d3.extent(histoChartBetweenGroupPair, (d) => d.length))
+              .range([0, 15]),
+            areaWithinGroupPair1 = d3.area()
+              .x0(d => {
+                return -xViolinPlotWithinGroupPair1Scale(d.length);
+              })
+              .x1(d => xViolinPlotWithinGroupPair1Scale(d.length))
+              .y(d => _self.yDistortionScale(d.x0))
+              .curve(d3.curveCatmullRom),
+            areaWithinGroupPair2 = d3.area()
+              .x0(d => {
+                return -xViolinPlotWithinGroupPair2Scale(d.length);
+              })
+              .x1(d => xViolinPlotWithinGroupPair2Scale(d.length))
+              .y(d => _self.yDistortionScale(d.x0))
+              .curve(d3.curveCatmullRom),
+            areaBetweenGroupPair = d3.area()
+              .x0(d => {
+                return -xViolinPlotBetweenGroupPairScale(d.length);
+              })
+              .x1(d => xViolinPlotBetweenGroupPairScale(d.length))
+              .y(d => _self.yDistortionScale(d.x0))
+              .curve(d3.curveCatmullRom);
 
-      const swarm2 = beeswarm()
-              .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 2))
-              .distributeOn((d) => _self.yDistortionScale(d.y1))
-              .radius(2)
-              .orientation('vertical')
-              .side('symmetric')
-              .arrange();
+      console.log('data comparison: ', data, dataWithinGroupPair1);
+      console.log('ydistortionscale: ', _self.yDistortionScale.domain());
+      console.log('histogram data: ', histoChartWhole);
+      console.log('histogram data: ', histoChartWithinGroupPair2);
 
-      gViolinPlot.selectAll('.beeswarm_circle2')
-          .data(swarm2)
-          .enter()
-          .append('circle')
-          .attr('class', 'beeswarm_circle2')
-          .attr('cx', function(bee) {
-            return bee.x + 30;
-          })
-          .attr('cy', function(bee) {
-            return bee.y;
-          })
-          .attr('r', 3)
-          .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
-          .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
+      gViolinPlot.selectAll(".g_violin")
+          .data([ histoChartWithinGroupPair1, histoChartWithinGroupPair2, histoChartBetweenGroupPair ])
+          .enter().append("g")
+          .attr('class', 'g_violin')
+          .attr("transform", (d, i) => `translate(${i * 40}, 0)`)
+          .append("path")
+          .style("stroke","black")
+          .style("stroke-width", 2)
+          .style("fill", (d, i) => _self.pairColorScale(i + 1)) // i == 0 => pair == 1 => pair1
+          .attr("d", (d, i) => {
+            if (i+1 === 1)
+              return areaWithinGroupPair1(d);
+            else if (i+1 === 2)
+              return areaWithinGroupPair2(d);
+            else if (i+1 === 3)
+              return areaBetweenGroupPair(d);
+          });
+
+      // const swarm = beeswarm()
+      //         .data(_.filter(data, (d) => d.pair === 1))
+      //         .distributeOn((d) => _self.yDistortionScale(d.scaledDiffOutput - d.scaledDiffInput))
+      //         .radius(2)
+      //         .orientation('vertical')
+      //         .side('symmetric')
+      //         .arrange();
+
+      // gViolinPlot.selectAll('.beeswarm_circle')
+      //   .data(swarm)
+      //   .enter()
+      //   .append('circle')
+      //   .attr('class', 'beeswarm_circle')
+      //   .attr('cx', function(bee) {
+      //     return bee.x;
+      //   })
+      //   .attr('cy', function(bee) {
+      //     return bee.y;
+      //   })
+      //   .attr('r', 3)
+      //   .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
+      //   .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
+
+      // const swarm2 = beeswarm()
+      //         .data(_.filter(data, (d) => d.pair === 2))
+      //         .distributeOn((d) => _self.yDistortionScale(d.scaledDiffOutput - d.scaledDiffInput))
+      //         .radius(2)
+      //         .orientation('vertical')
+      //         .side('symmetric')
+      //         .arrange();
+
+      // gViolinPlot.selectAll('.beeswarm_circle2')
+      //     .data(swarm2)
+      //     .enter()
+      //     .append('circle')
+      //     .attr('class', 'beeswarm_circle2')
+      //     .attr('cx', function(bee) {
+      //       return bee.x + 30;
+      //     })
+      //     .attr('cy', function(bee) {
+      //       return bee.y;
+      //     })
+      //     .attr('r', 3)
+      //     .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
+      //     .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
       
-      const swarm3 = beeswarm()
-            .data(_.filter(_self.combinedCoordsData, (d) => d.pair === 3))
-            .distributeOn((d) => _self.yDistortionScale(d.y1))
-            .radius(2)
-            .orientation('vertical')
-            .side('symmetric')
-            .arrange();
+      // const swarm3 = beeswarm()
+      //       .data(_.filter(data, (d) => d.pair === 3))
+      //       .distributeOn((d) => _self.yDistortionScale(d.scaledDiffOutput - d.scaledDiffInput))
+      //       .radius(2)
+      //       .orientation('vertical')
+      //       .side('symmetric')
+      //       .arrange();
 
-      gViolinPlot.selectAll('.beeswarm_circle3')
-          .data(swarm3)
-          .enter()
-          .append('circle')
-          .attr('class', 'beeswarm_circle3')
-          .attr('cx', function(bee) {
-            return bee.x + 60;
-          })
-          .attr('cy', function(bee) {
-            return bee.y;
-          })
-          .attr('r', 3)
-          .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
-          .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
-
-      // Group skew
-      const sampleGroupSkewSum = {
-            groupPairs1: -3,
-            groupPairs2: -5,
-            betweenPairs: 8
-          };
+      // gViolinPlot.selectAll('.beeswarm_circle3')
+      //     .data(swarm3)
+      //     .enter()
+      //     .append('circle')
+      //     .attr('class', 'beeswarm_circle3')
+      //     .attr('cx', function(bee) {
+      //       return bee.x + 60;
+      //     })
+      //     .attr('cy', function(bee) {
+      //       return bee.y;
+      //     })
+      //     .attr('r', 3)
+      //     .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
+      //     .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
+      
       let groupSkewRect1, groupSkewCircle1,
           idx = 1;
       
-      // Go over all sum of skews
-      // idx => 1: groupPairs1, 2: groupPairs2, 3: betweenPairs
-      _.mapValues(sampleGroupSkewSum, (sumSkew) => {
-        gGroupSkew
-            .append('rect')
-            .attr('class', 'groupSkewRect')
-            .attr('x', _self.xGroupSkewScale(idx))
-            .attr('y', (d) => 
-              sumSkew > 0
-                ? _self.yGroupSkewScale(sumSkew) 
-                : _self.yGroupSkewScale(0)
-            )
-            .attr('width', idx)
-            .attr('height', Math.abs(_self.yGroupSkewScale(sumSkew) - _self.yGroupSkewScale(0)))
-            .style('fill', _self.pairColorScale(idx))
-            .style('stroke', 'black')
-            .style('stroke-width', 0.5);
+      // Group Skew plot
+      // i => 1: groupPairs1, 2: groupPairs2, 3: betweenPairs
+      gGroupSkew
+          .selectAll('.groupSkewRect')
+          .data(groupSkewSums)
+          .enter().append('rect')
+          .attr('class', 'groupSkewRect')
+          .attr('x', (d, i) => _self.xGroupSkewScale(i + 1))
+          .attr('y', (d) => 
+            d > 0
+              ? _self.yGroupSkewScale(d) 
+              : _self.yGroupSkewScale(0)
+          )
+          .attr('width', 3)
+          .attr('height', (d) => 
+              Math.abs(_self.yGroupSkewScale(d) - _self.yGroupSkewScale(0))
+          )
+          .style('fill', (d, i) => _self.pairColorScale(i + 1))
+          .style('stroke', 'black')
+          .style('stroke-width', 0.5);
 
-        gGroupSkew
-            .append('circle')
-            .attr('class', 'groupSkewCircle')
-            .attr('cx', _self.xGroupSkewScale(idx))
-            .attr('cy', _self.yGroupSkewScale(sumSkew))
-            .attr('r', 6)
-            .style('fill', _self.pairColorScale(idx))
-            .style('stroke', d3.rgb(_self.pairColorScale(idx)).darker())
-            .style('stroke-opacity', 0.8);
-        
-        idx++;
-      });
+      gGroupSkew
+          .selectAll('.groupSkewCircle')
+          .data(groupSkewSums)
+          .enter().append('circle')
+          .attr('class', 'groupSkewCircle')
+          .attr('cx', (d, i) => _self.xGroupSkewScale(i + 1) + 1.5)
+          .attr('cy', (d, i) => _self.yGroupSkewScale(d))
+          .attr('r', 6)
+          .style('fill', (d, i) => _self.pairColorScale(i + 1))
+          .style('stroke', (d, i) => d3.rgb(_self.pairColorScale(i + 1)).darker())
+          .style('stroke-opacity', 0.8);
 
       const groupSkewLine = gGroupSkew
             .append('line')

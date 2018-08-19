@@ -162,6 +162,24 @@ distortion (in individualFairnessView.js)
     }
 ]
 
+# Render
+
+## Matrix view
+2D-array, [row(y), column(x)]
+
+### Ordering
+- matrix의 scale은 인덱스로 되어있다
+    (50개면, 0-49로 discrete scale(scaleBand()))
+- 특정 feature 또는 distortion으로 정렬하고 싶다면
+    + 데이터 배열을 특정값 기준으로 정렬하고
+    + 정렬된 기준으로 인덱스를 다시 씌운다
+
+
+
+
+
+
+
 
 
 

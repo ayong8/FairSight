@@ -183,9 +183,25 @@ class RankingInspector extends Component {
 
     // Merge multiple datasets (objects) as one object with all attributes together in each data point
     // x, y, diffs, diffsInPermutations
-    let dataIndividualFairnessView = [];
     
-    dataIndividualFairnessView = _.map(idx, (currentIdx) => {
+    const dataIndividualFairnessView = _.map(idx, (currentIdx) => {
+            const xObj = _.find(x, {'idx': currentIdx}),
+                  yObj = _.find(y, {'idx': currentIdx})['default'],
+                  groupObj = _.find(groups, {'idx': currentIdx}),
+                  rankingObj = _.find(rankings, {'idx': currentIdx}),
+                  scoreObj = _.find(scores, {'idx': currentIdx});
+
+            return {
+              idx: currentIdx,
+              x: xObj,
+              y: yObj,
+              group: groupObj[sensitiveAttr],
+              ranking: rankingObj.ranking,
+              score: scoreObj.score
+            }
+          }),
+
+          dataGroupFairnessView = _.map(idx, (currentIdx) => {
             const xObj = _.find(x, {'idx': currentIdx}),
                   yObj = _.find(y, {'idx': currentIdx})['default'],
                   groupObj = _.find(groups, {'idx': currentIdx}),
@@ -206,7 +222,11 @@ class RankingInspector extends Component {
       <div className={styles.RankingInspector}>
         <RankingView topk={this.props.topk} ranking={this.props.ranking} output={this.props.output} />
         <InputSpaceView inputCoords={this.props.inputCoords} className={styles.InputSpaceView} />
-        <GroupFairnessView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.GroupFairnessView} />
+        <GroupFairnessView data={dataGroupFairnessView}
+                           output={this.props.output} 
+                           topk={this.props.topk} 
+                           ranking={this.props.ranking} 
+                           wholeRanking={this.props.wholeRanking} className={styles.GroupFairnessView} />
         <IndividualFairnessView data={dataIndividualFairnessView}
                                 pairwiseDiffs={this.calculatePairwiseDiffs()}
                                 pairwiseDiffsInPermutation={this.calculatePermutationPairwiseDiffs()}

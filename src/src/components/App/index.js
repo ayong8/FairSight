@@ -8,7 +8,7 @@ import { Button } from 'reactstrap';
 import styles from "./styles.scss";
 
 import Footer from "components/Footer";
-import Generator from 'components/Generator';
+import Menubar from 'components/Menubar';
 import RankingInspector from 'components/RankingInspector';
 import RankingsListView from 'components/RankingsListView';
 import TableView from 'components/TableView';
@@ -244,10 +244,8 @@ class App extends Component {
 
     return (
       <div className={styles.App}>
-        <div className={styles.titleBar}>
-          <div className={styles.appTitle}>FairSight</div>
-        </div>
-        <Generator topk={topk} dataset='german.csv' />
+        <div className={styles.titleBar}></div>
+        <Menubar topk={topk} dataset='german.csv' />
         <RankingsListView rankings={this.state.rankings} />
         <RankingInspector topk={topk}
                           selectedDataset={this.state.selectedDataset}

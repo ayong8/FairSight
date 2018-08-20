@@ -15,7 +15,7 @@ body {
   height: 1000px;
   margin: 0 auto;
   display: grid;
-  grid-template-rows: 80px 40px 900px 250px 80px;
+  grid-template-rows: 50px 50px 900px 250px 80px;
   grid-template-columns: 20% 45% 15% 20%;
   row-gap: 10px;
 
@@ -25,17 +25,12 @@ body {
 //   grid-area: 'Generator';
 // }
 
-.titleBar {
+.margin {
   grid-column: 1 / 5;
   grid-row: 1 / 2;
   display: flex;
   align-items: flex-end;
-  
-  
-  .appTitle {
-    font-size: 25px;
-    font-weight: bolder;
-    margin-bottom: -10px;
-    text-transform: uppercase;
-  }
+}
+
+.menuBar {
 }

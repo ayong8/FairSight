@@ -15,6 +15,8 @@ class GroupFairnessView extends Component {
     constructor(props) {
       super(props);
       this.svgTopKPlot;
+      this.svgTopKPlotTP;
+      this.svgTopKPlotFP;
       this.svgWholeDistribution;
       this.svgWholeDistributionTP;
       this.svgWholeDistributionFP;
@@ -34,43 +36,55 @@ class GroupFairnessView extends Component {
       };
     }
 
-    renderTopKPlot() {
-      console.log('in rendertopkplot');
+    renderTopKPlot(mode) {
+      const data = this.props.data,
+            topk = this.props.topk,
+            topkItems = _.sortBy([...data].slice(0, topk), ['group']);  // slice and sort
 
-      const data = this.props.output,
-            topk = this.props.topk;
-      let topkItems = [...data].slice(0, topk);
+      let filteredTopkItems, numItems;
+      if (mode === 'whole'){
+        filteredTopkItems = topkItems;
+        numItems = topk;
+      } else if (mode === 'TP'){
+        filteredTopkItems = _.filter(topkItems, (d) => d.y === 0);
+        numItems = filteredTopkItems.length;
+      } else if (mode === 'FP'){
+        filteredTopkItems = _.filter(topkItems, (d) => d.y === 1);
+        numItems = filteredTopkItems.length;
+      }
 
-      topkItems = _.sortBy(topkItems, ['group']);
+      console.log('filtered topk items: ', filteredTopkItems);
+
       // Set up the layout
-      this.svgTopKPlot = new ReactFauxDOM.Element('svg');
+      let svg, svgClassName;
+      svg = new ReactFauxDOM.Element('svg');
   
-      this.svgTopKPlot.setAttribute('width', this.layout.topKPlot.width);
-      this.svgTopKPlot.setAttribute('height', this.layout.topKPlot.height);
-      this.svgTopKPlot.setAttribute('0 0 100 100');
-      this.svgTopKPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      this.svgTopKPlot.setAttribute('class', 'topKPlot');
+      svg.setAttribute('width', this.layout.topKPlot.width);
+      svg.setAttribute('height', this.layout.topKPlot.height);
+      svg.setAttribute('0 0 100 100');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      svg.setAttribute('class', 'topKPlot');
 
       let xNumCircle = 1,
           yNumCircle = 1;
 
-      if (topk < 4) { // 2 lines
+      if (numItems < 4) { // 2 lines
         yNumCircle = 2;
       }
-      else if (topk < 16) {  // 4 lines
+      else if (numItems < 16) {  // 4 lines
         yNumCircle = 4;
       }
-      else if (topk < 25) {  // 4 lines
+      else if (numItems < 25) {  // 4 lines
         yNumCircle = 5;
       }
-      else if (topk < 36) {  // 4 lines
+      else if (numItems < 36) {  // 4 lines
         yNumCircle = 6;
       }
-      else if (topk < 64) { // 8 lines
+      else if (numItems < 64) { // 8 lines
         yNumCircle = 8;
       }
 
-      xNumCircle = Math.ceil(topk / yNumCircle);
+      xNumCircle = Math.ceil(numItems / yNumCircle);
 
       const xThreshold = 10, yThreshold = 4,
             groupDivision = 20;
@@ -78,7 +92,6 @@ class GroupFairnessView extends Component {
       let xTopkCircleScale, yTopkCircleScale, groupColorScale,
           topkCircleIdx = [];
           
-      
       xTopkCircleScale = d3.scaleBand()
           .domain(d3.range(xNumCircle))
           .range([40, 40 + (this.layout.topKPlot.circle.r * 2 + 2) * xNumCircle]); // multiplied by 2 => r*2, add 2 => margin
@@ -93,14 +106,15 @@ class GroupFairnessView extends Component {
 
       // Create a dataset to feed circles
       let i, j, k = 0;
-      topkItems.forEach((d) => {
+      filteredTopkItems.forEach((d) => {
         for(i=0; i < xNumCircle; i++){
           for(j=0; j < yNumCircle; j++){
-            if (k < topk){  // numWidth x numHeight of topk cirlces could exceed topk (e.g., 3x8 but topk=20)
+            console.log(filteredTopkItems[k]);
+            if (k < numItems){  // numWidth x numHeight of topk cirlces could exceed topk (e.g., 3x8 but topk=20)
               topkCircleIdx.push({
                 x: i,
                 y: j,
-                group: topkItems[k].group
+                group: filteredTopkItems[k].group
               });
 
               k++;
@@ -109,7 +123,7 @@ class GroupFairnessView extends Component {
         }
       });
 
-      d3.select(this.svgTopKPlot).selectAll('.topKPlotCircle')
+      d3.select(svg).selectAll('.topKPlotCircle')
         .data(topkCircleIdx)
         .enter().append('circle')
         .attr('class', 'topKPlotCircle')
@@ -118,17 +132,29 @@ class GroupFairnessView extends Component {
         .attr('r', this.layout.topKPlot.circle.r)
         .style('fill', (d) => groupColorScale(d.group))
         .style('stroke', (d) => d3.rgb(groupColorScale(d.group)).darker());
+
+      if (mode === 'whole') {
+        svgClassName = 'topKPlot';
+        this.svgTopKPlot = svg;     
+      }
+      else if (mode === 'TP') {
+        svgClassName = 'topKPlotTP';
+        this.svgTopKPlotTP = svg;
+      }
+      else if (mode === 'FP') {
+        svgClassName = 'topKPlotFP';
+        this.svgTopKPlotFP = svg;
+      }
     }
 
     renderWholeDistribution(mode) {
-      console.log('in renderwholddistribution');
       let data = this.props.data,
           topk = this.props.topk,
           dataTopk = [...data].slice(0, topk);
 
-      const histoData = mode === 'whole'? [...data]
-                      : 'TP'? _.filter(dataTopk, (d) => Object.values(d.y)[0] === 0)
-                      : 'FP'? _.filter(dataTopk, (d) => Object.values(d.y)[0] === 1)
+      const histoData = (mode === 'whole') ? data 
+                      : (mode === 'TP') ? _.filter(data, (d) => d.y === 0) 
+                      : (mode === 'FP') ? _.filter(data, (d) => d.y === 1)
                       : 'error';
   
       const dataGroup1 = _.chain(histoData)
@@ -149,41 +175,15 @@ class GroupFairnessView extends Component {
                         .thresholds(d3.range(0, 100, 5))
                         (dataGroup2);
 
-      let svgClassName;
-      // Set up the layout
-      if (mode === 'whole') {
-        console.log('com here');
-        svgClassName = 'wholeDistribution';
-        this.svgWholeDistribution = new ReactFauxDOM.Element('svg');
+      let svg, svgClassName;
+      svg = new ReactFauxDOM.Element('svg');
 
-        this.svgWholeDistribution.setAttribute('width', this.layout.wholeDistribution.width);
-        this.svgWholeDistribution.setAttribute('height', this.layout.wholeDistribution.height - 50);
-        this.svgWholeDistribution.setAttribute('0 0 100 100');
-        this.svgWholeDistribution.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        this.svgWholeDistribution.setAttribute('class', svgClassName);
-      }
-      else if (mode === 'TP') {
-        svgClassName = 'wholeDistributionTP';
-        this.svgWholeDistributionTP = new ReactFauxDOM.Element('svg');
-
-        this.svgWholeDistributionTP.setAttribute('width', this.layout.wholeDistribution.width);
-        this.svgWholeDistributionTP.setAttribute('height', this.layout.wholeDistribution.height - 50);
-        this.svgWholeDistributionTP.setAttribute('0 0 100 100');
-        this.svgWholeDistributionTP.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        this.svgWholeDistributionTP.setAttribute('class', svgClassName);
-      }
-      else if (mode === 'FP') {
-        svgClassName = 'wholeDistributionFP';
-        this.svgWholeDistributionFP = new ReactFauxDOM.Element('svg');
-
-        this.svgWholeDistributionFP.setAttribute('width', this.layout.wholeDistribution.width);
-        this.svgWholeDistributionFP.setAttribute('height', this.layout.wholeDistribution.height - 50);
-        this.svgWholeDistributionFP.setAttribute('0 0 100 100');
-        this.svgWholeDistributionFP.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        this.svgWholeDistributionFP.setAttribute('class', svgClassName);
-      }
+      svg.setAttribute('width', this.layout.wholeDistribution.width);
+      svg.setAttribute('height', this.layout.wholeDistribution.height - 50);
+      svg.setAttribute('0 0 100 100');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      //svg.setAttribute('class', svgClassName);
   
-      console.log(this.wholeDistribution);
       // Both groups share the same x and y scale
       let xScale, yScale, xAxis;
 
@@ -196,7 +196,7 @@ class GroupFairnessView extends Component {
             .domain([0, 10])
             .range([this.layout.wholeDistribution.height - 50, 0]);
   
-      xAxis = d3.select('.' + svgClassName)
+      xAxis = d3.select(svg)
           .append('g')
           .attr('transform', 'translate(0,49)')
           .call(d3.axisBottom(xScale).tickSize(0).tickFormat(""));
@@ -204,7 +204,7 @@ class GroupFairnessView extends Component {
       xAxis.select('path')
           .style('stroke', 'lightgray');
   
-      groupHistogramBar1 = d3.select('.' + svgClassName).selectAll('.bar1')
+      groupHistogramBar1 = d3.select(svg).selectAll('.bar1')
           .data(dataBinGroup1)
           .enter().append('g')
           .attr('class', 'bar1')
@@ -222,7 +222,7 @@ class GroupFairnessView extends Component {
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);
   
-      groupHistogramBar2 = d3.select('.' + svgClassName).selectAll('.bar2')
+      groupHistogramBar2 = d3.select(svg).selectAll('.bar2')
           .data(dataBinGroup2)
           .enter().append('g')
           .attr('class', 'bar2')
@@ -239,7 +239,19 @@ class GroupFairnessView extends Component {
           .style('stroke', 'black')
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);
-        
+
+      if (mode === 'whole') {
+        svgClassName = 'wholeDistribution';
+        this.svgWholeDistribution = svg;     
+      }
+      else if (mode === 'TP') {
+        svgClassName = 'wholeDistributionTP';
+        this.svgWholeDistributionTP = svg;
+      }
+      else if (mode === 'FP') {
+        svgClassName = 'wholeDistributionFP';
+        this.svgWholeDistributionFP = svg;
+      }
     }
 
     render() {
@@ -250,8 +262,9 @@ class GroupFairnessView extends Component {
         return <div />
       }
 
-      console.log('here');
-      this.renderTopKPlot();
+      this.renderTopKPlot('whole');
+      this.renderTopKPlot('TP');
+      this.renderTopKPlot('FP');
       this.renderWholeDistribution('whole');
       this.renderWholeDistribution('TP');
       this.renderWholeDistribution('FP');
@@ -282,7 +295,7 @@ class GroupFairnessView extends Component {
               </div>
               <div className={styles.conditionalParityPlotWrapper}>
                 <div className={styles.topKPlot}>
-                  {this.svgTopKPlot.toReact()}
+                  {this.svgTopKPlotTP.toReact()}
                 </div>
                 <div className={styles.score}>92</div>
                 <div className={styles.wholeDistribution}>
@@ -291,7 +304,7 @@ class GroupFairnessView extends Component {
               </div>
               <div className={styles.conditionalParityPlotWrapper}>
                 <div className={styles.topKPlot}>
-                  {this.svgTopKPlot.toReact()}
+                  {this.svgTopKPlotFP.toReact()}
                 </div>
                 <div className={styles.score}>89</div>
                 <div className={styles.wholeDistribution}>

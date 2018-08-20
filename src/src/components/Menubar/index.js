@@ -4,7 +4,7 @@ import { Alert, Button, FormGroup, FormText, Input, Label, Badge,
 import Slider from 'react-rangeslider';
 import styles from "./styles.scss";
 
-class Generator extends Component {
+class Menubar extends Component {
   constructor(props) {
     super(props);
 
@@ -25,7 +25,12 @@ class Generator extends Component {
   render() {
     return (
       <div className={styles.Generator}>
-        <div className={styles.GeneratorNavBar}>
+        <div className={styles.appTitle}>FAIRSIGHT</div>
+        <div className={styles.addDataset}>Dataset</div>
+        <div className={styles.addRanking}>+</div>
+        <div className={styles.ranking}>R3</div>
+        <div className={styles.margin}></div>
+        {/* <div className={styles.GeneratorNavBar}>
           <div className={styles.navBarDataset}>Dataset</div>
           <div className={styles.navBarInput}>
             <div className={styles.rankingId}>R-3</div>
@@ -37,11 +42,11 @@ class Generator extends Component {
           </div>
           <div className={styles.navBarMethod}>Method</div>
           <div className={styles.navBarFairness}>Fairness</div>
-        </div>
-        <DataLoader dataset={this.state.dataset} className={styles.DataLoader}/>
+        </div> */}
+        {/* <DataLoader dataset={this.state.dataset} className={styles.DataLoader}/>
         <FeatureSelector className={styles.FeatureSelector}/>
         <MethodSelector className={styles.MethodSelector}/>
-        <FairnessOrganizer className={styles.FairnessOrganizer}/>
+        <FairnessOrganizer className={styles.FairnessOrganizer}/> */}
         {/* <Dropdown className={styles.Dropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle} left>
           <DropdownToggle
             tag="span"
@@ -203,4 +208,4 @@ class FairnessOrganizer extends Component {
   }
 }
 
-export default Generator;
+export default Menubar;

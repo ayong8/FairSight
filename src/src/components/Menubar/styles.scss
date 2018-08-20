@@ -1,0 +1,252 @@
+
+.Generator {
+    grid-column: 1 / 5;
+    grid-row: 2 / 3;
+
+    width: 100%;
+
+    display: grid;
+    grid-template-columns: 10% 5% 3% 4% 5% 63%;
+    grid-template-rows: 100%;
+    grid-template-areas: 
+      't d m1 a r m2';
+    
+    align-items: center;
+    font-weight: 600;
+    //text-transform: uppercase;
+    font-size: 12px;
+
+    background-color: #003569;
+    color: white;
+
+    .appTitle {
+      grid-area: t;
+
+      font-size: 25px;
+      font-weight: bolder;
+      text-transform: uppercase;
+      align-items: center;
+    }
+
+    .addDataset {
+      grid-area: d;
+      align-items: center;
+      margin-right: 50px;
+    }
+
+    .margin1 {
+      grid-area: m1;
+    }
+    .addRanking {
+      grid-area: a;
+      align-items: center;
+    }
+    .ranking {
+      grid-area: r;
+      justify-self: center;
+      padding: 17px 20px;
+      background-color: #0055a9;
+      border-right: 2px solid white;
+      border-top: 1px solid white;
+      border-left: 2px solid white;
+    }
+    .margin2 {
+      grid-area: m2;
+      align-items: center;
+    }
+
+    .GeneratorNavBar {
+        grid-column: 1 / 5;
+        grid-row: 1 / 2;
+        width: 105%;
+        height: 100%;
+
+        display: grid;
+        grid-template-columns: 20% 40% 20% 20%;
+
+        align-items: center;
+        margin-left: -2.5%;
+        margin-right: -2.5%;
+        padding-left: 2.5%;
+        padding-right: 2.5%;
+        background: #294b5b;
+        border: 1px solid lightgray;
+        font-size: 1.2rem;
+        font-weight: 100;
+        color: white;
+
+        .navBarDataset {
+            
+        }
+        .navBarInput {
+            display: flex;
+
+            .rankingId,
+            .inputSummary {
+                padding: 8px;
+            }
+
+            .rankingId {
+                background-color: white;
+                color: #2a4b5a;
+                font-weight: 600;
+                padding: 10px 50px;
+                border-top: 3px solid;
+            }
+            .inputSummary {
+                display: flex;
+                align-items: center;
+                
+                font-weight: 600;
+
+                .inputFeatures,
+                .inputSensitiveAttribute {
+                    // font-size: 11px;
+                    // background-color: white;
+                    // color: #2a4b5a;
+                    // border-radius: 4px;
+                    margin: 0 5px;
+                }
+            }
+
+        }
+        
+    }
+    .Dropdown {
+        grid-column: 1 / 5;
+        grid-row: 2 / 3;
+    }
+
+    .DropdownToggle {
+        float: right;
+    }
+
+    .DropdownMenu {
+        width: 100%;
+        // margin-left: 90px;
+        // margin-top: 20px;
+        // position: absolute;
+        top: 100%;
+        right: 0;
+    }
+
+    .DataLoader, 
+    .FeatureSelector,
+    .MethodSelector,
+    .FairnessOrganizer
+    {
+        width: 100%;
+        height: 100%;
+        padding: 5px;
+        background-color: #dbdbdb;
+        border: 1px solid #c8c8c8;
+        border-right: none;
+        border-top: none;
+        border-bottom: none;
+        display: none;
+    }
+
+    .generatorSubtitle {
+        margin: 8px 0;
+        border-bottom: 1px solid #bababa;
+    }
+
+    .DataLoader {
+        
+    }
+    /*** 2. Sensitive Attr & Feature Selector ***/
+    .FeatureSelector {
+        display: grid;
+        grid-template-columns: 30% 70%;
+        grid-template-rows: 25% 20% 55%;
+        display: none;
+
+        .firstTitle {
+            grid-column: 1 / 3;
+            grid-row: 1 / 2;
+        }
+
+        .secondTitle1 {
+            grid-column: 1 / 2;
+            grid-row: 2 / 3;
+        }
+
+        .SensitiveAttrSelectorDropdown {
+            grid-column: 1 / 2;
+            grid-row: 3 / 4;
+
+            .SensitiveAttrSelectorDropdownToggle {
+                width: 140px;
+            }
+        }
+        .sensitiveGroupIndicator {
+            margin: 5px;
+        }
+
+        .group1 {
+            color: $group-color1;
+            background-color: $group-color1;
+            margin: 3px;
+        }
+        .group2 {
+            color: $group-color2;
+            background-color: $group-color2;
+            margin: 3px;
+        }
+
+
+        // .sensitiveAttrProperties {
+        //     grid-column: 1 / 2;
+        //     grid-row: 4 / 5;
+        // }
+
+        .secondTitle2 {
+            grid-column: 2 / 3;
+            grid-row: 2 / 3;
+        }
+
+        .FeatureSelectorDropdown {
+            grid-column: 2 / 3;
+            grid-row: 3 / 4;
+
+            .FeatureSelectorDropdownToggle {
+                width: 140px;
+            }
+        }
+    }
+
+    /*** 3. Method & Top-k Selector ***/
+    .MethodSelector {
+        .MethodSelectorDropdown {
+            width: 140px;
+        }
+        .secondTitle2 {
+            margin-top: 10px;
+        }
+    }
+
+    /*** 4. Method & Top-k Selector ***/
+    .buttonGenerateRanking {
+
+    }
+
+    .FairnessOrganizer {
+        position: relative;
+
+        .runButtonWrapper {
+            width: 100px;
+            height: 50px;
+            padding-top: 10px;
+            padding-left: 20px;
+            border-radius: 5px;
+            position: absolute;
+            bottom: -40px;
+            right: 0px;
+            background-color: #dbdbdb;
+        }
+    }
+}
+
+
+
+

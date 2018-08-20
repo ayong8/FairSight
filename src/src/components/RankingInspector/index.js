@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 
+import Generator from './Generator';
 import InputSpaceView from './inputSpaceView';
 import RankingView from './rankingView';
 import IndividualFairnessView from './individualFairnessView';
@@ -220,6 +221,7 @@ class RankingInspector extends Component {
 
     return (
       <div className={styles.RankingInspector}>
+        <Generator className={styles.Generator} />
         <RankingView topk={this.props.topk} ranking={this.props.ranking} output={this.props.output} />
         <InputSpaceView inputCoords={this.props.inputCoords} className={styles.InputSpaceView} />
         <GroupFairnessView data={dataGroupFairnessView}

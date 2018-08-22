@@ -1,8 +1,12 @@
 import React, { Component } from "react";
 import { Alert, Button, FormGroup, FormText, Input, Label, Badge,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { TreeSelect } from 'antd';
 import Slider from 'react-rangeslider';
+
 import styles from "./styles.scss";
+
+const TreeNode = TreeSelect.TreeNode;
 
 class Menubar extends Component {
   constructor(props) {
@@ -12,7 +16,8 @@ class Menubar extends Component {
     this.state = {
       dropdownOpen: false,
       dataset: {},
-      ranking: {}
+      ranking: {},
+      value: 'ddd'
     };
   }
 
@@ -22,45 +27,61 @@ class Menubar extends Component {
     });
   }
 
+  onChange = (value) => {
+    console.log(value);
+    this.setState({ value });
+  }
+
   render() {
     return (
       <div className={styles.Generator}>
-        <div>SENSITIVE ATTRIBUTE</div>
-        <Dropdown className={styles.Dropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle} left>
-          <DropdownToggle
-            tag="span"
-            onClick={this.toggle}
-            data-toggle="dropdown"
-            aria-expanded={this.state.dropdownOpen}
-          >
-            <span className={styles.DropdownToggle}>DOWN</span>
+        <div className={styles.selectSensitiveAttr}>SENSITIVE ATTRIBUTE</div>
+        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+          <DropdownToggle caret>
+            Dropdown
           </DropdownToggle>
-          <DropdownMenu className={styles.DropdownMenu} right>
-            <DataLoader className={styles.DataLoader}/>
-            <FeatureSelector className={styles.FeatureSelector}/>
-            <MethodSelector className={styles.MethodSelector}/>
-            <FairnessOrganizer className={styles.FairnessOrganizer}/>
+          <DropdownMenu>
+            <DropdownItem header>Header</DropdownItem>
+            <DropdownItem disabled>Action</DropdownItem>
+            <DropdownItem>Another Action</DropdownItem>
+            <DropdownItem divider />
+            <DropdownItem>Another Action</DropdownItem>
           </DropdownMenu>
         </Dropdown>
-        <div>SELECT FEATURES</div>
-        <div>TOP-K</div>
-        {/* <div className={styles.GeneratorNavBar}>
-          <div className={styles.navBarDataset}>Dataset</div>
-          <div className={styles.navBarInput}>
-            <div className={styles.rankingId}>R-3</div>
-            <div className={styles.inputSummary}>
-              <div className={styles.inputTitle}>Input</div>
-              <Badge className={styles.inputFeatures} color="success" pill>17 features</Badge>
-              <Badge className={styles.inputSensitiveAttribute} color="warning" pill>Sex(Male, Female)</Badge>
-            </div>
-          </div>
-          <div className={styles.navBarMethod}>Method</div>
-          <div className={styles.navBarFairness}>Fairness</div>
-        </div> */}
-        {/* <DataLoader dataset={this.state.dataset} className={styles.DataLoader}/>
-        <FeatureSelector className={styles.FeatureSelector}/>
-        <MethodSelector className={styles.MethodSelector}/>
-        <FairnessOrganizer className={styles.FairnessOrganizer}/> */}
+        <div className={styles.selectFeatures}>SELECT FEATURES</div>
+        <TreeSelect
+          showSearch
+          style={{ width: 300 }}
+          value={this.state.value}
+          dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
+          placeholder="Please select"
+          allowClear
+          multiple
+          treeDefaultExpandAll
+          onChange={this.onChange} >
+          <TreeNode value="parent 1" title="parent 1" key="0-1">
+            <TreeNode value="parent 1-0" title="parent 1-0" key="0-1-1">
+              <TreeNode value="leaf1" title="my leaf" key="random" />
+              <TreeNode value="leaf2" title="your leaf" key="random1" />
+            </TreeNode>
+            <TreeNode value="parent 1-1" title="parent 1-1" key="random2">
+              <TreeNode value="sss" title={<b style={{ color: '#08c' }}>sss</b>} key="random3" />
+            </TreeNode>
+          </TreeNode>
+        </TreeSelect>
+        <div className={styles.selectMethod}>METHOD</div>
+        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+          <DropdownToggle caret>
+            Method
+          </DropdownToggle>
+          <DropdownMenu>
+            <DropdownItem header>Header</DropdownItem>
+            <DropdownItem disabled>Action</DropdownItem>
+            <DropdownItem>Another Action</DropdownItem>
+            <DropdownItem divider />
+            <DropdownItem>Another Action</DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
       </div>
     );
   }

@@ -6,10 +6,10 @@
     width: 100%;
 
     display: grid;
-    grid-template-columns: 10% 5% 3% 4% 5% 63%;
+    grid-template-columns: 12% 5% 4% 5% 63%;
     grid-template-rows: 100%;
     grid-template-areas: 
-      't d m1 a r m2';
+      't d a r m2';
     
     align-items: center;
     font-weight: 600;
@@ -26,12 +26,16 @@
       font-weight: bolder;
       text-transform: uppercase;
       align-items: center;
+      margin-left: 10px;
     }
 
     .addDataset {
       grid-area: d;
       align-items: center;
-      margin-right: 50px;
+      justify-content: center;
+      background-color: #45a3ff;
+      padding: 17px 15px;
+      border: 2px solid white;
     }
 
     .margin1 {
@@ -40,6 +44,10 @@
     .addRanking {
       grid-area: a;
       align-items: center;
+      justify-self: center;
+      background-color: #0d6dcc;
+      padding: 17px 20px;
+      border: 2px solid white;
     }
     .ranking {
       grid-area: r;

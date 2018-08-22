@@ -10,6 +10,7 @@ import 'bootstrap/dist/css/bootstrap.css';
 import 'normalize.css/normalize.css';
 import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/icons/lib/css/blueprint-icons.css';
+import "antd/dist/antd.css";
 //import { translations } from 'translations';
 
 ReactDOM.render(

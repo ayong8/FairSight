@@ -8,9 +8,14 @@ urlpatterns = [
         name='file'
     ),
     url(
-        regex=r'^runModel/$',
-        view=views.RunModel.as_view(),
-        name='model'
+        regex=r'^runRankSVM/$',
+        view=views.RunRankSVM.as_view(),
+        name='rankSVM'
+    ),
+    url(
+        regex=r'^runSVM/$',
+        view=views.RunSVM.as_view(),
+        name='SVM'
     ),
     url(
         regex=r'^runMDS/$',
@@ -36,5 +41,10 @@ urlpatterns = [
         regex=r'^setSensitiveAttr/$',
         view=views.SetSensitiveAttr.as_view(),
         name='sensitiveAttr'
+    ),
+    url(
+        regex=r'^calculatePairwiseInputDistance/$',
+        view=views.CalculatePairwiseInputDistance.as_view(),
+        name='pairwiseInputDistance'
     )
 ]

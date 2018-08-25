@@ -119,7 +119,7 @@ class RankingsListView extends Component {
 
     return (
       <div className={styles.RankingsListView}>
-        <div className={index.title}> RANKINGS </div>
+        <div className={index.title + ' ' + styles.title }> RANKINGS </div>
         <div className={styles.addRanking}>+</div>
         <div className={styles.rankingCondition}>RANKING SVM + FEATURE 17</div>
         <Table borderless className={styles.FeatureTable}>

@@ -34,8 +34,13 @@
       align-items: center;
       justify-content: center;
       background-color: #45a3ff;
-      padding: 17px 15px;
+      padding: 9px 9px;
       border: 2px solid white;
+
+      display: grid;
+      .addDatasetTitle {
+          justify-self: center;
+      }
     }
 
     .margin1 {

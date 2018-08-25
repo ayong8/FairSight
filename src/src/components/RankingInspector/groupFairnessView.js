@@ -53,8 +53,6 @@ class GroupFairnessView extends Component {
         numItems = filteredTopkItems.length;
       }
 
-      console.log('filtered topk items: ', filteredTopkItems);
-
       // Set up the layout
       let svg, svgClassName;
       svg = new ReactFauxDOM.Element('svg');
@@ -109,7 +107,6 @@ class GroupFairnessView extends Component {
       filteredTopkItems.forEach((d) => {
         for(i=0; i < xNumCircle; i++){
           for(j=0; j < yNumCircle; j++){
-            console.log(filteredTopkItems[k]);
             if (k < numItems){  // numWidth x numHeight of topk cirlces could exceed topk (e.g., 3x8 but topk=20)
               topkCircleIdx.push({
                 x: i,

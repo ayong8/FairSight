@@ -44,8 +44,6 @@ class RankingView extends Component {
           dataWholeRanking = data.slice(_self.topk + 1);
       _self.numWholeRanking = dataWholeRanking.length;
 
-      console.log('dataTopK in rankingView: ', dataTopK);
-
       // Sort
       dataTopK = _.sortBy(dataTopK, ['score'], ['desc']).reverse();
       dataWholeRanking = _.sortBy(dataWholeRanking, ['score'], ['desc']).reverse();

@@ -8,47 +8,95 @@ import styles from "./styles.scss";
 
 const TreeNode = TreeSelect.TreeNode;
 
-class Menubar extends Component {
+class Generator extends Component {
   constructor(props) {
     super(props);
 
-    this.toggle = this.toggle.bind(this);
     this.state = {
-      dropdownOpen: false,
+      sensitiveAttrDropdownOpen: false,
+      methodDropdownOpen: false,
       dataset: {},
       ranking: {},
-      value: 'ddd'
+      value: 'ddd',
+      rankingInstance: {
+        rankingId: '',
+        sensitiveAttr: '',
+        features: [],
+        target: '',
+        method: ''
+      }
     };
+
+    this.toggleSensitiveAttrDropdown = this.toggleSensitiveAttrDropdown.bind(this);
+    this.toggleMethodDropdown = this.toggleMethodDropdown.bind(this);
+    this.handleClickSensitiveAttr = this.handleClickSensitiveAttr.bind(this);
+    this.handleClickRun = this.handleClickRun.bind(this);
   }
 
-  toggle() {
+  toggleSensitiveAttrDropdown() {
     this.setState({
-      dropdownOpen: !this.state.dropdownOpen
+      sensitiveAttrDropdownOpen: !this.state.sensitiveAttrDropdownOpen
+    });
+  }
+
+  toggleMethodDropdown() {
+    this.setState({
+      methodDropdownOpen: !this.state.methodDropdownOpen
+    });
+  }
+
+  handleClickSensitiveAttr(e) {
+    let selectedSensitiveAttr = e.target.value;
+
+    this.setState({
+      rankingInstance: {
+        sensitiveAttr: selectedSensitiveAttr
+      }
     });
   }
 
   onChange = (value) => {
-    console.log(value);
     this.setState({ value });
   }
 
+  renderSensitiveAttrSelections() {
+    let wholeDataset = this.props.wholeDataset,
+        exceptForIdColumn = 'id';
+
+    // Extract all feature names (every column except for idx)
+    let allColumns = Object.keys(wholeDataset[0]),
+        allFeatures = allColumns.filter((d) => d !== exceptForIdColumn);
+
+    return allFeatures.map((feature) => (<DropdownItem onClick={this.handleClickSensitiveAttr}>{feature}</DropdownItem>));
+  }
+
+  handleSelectSensitiveAttr() {
+
+    //this.props.onSelectSensitiveAttr(sensitiveAttr)
+  }
+
+  handleClickRun() {
+    this.props.onRunningModel(this.state.rankingInstance);
+  }
+
   render() {
+    let wholeDataset = this.props.wholeDataset,
+        features = wholeDataset;  // Extract keys
+
     return (
       <div className={styles.Generator}>
-        <div className={styles.selectSensitiveAttr}>SENSITIVE ATTRIBUTE</div>
-        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+        {/* // Sensitive Attribute selector */}
+        <div className={styles.selectSensitiveAttr}>Sensitive attribute</div>
+        <Dropdown size='sm' className={styles.sensitiveAttrDropdown} isOpen={this.state.sensitiveAttrDropdownOpen} toggle={this.toggleSensitiveAttrDropdown}>
           <DropdownToggle caret>
-            Dropdown
+          Features
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItem header>Header</DropdownItem>
-            <DropdownItem disabled>Action</DropdownItem>
-            <DropdownItem>Another Action</DropdownItem>
-            <DropdownItem divider />
-            <DropdownItem>Another Action</DropdownItem>
+            {this.renderSensitiveAttrSelections()}
           </DropdownMenu>
         </Dropdown>
-        <div className={styles.selectFeatures}>SELECT FEATURES</div>
+        {/* // Feature selector */}
+        <div className={styles.selectFeatures}>Features</div>
         <TreeSelect
           showSearch
           style={{ width: 300 }}
@@ -69,162 +117,24 @@ class Menubar extends Component {
             </TreeNode>
           </TreeNode>
         </TreeSelect>
-        <div className={styles.selectMethod}>METHOD</div>
-        <Dropdown isOpen={this.state.dropdownOpen} toggle={this.toggle}>
+        {/* // Method selector */}
+        <div className={styles.selectMethod}>Method</div>
+        <Dropdown size='sm' isOpen={this.state.methodDropdownOpen} toggle={this.toggleMethodDropdown}>
           <DropdownToggle caret>
-            Method
+            Methods
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItem header>Header</DropdownItem>
-            <DropdownItem disabled>Action</DropdownItem>
-            <DropdownItem>Another Action</DropdownItem>
-            <DropdownItem divider />
-            <DropdownItem>Another Action</DropdownItem>
+            <DropdownItem header>RankSVM</DropdownItem>
+            <DropdownItem disabled>SVM</DropdownItem>
+            <DropdownItem>Logistic Regression</DropdownItem>
           </DropdownMenu>
         </Dropdown>
-      </div>
-    );
-  }
-}
-
-class DataLoader extends Component {
-  render(){
-    return (
-      <div className={styles.DataLoader}>
-        <div className={styles.generatorSubtitle}>1. Upload a dataset</div>
-        <FormGroup>
-          <Label for="exampleFile">File</Label>
-          <Input type="file" name="file" id="exampleFile" />
-          <FormText color="muted">
-            GERMAN.csv
-          </FormText>
-        </FormGroup>
-      </div>
-    );
-  }
-}
-
-class FeatureSelector extends Component {
-  constructor(props) {
-    super(props);
-
-    this.toggle = this.toggle.bind(this);
-    this.state = {
-      dropdownOpen: false
-    };
-  }
-
-  toggle() {
-    this.setState(prevState => ({
-      dropdownOpen: !prevState.dropdownOpen
-    }));
-  }
-
-  render(){
-    return (
-      <div className={styles.FeatureSelector}>
-        <div className={styles.generatorSubtitle + ' ' + styles.firstTitle}>2. Select features and sensitive attributes</div>
-        <div className={styles.secondTitle1}> Sensitive Attribute </div>
-        <Dropdown className={styles.SensitiveAttrSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle caret className={styles.SensitiveAttrSelectorDropdownToggle}>
-            Sensitive Attribute
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItem>Feature1</DropdownItem>
-            <DropdownItem>Feature2</DropdownItem>
-          </DropdownMenu>
-          <div className={styles.sensitiveGroupIndicator}>
-            <span className={styles.group1}>...</span> Men
-            <br />
-            <span className={styles.group2}>...</span> Women
-          </div>
-        </Dropdown>
-        <div className={styles.secondTitle2}> Feature Selection </div>
-        <Dropdown className={styles.FeatureSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle caret className={styles.FeatureSelectorDropdownToggle}>
-            Features
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItem>Feature1</DropdownItem>
-            <DropdownItem>Feature2</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-      </div>
-    );
-  }
-}
-
-class MethodSelector extends Component {
-  constructor(props) {
-    super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
-
-    this.state = {
-      topK: 0
-    }
-  }
-
-  handleOnChange(value) {  // For the top-k slider
-    this.setState({
-      topK: value
-    });
-  }
-
-  render(){
-    let { topK } = this.state;
-
-    return (
-      <div className={styles.MethodSelector}>
-        <div className={styles.generatorSubtitle}>3. Select a method and top-k</div>
-        <Dropdown className={styles.MethodSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle caret>
-            Method
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItem>Feature1</DropdownItem>
-            <DropdownItem>Feature2</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-        <div className={styles.secondTitle2}> Top-K </div>
-        <Slider
-          value={topK}
-          orientation="horizontal"
-          onChange={this.handleOnChange}
-        />
-      </div>
-    );
-  }
-}
-
-class FairnessOrganizer extends Component {
-  constructor(props) {
-    super(props);
-    this.toggleRun = this.toggleRun.bind(this);
-  }
-
-  toggleRun() { // Run button
-    // Pass a generated ranking object to the rankingListView
-
-  }
-  render() {
-    return (
-      <div className={styles.FairnessOrganizer}>
-        <div className={styles.generatorSubtitle}>4. Adjust the fairness</div>
-        <div className={styles.groupFairness}>
-          <input type="checkbox" />&nbsp;&nbsp;Statistical parity
-        </div>
-        <div className={styles.groupFairness}>
-          <input type="checkbox" />&nbsp;&nbsp;Conditional parity(TP)
-        </div>
-        <div className={styles.groupFairness}>
-          <input type="checkbox" />&nbsp;&nbsp;Conditional parity(FP)
-        </div>
         <div className={styles.runButtonWrapper}>
-          <Button className={styles.buttonGenerateRanking} color="danger">RUN</Button>
+          <Button className={styles.buttonGenerateRanking} color="danger" onClick={this.handleClickRun}>RUN</Button>
         </div>
       </div>
     );
   }
 }
 
-export default Menubar;
+export default Generator;

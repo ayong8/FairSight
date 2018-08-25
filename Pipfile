@@ -42,6 +42,7 @@ more-itertools = "*"
 sklearn = "*"
 scipy = "*"
 pandas = "*"
+simplejson = "*"
 
 
 [dev-packages]

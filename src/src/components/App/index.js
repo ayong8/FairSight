@@ -30,6 +30,15 @@ class App extends Component {
       output: [],
       sensitiveAttr: 'sex',
       selectedRanking: 0, // Index of a ranking selected among rankings in 'rankings'
+      rankingInstance: {
+        rankingId: '',
+        sensitiveAttr: '',
+        features: [],
+        target: '',
+        method: ''
+      },
+      pairwiseInputDistances: [],
+      permutationInputDistances: [],
       rankings: [
         [
           { ranking: 1, score: 90, group: 1 },
@@ -127,6 +136,8 @@ class App extends Component {
       ],
       inputCoords: []
     };
+
+    this.handleModelRunning = this.handleModelRunning.bind(this);
   }
 
   componentDidMount() {
@@ -137,13 +148,13 @@ class App extends Component {
         })   
         .then( (file) => {
             let dataset = _.values(JSON.parse(file));
+            console.log('whole dataset:', dataset);
 
             this.setState({dataset: dataset});
           });
 
     fetch('/dataset/getWeight')
       .then( (response) => {
-        console.log('fetch file: ', response);
         return response.json();
       })   
       .then( (responseWeight) => {
@@ -153,13 +164,12 @@ class App extends Component {
         });
     
     // Response: All features, and values multiplied by weight
-    fetch('/dataset/runModel')
+    fetch('/dataset/runRankSVM')
       .then( (response) => {
         return response.json();
       })   
       .then( (responseOutput) => {
           let output = _.values(JSON.parse(responseOutput));
-          console.log('run model dataset: ', output);
           
           this.setState({output: output});
         });
@@ -170,9 +180,23 @@ class App extends Component {
       })   
       .then( (response) => {
           let selectedDataset = _.values(JSON.parse(response));
-          console.log('selectedDataset: ', selectedDataset);
           
           this.setState({selectedDataset: selectedDataset});
+        });
+
+    fetch('/dataset/calculatePairwiseInputDistance')
+      .then( (response) => {
+        return response.json();
+      })   
+      .then( (response) => {
+          let json_response = JSON.parse(response),
+              pairwiseInputDistances = json_response.pairwiseDistances,
+              permutationInputDistances = json_response.permutationDistances;
+          
+          this.setState({
+            pairwiseInputDistances: pairwiseInputDistances,
+            permutationInputDistances: permutationInputDistances
+          });
         });
 
     // Response: Dim coordinates
@@ -182,7 +206,6 @@ class App extends Component {
       })   
       .then( (responseOutput) => {
           let dimReductions = _.values(JSON.parse(responseOutput));
-          console.log('dim reduction dataset: ', dimReductions);
           
           this.setState({inputCoords: dimReductions});
         });
@@ -222,16 +245,34 @@ class App extends Component {
     let selectedFeatures = this.state.selectedFeatures;
     let dataset, weightedDataset;
 
-    console.log('weights and dataset from calculateScores: ', weights, wholeDataset);
-
-    // Select the subset that has the selected features
     dataset = _.map(wholeDataset, (d) => _.pick(d, selectedFeatures));
   }
+
+  handleModelRunning(rankingInstance){
+		this.setState({
+      rankingInstance: rankingInstance
+    });
+
+    fetch('/dataset/runModel/', {
+        method: 'post',
+        body: JSON.stringify(rankingInstance)
+      })
+      .then( (response) => {
+        return response.json();
+      })   
+      .then( (response) => {
+          let selectedDataset = _.values(JSON.parse(response));
+          console.log('selectedDataset: ', selectedDataset);
+          
+          this.setState({selectedDataset: selectedDataset});
+        });
+	}
 
   render() {
     if ((!this.state.selectedDataset || this.state.output.length === 0) || 
         (!this.state.output || this.state.output.length === 0) ||
         (!this.state.inputCoords || this.state.inputCoords.length === 0) ||
+        (!this.state.pairwiseInputDistances || this.state.pairwiseInputDistances.length === 0) || 
         (!this.state.topk)
        ) {
       return <div />
@@ -239,23 +280,30 @@ class App extends Component {
     // For the Ranking Inspector, only send down the selected ranking data
     let topk = this.state.topk,
         rankingList = this.state.rankings,
+        wholeDataset = this.state.dataset,
         selectedRankingIndex = this.state.selectedRanking,
         selectedRanking = rankingList[selectedRankingIndex];
 
     return (
       <div className={styles.App}>
         <div className={styles.titleBar}></div>
-        <Menubar topk={topk} dataset='german.csv' />
+        <Menubar topk={topk} 
+                 datasetName='german.csv' 
+                 onSelectSensitiveAttr={this.handleSelectSensitiveAttr} />
         <RankingsListView rankings={this.state.rankings} />
         <RankingInspector topk={topk}
+                          wholeDataset={this.state.dataset}
                           selectedDataset={this.state.selectedDataset}
                           selectedFeatures={this.state.selectedFeatures}
                           selectedTarget={this.state.selectedTarget}
                           sensitiveAttr={this.state.sensitiveAttr}
                           inputCoords={this.state.inputCoords}
+                          pairwiseInputDistances={this.state.pairwiseInputDistances}
+                          permutationInputDistances={this.state.permutationInputDistances}
                           observedAndDecisions={this.state.observedAndDecisions}
                           output={this.state.output} 
-                          ranking={selectedRanking} />
+                          ranking={selectedRanking} 
+                          onRunningModel={this.handleModelRunning}/>
         <Footer />
       </div>
     );

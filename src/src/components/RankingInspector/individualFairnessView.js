@@ -15,8 +15,6 @@ class IndividualFairnessView extends Component {
     constructor(props) {
       super(props);
 
-      this.sortDistortion = this.sortDistortion.bind(this);
-      this.handleSelectSorting = this.handleSelectSorting.bind(this);
       this.combinedCoordsData = [],
       this.xObservedScale;
       this.yDistortionScale;
@@ -111,6 +109,9 @@ class IndividualFairnessView extends Component {
           };
         }
       };
+
+      this.sortDistortion = this.sortDistortion.bind(this);
+      this.handleSelectSorting = this.handleSelectSorting.bind(this);
   
     }
   
@@ -212,7 +213,6 @@ class IndividualFairnessView extends Component {
       const sortedFeatureX = _.chain(dataX)
               .sortBy('x.' + _self.xSelectedFeature)
               .forEach((d, i) => {
-                console.log(d.idx);
                 d.xSortingIdx = i + 1;
               })
               .value(),
@@ -653,8 +653,6 @@ class IndividualFairnessView extends Component {
               sumBetweenGroupPair
             ];
 
-      console.log(groupSkewSums);
-
       // Coordinate scales
       _self.xObservedScale = d3.scaleLinear()
             .domain(d3.extent(data, (d) => Math.abs(d.scaledDiffInput)))
@@ -678,8 +676,6 @@ class IndividualFairnessView extends Component {
               .attr('transform', 'translate(570, 0)'),
             gGroupSkew = gPlot.append('g')
               .attr('transform', 'translate(690, 0)');
-
-      console.log(_self.yGroupSkewScale.domain())
 
       const xAxisSetting = d3.axisTop(_self.xObservedScale).tickSize(0).ticks(0),
             yAxisSetting = d3.axisRight(_self.yDistortionScale).tickSize(0).ticks(0),
@@ -779,8 +775,6 @@ class IndividualFairnessView extends Component {
       //         //.style('shape-rendering', 'crispEdge')
       //         .style('stroke-dasharray', '3,3')
       //         .style('stroke-width', 0.3);
-
-      console.log('data in pairwise plot: ', data);
   
       const coordsCircles = gPlot
               .selectAll('.coords_circle')
@@ -882,8 +876,6 @@ class IndividualFairnessView extends Component {
               {order: 9}
             );
 
-      console.log('fitted model: ', fitBetweenGroup);
-
       const fittedLine = d3.line()
               .x((d) => _self.xObservedScale(d[0]))
               .y((d) => _self.yDistortionScale(d[1])),
@@ -944,11 +936,6 @@ class IndividualFairnessView extends Component {
               .y(d => _self.yDistortionScale(d.x0))
               .curve(d3.curveCatmullRom);
 
-      console.log('data comparison: ', data, dataWithinGroupPair1);
-      console.log('ydistortionscale: ', _self.yDistortionScale.domain());
-      console.log('histogram data: ', histoChartWhole);
-      console.log('histogram data: ', histoChartWithinGroupPair2);
-
       gViolinPlot.selectAll(".g_violin")
           .data([ histoChartWithinGroupPair1, histoChartWithinGroupPair2, histoChartBetweenGroupPair ])
           .enter().append("g")
@@ -966,75 +953,6 @@ class IndividualFairnessView extends Component {
             else if (i+1 === 3)
               return areaBetweenGroupPair(d);
           });
-
-      // const swarm = beeswarm()
-      //         .data(_.filter(data, (d) => d.pair === 1))
-      //         .distributeOn((d) => _self.yDistortionScale(d.scaledDiffOutput - d.scaledDiffInput))
-      //         .radius(2)
-      //         .orientation('vertical')
-      //         .side('symmetric')
-      //         .arrange();
-
-      // gViolinPlot.selectAll('.beeswarm_circle')
-      //   .data(swarm)
-      //   .enter()
-      //   .append('circle')
-      //   .attr('class', 'beeswarm_circle')
-      //   .attr('cx', function(bee) {
-      //     return bee.x;
-      //   })
-      //   .attr('cy', function(bee) {
-      //     return bee.y;
-      //   })
-      //   .attr('r', 3)
-      //   .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
-      //   .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
-
-      // const swarm2 = beeswarm()
-      //         .data(_.filter(data, (d) => d.pair === 2))
-      //         .distributeOn((d) => _self.yDistortionScale(d.scaledDiffOutput - d.scaledDiffInput))
-      //         .radius(2)
-      //         .orientation('vertical')
-      //         .side('symmetric')
-      //         .arrange();
-
-      // gViolinPlot.selectAll('.beeswarm_circle2')
-      //     .data(swarm2)
-      //     .enter()
-      //     .append('circle')
-      //     .attr('class', 'beeswarm_circle2')
-      //     .attr('cx', function(bee) {
-      //       return bee.x + 30;
-      //     })
-      //     .attr('cy', function(bee) {
-      //       return bee.y;
-      //     })
-      //     .attr('r', 3)
-      //     .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
-      //     .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
-      
-      // const swarm3 = beeswarm()
-      //       .data(_.filter(data, (d) => d.pair === 3))
-      //       .distributeOn((d) => _self.yDistortionScale(d.scaledDiffOutput - d.scaledDiffInput))
-      //       .radius(2)
-      //       .orientation('vertical')
-      //       .side('symmetric')
-      //       .arrange();
-
-      // gViolinPlot.selectAll('.beeswarm_circle3')
-      //     .data(swarm3)
-      //     .enter()
-      //     .append('circle')
-      //     .attr('class', 'beeswarm_circle3')
-      //     .attr('cx', function(bee) {
-      //       return bee.x + 60;
-      //     })
-      //     .attr('cy', function(bee) {
-      //       return bee.y;
-      //     })
-      //     .attr('r', 3)
-      //     .style('fill', (bee) => _self.pairColorScale(bee.datum.pair))
-      //     .style('stroke', (bee) => d3.rgb(_self.pairColorScale(bee.datum.pair)).darker());
       
       let groupSkewRect1, groupSkewCircle1,
           idx = 1;
@@ -1108,7 +1026,32 @@ class IndividualFairnessView extends Component {
           </div>
           <div className={styles.Legend}>
             <div> {this.svgLegend.toReact()} </div>
-            {this.svgPlot.toReact()}
+            <div>
+              sort x axis by: &nbsp;
+              <Dropdown className={styles.DistortionSortingDropdown}
+                        isOpen={this.state.dropdownOpen}  size='sm' toggle={this.sortDistortion}>
+                <DropdownToggle caret>
+                  close to far
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem value='pairwiseDistance' onClick={this.handleSelectSorting}>Pairwise distance (close to far)</DropdownItem>
+                  <DropdownItem value='distortion' onClick={this.handleSelectSorting}>Distortion (small to large)</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
+            <div>
+              sort y axis by: &nbsp;
+              <Dropdown className={styles.DistortionSortingDropdown}
+                        isOpen={this.state.dropdownOpen}  size='sm' toggle={this.sortDistortion}>
+                <DropdownToggle caret>
+                  close to far
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem value='pairwiseDistance' onClick={this.handleSelectSorting}>Pairwise distance (close to far)</DropdownItem>
+                  <DropdownItem value='distortion' onClick={this.handleSelectSorting}>Distortion (small to large)</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
           </div>
           <div className={styles.DistortionPlot}> 
             <div className={index.subTitle}>Pairwise Distortions</div>

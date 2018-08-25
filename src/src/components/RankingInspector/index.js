@@ -48,14 +48,14 @@ class RankingInspector extends Component {
         end: 20
       }
     }
+
+    this.handleModelRunning = this.handleModelRunning.bind(this);
   }
 
   combineData() {
     const dataInputCoords = this.props.inputCoords,
           dataOutput = this.props.output,
           idx = _.map(dataOutput, (d) => d.idx);
-
-    console.log('inputCoords: ', dataInputCoords);
 
     let data = [];
 
@@ -77,48 +77,54 @@ class RankingInspector extends Component {
   // Calculate distortions of combinatorial pairs (For pairwise distortion plot)
   calculatePairwiseDiffs() {
     const data = this.combineData(),
-          dataPairs = pairwise(data);    
+          dataPairwiseInputDistances = this.props.pairwiseInputDistances,
+          dataPairs = pairwise(data);   
 
-    this.setScalesFromDataPairs(dataPairs);
+    console.log('dataPairs: ', dataPairs);
+    console.log('dataPairwiseInputDistances: ', dataPairwiseInputDistances)
+
+    this.setScalesFromDataPairs(dataPairwiseInputDistances, dataPairs);
 
     let dataPairwiseDiffs = [];
-    
-    dataPairwiseDiffs = _.map(dataPairs, (d) => {
-          let diffInput = Math.sqrt(Math.pow(d[0].inputCoords.dim1 - d[1].inputCoords.dim1, 2) + Math.pow(d[0].inputCoords.dim2 - d[1].inputCoords.dim2, 2)),
-              diffOutput = Math.abs(d[0].output.ranking - d[1].output.ranking),
-              pair = 0;
+    // Get difference between input space(from dataPairwiseInputDistances) and output space(from dataPairs.output.ranking)
+    for(let i=0; i<dataPairs.length-1; i++){
+      let diffInput = dataPairwiseInputDistances[i].input_dist,
+          diffOutput = Math.abs(dataPairs[i][0].output.ranking - dataPairs[i][1].output.ranking),
+          pair = 0;
 
-          if((d[0].group === 1) && (d[1].group === 1))
-            pair = 1;
-          else if((d[0].group === 2) && (d[1].group === 2))
-            pair = 2;
-          else if(d[0].group !== d[1].group)
-            pair = 3;
+      if((dataPairs[i][0].group === 1) && (dataPairs[i][1].group === 1))
+        pair = 1;
+      else if((dataPairs[i][0].group === 2) && (dataPairs[i][1].group === 2))
+        pair = 2;
+      else if(dataPairs[i][0].group !== dataPairs[i][1].group)
+        pair = 3;
 
-          return {
-            idx1: d[0].idx,
-            idx2: d[1].idx,
-            pair: pair,
-            diffInput: diffInput,
-            diffOutput: diffOutput,
-            scaledDiffInput: this.inputScale(diffInput),
-            scaledDiffOutput: this.outputScale(diffOutput)
-          }
-        });
+      dataPairwiseDiffs.push({
+        idx1: dataPairs[i][0].idx,
+        idx2: dataPairs[i][1].idx,
+        pair: pair,
+        diffInput: diffInput,
+        diffOutput: diffOutput,
+        scaledDiffInput: this.inputScale(diffInput),
+        scaledDiffOutput: this.outputScale(diffOutput)
+      });
+    }
 
     return dataPairwiseDiffs;
   }
 
   // Calculate distortions of permutational pairs (For matrix view)
   calculatePermutationPairwiseDiffs() {
-    const data = this.combineData();
-    let dataPermutationDiffs = []; // 2D-array
+    const data = this.combineData(),
+          dataPermutationInputDistances = this.props.permutationInputDistances;
+    let dataPermutationDiffs = [], 
+        input_idx = 0;
 
+    console.log('dataPermutationInputDistances: ', dataPermutationInputDistances);
     _.forEach(data, (obj1) => {
         let row = [];
         _.forEach(data, (obj2) => {
-          const diffInput = Math.sqrt(Math.pow(obj1.inputCoords.dim1 - obj2.inputCoords.dim1, 2) + 
-                         Math.pow(obj1.inputCoords.dim2 - obj2.inputCoords.dim2, 2)),
+          const diffInput = dataPermutationInputDistances[input_idx].input_dist,
                 diffOutput = Math.abs(obj1.output.ranking - obj2.output.ranking);
           let pair = 0;
 
@@ -128,6 +134,11 @@ class RankingInspector extends Component {
               pair = 2;
             else if(obj1.group !== obj2.group)
               pair = 3;
+          
+          if(dataPermutationInputDistances[input_idx].idx1 !== obj1.idx)
+            console.log('false for idx1')
+          if(dataPermutationInputDistances[input_idx].idx2 !== obj2.idx)
+            console.log('false for idx2')
           
           row.push({
             idx1: obj1.idx,
@@ -140,26 +151,36 @@ class RankingInspector extends Component {
             x1: obj1.output['credit_amount'],
             x2: obj2.output['age']
           });
+
+          input_idx++;
         });
         dataPermutationDiffs.push(row);
     });
 
+    console.log('dataPermutationDiffs: ', dataPermutationDiffs);
+
     return dataPermutationDiffs;
   }
 
-  setScalesFromDataPairs(dataPairs){
+  setScalesFromDataPairs(dataPairwiseInputDistances, dataPairs){
     this.inputScale = d3.scaleLinear()
-        .domain(d3.extent(dataPairs, (d) => 
-            Math.sqrt(Math.pow(d[0].inputCoords.dim1 - d[1].inputCoords.dim1, 2) + 
-                      Math.pow(d[0].inputCoords.dim2 - d[1].inputCoords.dim2, 2))
-                    )
-        )
+        .domain(d3.extent(dataPairwiseInputDistances, (d) => d.input_dist))
         .range([0, 1]);
     this.outputScale = d3.scaleLinear()
         .domain(d3.extent(dataPairs, (d) => 
             Math.abs(d[0].output.ranking - d[1].output.ranking))
         )
         .range([0, 1]);
+  }
+
+  handleModelRunning(rankingInstance) {
+    console.log('on the way up: ', rankingInstance);
+
+    // Check all parameters so that we send all we need to run a model
+
+
+    
+    this.props.onRunningModel(rankingInstance)
   }
 
   render() {
@@ -170,10 +191,6 @@ class RankingInspector extends Component {
         selectedDataset = this.props.selectedDataset,
         sensitiveAttr = this.props.sensitiveAttr,
         output = this.props.output;
-
-    console.log(this.props);
-    console.log('sensitiveAttr: ', sensitiveAttr);
-    console.log('output: ', output);
           
     let idx = _.map(selectedDataset, (d) => d.idx),
           x = _.map(selectedDataset, (d) => _.pick(d, [...selectedFeatures, 'idx'])),
@@ -221,7 +238,9 @@ class RankingInspector extends Component {
 
     return (
       <div className={styles.RankingInspector}>
-        <Generator className={styles.Generator} />
+        <Generator className={styles.Generator} 
+                   wholeDataset={this.props.wholeDataset} 
+                   onRunningModel={this.handleModelRunning}/>
         <RankingView topk={this.props.topk} ranking={this.props.ranking} output={this.props.output} />
         <InputSpaceView inputCoords={this.props.inputCoords} className={styles.InputSpaceView} />
         <GroupFairnessView data={dataGroupFairnessView}

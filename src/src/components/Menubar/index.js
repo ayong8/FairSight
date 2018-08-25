@@ -20,13 +20,19 @@ class Menubar extends Component {
     this.setState({
       dropdownOpen: !this.state.dropdownOpen
     });
+
+    //this.props.onSelectSensitiveAttr(sensitiveAttr); // Then declare it 
   }
 
   render() {
+
     return (
       <div className={styles.Generator}>
         <div className={styles.appTitle}>FAIRSIGHT</div>
-        <div className={styles.addDataset}>Dataset</div>
+        <div className={styles.addDataset}>
+          <div className={styles.addDatasetTitle}>Dataset</div>
+          <Badge className={styles.currentDataset} color="success" pill>german.csv</Badge>
+        </div>
         <div className={styles.addRanking}>+</div>
         <div className={styles.ranking}>R3</div>
         <div className={styles.margin}></div>

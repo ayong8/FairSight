@@ -12,3 +12,15 @@ html {
 .rangeslider-horizontal .rangeslider__fill {
   background-color: blue;
 }
+
+.dropdown-toggle {
+  width: 90%;
+}
+.dropdown-toggle,
+.dropdown-toggle:hover,
+.dropdown-toggle:active,
+.dropdown-toggle:focus,
+.dropdown-toggle::after {
+  background-color: white !important;
+  color: #003569 !important;
+}

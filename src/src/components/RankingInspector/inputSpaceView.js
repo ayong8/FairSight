@@ -36,7 +36,6 @@ class InputSpaceView extends Component {
 
     render() {
         const data = _.toArray(this.props.inputCoords);
-        console.log('data in inputspaceview: ', data);
 
         const svg = new ReactFauxDOM.Element('svg');
 

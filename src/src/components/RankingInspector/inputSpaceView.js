@@ -15,6 +15,8 @@ class InputSpaceView extends Component {
         this.state = {
             value2: 2.5
         };
+
+        this.hoverCircles = this.hoverCircles.bind(this);
     }
 
     getChangeHandler(key) {
@@ -32,6 +34,23 @@ class InputSpaceView extends Component {
         svgFeatureTable.style.setProperty('border', '1px solid #dfdfdf');
 
         d3.select(svgFeatureTable)
+    }
+
+    hoverCircles(d) {
+      console.log(d.idx);
+      this.props.onMouseoverInstance(d.idx);
+
+      // // Highlight circle
+      // d3.select(this)
+      //   .style('stroke-width', 2);
+    }
+
+    renderSelectedInstance() {
+      let selectedInstanceIdx = this.props.selectedInstance;
+
+      return (
+        <div>{selectedInstanceIdx}</div>
+      );
     }
 
     render() {
@@ -73,55 +92,62 @@ class InputSpaceView extends Component {
                     : gs.groupColor2;
             })
             .style('stroke', 'darkgray')
-            .style('opacity', 0.7);
+            .style('opacity', 0.7)
+            .on('mouseover', this.hoverCircles);
+
+        d3.select(svg)
+            .selectAll('.item')
+            .filter((d) => d.idx === this.state.selectedInstance)
+            .style('fill', 'red');
+        
 
         return (
-            <div className={styles.InputSpaceView}>
-                <div className={index.title}>Input space</div>
-                <div className={styles.IndividualPlotStatusView}>
-                    {svg.toReact()}
-                    <div className={styles.IndividualStatus}>Selected individual(pair) </div>
-                </div>
-                <div className={styles.FeatureTableView}>
-                    <div className={index.title}>Features</div>
-                    <Table borderless className={styles.FeatureTable}>
-                        <thead>
-                            <tr>
-                                <th>Features</th>
-                                <th>Custom weight</th>
-                                <th>Weight from model</th>
-                            </tr>
-                        </thead>
-                        <tbody className={styles.FeatureTableTbody}>
-                            <tr>
-                                <td>Age</td>
-                                <td>
-                                    <Slider
-                                        min={0}
-                                        max={10}
-                                        stepSize={0.1}
-                                        labelStepSize={10}
-                                        onChange={this.getChangeHandler("value2")}
-                                        value={3}
-                                    //vertical={vertical}
-                                    />
-                                </td>
-                                <td>
-                                    <Tag
-                                        key='+1.15'
-                                        //onRemove={removable && onRemove}
-                                        //icon={icon === true ? "home" : undefined}
-                                        //rightIcon={rightIcon === true ? "map" : undefined}
-                                        minimal={true}
-                                    >
-                                        {'+1.15'}
-                                    </Tag>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </Table>
-                </div>
+          <div className={styles.InputSpaceView}>
+            <div className={index.title}>Input space</div>
+            <div className={styles.IndividualPlotStatusView}>
+                {svg.toReact()}
+                <div className={styles.IndividualStatus}>{this.renderSelectedInstance()}</div>
             </div>
+            <div className={styles.FeatureTableView}>
+              <div className={index.title}>Features</div>
+              <Table borderless className={styles.FeatureTable}>
+                <thead>
+                  <tr>
+                      <th>Features</th>
+                      <th>Custom weight</th>
+                      <th>Weight from model</th>
+                  </tr>
+                </thead>
+                <tbody className={styles.FeatureTableTbody}>
+                  <tr>
+                    <td>Age</td>
+                    <td>
+                      <Slider
+                          min={0}
+                          max={10}
+                          stepSize={0.1}
+                          labelStepSize={10}
+                          onChange={this.getChangeHandler("value2")}
+                          value={3}
+                      //vertical={vertical}
+                      />
+                    </td>
+                    <td>
+                      <Tag
+                          key='+1.15'
+                          //onRemove={removable && onRemove}
+                          //icon={icon === true ? "home" : undefined}
+                          //rightIcon={rightIcon === true ? "map" : undefined}
+                          minimal={true}
+                      >
+                          {'+1.15'}
+                      </Tag>
+                    </td>
+                  </tr>
+                </tbody>
+              </Table>
+            </div>
+          </div>
         );
     }
 

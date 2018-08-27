@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
+import { Steps} from 'antd';
 
 import Generator from './Generator';
 import InputSpaceView from './inputSpaceView';
@@ -13,6 +14,8 @@ import UtilityView from './utilityView';
 import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss'; // gs (=global style)
+
+const Step = Steps.Step;
 
 _.rename = function(obj, key, newKey) {
   
@@ -42,7 +45,7 @@ class RankingInspector extends Component {
     this.outputScale;
 
     this.state = {
-      selectedIndividual: 2, // idx
+      selectedInstance: 1, // idx
       selectedRankingInterval: {
         start: 10,
         end: 20
@@ -50,6 +53,7 @@ class RankingInspector extends Component {
     }
 
     this.handleModelRunning = this.handleModelRunning.bind(this);
+    this.handleMouseoverInstance = this.handleMouseoverInstance.bind(this);
   }
 
   combineData() {
@@ -148,8 +152,8 @@ class RankingInspector extends Component {
             diffOutput: diffOutput,
             scaledDiffInput: this.inputScale(diffInput),
             scaledDiffOutput: this.outputScale(diffOutput),
-            x1: obj1.output['credit_amount'],
-            x2: obj2.output['age']
+            x1: obj1.output,
+            x2: obj2.output
           });
 
           input_idx++;
@@ -181,6 +185,12 @@ class RankingInspector extends Component {
 
     
     this.props.onRunningModel(rankingInstance)
+  }
+
+  handleMouseoverInstance(idx) {
+    this.setState({
+      selectedInstance: idx
+    });
   }
 
   render() {
@@ -238,11 +248,19 @@ class RankingInspector extends Component {
 
     return (
       <div className={styles.RankingInspector}>
+        <Steps progressDot current={2} className={styles.ProcessIndicator}>
+          <Step title="Input" description="This is a description."/>
+          <Step title="Distortion" description="Distortion generated"/>
+          <Step title="Output" />
+        </Steps>
         <Generator className={styles.Generator} 
                    wholeDataset={this.props.wholeDataset} 
                    onRunningModel={this.handleModelRunning}/>
         <RankingView topk={this.props.topk} ranking={this.props.ranking} output={this.props.output} />
-        <InputSpaceView inputCoords={this.props.inputCoords} className={styles.InputSpaceView} />
+        <InputSpaceView className={styles.InputSpaceView}
+                        inputCoords={this.props.inputCoords}
+                        selectedInstance={this.state.selectedInstance} 
+                        onMouseoverInstance={this.handleMouseoverInstance} />
         <GroupFairnessView data={dataGroupFairnessView}
                            output={this.props.output} 
                            topk={this.props.topk} 

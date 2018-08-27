@@ -1,8 +1,7 @@
 import React, { Component } from "react";
-import { Alert, Button, FormGroup, FormText, Input, Label, Badge,
+import { Alert, Button, FormGroup, FormText, Input, Label,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { TreeSelect } from 'antd';
-import Slider from 'react-rangeslider';
+import { TreeSelect, Slider, InputNumber, Badge } from 'antd';
 
 import styles from "./styles.scss";
 
@@ -24,7 +23,8 @@ class Generator extends Component {
         features: [],
         target: '',
         method: ''
-      }
+      },
+      topkInput: 0
     };
 
     this.toggleSensitiveAttrDropdown = this.toggleSensitiveAttrDropdown.bind(this);
@@ -79,15 +79,25 @@ class Generator extends Component {
     this.props.onRunningModel(this.state.rankingInstance);
   }
 
+  onTopkChange = (value) => {
+    this.setState({
+      topkInput: value,
+    });
+  }
+
   render() {
     let wholeDataset = this.props.wholeDataset,
         features = wholeDataset;  // Extract keys
 
     return (
       <div className={styles.Generator}>
+        <div className={styles.generatorTitle}>
+          <Badge status="success" text='Generator'/>
+          <br />
+        </div>
         {/* // Sensitive Attribute selector */}
         <div className={styles.selectSensitiveAttr}>Sensitive attribute</div>
-        <Dropdown size='sm' className={styles.sensitiveAttrDropdown} isOpen={this.state.sensitiveAttrDropdownOpen} toggle={this.toggleSensitiveAttrDropdown}>
+        <Dropdown className={styles.sensitiveAttrDropdown} isOpen={this.state.sensitiveAttrDropdownOpen} toggle={this.toggleSensitiveAttrDropdown}>
           <DropdownToggle caret>
           Features
           </DropdownToggle>
@@ -98,6 +108,7 @@ class Generator extends Component {
         {/* // Feature selector */}
         <div className={styles.selectFeatures}>Features</div>
         <TreeSelect
+          className={styles.featureSelector}
           showSearch
           style={{ width: 300 }}
           value={this.state.value}
@@ -119,7 +130,7 @@ class Generator extends Component {
         </TreeSelect>
         {/* // Method selector */}
         <div className={styles.selectMethod}>Method</div>
-        <Dropdown size='sm' isOpen={this.state.methodDropdownOpen} toggle={this.toggleMethodDropdown}>
+        <Dropdown isOpen={this.state.methodDropdownOpen} toggle={this.toggleMethodDropdown}>
           <DropdownToggle caret>
             Methods
           </DropdownToggle>
@@ -129,6 +140,16 @@ class Generator extends Component {
             <DropdownItem>Logistic Regression</DropdownItem>
           </DropdownMenu>
         </Dropdown>
+        <div className={styles.topkSelector}>
+          <Slider min={1} max={20} onChange={this.onTopkChange} value={this.state.topkInput} />
+          <InputNumber
+            min={1}
+            max={20}
+            style={{ marginLeft: 16 }}
+            value={this.state.topkInput}
+            onChange={this.onTopkChange}
+          />
+        </div>
         <div className={styles.runButtonWrapper}>
           <Button className={styles.buttonGenerateRanking} color="danger" onClick={this.handleClickRun}>RUN</Button>
         </div>

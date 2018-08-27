@@ -80,6 +80,17 @@ class RankingView extends Component {
             .attr('class', 'g_whole_ranking')
             .attr('transform', 'translate(' + (_self.layout.rankingPlot.width * xTopKRatio + _self.layout.rankingPlot.margin) + ',' + '0)');
 
+      // // setup the bar-chart with dc.js
+      // let chart = dc.barChart(_self.el)
+      //     .width(700)
+      //     .height(100)
+      //     .useViewBoxResizing(true)
+      //     .margins(3)
+      //     .x(xRectWholeRankingScale)
+      //     .yAxis(yAxis)
+      //     .dimension([1,2,3])
+      //     .group([{  }]);
+
       gTopKRanking.selectAll('.rect_topk')
         .data(dataTopK)
         .enter().append('rect')

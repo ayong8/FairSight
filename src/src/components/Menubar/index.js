@@ -1,7 +1,9 @@
 import React, { Component } from "react";
-import { Alert, Button, FormGroup, FormText, Input, Label, Badge,
+import { Alert, FormGroup, FormText, Input, Label, Badge,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import Slider from 'react-rangeslider';
+import { Button } from 'antd';
+
 import styles from "./styles.scss";
 
 class Menubar extends Component {
@@ -25,16 +27,20 @@ class Menubar extends Component {
   }
 
   render() {
-
     return (
       <div className={styles.Generator}>
         <div className={styles.appTitle}>FAIRSIGHT</div>
         <div className={styles.addDataset}>
-          <div className={styles.addDatasetTitle}>Dataset</div>
+          <span className={styles.addDatasetTitle}>Dataset</span>
           <Badge className={styles.currentDataset} color="success" pill>german.csv</Badge>
         </div>
-        <div className={styles.addRanking}>+</div>
-        <div className={styles.ranking}>R3</div>
+        <div className={styles.addRanking}>
+          <Button>+</Button>
+        </div>
+        <div className={styles.ranking}>
+          Current ranking: &nbsp;
+          <Badge className={styles.currentRanking} color="success" pill>R3</Badge>
+        </div>
         <div className={styles.margin}></div>
         {/* <div className={styles.GeneratorNavBar}>
           <div className={styles.navBarDataset}>Dataset</div>

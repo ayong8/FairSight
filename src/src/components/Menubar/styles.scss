@@ -6,7 +6,7 @@
     width: 100%;
 
     display: grid;
-    grid-template-columns: 12% 5% 4% 5% 63%;
+    grid-template-columns: 12% 5% 4% 15% 63%;
     grid-template-rows: 100%;
     grid-template-areas: 
       't d a r m2';
@@ -16,8 +16,9 @@
     //text-transform: uppercase;
     font-size: 12px;
 
-    background-color: #003569;
-    color: white;
+    background-color: #ffffff;
+    color: #003569;
+    border-bottom: 1px solid #cccccc;
 
     .appTitle {
       grid-area: t;
@@ -32,10 +33,7 @@
     .addDataset {
       grid-area: d;
       align-items: center;
-      justify-content: center;
-      background-color: #45a3ff;
       padding: 9px 9px;
-      border: 2px solid white;
 
       display: grid;
       .addDatasetTitle {
@@ -58,10 +56,6 @@
       grid-area: r;
       justify-self: center;
       padding: 17px 20px;
-      background-color: #0055a9;
-      border-right: 2px solid white;
-      border-top: 1px solid white;
-      border-left: 2px solid white;
     }
     .margin2 {
       grid-area: m2;

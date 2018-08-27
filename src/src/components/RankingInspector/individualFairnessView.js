@@ -41,9 +41,17 @@ class IndividualFairnessView extends Component {
       this.cellColorDistortionScale;
       this.sumDistortionScale;
 
+      this.dataPermutationDiffs = [];
+
       this.state = {
         dropdownOpen: false,
-        sortBy: 'close to far'
+        sortMatrixXdropdownOpen: false,
+        sortMatrixYdropdownOpen: false,
+        sortBy: 'close to far',
+        sortMatrixXBy: 'distortion',
+        sortMatrixYBy: 'distortion',
+        sortMatrixXdropdownValue: 'features',
+        sortMatrixYdropdownValue: 'features'
       };
 
       this.svg;
@@ -110,13 +118,56 @@ class IndividualFairnessView extends Component {
         }
       };
 
+      this.handleToggleMatrixX = this.handleToggleMatrixX.bind(this);
+      this.handleToggleMatrixY = this.handleToggleMatrixY.bind(this);
       this.sortDistortion = this.sortDistortion.bind(this);
       this.handleSelectSorting = this.handleSelectSorting.bind(this);
+      this.handleSortingMatrixX = this.handleSortingMatrixX.bind(this);
+      this.handleSortingMatrixY = this.handleSortingMatrixY.bind(this);
   
+    }
+
+    componentDidMount() {
+      this.setState({
+        sortMatrixXBy: 'credit_amount',
+        sortMatrixYBy: 'sex'
+      });
     }
   
     componentWillMount() {
 
+    }
+
+    renderMatrixXDropdownSelections() {
+      let data = this.props.data;
+
+      let allFeatures = Object.keys(data[0].x),
+          distortionSelection = 'distortion',
+          sumDistortionSelection = 'sum of distortions';
+      allFeatures.push(distortionSelection, sumDistortionSelection);
+
+      return allFeatures.map((feature) => 
+          (<DropdownItem 
+              value={feature} 
+              onClick={this.handleSortingMatrixX}>
+              {feature}
+          </DropdownItem>));
+    }
+
+    renderMatrixYDropdownSelections() {
+      let data = this.props.data;
+
+      let allFeatures = Object.keys(data[0].x),
+          distortionSelection = 'distortion',
+          sumDistortionSelection = 'sum of distortions';
+      allFeatures.push(distortionSelection, sumDistortionSelection);
+
+      return allFeatures.map((feature) => 
+          (<DropdownItem 
+              value={feature} 
+              onClick={this.handleSortingMatrixY}>
+              {feature}
+          </DropdownItem>));
     }
 
     renderPlot() {
@@ -192,6 +243,7 @@ class IndividualFairnessView extends Component {
       _self.svgMatrix.setAttribute('height', _self.layout.svgMatrix.height);
       _self.svgMatrix.setAttribute('0 0 200 200');
       _self.svgMatrix.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      _self.svgMatrix.setAttribute('class', 'svg_matrix');
       _self.svgMatrix.style.setProperty('margin', '0 5%');
 
       let data = this.props.data,
@@ -202,43 +254,38 @@ class IndividualFairnessView extends Component {
           distortionMin = d3.extent(dataPermutationDiffsFlattened, (d) => d.scaledDiffOutput - d.scaledDiffInput)[0],
           distortionMax = d3.extent(dataPermutationDiffsFlattened, (d) => d.scaledDiffOutput - d.scaledDiffInput)[1];
       
+      _self.dataPermutationDiffs = dataPermutationDiffs,
       this.calculateSumDistortion(data, dataPermutationDiffsFlattened);
 
       // For x and y axis
       let dataX = [...data],
-          dataY = [...data];
-        
+          dataY = [...data],
+          sortMatrixXBy = 'credit_amount',
+          sortMatrixYBy = 'sex';
+
       //*** Sort
       // Sort x or y data (Sort by the feature & add sorting index)
       const sortedFeatureX = _.chain(dataX)
-              .sortBy('x.' + _self.xSelectedFeature)
+              .sortBy('x.' + sortMatrixXBy)
               .forEach((d, i) => {
                 d.xSortingIdx = i + 1;
               })
               .value(),
             sortedFeatureY = _.chain(dataY)
-              .sortBy('x.' + _self.ySelectedFeature)
+              .sortBy('x.' + sortMatrixYBy)
               .forEach((d, i) => {
                 d.ySortingIdx = i + 1;
               })
               .value();
-      
-      // Assign the sorting index to matrix data
-      for(let i=0; i<dataX.length; i++){
-        for(let j=0; j<dataX.length; j++){
-          dataPermutationDiffs[i][j].xSortingIdx = sortedFeatureX[i].xSortingIdx;
-          dataPermutationDiffs[i][j].ySortingIdx = sortedFeatureY[j].ySortingIdx;
-        }
-      }
 
       //*** Sort feature plot */
       dataPermutationDiffsFlattened = _.flatten(dataPermutationDiffs);
       
       _self.xMatrixScale = d3.scaleBand()
-          .domain(_.map(dataX, (d) => d.idx))  // For now, it's just an index of items(from observed)
+          .domain(_.map(sortedFeatureX, (d) => d.xSortingIdx))  // For now, it's just an index of items(from observed)
           .range([0, _self.layout.svgMatrix.matrixPlot.width]),
       _self.yMatrixScale = d3.scaleBand()
-          .domain(_.map(dataY, (d) => d.idx))  // For now, it's just an index of items(from observed)
+          .domain(_.map(sortedFeatureY, (d) => d.ySortingIdx))  // For now, it's just an index of items(from observed)
           .range([_self.layout.svgMatrix.matrixPlot.height, 0]),
       _self.cellWidth = _self.xMatrixScale.bandwidth(),
       _self.cellHeight = _self.yMatrixScale.bandwidth(),
@@ -258,12 +305,12 @@ class IndividualFairnessView extends Component {
       let gMatrix = d3.select(_self.svgMatrix).append('g')
               .attr('class', 'g_matrix')
               .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',0)'),
-          gCells = gMatrix.selectAll('.g_row')
+          gCells = gMatrix.selectAll('.g_cell')
               .data(dataPermutationDiffsFlattened)
               .enter().append('g')
-              .attr('class', 'g_row')
+              .attr('class', 'g_cell')
               .attr('transform', function(d){
-                return 'translate(' + _self.xMatrixScale(d.xSortingIdx) + ',' + _self.yMatrixScale(d.ySortingIdx) + ')';
+                return 'translate(' + _self.xMatrixScale(d.idx1) + ',' + _self.yMatrixScale(d.idx2) + ')';
               }),
           gAttrPlotLeft = d3.select(_self.svgMatrix).append('g')
               .attr('class', 'g_attr_plot_x')
@@ -556,10 +603,164 @@ class IndividualFairnessView extends Component {
           .style('font-size', '11px');  
     }
 
+    handleToggleMatrixX() {
+      this.setState(prevState => ({
+        sortMatrixXdropdownOpen: !prevState.sortMatrixXdropdownOpen
+      }));
+    }
+
+    handleToggleMatrixY() {
+      this.setState(prevState => ({
+        sortMatrixYdropdownOpen: !prevState.sortMatrixYdropdownOpen
+      }));
+    }
+
     sortDistortion() {
       this.setState(prevState => ({
         dropdownOpen: !prevState.dropdownOpen
       }));
+    }
+
+    handleSortingMatrixX(e) {
+      let _self = this;
+
+      let sortMatrixXBy = e.target.value,
+          data = this.props.data,
+          dataPermutationDiffs = this.dataPermutationDiffs;
+
+      console.log('matrix x sorted by: ', sortMatrixXBy);
+      console.log('data: ', data);
+
+      const sortedX = _.chain(data)
+              .sortBy('x.' + sortMatrixXBy)
+              .forEach((d, i) => {
+                d.xSortingIdx = i + 1;
+              })
+              .value();
+      
+      console.log('sorted data: ', sortedX);
+      _self.xMatrixScale.domain(
+          _.map(_.sortBy(sortedX, 'idx'), (d) => 
+              d.xSortingIdx
+          ));
+      _self.xAttributeScale.domain(
+          d3.extent(_.map(data, (d) => 
+              d.x[sortMatrixXBy])
+          ));
+
+      this.setState({ 
+        sortMatrixXBy: e.target.value,
+        sortMatrixXdropdownValue: sortMatrixXBy
+      });
+
+      let dataPermutationDiffsFlattened = _.flatten(dataPermutationDiffs);
+
+      // For matrix cells
+      d3.selectAll('.g_cell')
+          .data(dataPermutationDiffsFlattened)
+          .transition()
+          .duration(750)
+          .attr('transform', (d) =>
+            'translate(' + _self.xMatrixScale(d.idx1) + ',' + _self.yMatrixScale(d.idx2) + ')'
+          );
+
+      // Bottom
+      // For Attribute plot on the bottom
+      d3.selectAll('.attr_rect_bottom')
+          .data(sortedX)
+          .transition()
+          .duration(750)
+          .attr('x', (d) => _self.xMatrixScale(d.idx))
+          .attr('fill', (d) => _self.xAttributeScale(d.x[sortMatrixXBy]));
+
+      d3.selectAll('.pair_rect_bottom')
+          .data(sortedX)
+          .transition()
+          .duration(750)
+          .attr('x', (d) => _self.xMatrixScale(d.idx));
+
+      // For sum distortion plot on the bottom
+      d3.selectAll('.sum_distortion_rect_bottom')
+          .data(sortedX)
+          .transition()
+          .duration(750)
+          .attr('x', (d) => _self.xMatrixScale(d.idx) + _self.cellWidth / 2);
+
+      d3.selectAll('.sum_distortion_circle_bottom')
+          .data(sortedX)
+          .transition()
+          .duration(750)
+          .attr('cx', (d) => _self.xMatrixScale(d.idx) + _self.cellWidth / 2);
+    }
+
+    handleSortingMatrixY(e) {
+      let _self = this;
+
+      let sortMatrixYBy = e.target.value,
+          data = this.props.data,
+          dataPermutationDiffs = this.dataPermutationDiffs;
+
+      console.log('matrix x sorted by: ', sortMatrixYBy);
+      console.log('data: ', data);
+
+      const sortedY = _.chain(data)
+              .sortBy('x.' + sortMatrixYBy)
+              .forEach((d, i) => {
+                d.ySortingIdx = i + 1;
+              })
+              .value();
+      
+      _self.yMatrixScale.domain(
+          _.map(_.sortBy(sortedY, 'idx'), (d) => 
+              d.ySortingIdx
+          ));
+      _self.yAttributeScale.domain(
+          d3.extent(_.map(data, (d) => 
+              d.x[sortMatrixYBy])
+          ));
+
+      this.setState({ 
+        sortMatrixYBy: e.target.value,
+        sortMatrixYdropdownValue: sortMatrixYBy
+      });
+
+      let dataPermutationDiffsFlattened = _.flatten(dataPermutationDiffs);
+
+      d3.selectAll('.g_cell')
+          .data(dataPermutationDiffsFlattened)
+          .transition()
+          .duration(750)
+          .attr('transform', (d) =>
+            'translate(' + _self.xMatrixScale(d.idx1) + ',' + _self.yMatrixScale(d.idx2) + ')'
+          );
+
+      // Bottom
+      // For Attribute plot on the bottom
+      d3.selectAll('.attr_rect_left')
+          .data(sortedY)
+          .transition()
+          .duration(750)
+          .attr('y', (d) => _self.yMatrixScale(d.idx))
+          .attr('fill', (d) => _self.yAttributeScale(d.x[ sortMatrixYBy ]));
+
+      d3.selectAll('.pair_rect_left')
+          .data(sortedY)
+          .transition()
+          .duration(750)
+          .attr('y', (d) => _self.yMatrixScale(d.idx));
+
+      // For sum distortion plot on the bottom
+      d3.selectAll('.sum_distortion_rect_left')
+          .data(sortedY)
+          .transition()
+          .duration(750)
+          .attr('y', (d) => _self.yMatrixScale(d.idx) + _self.cellWidth / 2);
+
+      d3.selectAll('.sum_distortion_circle_left')
+          .data(sortedY)
+          .transition()
+          .duration(750)
+          .attr('cy', (d) => _self.yMatrixScale(d.idx) + _self.cellWidth / 2);
     }
 
     handleSelectSorting(e) {
@@ -568,22 +769,23 @@ class IndividualFairnessView extends Component {
       this.setState({ sortBy: e.target.value });
 
       let sortBy = e.target.value,
-          data = this.combinedCoordsData,
+          data = this.props.data,
           transition = d3.transition().duration(750);
 
+      console.log('data...: ', data);
       if(sortBy === 'distortion') {
-        _self.xObservedScale.domain(d3.extent(data, (d) => d.y1 - d.y0));
+        _self.xObservedScale.domain(d3.extent(data, (d) => d.scaledDiffOutput - d.scaledDiffInput));
 
         transition.select('.indi_x_axis').call(d3.axisTop(_self.xObservedScale).tickSize(0));
         d3.selectAll('.coords_circle')
                 .data(data)
                 .transition(transition)
-                .attr('cx', (d) => _self.xObservedScale(d.y1 - d.y0));
+                .attr('cx', (d) => _self.xObservedScale(d.scaledDiffOutput - d.scaledDiffInput));
 
         d3.selectAll('.coords_rect')
                 .data(data)
                 .transition(transition)
-                .attr('x', (d) => _self.xObservedScale(d.y1 - d.y0));
+                .attr('x', (d) => _self.xObservedScale(d.scaledDiffOutput - d.scaledDiffInput));
       } else if(sortBy === 'pairwiseDistance') {
         _self.xObservedScale.domain(d3.extent(data, (d) => d.x0));
 
@@ -629,6 +831,7 @@ class IndividualFairnessView extends Component {
       _self.svg.setAttribute('height', _self.layout.svg.height);
       _self.svg.setAttribute('0 0 200 200');
       _self.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      _self.svg.setAttribute('transform', 'translate(0,30)');
       _self.svg.style.setProperty('margin', '0 10px');
   
       let data = _self.props.pairwiseDiffs;
@@ -1008,53 +1211,47 @@ class IndividualFairnessView extends Component {
       return (
         <div className={styles.IndividualFairnessView}>
           <div className={index.title + ' ' + styles.individualFairnessViewTitle}>Distortions</div>
-          <div className={styles.IndividualFairnessViewBar}>
-            sort by: &nbsp;
-            <Dropdown direction='down' className={styles.DistortionSortingDropdown} isOpen={this.state.dropdownOpen}  size='sm' toggle={this.sortDistortion}>
-              <DropdownToggle caret>
-                close to far
-              </DropdownToggle>
-              <DropdownMenu>
-                <DropdownItem value='pairwiseDistance' onClick={this.handleSelectSorting}>Pairwise distance (close to far)</DropdownItem>
-                <DropdownItem value='distortion' onClick={this.handleSelectSorting}>Distortion (small to large)</DropdownItem>
-              </DropdownMenu>
-            </Dropdown>
-          </div>
           <div className={styles.MatrixView}> 
             <div className={index.subTitle}>Individual Distortions</div>
-            {this.svgMatrix.toReact()} 
-          </div>
-          <div className={styles.Legend}>
-            <div> {this.svgLegend.toReact()} </div>
-            <div>
-              sort x axis by: &nbsp;
-              <Dropdown className={styles.DistortionSortingDropdown}
-                        isOpen={this.state.dropdownOpen}  size='sm' toggle={this.sortDistortion}>
+            <div className={styles.matrixDropdownWrapper}>
+              <span>Sort x axis by: &nbsp;</span>
+              <Dropdown className={styles.sortMatrixXdropdown}
+                        isOpen={this.state.sortMatrixXdropdownOpen}  size='sm' toggle={this.handleToggleMatrixX}>
                 <DropdownToggle caret>
-                  close to far
+                  {this.state.sortMatrixXdropdownValue}
                 </DropdownToggle>
                 <DropdownMenu>
-                  <DropdownItem value='pairwiseDistance' onClick={this.handleSelectSorting}>Pairwise distance (close to far)</DropdownItem>
-                  <DropdownItem value='distortion' onClick={this.handleSelectSorting}>Distortion (small to large)</DropdownItem>
+                  {this.renderMatrixXDropdownSelections()}
+                </DropdownMenu>
+              </Dropdown>
+              <span>Sort y axis by: &nbsp;</span>
+              <Dropdown className={styles.sortMatrixYdropdown}
+                        isOpen={this.state.sortMatrixYdropdownOpen}  size='sm' toggle={this.handleToggleMatrixY}>
+                <DropdownToggle caret>
+                  {this.state.sortMatrixYdropdownValue}
+                </DropdownToggle>
+                <DropdownMenu>
+                  {this.renderMatrixYDropdownSelections()}
                 </DropdownMenu>
               </Dropdown>
             </div>
-            <div>
-              sort y axis by: &nbsp;
-              <Dropdown className={styles.DistortionSortingDropdown}
-                        isOpen={this.state.dropdownOpen}  size='sm' toggle={this.sortDistortion}>
-                <DropdownToggle caret>
-                  close to far
-                </DropdownToggle>
-                <DropdownMenu>
-                  <DropdownItem value='pairwiseDistance' onClick={this.handleSelectSorting}>Pairwise distance (close to far)</DropdownItem>
-                  <DropdownItem value='distortion' onClick={this.handleSelectSorting}>Distortion (small to large)</DropdownItem>
-                </DropdownMenu>
-              </Dropdown>
-            </div>
+            {this.svgMatrix.toReact()}
+            {this.svgLegend.toReact()}
           </div>
           <div className={styles.DistortionPlot}> 
             <div className={index.subTitle}>Pairwise Distortions</div>
+            <div className={styles.IndividualFairnessViewBar}>
+              sort by: &nbsp;
+              <Dropdown direction='down' className={styles.DistortionSortingDropdown} isOpen={this.state.dropdownOpen}  size='sm' toggle={this.sortDistortion}>
+                <DropdownToggle caret>
+                  close to far
+                </DropdownToggle>
+                <DropdownMenu>
+                  <DropdownItem value='pairwiseDistance' onClick={this.handleSelectSorting}>Pairwise distance (close to far)</DropdownItem>
+                  <DropdownItem value='distortion' onClick={this.handleSelectSorting}>Distortion (small to large)</DropdownItem>
+                </DropdownMenu>
+              </Dropdown>
+            </div>
             {this.svg.toReact()}
           </div>
         </div>

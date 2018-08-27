@@ -6,6 +6,7 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import { Button } from 'reactstrap';
 import styles from "./styles.scss";
+import 'antd/dist/antd.css';
 
 import Footer from "components/Footer";
 import Menubar from 'components/Menubar';

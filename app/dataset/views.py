@@ -195,7 +195,6 @@ class RunSVM(APIView):
         return Response(weighted_X.to_json(orient='index'))
 
     def post(self, request, format=None):
-        print('post data: ', request)
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
         dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
@@ -224,10 +223,7 @@ class RunSVM(APIView):
         scaled_sum = min_max_scaler.fit_transform(weighted_X['weighted_sum'].values.reshape(-1, 1))
         weighted_X['score'] = scaled_sum * 100
         weighted_X = weighted_X.sort_values(by='score', ascending=False)
-        print(weighted_X)
-
         weighted_X['ranking'] = range(1, len(weighted_X) + 1)
-        print(weighted_X)
 
         return Response(weighted_X.to_json(orient='index'))
 
@@ -326,13 +322,9 @@ class CalculatePairwiseInputDistance(APIView):
                         'salary':[3000.0,1200.0 ,32000.0,1800.0 ,2900.0 ,1100.0 ,10000.0,1500.0,None],
                         'has_children':[1,0,1,1,1,0,0,1,None],
                         'available_credit':[2200,100,22000,1100,2000,100,6000,2200,None]})
-
-        print(dataset_gower_distance)
         
         pairwise_distances = gower_distances(dataset_gower_distance)
         result = gower_distances(X)
-
-        print(pairwise_distances)
 
         # Convert 2d array to a list of pairwise dictionaries
         # Index starting from 1
@@ -353,9 +345,12 @@ class CalculatePairwiseInputDistance(APIView):
                         'input_dist': np.asscalar(pairwise_distances[i][j])
                     })
 
-        print(pairwise_distances_list)
-
         json_combined = simplejson.dumps({'pairwiseDistances': pairwise_distances_list, 'permutationDistances': permutation_distances_list})
 
         return Response(json_combined)
 
+class CalculatePredictionIntervalandOutliers(APIView):
+    
+    def post(self, request, format=None):
+        inputs = self.request.body
+        print(inputs)

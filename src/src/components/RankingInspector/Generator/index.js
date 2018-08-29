@@ -160,7 +160,7 @@ class Generator extends Component {
         <TreeSelect
           className={styles.featureSelector}
           showSearch
-          style={{ width: 300 }}
+          style={{ width: 330 }}
           value={this.props.rankingInstance.features}
           dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
           placeholder="Please select"
@@ -172,10 +172,10 @@ class Generator extends Component {
         </TreeSelect>
         {/* // Target variable selector */}
         <div className={styles.selectSensitiveAttr}>Target variable</div>
-        <Dropdown className={styles.sensitiveAttrDropdown} 
+        <Dropdown className={styles.targetDropdown} 
                   isOpen={this.state.targetDropdownOpen} 
                   toggle={this.toggleTargetDropdown}>
-          <DropdownToggle caret>
+          <DropdownToggle className={styles.targetDropdownToggle} caret>
             {this.props.rankingInstance.target}
           </DropdownToggle>
           <DropdownMenu>
@@ -184,8 +184,10 @@ class Generator extends Component {
         </Dropdown>
         {/* // Method selector */}
         <div className={styles.selectMethod}>Method</div>
-        <Dropdown isOpen={this.state.methodDropdownOpen} toggle={this.toggleMethodDropdown}>
-          <DropdownToggle caret>
+        <Dropdown className={styles.methodDropdown}
+                  isOpen={this.state.methodDropdownOpen} 
+                  toggle={this.toggleMethodDropdown}>
+          <DropdownToggle className={styles.methodDropdownToggle} caret>
             {this.props.rankingInstance.method}
           </DropdownToggle>
           <DropdownMenu>

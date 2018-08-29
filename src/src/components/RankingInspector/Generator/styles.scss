@@ -34,6 +34,7 @@
 
   .featureSelector {
     width: 90% !important;
+    margin-left: 10px;
   }
 
   .generatorSubtitle {
@@ -41,13 +42,19 @@
     border-bottom: 1px solid #cccccc;
   }
 
-  .sensitiveAttrDropdown {
+  .sensitiveAttrDropdown,
+  .targetDropdown,
+  .methodDropdown {
     display: grid;
 
-    .sensitiveAttrDropdownToggle {
+    .sensitiveAttrDropdownToggle,
+    .targetDropdownToggle,
+    .methodDropdownToggle {
         justify-self: center;
     }
   }
+
+  .targetDropdownToggle
 
   .DataLoader {
       

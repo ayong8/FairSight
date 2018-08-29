@@ -31,7 +31,7 @@ class App extends Component {
       rankingInstance: {
         rankingId: '',
         sensitiveAttr: 'sex',
-        features: ['credit_amount', 'installment_as_income_perc', 'sex', 'age'],
+        features: ['credit_amount', 'installment_as_income_perc', 'age'],
         target: 'default',
         method: 'rankSVM'
       },

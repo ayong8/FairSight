@@ -104,11 +104,16 @@ class RankingInspector extends Component {
       dataPairwiseDiffs.push({
         idx1: dataPairs[i][0].idx,
         idx2: dataPairs[i][1].idx,
+        x1: dataPairs[i][0].output,
+        x2: dataPairs[i][1].output,
         pair: pair,
         diffInput: diffInput,
         diffOutput: diffOutput,
         scaledDiffInput: this.inputScale(diffInput),
-        scaledDiffOutput: this.outputScale(diffOutput)
+        scaledDiffOutput: this.outputScale(diffOutput),
+        distortion: this.outputScale(diffOutput) - this.inputScale(diffInput),
+        absDistortion: Math.abs(this.outputScale(diffOutput) - this.inputScale(diffInput)),
+        isOutlier: false
       });
     }
 
@@ -145,13 +150,16 @@ class RankingInspector extends Component {
           row.push({
             idx1: obj1.idx,
             idx2: obj2.idx,
+            x1: obj1.output,
+            x2: obj2.output,
             pair: pair,
             diffInput: diffInput,
             diffOutput: diffOutput,
             scaledDiffInput: this.inputScale(diffInput),
             scaledDiffOutput: this.outputScale(diffOutput),
-            x1: obj1.output,
-            x2: obj2.output
+            distortion: this.outputScale(diffOutput) - this.inputScale(diffInput),
+            absDistortion: Math.abs(this.outputScale(diffOutput) - this.inputScale(diffInput)),
+            isOutlier: false
           });
 
           input_idx++;
@@ -174,6 +182,7 @@ class RankingInspector extends Component {
         )
         .range([0, 1]);
   }
+
   handleRankingInstanceOptions(optionObj) {
     console.log('passed option object: ', optionObj);
     this.props.onHandleRankingInstanceOptions(optionObj);
@@ -183,7 +192,7 @@ class RankingInspector extends Component {
     console.log('on the way up: ', rankingInstance);
 
     // Check all parameters so that we send all we need to run a model
-    this.props.onRunningModel(rankingInstance)
+    this.props.onRunningModel(rankingInstance);
   }
 
   handleMouseoverInstance(idx) {

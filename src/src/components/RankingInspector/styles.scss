@@ -4,12 +4,11 @@
 
     display: grid;
     grid-template-columns: 17% 30% 55%;
-    grid-template-rows: 10% 15% 70% 30%;
+    grid-template-rows: 15% 70% 30%;
     grid-template-areas: 
-        'g pi pi'
         'g rk rk'
         'g i id'
-        'g i gf';
+        'g gf gf';
 
     .InputSpaceView,
     .IndividualFairnessView,
@@ -20,10 +19,6 @@
         background-color: white;
         border-left: 1px solid lightgray;
         border-bottom: 1px solid lightgray;
-    }
-
-    .ProcessIndicator {
-        grid-area: pi;
     }
 
     .Generator {
@@ -46,7 +41,7 @@
         }
         .IndividualPlotStatusView {
             display: flex;
-            width: 95%;
+            width: 100%;
             margin: 10px 10px;
 
             .IndividualStatus {
@@ -64,7 +59,7 @@
 
         display: grid;
         grid-template-columns: 60% 40%;
-        grid-template-rows: 30px 400px 230px;
+        grid-template-rows: 30px 350px 230px;
         grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
             't t'
             'mt mt'

@@ -69,6 +69,13 @@ selectedRankingInstance: {
 
 ## this.state
 
+### this.state.wholeDataset (raw dataset)
+`{
+`   idx: 1,`
+`   // and then every features`
+`   idx: 1,`   
+`}`
+
 ### this.state.output
 `[`
 `  { age: -0.3548929154,`

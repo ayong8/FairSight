@@ -13,15 +13,22 @@
   padding: 7px;
   font-size: 1.1rem;
 
-  .generatorTitle {
-    
+  .generatorTitleWrapper {
+    margin-bottom: 20px;
+  }
+
+  .generatorTitle > span {
+    color: white !important;
+    font-size: 1.4rem !important;
   }
 
   .selectSensitiveAttr,
   .selectFeatures,
-  .selectMethod
+  .selectMethod,
+  .selectTopk
   {
     width: 100%;
+    margin-top: 10px;
     padding: 5px;
   }
 
@@ -35,7 +42,11 @@
   }
 
   .sensitiveAttrDropdown {
-  
+    display: grid;
+
+    .sensitiveAttrDropdownToggle {
+        justify-self: center;
+    }
   }
 
   .DataLoader {

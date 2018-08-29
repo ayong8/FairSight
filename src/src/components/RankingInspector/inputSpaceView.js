@@ -16,7 +16,6 @@ class InputSpaceView extends Component {
             value2: 2.5
         };
 
-        this.hoverCircles = this.hoverCircles.bind(this);
     }
 
     getChangeHandler(key) {
@@ -36,25 +35,27 @@ class InputSpaceView extends Component {
         d3.select(svgFeatureTable)
     }
 
-    hoverCircles(d) {
-      console.log(d.idx);
-      this.props.onMouseoverInstance(d.idx);
-
-      // // Highlight circle
-      // d3.select(this)
-      //   .style('stroke-width', 2);
-    }
-
     renderSelectedInstance() {
-      let selectedInstanceIdx = this.props.selectedInstance;
+      let data = this.props.data,
+          selectedInstanceIdx = this.props.selectedInstance,
+          selectedInstance = data.filter((d) => d.idx === selectedInstanceIdx)[0];
+
+      let featureValueDivs = Object.keys(selectedInstance.x).map((key) => {
+                return <div>&nbsp;&nbsp;{key + ': ' + selectedInstance.x[key]}</div>;
+              });
 
       return (
-        <div>{selectedInstanceIdx}</div>
+        <div>
+          <div>Index:&nbsp;{selectedInstanceIdx}</div>
+          <div><b>Features</b></div>
+          <div>{featureValueDivs}</div>
+        </div>
       );
     }
 
     render() {
-        const data = _.toArray(this.props.inputCoords);
+        const _self = this,
+              data = _.toArray(this.props.inputCoords);
 
         const svg = new ReactFauxDOM.Element('svg');
 
@@ -67,11 +68,11 @@ class InputSpaceView extends Component {
 
         let xScale = d3.scaleLinear()
             .domain(d3.extent(data, (d) => d.dim1))
-            .range([0, 240]);
+            .range([0, 220]);
 
         let yScale = d3.scaleLinear()
             .domain(d3.extent(data, (d) => d.dim2))
-            .range([240, 0]);
+            .range([230, 0]);
 
         let gCircles = d3.select(svg)
             .append('g')
@@ -91,15 +92,16 @@ class InputSpaceView extends Component {
                     ? gs.groupColor1
                     : gs.groupColor2;
             })
-            .style('stroke', 'darkgray')
+            .style('stroke', 'black')
             .style('opacity', 0.7)
-            .on('mouseover', this.hoverCircles);
+            .on('mouseover', (d) => {
+                _self.props.onMouseoverInstance(d.idx);
+            });
 
-        d3.select(svg)
-            .selectAll('.item')
-            .filter((d) => d.idx === this.state.selectedInstance)
-            .style('fill', 'red');
-        
+        // Handle mouseover action
+        circles
+            .filter((d) => d.idx === this.props.selectedInstance)
+            .style('stroke-width', 2);
 
         return (
           <div className={styles.InputSpaceView}>

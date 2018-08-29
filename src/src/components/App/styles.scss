@@ -6,8 +6,7 @@ body {
   background-color: $bg-color;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
-    // text-transform: uppercase;
-    color: $dark-blue;
+  color: $dark-blue;
 }
 
 .App {
@@ -15,7 +14,7 @@ body {
   height: 1000px;
   margin: 0 auto;
   display: grid;
-  grid-template-rows: 50px 50px 900px 250px 80px;
+  grid-template-rows: 50px 50px 1000px 250px 80px;
   grid-template-columns: 20% 45% 15% 20%;
   row-gap: 10px;
 

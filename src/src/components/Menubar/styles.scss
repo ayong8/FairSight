@@ -12,9 +12,6 @@
       't d a r m2';
     
     align-items: center;
-    font-weight: 600;
-    //text-transform: uppercase;
-    font-size: 12px;
 
     background-color: #ffffff;
     color: #003569;
@@ -40,27 +37,21 @@
           justify-self: center;
       }
     }
-
-    .margin1 {
-      grid-area: m1;
-    }
     .addRanking {
       grid-area: a;
       align-items: center;
       justify-self: center;
-      background-color: #0d6dcc;
       padding: 17px 20px;
-      border: 2px solid white;
     }
     .ranking {
       grid-area: r;
-      justify-self: center;
-      padding: 17px 20px;
     }
-    .margin2 {
-      grid-area: m2;
-      align-items: center;
+
+    .ProcessIndicator > div > div {
+        font-size: 0.9rem;
     }
+
+    .step1 i { color: green; }
 
     .GeneratorNavBar {
         grid-column: 1 / 5;

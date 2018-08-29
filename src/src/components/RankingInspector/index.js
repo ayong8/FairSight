@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
-import { Steps} from 'antd';
 
 import Generator from './Generator';
 import InputSpaceView from './inputSpaceView';
@@ -14,8 +13,6 @@ import UtilityView from './utilityView';
 import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss'; // gs (=global style)
-
-const Step = Steps.Step;
 
 _.rename = function(obj, key, newKey) {
   
@@ -54,6 +51,7 @@ class RankingInspector extends Component {
 
     this.handleModelRunning = this.handleModelRunning.bind(this);
     this.handleMouseoverInstance = this.handleMouseoverInstance.bind(this);
+    this.handleRankingInstanceOptions = this.handleRankingInstanceOptions.bind(this);
   }
 
   combineData() {
@@ -176,14 +174,15 @@ class RankingInspector extends Component {
         )
         .range([0, 1]);
   }
+  handleRankingInstanceOptions(optionObj) {
+    console.log('passed option object: ', optionObj);
+    this.props.onHandleRankingInstanceOptions(optionObj);
+  }
 
   handleModelRunning(rankingInstance) {
     console.log('on the way up: ', rankingInstance);
 
     // Check all parameters so that we send all we need to run a model
-
-
-    
     this.props.onRunningModel(rankingInstance)
   }
 
@@ -197,13 +196,14 @@ class RankingInspector extends Component {
     var data = [1,2,3,4,5];
 
     // Data
-    let selectedFeatures = this.props.selectedFeatures,
-        selectedDataset = this.props.selectedDataset,
-        sensitiveAttr = this.props.sensitiveAttr,
+    let selectedDataset = this.props.selectedDataset,
+        rankingInstance = this.props.rankingInstance,
+        features = rankingInstance.features,
+        sensitiveAttr = rankingInstance.sensitiveAttr,
         output = this.props.output;
           
     let idx = _.map(selectedDataset, (d) => d.idx),
-          x = _.map(selectedDataset, (d) => _.pick(d, [...selectedFeatures, 'idx'])),
+          x = _.map(selectedDataset, (d) => _.pick(d, [...features, 'idx'])),
           y = _.map(selectedDataset, (d) => _.pick(d, ['default', 'idx'])),
           groups = _.map(selectedDataset, (d) => _.pick(d, [sensitiveAttr, 'idx'])),
           rankings = _.map(output, (d) => _.pick(d, ['ranking', 'idx'])),
@@ -248,28 +248,28 @@ class RankingInspector extends Component {
 
     return (
       <div className={styles.RankingInspector}>
-        <Steps progressDot current={2} className={styles.ProcessIndicator}>
-          <Step title="Input" description="This is a description."/>
-          <Step title="Distortion" description="Distortion generated"/>
-          <Step title="Output" />
-        </Steps>
-        <Generator className={styles.Generator} 
-                   wholeDataset={this.props.wholeDataset} 
+        <Generator className={styles.Generator}
+                   wholeDataset={this.props.wholeDataset}
+                   rankingInstance={this.props.rankingInstance}
+                   topk={this.props.topk}
+                   onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}
                    onRunningModel={this.handleModelRunning}/>
         <RankingView topk={this.props.topk} ranking={this.props.ranking} output={this.props.output} />
         <InputSpaceView className={styles.InputSpaceView}
+                        data={dataIndividualFairnessView}
                         inputCoords={this.props.inputCoords}
                         selectedInstance={this.state.selectedInstance} 
                         onMouseoverInstance={this.handleMouseoverInstance} />
+        <IndividualFairnessView data={dataIndividualFairnessView}
+                                pairwiseDiffs={this.calculatePairwiseDiffs()}
+                                pairwiseDiffsInPermutation={this.calculatePermutationPairwiseDiffs()}
+                                selectedInstance={this.state.selectedInstance}
+                                />
         <GroupFairnessView data={dataGroupFairnessView}
                            output={this.props.output} 
                            topk={this.props.topk} 
                            ranking={this.props.ranking} 
                            wholeRanking={this.props.wholeRanking} className={styles.GroupFairnessView} />
-        <IndividualFairnessView data={dataIndividualFairnessView}
-                                pairwiseDiffs={this.calculatePairwiseDiffs()}
-                                pairwiseDiffsInPermutation={this.calculatePermutationPairwiseDiffs()}
-                                />
         {/* <UtilityView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.UtilityView} /> */}
       </div>
     );

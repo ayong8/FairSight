@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Alert, FormGroup, FormText, Input, Label, Badge,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import Slider from 'react-rangeslider';
-import { Button } from 'antd';
+import { Button, Steps, Icon } from 'antd';
 
 import styles from "./styles.scss";
 
@@ -27,6 +27,8 @@ class Menubar extends Component {
   }
 
   render() {
+    const Step = Steps.Step;
+
     return (
       <div className={styles.Generator}>
         <div className={styles.appTitle}>FAIRSIGHT</div>
@@ -41,7 +43,15 @@ class Menubar extends Component {
           Current ranking: &nbsp;
           <Badge className={styles.currentRanking} color="success" pill>R3</Badge>
         </div>
-        <div className={styles.margin}></div>
+        <div className={styles.margin}>
+          <Steps size='small' className={styles.ProcessIndicator}>
+            <Step className={styles.step1} title="Generate" icon={<Icon type="right-circle-o" />} />
+            <Step title="Explore" icon={<Icon type="right-circle-o" />} />
+            <Step title="Analyze" icon={<Icon type="right-circle-o" />} />
+            <Step title="Produce" icon={<Icon type="right-circle-o" />} />
+            <Step title="Compare" icon={<Icon type="right-circle-o" />} />
+          </Steps>
+        </div>
         {/* <div className={styles.GeneratorNavBar}>
           <div className={styles.navBarDataset}>Dataset</div>
           <div className={styles.navBarInput}>
@@ -142,79 +152,6 @@ class FeatureSelector extends Component {
             <DropdownItem>Feature2</DropdownItem>
           </DropdownMenu>
         </Dropdown>
-      </div>
-    );
-  }
-}
-
-class MethodSelector extends Component {
-  constructor(props) {
-    super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
-
-    this.state = {
-      topK: 0
-    }
-  }
-
-  handleOnChange(value) {  // For the top-k slider
-    this.setState({
-      topK: value
-    });
-  }
-
-  render(){
-    let { topK } = this.state;
-
-    return (
-      <div className={styles.MethodSelector}>
-        <div className={styles.generatorSubtitle}>3. Select a method and top-k</div>
-        <Dropdown className={styles.MethodSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle caret>
-            Method
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItem>Feature1</DropdownItem>
-            <DropdownItem>Feature2</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
-        <div className={styles.secondTitle2}> Top-K </div>
-        <Slider
-          value={topK}
-          orientation="horizontal"
-          onChange={this.handleOnChange}
-        />
-      </div>
-    );
-  }
-}
-
-class FairnessOrganizer extends Component {
-  constructor(props) {
-    super(props);
-    this.toggleRun = this.toggleRun.bind(this);
-  }
-
-  toggleRun() { // Run button
-    // Pass a generated ranking object to the rankingListView
-
-  }
-  render() {
-    return (
-      <div className={styles.FairnessOrganizer}>
-        <div className={styles.generatorSubtitle}>4. Adjust the fairness</div>
-        <div className={styles.groupFairness}>
-          <input type="checkbox" />&nbsp;&nbsp;Statistical parity
-        </div>
-        <div className={styles.groupFairness}>
-          <input type="checkbox" />&nbsp;&nbsp;Conditional parity(TP)
-        </div>
-        <div className={styles.groupFairness}>
-          <input type="checkbox" />&nbsp;&nbsp;Conditional parity(FP)
-        </div>
-        <div className={styles.runButtonWrapper}>
-          <Button className={styles.buttonGenerateRanking} color="danger">RUN</Button>
-        </div>
       </div>
     );
   }

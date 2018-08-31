@@ -86,7 +86,7 @@ class RunRankSVM(APIView):
         y = dataset_df['default']
         idx_col = dataset_df['idx']
 
-        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=0)
         rank_svm = RankSVM().fit(X_train, y_train)
         accuracy = rank_svm.score(X_test, y_test)
 

@@ -4,6 +4,7 @@ import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { beeswarm } from 'd3-beeswarm';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
+import { Checkbox } from 'antd';
 import regression from 'regression';
 
 import styles from './styles.scss';
@@ -902,6 +903,23 @@ class IndividualFairnessView extends Component {
       //         this.setState({selectedDataset: selectedDataset});
       //       });
     }
+
+    calculateRSquared(dataPairwiseDiffs) {
+      let SSR_arr = [], SST_arr = [],
+          SSR, SST,
+          n = dataPairwiseDiffs.length,
+          meanY = _.sum(_.map(dataPairwiseDiffs, (d) => d.distortion)) / n;
+      
+      _.each(dataPairwiseDiffs, (d) => {
+        SSR_arr.push(Math.pow(meanY - 0, 2));
+        SST_arr.push(Math.pow(meanY - d.distortion, 2));
+      });
+
+      SSR = _.sum(SSR_arr);
+      SST = _.sum(SST_arr);
+      
+      console.log('SSR and SST: ', SSR, SST);
+    }
   
     render() {
       if ((!this.props.pairwiseDiffs || this.props.pairwiseDiffs.length === 0) || 
@@ -1034,6 +1052,7 @@ class IndividualFairnessView extends Component {
       _self.renderLegend();
 
       _self.calculatePredictionIntervalandOutliers(dataPairwiseDiffs);
+      _self.calculateRSquared(dataPairwiseDiffs);
 
       const margin = 20,
             outlierMargin = 5,
@@ -1411,7 +1430,14 @@ class IndividualFairnessView extends Component {
           .attr('x', 30)
           .attr('y', 63)
           .text('Woman-Woman')
-          .style('font-size', '11px');  
+          .style('font-size', '11px');
+
+      const CheckboxGroup = Checkbox.Group;
+      const groupOptions = [
+          { label: 'Apple', value: 'Apple' },
+          { label: 'Pear', value: 'Pear' },
+          { label: 'Orange', value: 'Orange' },
+        ];
       
       return (
         <div className={styles.IndividualFairnessView}>
@@ -1446,6 +1472,8 @@ class IndividualFairnessView extends Component {
           <div className={styles.DistortionPlot}> 
             <div className={index.subTitle}>Pairwise Distortions</div>
             <div className={styles.IndividualFairnessViewBar}>
+              <span>Select: &nbsp;</span>
+              <CheckboxGroup options={groupOptions} defaultValue={['Apple']} />
               sort by: &nbsp;
               <Dropdown direction='down' className={styles.DistortionSortingDropdown} isOpen={this.state.dropdownOpen}  size='sm' toggle={this.sortDistortion}>
                 <DropdownToggle caret>

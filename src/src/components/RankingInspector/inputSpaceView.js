@@ -4,6 +4,7 @@ import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { Table } from 'reactstrap';
 import { Slider, Button, Tag } from "@blueprintjs/core";
+import { Icon } from 'antd';
 
 import styles from './styles.scss';
 import index from '../../index.css';
@@ -45,7 +46,7 @@ class InputSpaceView extends Component {
               });
 
       return (
-        <div>
+        <div className={styles.selectedInstanceInfo}>
           <div>Index:&nbsp;{selectedInstanceIdx}</div>
           <div><b>Features</b></div>
           <div>{featureValueDivs}</div>
@@ -63,7 +64,7 @@ class InputSpaceView extends Component {
         svg.setAttribute('height', '250px')
         svg.setAttribute('class', 'svg_input_space');
         svg.style.setProperty('margin', '0 10px');
-        svg.style.setProperty('background-color', '#f7f7f7');
+        //svg.style.setProperty('background-color', '#f7f7f7');
         svg.style.setProperty('border', '1px solid #dfdfdf');
 
         let xScale = d3.scaleLinear()
@@ -108,7 +109,11 @@ class InputSpaceView extends Component {
             <div className={index.title}>Input space</div>
             <div className={styles.IndividualPlotStatusView}>
                 {svg.toReact()}
-                <div className={styles.IndividualStatus}>{this.renderSelectedInstance()}</div>
+                <div className={styles.IndividualStatus}>
+                    <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', margin: 5 }}/>
+                    <span>Index: 1</span>
+                    {this.renderSelectedInstance()}
+                </div>
             </div>
             <div className={styles.FeatureTableView}>
               <div className={index.title}>Features</div>

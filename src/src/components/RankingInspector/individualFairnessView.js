@@ -906,7 +906,7 @@ class IndividualFairnessView extends Component {
 
     calculateRSquared(dataPairwiseDiffs) {
       let SSR_arr = [], SST_arr = [],
-          SSR, SST,
+          SSR, SST, rSquared,
           n = dataPairwiseDiffs.length,
           meanY = _.sum(_.map(dataPairwiseDiffs, (d) => d.distortion)) / n;
       
@@ -918,7 +918,75 @@ class IndividualFairnessView extends Component {
       SSR = _.sum(SSR_arr);
       SST = _.sum(SST_arr);
       
-      console.log('SSR and SST: ', SSR, SST);
+      rSquared = Math.round((SSR / SST) * 100) / 100;
+
+      console.log('r-squared: ', rSquared);
+    }
+
+    calculateNDM(dataPermutationDiffs) {  // Noise Dissimilarity Measure for feature matrix
+      // Generate a random permutation
+      let originalMat = _.map(dataPermutationDiffs, (arr) => _.map(arr, (d) => d.distortion));
+          noiseMat = _.shuffle(originalMat),
+          NHX = 3, NHY = 3, // Number of neighborhoods to look at
+          dissScoreArr = [];
+
+      for(let i=0; i=originalMat.length-1; i++) {
+        dissScoreArr[i] = [];
+
+        for(let j=0; j=originalMat[0].length-1; j++) {
+          // Check index i and j
+          let neighborArr = [],
+              sumSquaredDiffs = [],
+              validIdx = [],
+              NHInOriginalMat = [], NHInNoiseMat = [], 
+              NHInNoiseMatMostSimilar, minDiffs,
+              diffs = [];
+          // Collect valid index
+          for(let l=-1; l<=1; l++) {  // l = for x index of neighbors of originalMat[i][j]
+            // Put all neighbors to find the best nearest neighbor of i
+            for(let m=-1; m<=1; m++) {  // m = for y index of neighbors of originalMat[i][j]
+              if(typeof(originalMat[i+l][j+m]) !== 'undefined') {
+                // Put it as valid idx to explore the same neighborhood area(index) for noiseMat
+                validIdx.push({ x: i+l, y: j+m });
+              }
+            }
+          }
+          // Go over all valid index for noiseMat, and get the best similar one to the current originalMat[i][j]
+          validIdx.forEach((idx) => {
+            NHsInNoiseMat = noiseMat[idx.x][idx.y];
+            NHsInOriginalMat = originalMat[idx.x][idx.y];
+          });
+
+          NHsInOriginalMat.forEach((o) => {
+            diffs = _.map(NHsInNoiseMat, (n) => Math.abs(o - s));
+            minDiffs.push(Math.min(...diffs));
+          });
+          sumSquaredDiffs = minDiffs.reduce((prev, acc) => prev + acc)
+          dissScoreArr[i].push();
+        }
+      }
+
+      // Shuffle 1D-flattened array by Fisher-Yates Shuffle algorithm
+      function shuffle(array) {
+        let counter = array.length;
+    
+        // While there are elements in the array
+        while (counter > 0) {
+            // Pick a random index
+            let index = Math.floor(Math.random() * counter);
+    
+            // Decrease counter by 1
+            counter--;
+    
+            // And swap the last element with it
+            let temp = array[counter];
+            array[counter] = array[index];
+            array[index] = temp;
+        }
+    
+        return array;
+    }
+
     }
   
     render() {
@@ -1053,6 +1121,7 @@ class IndividualFairnessView extends Component {
 
       _self.calculatePredictionIntervalandOutliers(dataPairwiseDiffs);
       _self.calculateRSquared(dataPairwiseDiffs);
+      _self.calculateNDM(dataPermutationDiffs);
 
       const margin = 20,
             outlierMargin = 5,

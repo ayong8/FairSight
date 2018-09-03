@@ -62,10 +62,10 @@ class RankingView extends Component {
       dataWholeRanking = _.sortBy(dataWholeRanking, ['score'], ['desc']).reverse();
       
       // Set up the layout
-      const svgRankingView = new ReactFauxDOM.Element('svg');
+      const svgTopkRankingView = new ReactFauxDOM.Element('svg');
 
-      svgRankingView.setAttribute('width', _self.layout.svgRanking.width);
-      svgRankingView.setAttribute('height', _self.layout.svgRanking.height);
+      svgTopkRankingView.setAttribute('width', _self.layout.svgRanking.width / 2);
+      svgTopkRankingView.setAttribute('height', _self.layout.svgRanking.height);
 
       const xTopKRatio = _self.topk / _self.numWholeRanking + 0.1,
             xWholeRankingRatio = 1 - xTopKRatio;
@@ -86,10 +86,10 @@ class RankingView extends Component {
             .range([gs.groupColor1, gs.groupColor2])
             .domain([1, 2]);
 
-      const gTopKRanking = d3.select(svgRankingView).append('g')
+      const gTopKRanking = d3.select(svgTopkRankingView).append('g')
             .attr('class', 'g_top_k_ranking')
             .attr('transform', 'translate(' + _self.layout.rankingPlot.margin + ',' + '0)'),
-            gWholeRanking = d3.select(svgRankingView).append('g')
+            gWholeRanking = d3.select(svgTopkRankingView).append('g')
             .attr('class', 'g_whole_ranking')
             .attr('transform', 'translate(' + (_self.layout.rankingPlot.width * xTopKRatio + _self.layout.rankingPlot.margin) + ',' + '0)');
 
@@ -199,7 +199,16 @@ class RankingView extends Component {
           <div className={index.title}>Output</div>
           <div className={styles.outputSummary}>Accuracy: {this.props.data.stat.accuracy}</div>
           <div className={styles.rankingSummary}>
-            {svgRankingView.toReact()}
+            <div className={styles.rankingWrapper}>
+              <div>
+                <div>Top-k ranking</div>
+                {svgTopkRankingView.toReact()}
+              </div>
+              <div>
+                <div>Selected ranking</div>
+                {svgTopkRankingView.toReact()}
+              </div>
+            </div>
             <Slider range step={1} defaultValue={[20, 50]} onChange={this.onSelectedRankingIntervalChange} />
           </div>
           {/* <div className={styles.wholeRanking}>

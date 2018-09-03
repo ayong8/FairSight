@@ -48,8 +48,8 @@ urlpatterns = [
         name='pairwiseInputDistance'
     ),
     url(
-        regex=r'^calculatePredictionIntervalandOutliers/$',
-        view=views.CalculatePredictionIntervalandOutliers.as_view(),
-        name='predictionIntervalandOutliers'
+        regex=r'^calculateConfidenceInterval/$',
+        view=views.CalculateConfidenceInterval.as_view(),
+        name='confidenceInterval'
     )
 ]

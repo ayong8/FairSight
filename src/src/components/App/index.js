@@ -23,6 +23,7 @@ class App extends Component {
     this.state = {
       dataset: [],
       topk: 20,
+      n: 40,
       selectedDataset: [],  // A subset of the dataset that include features, target, and idx
       inputCoords: [],
       weights: {},
@@ -35,7 +36,7 @@ class App extends Component {
       rankingInstance: {
         rankingId: 1,
         sensitiveAttr: 'sex',
-        features: ['credit_amount', 'installment_as_income_perc', 'age'],
+        features: ['credit_amount', 'income_perc', 'age'],
         target: 'default',
         method: 'RankSVM',
         sumDistortion: 0
@@ -83,7 +84,10 @@ class App extends Component {
             let dataset = _.values(JSON.parse(file));
             console.log('whole dataset:', dataset);
 
-            this.setState({dataset: dataset});
+            this.setState({
+              dataset: dataset,
+              n: dataset.length
+            });
           });
 
     fetch('/dataset/getWeight')
@@ -218,6 +222,7 @@ class App extends Component {
                  onSelectSensitiveAttr={this.handleSelectSensitiveAttr} />
         <RankingsListView rankings={this.state.rankings} />
         <RankingInspector topk={this.state.topk}
+                          n={this.state.n}
                           dataset={this.state.dataset}
                           rankingInstance={this.state.rankingInstance}
                           selectedDataset={this.state.selectedDataset}

@@ -43,6 +43,7 @@ sklearn = "*"
 scipy = "*"
 pandas = "*"
 simplejson = "*"
+statsmodels = "*"
 
 
 [dev-packages]

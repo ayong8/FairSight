@@ -56,6 +56,31 @@ class InputSpaceView extends Component {
       );
     }
 
+    renderFeatures() {
+        const data = this.props.data,
+              features = data.features;
+
+        return _.map(features, (feature) => 
+                (<tr>
+                  <td>{feature}</td>
+                  <td>
+                    <Slider
+                        min={0}
+                        max={3}
+                        stepSize={0.1}
+                        labelStepSize={10}
+                        onChange={this.getChangeHandler("value2")}
+                        value={1}
+                    //vertical={vertical}
+                    />
+                  </td>
+                  <td>
+                    Correlation
+                  </td>
+                </tr>)
+            );
+    }
+
     render() {
       if (!this.props.data || this.props.data.length === 0) {
         return <div />
@@ -128,35 +153,11 @@ class InputSpaceView extends Component {
                 <tr>
                     <th>Features</th>
                     <th>Custom weight</th>
-                    <th>Weight from model</th>
+                    <th>Correlation with Sensitive attribute</th>
                 </tr>
               </thead>
               <tbody className={styles.FeatureTableTbody}>
-                <tr>
-                  <td>Age</td>
-                  <td>
-                    <Slider
-                        min={0}
-                        max={10}
-                        stepSize={0.1}
-                        labelStepSize={10}
-                        onChange={this.getChangeHandler("value2")}
-                        value={3}
-                    //vertical={vertical}
-                    />
-                  </td>
-                  <td>
-                    <Tag
-                        key='+1.15'
-                        //onRemove={removable && onRemove}
-                        //icon={icon === true ? "home" : undefined}
-                        //rightIcon={rightIcon === true ? "map" : undefined}
-                        minimal={true}
-                    >
-                        {'+1.15'}
-                    </Tag>
-                  </td>
-                </tr>
+                {this.renderFeatures()}
               </tbody>
             </Table>
           </div>

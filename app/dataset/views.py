@@ -18,6 +18,7 @@ from ..static.lib.gower_distance import gower_distances
 from io import StringIO
 import csv
 import pandas as pd
+from pandas.io.json import json_normalize
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics.pairwise import pairwise_distances
@@ -25,6 +26,11 @@ from sklearn.manifold import MDS
 from sklearn.preprocessing import Imputer
 from sklearn import preprocessing
 from sklearn import svm
+
+import numpy as np
+import statsmodels.api as sm
+from scipy import stats
+
 import json, simplejson
 
 def open_dataset(file_path):
@@ -69,7 +75,7 @@ class GetSelectedDataset(APIView):
     def get(self, request, format=None):
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
-        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
+        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'income_perc', 'sex', 'age'], 'default')
 
         return Response(dataset_df.to_json(orient='index'))
 
@@ -145,10 +151,10 @@ class RunSVM(APIView):
     def get(self, request, format=None):
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
-        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
+        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'income_perc', 'sex', 'age'], 'default')
         dataset_df = dataset_df.sort_values(by='idx', ascending=True)
 
-        X = dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
+        X = dataset_df[['credit_amount', 'income_perc', 'sex', 'age']]
         y = dataset_df['default']
         idx_col = dataset_df['idx']
 
@@ -168,10 +174,10 @@ class RunSVM(APIView):
     def post(self, request, format=None):
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
-        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
+        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'income_perc', 'sex', 'age'], 'default')
         dataset_df = dataset_df.sort_values(by='idx', ascending=True)
 
-        X = dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
+        X = dataset_df[['credit_amount', 'income_perc', 'sex', 'age']]
         y = dataset_df['default']
         idx_col = dataset_df['idx']
 
@@ -204,8 +210,8 @@ class GetWeight(APIView):
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
         
-        dataset_df = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default']]
-        X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
+        dataset_df = whole_dataset_df[['credit_amount', 'income_perc', 'sex', 'age', 'default']]
+        X = whole_dataset_df[['credit_amount', 'income_perc', 'sex', 'age']]
         y = whole_dataset_df['default']
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
@@ -226,8 +232,8 @@ class GetWeightedDataset(APIView):
     def get(self, request, format=None):
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df['sex'] = pd.factorize(whole_dataset_df['sex'])[0]
-        dataset_df = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age', 'default']]
-        X = whole_dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
+        dataset_df = whole_dataset_df[['credit_amount', 'income_perc', 'sex', 'age', 'default']]
+        X = whole_dataset_df[['credit_amount', 'income_perc', 'sex', 'age']]
         y = whole_dataset_df['default']
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
@@ -257,8 +263,8 @@ class RunMDS(APIView):
     def get(self, request, format=None):
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
-        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
-        dataset_mds = pd.DataFrame(dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']])
+        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'income_perc', 'sex', 'age'], 'default')
+        dataset_mds = pd.DataFrame(dataset_df[['credit_amount', 'income_perc', 'sex', 'age']])
 
         d = pairwise_distances(dataset_mds)
 
@@ -277,7 +283,7 @@ class CalculatePairwiseInputDistance(APIView):
         pass
 
     def post(self, request, format=None):
-        json_request = json.loads(request.body.decode(encoding='UTF-8'));
+        json_request = json.loads(request.body.decode(encoding='UTF-8'))
 
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, json_request['sensitiveAttr'])
@@ -313,8 +319,39 @@ class CalculatePairwiseInputDistance(APIView):
 
         return Response(json_combined)
 
-class CalculatePredictionIntervalandOutliers(APIView):
+# Get the confidence interval of slope to measure the fair area
+class CalculateConfidenceInterval(APIView):
+
+    def get(self, request, format=None):
+        pass
     
     def post(self, request, format=None):
-        inputs = self.request.body
-        print(inputs)
+        json_request = json.loads(request.body.decode(encoding='UTF-8'))
+
+        reg_df = json_normalize(json_request)
+        X = reg_df['X']
+        y = reg_df['y']
+        y_hat = reg_df['yHat']
+
+        # X = np.array([1,2,3,5,7,8,9,10])
+        # y = np.array([-0.5, -1, 2, -0.3, -1.3, -2, 3, 0])
+        # y_hat = np.array([0, 0, 0, 0, 0, 0, 0, 0])
+        y_err = y - y_hat
+        mean_x = X.mean()
+        n = len(X)
+        dof = n - 1
+        t = stats.t.ppf(1-0.025, df=dof)
+        s_err = np.sum(np.power(y_err, 2))
+
+        conf_interval = t * np.sqrt((s_err/(n-2))*(1.0/n + (np.power((X-mean_x),2) / ((np.sum(np.power(X,2))) - n*(np.power(mean_x,2))))))
+        upper = y_hat + abs(conf_interval)
+        lower = y_hat - abs(conf_interval)
+
+        conf_interval_points_upper_df = pd.DataFrame({ 'x': X, 'y': upper })
+        conf_interval_points_upper_df = conf_interval_points_upper_df.sort_values(by='x', ascending=True)
+        conf_interval_points_lower_df = pd.DataFrame({ 'x': X, 'y': lower })
+        conf_interval_points_lower_df = conf_interval_points_lower_df.sort_values(by='x', ascending=True)
+        print(conf_interval_points_upper_df.loc[:20])
+        conf_interval_points_df = pd.concat([conf_interval_points_upper_df, conf_interval_points_lower_df], axis=0)
+
+        return Response(conf_interval_points_df.to_json(orient='records'))

@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import { Alert, Button, FormGroup, FormText, Input, Label,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { TreeSelect, Slider, InputNumber, Badge } from 'antd';
+import { TreeSelect, Slider, InputNumber, Icon } from 'antd';
 
 import styles from "./styles.scss";
+import index from '../../../index.css';
 
 const TreeNode = TreeSelect.TreeNode;
 
@@ -128,8 +129,8 @@ class Generator extends Component {
   render() {
     return (
       <div className={styles.Generator}>
-        <div className={styles.generatorTitleWrapper}>
-          <Badge className={styles.generatorTitle} status="success" text='Generator'/>
+        <div className={styles.generatorTitleWrapper + ' ' + index.title}>
+          <Icon type="check-circle" theme="filled" /> Generator
           <br />
         </div>
         {/* // Sensitive Attribute selector */}
@@ -187,10 +188,10 @@ class Generator extends Component {
         </Dropdown>
         <div className={styles.topkSelector}>
           <div className={styles.selectTopk}>Top-k</div>
-          <Slider min={1} max={20} onChange={this.onTopkChange} value={this.props.topk} />
+          <Slider min={1} max={this.props.n} onChange={this.onTopkChange} value={this.props.topk} />
           <InputNumber
             min={1}
-            max={20}
+            max={this.props.n}
             style={{ marginLeft: 16 }}
             value={this.props.topk}
             onChange={this.onTopkChange}

@@ -45,6 +45,7 @@ class IndividualFairnessView extends Component {
       this.dataPermutationDiffs = [];
 
       this.state = {
+        confIntervalPoints: [],
         dropdownOpen: false,
         sortMatrixXdropdownOpen: false,
         sortMatrixYdropdownOpen: false,
@@ -135,6 +136,30 @@ class IndividualFairnessView extends Component {
         sortMatrixXdropdownValue: 'Total distortion',
         sortMatrixYdropdownValue: 'Total distortion'
       });
+
+      // Calculate confidence interval
+      const inputs = _.map(this.props.pairwiseDiffs, (d) => {
+              return {
+                X: d.scaledDiffInput,
+                y: d.distortion,
+                yHat: 0
+              }
+          });
+      let confIntervalPoints = [];
+
+      fetch('/dataset/calculateConfidenceInterval/', {
+            method: 'post',
+            body: JSON.stringify(inputs)
+          })
+          .then( (response) => {
+            return response.json();
+          })   
+          .then( (response) => {
+            confIntervalPoints = JSON.parse(response);
+            this.setState({
+              confIntervalPoints: confIntervalPoints
+            });
+          });
     }
   
     componentWillMount() {
@@ -663,7 +688,7 @@ class IndividualFairnessView extends Component {
           dataPermutationDiffs = this.dataPermutationDiffs;
 
       const sortedX = _.sortBy(instances, 
-          (sortMatrixXBy === 'sumDistortion')? 
+          (sortMatrixXBy === 'sumDistortion') ? 
             sortMatrixXBy : 
             'features.'+ sortMatrixXBy
         );
@@ -701,7 +726,7 @@ class IndividualFairnessView extends Component {
           .duration(750)
           .attr('x', (d) => _self.xMatrixScale(d.idx))
           .attr('fill', (d) => {
-              return (sortMatrixXBy === 'sumDistortion')? 
+              return (sortMatrixXBy === 'sumDistortion') ? 
                 _self.xAttributeScale(d.sumDistortion) : 
                 _self.xAttributeScale(d.features[sortMatrixXBy])
           });
@@ -737,13 +762,13 @@ class IndividualFairnessView extends Component {
           dataPermutationDiffs = this.dataPermutationDiffs;
 
       const sortedY = _.sortBy(instances, 
-              (sortMatrixYBy === 'sumDistortion')? 
+              (sortMatrixYBy === 'sumDistortion') ? 
                 sortMatrixYBy : 
                 'features.'+ sortMatrixYBy
             );
       
       _self.yMatrixScale.domain(
-          _.map(_.sortBy(sortedY, 'idx'), (d) => d.idx ));
+          _.map(sortedY, 'idx'), (d) => d.idx );
       _self.yAttributeScale.domain(
           d3.extent(_.map(instances, (d) => 
             (sortMatrixYBy === 'sumDistortion') ? 
@@ -775,7 +800,7 @@ class IndividualFairnessView extends Component {
           .duration(750)
           .attr('y', (d) => _self.yMatrixScale(d.idx))
           .attr('fill', (d) => 
-            (sortMatrixYBy === 'sumDistortion')? 
+            (sortMatrixYBy === 'sumDistortion') ? 
               _self.yAttributeScale(d.sumDistortion) : 
               _self.yAttributeScale(d.features[sortMatrixYBy])
           );
@@ -807,33 +832,34 @@ class IndividualFairnessView extends Component {
 
       let sortBy = e.target.value,
           data = this.props.data,
+          instances = data.instances,
           transition = d3.transition().duration(750);
 
-      console.log('data...: ', data);
+      console.log('data...: ', instances);
       if(sortBy === 'distortion') {
-        _self.xObservedScale.domain(d3.extent(data, (d) => d.distortion));
+        _self.xObservedScale.domain(d3.extent(instances, (d) => d.distortion));
 
         transition.select('.indi_x_axis').call(d3.axisTop(_self.xObservedScale).tickSize(0));
         d3.selectAll('.coords_circle')
-                .data(data)
+                .data(instances)
                 .transition(transition)
                 .attr('cx', (d) => _self.xObservedScale(d.distortion));
 
         d3.selectAll('.coords_rect')
-                .data(data)
+                .data(instances)
                 .transition(transition)
                 .attr('x', (d) => _self.xObservedScale(d.distortion));
       } else if(sortBy === 'pairwiseDistance') {
-        _self.xObservedScale.domain(d3.extent(data, (d) => d.features0));
+        _self.xObservedScale.domain(d3.extent(instances, (d) => d.features0));
 
         transition.select('.indi_x_axis').call(d3.axisTop(_self.xObservedScale).tickSize(0));
         d3.selectAll('.coords_circle')
-                .data(data)
+                .data(instances)
                 .transition(transition)
                 .attr('cx', (d) => _self.xObservedScale(d.features0));
 
         d3.selectAll('.coords_rect')
-                .data(data)
+                .data(instances)
                 .transition(transition)
                 .attr('x', (d) => _self.xObservedScale(d.features0));
       }
@@ -974,6 +1000,7 @@ class IndividualFairnessView extends Component {
   
       let data = _self.props.data,
           dataPairwiseDiffs = _self.props.pairwiseDiffs,
+          confIntervalPoints = _self.state.confIntervalPoints,
           selectedInstanceIdx = _self.props.selectedInstance;
 
       // data
@@ -1093,6 +1120,21 @@ class IndividualFairnessView extends Component {
             outlierInterval = 0.05,
             lowerLimit = -0.90,
             upperLimit = 0.90;
+            
+      console.log(confIntervalPoints);
+      let confIntervalLine = d3.line()
+          .x((d) => {
+            return _self.xObservedScale(d.x)
+          })
+          .y((d) => _self.yDistortionScale(d.y));
+
+      const confInterval = gPlot.append('path')
+          .datum(confIntervalPoints)
+          .attr('class', 'conf_interval_line')
+          .attr('d', confIntervalLine)
+          .style('stroke', 'blue')
+          .style('stroke-width', 1)
+          .style('fill', 'none');
 
       const marginRect = gPlot
                 .append('rect')
@@ -1279,21 +1321,21 @@ class IndividualFairnessView extends Component {
                 return -xViolinPlotWithinGroupPair1Scale(d.length);
               })
               .x1(d => xViolinPlotWithinGroupPair1Scale(d.length))
-              .y(d => _self.yDistortionScale(d.features0))
+              .y(d => _self.yDistortionScale(d.x0))
               .curve(d3.curveCatmullRom),
             areaWithinGroupPair2 = d3.area()
               .x0(d => {
                 return -xViolinPlotWithinGroupPair2Scale(d.length);
               })
               .x1(d => xViolinPlotWithinGroupPair2Scale(d.length))
-              .y(d => _self.yDistortionScale(d.features0))
+              .y(d => _self.yDistortionScale(d.x0))
               .curve(d3.curveCatmullRom),
             areaBetweenGroupPair = d3.area()
               .x0(d => {
                 return -xViolinPlotBetweenGroupPairScale(d.length);
               })
               .x1(d => xViolinPlotBetweenGroupPairScale(d.length))
-              .y(d => _self.yDistortionScale(d.features0))
+              .y(d => _self.yDistortionScale(d.x0))
               .curve(d3.curveCatmullRom);
 
       gViolinPlot.selectAll('.g_violin')
@@ -1314,7 +1356,6 @@ class IndividualFairnessView extends Component {
             else if (i+1 === 3)
               return areaBetweenGroupPair(d);
           });
-
 
       // Group Skew plot
       // i => 1: groupPairs1, 2: groupPairs2, 3: withinPairs, 4: betweenPairs

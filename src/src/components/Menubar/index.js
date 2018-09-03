@@ -45,11 +45,11 @@ class Menubar extends Component {
         </div>
         <div className={styles.margin}>
           <Steps size='small' current={4} className={styles.ProcessIndicator}>
-            <Step className={styles.step1} title="Generate" icon={<Icon type="right-circle-o" />} />
-            <Step className={styles.step2} title="Explore" icon={<Icon type="right-circle-o" />} />
-            <Step className={styles.step3} title="Analyze" icon={<Icon type="right-circle-o" />} />
-            <Step className={styles.step4} title="Produce" icon={<Icon type="right-circle-o" />} />
-            <Step className={styles.step5} title="Compare" icon={<Icon type="right-circle-o" />} />
+            <Step className={styles.step1} title="Generate" icon={<Icon type="check-circle" theme="filled" />} />
+            <Step className={styles.step2} title="Explore" icon={<Icon type="check-circle" theme="filled" />} />
+            <Step className={styles.step3} title="Analyze" icon={<Icon type="check-circle" theme="filled" />} />
+            <Step className={styles.step4} title="Produce" icon={<Icon type="check-circle" theme="filled" />} />
+            <Step className={styles.step5} title="Compare" icon={<Icon type="check-circle" theme="filled" />} />
           </Steps>
         </div>
         {/* <div className={styles.GeneratorNavBar}>

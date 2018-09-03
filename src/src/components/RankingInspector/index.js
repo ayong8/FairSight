@@ -208,6 +208,7 @@ class RankingInspector extends Component {
                    dataset={this.props.dataset}
                    data={this.props.rankingInstance}
                    topk={this.props.topk}
+                   n={this.props.n}
                    onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}
                    onRunningModel={this.handleModelRunning}/>
         <RankingView topk={this.props.topk} 

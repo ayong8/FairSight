@@ -17,14 +17,6 @@ class Generator extends Component {
       targetDropdownOpen: false,
       dataset: {},
       ranking: {},
-      value: 'ddd',
-      rankingInstance: {
-        rankingId: '',
-        sensitiveAttr: '',
-        features: [],
-        target: '',
-        method: ''
-      },
       topkInput: 0
     };
 
@@ -74,7 +66,7 @@ class Generator extends Component {
   }
 
   handleClickRun() {
-    this.props.onRunningModel(this.state.rankingInstance);
+    this.props.onRunningModel();
   }
 
   onChange = (value) => {
@@ -82,11 +74,11 @@ class Generator extends Component {
   }
 
   renderSensitiveAttrSelections() {
-    let wholeDataset = this.props.wholeDataset,
+    let dataset = this.props.dataset,
         exceptForIdColumn = 'id';
 
     // Extract all feature names (every column except for idx)
-    let allColumns = Object.keys(wholeDataset[0]),
+    let allColumns = Object.keys(dataset[0]),
         allFeatures = allColumns.filter((d) => d !== exceptForIdColumn);
 
     return allFeatures.map((feature) => 
@@ -98,11 +90,11 @@ class Generator extends Component {
   }
 
   renderTargetSelections() {
-    let wholeDataset = this.props.wholeDataset,
+    let dataset = this.props.dataset,
         exceptForIdColumn = 'id';
 
     // Extract all feature names (every column except for idx)
-    let allColumns = Object.keys(wholeDataset[0]),
+    let allColumns = Object.keys(dataset[0]),
         allFeatures = allColumns.filter((d) => d !== exceptForIdColumn);
 
     return allFeatures.map((feature) => 
@@ -114,11 +106,11 @@ class Generator extends Component {
   }
 
   renderFeatureSelections() {
-    let wholeDataset = this.props.wholeDataset,
+    let dataset = this.props.dataset,
         exceptForIdColumn = 'id';
 
     // Extract all feature names (every column except for idx)
-    let allColumns = Object.keys(wholeDataset[0]),
+    let allColumns = Object.keys(dataset[0]),
         allFeatures = allColumns.filter((d) => d !== exceptForIdColumn);
 
     return allFeatures.map((feature) => 
@@ -129,14 +121,11 @@ class Generator extends Component {
 
   onTopkChange = (value) => {
     this.setState({
-      topkInput: value,
+      topkInput: value
     });
   }
 
   render() {
-    let wholeDataset = this.props.wholeDataset,
-        features = wholeDataset;  // Extract keys
-
     return (
       <div className={styles.Generator}>
         <div className={styles.generatorTitleWrapper}>
@@ -149,7 +138,7 @@ class Generator extends Component {
                   isOpen={this.state.sensitiveAttrDropdownOpen} 
                   toggle={this.toggleSensitiveAttrDropdown}>
           <DropdownToggle className={styles.sensitiveAttrDropdownToggle} caret>
-            {this.props.rankingInstance.sensitiveAttr}
+            {this.props.data.sensitiveAttr}
           </DropdownToggle>
           <DropdownMenu>
             {this.renderSensitiveAttrSelections()}
@@ -161,9 +150,9 @@ class Generator extends Component {
           className={styles.featureSelector}
           showSearch
           style={{ width: 330 }}
-          value={this.props.rankingInstance.features}
+          value={this.props.data.features}
           dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
-          placeholder="Please select"
+          placeholder='Please select'
           allowClear
           multiple
           treeDefaultExpandAll
@@ -176,7 +165,7 @@ class Generator extends Component {
                   isOpen={this.state.targetDropdownOpen} 
                   toggle={this.toggleTargetDropdown}>
           <DropdownToggle className={styles.targetDropdownToggle} caret>
-            {this.props.rankingInstance.target}
+            {this.props.data.target}
           </DropdownToggle>
           <DropdownMenu>
             {this.renderTargetSelections()}
@@ -188,7 +177,7 @@ class Generator extends Component {
                   isOpen={this.state.methodDropdownOpen} 
                   toggle={this.toggleMethodDropdown}>
           <DropdownToggle className={styles.methodDropdownToggle} caret>
-            {this.props.rankingInstance.method}
+            {this.props.data.method}
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItem header>RankSVM</DropdownItem>

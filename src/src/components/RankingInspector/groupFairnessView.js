@@ -23,11 +23,11 @@ class GroupFairnessView extends Component {
 
       this.layout = {
         wholeDistribution: {
-          width: 300,
-          height: 100
+          width: 200,
+          height: 50
         },
         topKPlot: {
-          width: 200,
+          width: 300,
           height: 50,
           circle: {
             r: 3
@@ -38,18 +38,19 @@ class GroupFairnessView extends Component {
 
     renderTopKPlot(mode) {
       const data = this.props.data,
+            instances = data.instances,
             topk = this.props.topk,
-            topkItems = _.sortBy([...data].slice(0, topk), ['group']);  // slice and sort
+            topkItems = _.sortBy([...instances].slice(0, topk), ['group']);  // slice and sort
 
       let filteredTopkItems, numItems;
       if (mode === 'whole'){
         filteredTopkItems = topkItems;
         numItems = topk;
       } else if (mode === 'TP'){
-        filteredTopkItems = _.filter(topkItems, (d) => d.y === 0);
+        filteredTopkItems = _.filter(topkItems, (d) => d.target === 0);
         numItems = filteredTopkItems.length;
       } else if (mode === 'FP'){
-        filteredTopkItems = _.filter(topkItems, (d) => d.y === 1);
+        filteredTopkItems = _.filter(topkItems, (d) => d.target === 1);
         numItems = filteredTopkItems.length;
       }
 
@@ -145,13 +146,16 @@ class GroupFairnessView extends Component {
     }
 
     renderWholeDistribution(mode) {
-      let data = this.props.data,
-          topk = this.props.topk,
-          dataTopk = [...data].slice(0, topk);
+      let _self = this;
 
-      const histoData = (mode === 'whole') ? data 
-                      : (mode === 'TP') ? _.filter(data, (d) => d.y === 0) 
-                      : (mode === 'FP') ? _.filter(data, (d) => d.y === 1)
+      let data = this.props.data,
+          instances = data.instances,
+          topk = this.props.topk,
+          dataTopk = [...instances].slice(0, topk);
+
+      const histoData = (mode === 'whole') ? instances 
+                      : (mode === 'TP') ? _.filter(instances, (d) => d.target === 0) 
+                      : (mode === 'FP') ? _.filter(instances, (d) => d.target === 1)
                       : 'error';
   
       const dataGroup1 = _.chain(histoData)
@@ -176,7 +180,7 @@ class GroupFairnessView extends Component {
       svg = new ReactFauxDOM.Element('svg');
 
       svg.setAttribute('width', this.layout.wholeDistribution.width);
-      svg.setAttribute('height', this.layout.wholeDistribution.height - 50);
+      svg.setAttribute('height', this.layout.wholeDistribution.height);
       svg.setAttribute('0 0 100 100');
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       //svg.setAttribute('class', svgClassName);
@@ -187,11 +191,11 @@ class GroupFairnessView extends Component {
       let groupHistogramBar1, groupHistogramBar2;
 
       xScale = d3.scaleLinear()
-            .domain([0, 100])
+            .domain(d3.extent(dataBinGroup1, (d) => d.x0))
             .range([0, this.layout.wholeDistribution.width]),
       yScale = d3.scaleLinear()
-            .domain([0, 10])
-            .range([this.layout.wholeDistribution.height - 50, 0]);
+            .domain(d3.extent(dataBinGroup1, (d) => d.length))
+            .range([this.layout.wholeDistribution.height, 0]);
   
       xAxis = d3.select(svg)
           .append('g')
@@ -211,11 +215,11 @@ class GroupFairnessView extends Component {
   
       groupHistogramBar1.append('rect')
           .attr('x', 0)
-          .attr('width', function(d) { return 15; })
+          .attr('width', function(d) { return _self.layout.wholeDistribution.width / 20; })
           .attr('height', function(d) { return 100 - yScale(d.length); })
           .style('fill', gs.groupColor1)
           .style('opacity', 0.5)
-          .style('stroke', 'black')
+          // .style('stroke', 'black')
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);
   
@@ -229,11 +233,11 @@ class GroupFairnessView extends Component {
   
       groupHistogramBar2.append('rect')
           .attr('x', 0)
-          .attr('width', function(d) { return 15; })
+          .attr('width', function(d) { return _self.layout.wholeDistribution.width / 20; })
           .attr('height', function(d) { return 100 - yScale(d.length); })
           .style('fill', gs.groupColor2)
           .style('opacity', 0.5)
-          .style('stroke', 'black')
+          // .style('stroke', 'black')
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);
 
@@ -252,10 +256,7 @@ class GroupFairnessView extends Component {
     }
 
     render() {
-      if ((!this.props.data || this.props.data.length === 0) ||
-          (!this.props.output || this.props.output.length === 0) || 
-          (!this.props.ranking || this.props.ranking.length === 0)
-         ) {
+      if ((!this.props.data || this.props.data.length === 0)) {
         return <div />
       }
 

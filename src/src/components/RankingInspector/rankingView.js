@@ -2,6 +2,10 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
+import { Slider } from 'antd';
+// import { BarChart } from 'react-dc';
+import dc from 'dc';
+import crossfilter from 'crossfilter';
 
 import styles from './styles.scss';
 import index from '../../index.css';
@@ -17,31 +21,40 @@ class RankingView extends Component {
       this.topk = 10;
       this.numWholeRanking;
       this.layout = {
-	  svgRanking: {
-	      width: 800,
-	      height: 100
-	  },
-	  rankingPlot: {
-	      width: 700,
-	      height: 70,
-	      margin: 10
-	  }
+          svgRanking: {
+              width: 800,
+              height: 80
+          },
+          rankingPlot: {
+              width: 700,
+              height: 70,
+              margin: 10
+          }
       };
+
+      this.onSelectedRankingIntervalChange = this.onSelectedRankingIntervalChange.bind(this);
     }
+
+    onSelectedRankingIntervalChange() {
+
+    }
+
     render() {
-      if (!this.props.topk) {
+      if ((!this.props.topk || this.props.topk.length === 0) ||
+          (!this.props.data || this.props.data.length === 0)) {
         return <div />
       }
 
       let _self = this;
 
       _self.topk = this.props.topk;
-      let data = this.props.output;
-      data = _.sortBy(data, ['score'], ['desc']).reverse();
+      let data = this.props.data,
+          instances = data.instances;
+      instances = _.sortBy(instances, ['score'], ['desc']).reverse();
 
       // Split the data into topK and the rest
-      let dataTopK = data.slice(0, _self.topk),
-          dataWholeRanking = data.slice(_self.topk + 1);
+      let dataTopK = instances.slice(0, _self.topk),
+          dataWholeRanking = instances.slice(_self.topk + 1);
       _self.numWholeRanking = dataWholeRanking.length;
 
       // Sort
@@ -176,10 +189,24 @@ class RankingView extends Component {
         .style('shape-rendering', 'crispEdge')
         .style('stroke-width', 1.5);
 
+      const ndx               = crossfilter(data),
+            rankingDimension  = ndx.dimension((d) => d.ranking),
+            scores            = rankingDimension.group().reduceSum((d) => d.score),
+            xRankingScale     = d3.scaleLinear().domain(_.map(data, (d) => d.ranking));
+
       return (
         <div className={styles.RankingView}>
-          <div className={index.title}>Ranking</div>
-          {svgRankingView.toReact()}
+          <div className={index.title}>Output</div>
+          <div className={styles.outputSummary}>Accuracy: {this.props.data.stat.accuracy}</div>
+          <div className={styles.rankingSummary}>
+            {svgRankingView.toReact()}
+            <Slider range step={1} defaultValue={[20, 50]} onChange={this.onSelectedRankingIntervalChange} />
+          </div>
+          {/* <div className={styles.wholeRanking}>
+            <BarChart dimension={rankingDimension} 
+                      group={scores} 
+                      x={xRankingScale} />
+          </div> */}
         </div>
       );
     }

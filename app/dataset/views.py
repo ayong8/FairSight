@@ -77,6 +77,95 @@ class GetSelectedDataset(APIView):
 class RunRankSVM(APIView):
 
     def get(self, request, format=None):
+        pass
+
+    def post(self, request, format=None):
+        json_request = json.loads(request.body.decode(encoding='UTF-8'));
+        print('json_request: ', json_request.keys());
+        print('json_features: ', json_request['features']);
+        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+        whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, json_request['sensitiveAttr'])
+        dataset_df = get_selected_dataset(whole_dataset_df, json_request['features'], json_request['target'])
+        dataset_df = dataset_df.sort_values(by='idx', ascending=True)
+
+        X = dataset_df[ json_request['features'] ]
+        y = dataset_df[ json_request['target'] ]
+        idx_col = dataset_df['idx']
+
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42)
+        rank_svm = RankSVM().fit(X_train, y_train)
+        accuracy = rank_svm.score(X_test, y_test)
+
+        output_df = X.copy()
+        output_df['idx'] = idx_col
+        output_df['group'] = whole_dataset_df[ json_request['sensitiveAttr'] ]
+        output_df['target'] = y
+
+        print('coeffs: ', rank_svm.coef_)
+        weighted_X_df = X.copy()
+        for idx, feature in enumerate(X.columns):
+            weighted_X_df[feature] = X[feature] * rank_svm.coef_[0, idx]
+        output_df['weighted_sum'] = weighted_X_df.sum(axis=1)
+
+        # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
+        weight_from_leader = 100 / output_df['weighted_sum'].max()
+        min_max_scaler = preprocessing.MinMaxScaler()
+        scaled_sum = min_max_scaler.fit_transform(output_df['weighted_sum'].values.reshape(-1, 1))
+        output_df['score'] = scaled_sum * 100
+
+        # Add rankings
+        output_df = output_df.sort_values(by='score', ascending=False)
+        output_df['ranking'] = range(1, len(output_df) + 1)
+
+        # Convert to dict and put all features into 'features' key
+        instances_dict_list = list(output_df.T.to_dict().values())
+        for output_item in instances_dict_list:  # Go over all items
+            features_dict = {}
+            for feature_key in json_request['features']:
+                features_dict[ feature_key ] = output_item[ feature_key ]
+                output_item.pop(feature_key, None)
+            output_item['features'] = features_dict
+
+        print(instances_dict_list[0])
+
+        ranking_instance_dict = {
+            'rankingId': json_request['rankingId'],
+            'features': json_request['features'],
+            'target': json_request['target'],
+            'sensitiveAttr': json_request['sensitiveAttr'],
+            'method': json_request['method'],
+            'stat': { 'accuracy': accuracy },
+            'instances': instances_dict_list
+        }
+
+        return Response(json.dumps(ranking_instance_dict))
+
+class RunSVM(APIView):
+
+    def get(self, request, format=None):
+        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+        whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
+        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
+        dataset_df = dataset_df.sort_values(by='idx', ascending=True)
+
+        X = dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
+        y = dataset_df['default']
+        idx_col = dataset_df['idx']
+
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
+        svm_fit = svm.SVC(probability=True, kernel='linear', random_state=0).fit(X_train, y_train)
+        accuracy = svm_fit.score(X_test, y_test)
+        pred_probs = svm_fit.predict_proba(X)
+
+        print('svm coef: ', svm_fit.coef_)
+
+        weighted_X = X.copy()
+        weighted_X['idx'] = idx_col
+        weighted_X['group'] = weighted_X['sex']
+
+        return Response(weighted_X.to_json(orient='index'))
+
+    def post(self, request, format=None):
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
         dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
@@ -87,124 +176,6 @@ class RunRankSVM(APIView):
         idx_col = dataset_df['idx']
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=0)
-        rank_svm = RankSVM().fit(X_train, y_train)
-        accuracy = rank_svm.score(X_test, y_test)
-
-        weighted_X = X.copy()
-        weighted_X['idx'] = idx_col
-        weighted_X['group'] = weighted_X['sex']
-
-        print(rank_svm.coef_)
-        for idx, feature in enumerate(X.columns):
-            weighted_X[feature] = X[feature] * rank_svm.coef_[0, idx]
-        weighted_X['weighted_sum'] = weighted_X.sum(axis=1)
-
-        # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
-        weight_from_leader = 100 / weighted_X['weighted_sum'].max()
-        min_max_scaler = preprocessing.MinMaxScaler()
-        scaled_sum = min_max_scaler.fit_transform(weighted_X['weighted_sum'].values.reshape(-1, 1))
-        weighted_X['score'] = scaled_sum * 100
-        weighted_X = weighted_X.sort_values(by='score', ascending=False)
-        print(weighted_X)
-
-        weighted_X['ranking'] = range(1, len(weighted_X) + 1)
-        print(weighted_X)
-
-        return Response(weighted_X.to_json(orient='index'))
-
-    def post(self, request, format=None):
-        print('post data: ', request)
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
-        whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
-        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
-        dataset_df = dataset_df.sort_values(by='idx', ascending=True)
-
-        X = dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
-        y = dataset_df['default']
-        idx_col = dataset_df['idx']
-
-        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
-        rank_svm = RankSVM().fit(X_train, y_train)
-        accuracy = rank_svm.score(X_test, y_test)
-
-        weighted_X = X.copy()
-        weighted_X['idx'] = idx_col
-        weighted_X['group'] = weighted_X['sex']
-
-        print(rank_svm.coef_);
-        for idx, feature in enumerate(X.columns):
-            weighted_X[feature] = X[feature] * rank_svm.coef_[0, idx]
-        weighted_X['weighted_sum'] = weighted_X.sum(axis=1)
-
-        # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
-        weight_from_leader = 100 / weighted_X['weighted_sum'].max()
-        min_max_scaler = preprocessing.MinMaxScaler()
-        scaled_sum = min_max_scaler.fit_transform(weighted_X['weighted_sum'].values.reshape(-1, 1))
-        weighted_X['score'] = scaled_sum * 100
-        weighted_X = weighted_X.sort_values(by='score', ascending=False)
-        print(weighted_X)
-
-        weighted_X['ranking'] = range(1, len(weighted_X) + 1)
-        print(weighted_X)
-
-        return Response(weighted_X.to_json(orient='index'))
-
-class RunSVM(APIView):
-
-    def get(self, request, format=None):
-        print('svm____fitt: ')
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
-        whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
-        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
-        dataset_df = dataset_df.sort_values(by='idx', ascending=True)
-
-        print('svm____fitttt: ')
-        X = dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
-        y = dataset_df['default']
-        idx_col = dataset_df['idx']
-
-        print('svm____fittttttt: ')
-        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
-        svm_fit = svm.SVC(probability=True, kernel='linear').fit(X_train, y_train)
-        accuracy = svm_fit.score(X_test, y_test)
-        pred_probs = svm_fit.predict_proba(X)
-
-        print('predicted_probabilities: ', pred_probs)
-        print('svm____fittttttttttttt: ', svm_fit)
-
-        weighted_X = X.copy()
-        weighted_X['idx'] = idx_col
-        weighted_X['group'] = weighted_X['sex']
-
-        # print(svm_fit.coef_);
-        # for idx, feature in enumerate(X.columns):
-        #     weighted_X[feature] = X[feature] * svm_fit.coef_[0, idx]
-        # weighted_X['weighted_sum'] = weighted_X.sum(axis=1)
-
-        # # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
-        # weight_from_leader = 100 / weighted_X['weighted_sum'].max()
-        # min_max_scaler = preprocessing.MinMaxScaler()
-        # scaled_sum = min_max_scaler.fit_transform(weighted_X['weighted_sum'].values.reshape(-1, 1))
-        # weighted_X['score'] = scaled_sum * 100
-        # weighted_X = weighted_X.sort_values(by='score', ascending=False)
-        # print(weighted_X)
-
-        # weighted_X['ranking'] = range(1, len(weighted_X) + 1)
-        # print(weighted_X)
-
-        return Response(weighted_X.to_json(orient='index'))
-
-    def post(self, request, format=None):
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
-        whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
-        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
-        dataset_df = dataset_df.sort_values(by='idx', ascending=True)
-
-        X = dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']]
-        y = dataset_df['default']
-        idx_col = dataset_df['idx']
-
-        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
         rank_svm = RankSVM().fit(X_train, y_train)
         accuracy = rank_svm.score(X_test, y_test)
 
@@ -302,29 +273,22 @@ class RunMDS(APIView):
 
 # Calculate pairwise gower distance for mixed type of variables
 class CalculatePairwiseInputDistance(APIView):
-    
     def get(self, request, format=None):
+        pass
+
+    def post(self, request, format=None):
+        json_request = json.loads(request.body.decode(encoding='UTF-8'));
+
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
-        whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, 'sex')
-        dataset_df = get_selected_dataset(whole_dataset_df, ['credit_amount', 'installment_as_income_perc', 'sex', 'age'], 'default')
-        dataset_gower_distance = pd.DataFrame(dataset_df[['credit_amount', 'installment_as_income_perc', 'sex', 'age']])
+        whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, json_request['sensitiveAttr'])
+        dataset_df = get_selected_dataset(whole_dataset_df, json_request['features'], json_request['target'])
+        dataset_gower_distance = pd.DataFrame(dataset_df[ json_request['features'] ])
         dataset_gower_distance = dataset_gower_distance.set_index(dataset_df['idx'])
 
-        print(dataset_gower_distance)
-        dataset_gower_distance['credit_amount'] = dataset_gower_distance['credit_amount'].astype(float)
-        dataset_gower_distance['installment_as_income_perc'] = dataset_gower_distance['installment_as_income_perc'].astype(float)
-        dataset_gower_distance['sex'] = dataset_gower_distance['sex'].astype(float)
-        dataset_gower_distance['age'] = dataset_gower_distance['age'].astype(float)
-
-        X=pd.DataFrame({'age':[21,21,19, 30,21,21,19,30,None],
-                        'gender':['M','M','N','M','F','F','F','F',None],
-                        'civil_status':['MARRIED','SINGLE','SINGLE','SINGLE','MARRIED','SINGLE','WIDOW','DIVORCED',None],
-                        'salary':[3000.0,1200.0 ,32000.0,1800.0 ,2900.0 ,1100.0 ,10000.0,1500.0,None],
-                        'has_children':[1,0,1,1,1,0,0,1,None],
-                        'available_credit':[2200,100,22000,1100,2000,100,6000,2200,None]})
+        for feature in json_request['features']:
+            dataset_gower_distance[ feature ] = dataset_gower_distance[ feature ].astype(float)
         
         pairwise_distances = gower_distances(dataset_gower_distance)
-        result = gower_distances(X)
 
         # Convert 2d array to a list of pairwise dictionaries
         # Index starting from 1

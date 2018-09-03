@@ -44,12 +44,12 @@ class Menubar extends Component {
           <Badge className={styles.currentRanking} color="success" pill>R3</Badge>
         </div>
         <div className={styles.margin}>
-          <Steps size='small' className={styles.ProcessIndicator}>
+          <Steps size='small' current={4} className={styles.ProcessIndicator}>
             <Step className={styles.step1} title="Generate" icon={<Icon type="right-circle-o" />} />
-            <Step title="Explore" icon={<Icon type="right-circle-o" />} />
-            <Step title="Analyze" icon={<Icon type="right-circle-o" />} />
-            <Step title="Produce" icon={<Icon type="right-circle-o" />} />
-            <Step title="Compare" icon={<Icon type="right-circle-o" />} />
+            <Step className={styles.step2} title="Explore" icon={<Icon type="right-circle-o" />} />
+            <Step className={styles.step3} title="Analyze" icon={<Icon type="right-circle-o" />} />
+            <Step className={styles.step4} title="Produce" icon={<Icon type="right-circle-o" />} />
+            <Step className={styles.step5} title="Compare" icon={<Icon type="right-circle-o" />} />
           </Steps>
         </div>
         {/* <div className={styles.GeneratorNavBar}>
@@ -85,73 +85,6 @@ class Menubar extends Component {
             <FairnessOrganizer className={styles.FairnessOrganizer}/>
           </DropdownMenu>
         </Dropdown> */}
-      </div>
-    );
-  }
-}
-
-class DataLoader extends Component {
-  render(){
-    return (
-      <div className={styles.DataLoader}>
-        <div className={styles.generatorSubtitle}>1. Upload a dataset</div>
-        <FormGroup>
-          <Label for="exampleFile">File</Label>
-          <Input type="file" name="file" id="exampleFile" />
-          <FormText color="muted">
-            GERMAN.csv
-          </FormText>
-        </FormGroup>
-      </div>
-    );
-  }
-}
-
-class FeatureSelector extends Component {
-  constructor(props) {
-    super(props);
-
-    this.toggle = this.toggle.bind(this);
-    this.state = {
-      dropdownOpen: false
-    };
-  }
-
-  toggle() {
-    this.setState(prevState => ({
-      dropdownOpen: !prevState.dropdownOpen
-    }));
-  }
-
-  render(){
-    return (
-      <div className={styles.FeatureSelector}>
-        <div className={styles.generatorSubtitle + ' ' + styles.firstTitle}>2. Select features and sensitive attributes</div>
-        <div className={styles.secondTitle1}> Sensitive Attribute </div>
-        <Dropdown className={styles.SensitiveAttrSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle caret className={styles.SensitiveAttrSelectorDropdownToggle}>
-            Sensitive Attribute
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItem>Feature1</DropdownItem>
-            <DropdownItem>Feature2</DropdownItem>
-          </DropdownMenu>
-          <div className={styles.sensitiveGroupIndicator}>
-            <span className={styles.group1}>...</span> Men
-            <br />
-            <span className={styles.group2}>...</span> Women
-          </div>
-        </Dropdown>
-        <div className={styles.secondTitle2}> Feature Selection </div>
-        <Dropdown className={styles.FeatureSelectorDropdown} isOpen={this.state.dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle caret className={styles.FeatureSelectorDropdownToggle}>
-            Features
-          </DropdownToggle>
-          <DropdownMenu>
-            <DropdownItem>Feature1</DropdownItem>
-            <DropdownItem>Feature2</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
       </div>
     );
   }

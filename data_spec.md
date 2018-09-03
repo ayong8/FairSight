@@ -42,10 +42,30 @@
 - 'ranking': Get ranking (ascending order by score) (1 to n)
 
 - returns
-`{ {'credit_amount': -1.2, 'sex': 1.2,` // and any other features
-`   'score': 87.4, 'ranking': 4 },`
-`  {'credit_amount': -1.2, 'sex': 1.2,` // and any other features
-`   'score': 87.4, 'ranking': 4 } },`
+rankingInstance: {
+    rankingId: 1,
+    features: \[ 'income', 'age', ... ],
+    target: 'default',
+    sensitiveAttr: 'sex',
+    method: 'RankSVM',
+    stat: {
+        accuracy: 0.67
+    },
+    output: \[
+        ...,{
+            idx: 1,
+            group: 1,
+            ranking: 1,
+            score: 75,
+            features: \[
+                credit_amount: 1169
+            ],
+            target: 2,
+            weighted_sum: 6.5345,
+            sumDistortion: 13.518
+        },...
+    ]
+}
 
 
 # From frontend

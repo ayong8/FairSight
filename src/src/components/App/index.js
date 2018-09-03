@@ -28,12 +28,17 @@ class App extends Component {
       weights: {},
       sensitiveAttr: 'sex',
       selectedRanking: 0, // Index of a ranking selected among rankings in 'rankings'
+      selectedRankingInterval: {
+        from: 0,
+        to: 10
+      },
       rankingInstance: {
-        rankingId: '',
+        rankingId: 1,
         sensitiveAttr: 'sex',
         features: ['credit_amount', 'installment_as_income_perc', 'age'],
         target: 'default',
-        method: 'rankSVM'
+        method: 'RankSVM',
+        sumDistortion: 0
       },
       output: [],
       pairwiseInputDistances: [],
@@ -67,6 +72,8 @@ class App extends Component {
   }
 
   componentDidMount() {
+    const rankingInstance = this.state.rankingInstance;
+
     // data file loading here
     fetch('/dataset/file')
       .then( (response) => {
@@ -90,14 +97,18 @@ class App extends Component {
         });
     
     // Response: All features, and values multiplied by weight
-    fetch('/dataset/runRankSVM')
+    fetch('/dataset/runRankSVM/', {
+        method: 'post',
+        body: JSON.stringify(rankingInstance)
+      })
       .then( (response) => {
         return response.json();
       })   
-      .then( (responseOutput) => {
-          let output = _.values(JSON.parse(responseOutput));
+      .then( (response) => {
+          let rankingInstance = JSON.parse(response);
           
-          this.setState({output: output});
+          console.log('ranRankSVM instance: ', rankingInstance);
+          this.setState({rankingInstance: rankingInstance});
         });
 
     fetch('/dataset/getSelectedDataset')
@@ -110,7 +121,10 @@ class App extends Component {
           this.setState({selectedDataset: selectedDataset});
         });
 
-    fetch('/dataset/calculatePairwiseInputDistance')
+    fetch('/dataset/calculatePairwiseInputDistance/', {
+        method: 'post',
+        body: JSON.stringify(rankingInstance)
+      })
       .then( (response) => {
         return response.json();
       })   
@@ -135,43 +149,6 @@ class App extends Component {
           
           this.setState({inputCoords: dimReductions});
         });
-    // fetch('/dataset/setSensitiveAttr', {
-    //     method: 'post',
-    //     body: JSON.stringify(this.state.sensitiveAttr)
-    //   })
-    //   .then( (response) => {
-    //     return response.json();
-    //   })   
-    //   .then( (response) => {
-    //       let selectedDataset = _.values(JSON.parse(response));
-    //       console.log('selectedDataset: ', selectedDataset);
-          
-    //       this.setState({selectedDataset: selectedDataset});
-    //     });
-  }
-
-  setGroupsFromSensitiveAttr() {
-    const sensitiveAttr = this.state.sensitiveAttr,
-          output = this.state.output,
-          dataSensitiveAttr = this.state.selectedDataset[sensitiveAttr];
-    let groups = [];
-
-    // Extract all categories from the feature
-    groups = ['male', 'female'];
-
-    // Set the group key as 1 or 2 to this.state.output
-    // Sensitive attribute can be obtained from selectedDataset
-    
-    this.state.selectedDataset;
-  }
-
-  calculateScores() {
-    let weights = this.state.weights;
-    let wholeDataset = this.state.dataset;
-    let selectedFeatures = this.state.selectedFeatures;
-    let dataset, weightedDataset;
-
-    dataset = _.map(wholeDataset, (d) => _.pick(d, selectedFeatures));
   }
 
   handleRankingInstanceOptions(optionObj) {  // optionObj e.g., { sensitiveAttr: 'sex' }
@@ -185,12 +162,21 @@ class App extends Component {
     console.log(this.state.rankingInstance);
   }
 
-  handleModelRunning(rankingInstance){
-		this.setState({
-      rankingInstance: rankingInstance
-    });
+  handleModelRunning(){
+    let rankingInstance = this.state.rankingInstance;
+    rankingInstance.rankingId += 1;
 
-    fetch('/dataset/runModel/', {
+    this.setState(prevState => ({
+      rankingInstance: {
+        ...prevState.rankingInstance,
+        rankingId: prevState.rankingInstance.rankingId + 1
+      }
+    }));
+
+    console.log('run button toggled');
+    console.log('rankingInstance: ', rankingInstance);
+    
+    fetch('/dataset/run' + rankingInstance.method + '/', {
         method: 'post',
         body: JSON.stringify(rankingInstance)
       })
@@ -198,28 +184,31 @@ class App extends Component {
         return response.json();
       })   
       .then( (response) => {
-          let selectedDataset = _.values(JSON.parse(response));
-          console.log('selectedDataset: ', selectedDataset);
+          const rankingInstance = JSON.parse(response);
+
+          console.log('runmodel instance: ', rankingInstance);
           
-          this.setState({selectedDataset: selectedDataset});
+          this.setState({
+            rankingInstance: rankingInstance
+          });
         });
 	}
 
   render() {
-    if ((!this.state.selectedDataset || this.state.output.length === 0) || 
-        (!this.state.output || this.state.output.length === 0) ||
+    if ((!this.state.rankingInstance || this.state.rankingInstance.length === 0) || 
         (!this.state.inputCoords || this.state.inputCoords.length === 0) ||
         (!this.state.pairwiseInputDistances || this.state.pairwiseInputDistances.length === 0) || 
         (!this.state.topk)
        ) {
       return <div />
     }
+    console.log('rankingInstance: ', this.state.rankingInstance);
     // For the Ranking Inspector, only send down the selected ranking data
-    let topk = this.state.topk,
-        rankingList = this.state.rankings,
-        wholeDataset = this.state.dataset,
-        selectedRankingIndex = this.state.selectedRanking,
-        selectedRanking = rankingList[selectedRankingIndex];
+    const topk = this.state.topk,
+          rankingList = this.state.rankings,
+          dataset = this.state.dataset,
+          selectedRankingId = this.state.selectedRanking,
+          selectedRanking = rankingList[selectedRankingId];
 
     return (
       <div className={styles.App}>
@@ -229,16 +218,12 @@ class App extends Component {
                  onSelectSensitiveAttr={this.handleSelectSensitiveAttr} />
         <RankingsListView rankings={this.state.rankings} />
         <RankingInspector topk={this.state.topk}
-                          wholeDataset={this.state.dataset}
+                          dataset={this.state.dataset}
                           rankingInstance={this.state.rankingInstance}
                           selectedDataset={this.state.selectedDataset}
-                          // selectedFeatures={this.state.selectedFeatures}
-                          // selectedTarget={this.state.selectedTarget}
-                          // sensitiveAttr={this.state.rankingInstance.sensitiveAttr}
                           inputCoords={this.state.inputCoords}
                           pairwiseInputDistances={this.state.pairwiseInputDistances}
                           permutationInputDistances={this.state.permutationInputDistances}
-                          output={this.state.output} 
                           ranking={selectedRanking} 
                           onRunningModel={this.handleModelRunning}
                           onHandleRankingInstanceOptions={this.handleRankingInstanceOptions} />

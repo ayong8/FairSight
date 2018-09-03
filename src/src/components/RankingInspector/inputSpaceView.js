@@ -37,12 +37,14 @@ class InputSpaceView extends Component {
     }
 
     renderSelectedInstance() {
+      console.log('inputspace: ', this.props.data);
       let data = this.props.data,
+          instances = data.instances,
           selectedInstanceIdx = this.props.selectedInstance,
-          selectedInstance = data.filter((d) => d.idx === selectedInstanceIdx)[0];
+          selectedInstance = instances.filter((d) => d.idx === selectedInstanceIdx)[0];
 
-      let featureValueDivs = Object.keys(selectedInstance.x).map((key) => {
-                return <div>&nbsp;&nbsp;{key + ': ' + selectedInstance.x[key]}</div>;
+      let featureValueDivs = Object.keys(selectedInstance.features).map((key) => {
+                return <div>&nbsp;&nbsp;{key + ': ' + selectedInstance.features[key]}</div>;
               });
 
       return (
@@ -55,107 +57,111 @@ class InputSpaceView extends Component {
     }
 
     render() {
-        const _self = this,
-              data = _.toArray(this.props.inputCoords);
+      if (!this.props.data || this.props.data.length === 0) {
+        return <div />
+      }
 
-        const svg = new ReactFauxDOM.Element('svg');
+      const _self = this,
+            data = _.toArray(this.props.inputCoords);
 
-        svg.setAttribute('width', '60%');
-        svg.setAttribute('height', '250px')
-        svg.setAttribute('class', 'svg_input_space');
-        svg.style.setProperty('margin', '0 10px');
-        //svg.style.setProperty('background-color', '#f7f7f7');
-        svg.style.setProperty('border', '1px solid #dfdfdf');
+      const svg = new ReactFauxDOM.Element('svg');
 
-        let xScale = d3.scaleLinear()
-            .domain(d3.extent(data, (d) => d.dim1))
-            .range([0, 220]);
+      svg.setAttribute('width', '60%');
+      svg.setAttribute('height', '250px')
+      svg.setAttribute('class', 'svg_input_space');
+      svg.style.setProperty('margin', '0 10px');
+      //svg.style.setProperty('background-color', '#f7f7f7');
+      svg.style.setProperty('border', '1px solid #dfdfdf');
 
-        let yScale = d3.scaleLinear()
-            .domain(d3.extent(data, (d) => d.dim2))
-            .range([230, 0]);
+      let xScale = d3.scaleLinear()
+          .domain(d3.extent(data, (d) => d.dim1))
+          .range([0, 220]);
 
-        let gCircles = d3.select(svg)
-            .append('g')
-            .attr('transform', 'translate(10,10)');
+      let yScale = d3.scaleLinear()
+          .domain(d3.extent(data, (d) => d.dim2))
+          .range([230, 0]);
 
-        const circles = gCircles
-            .selectAll('.item')
-            .data(data)
-            .enter().append('circle')
-            .attr('class', 'item')
-            .attr('cx', (d) => xScale(d.dim1))
-            .attr('cy', (d) => yScale(d.dim2))
-            .attr('r', 3)
-            .style('fill', (d) => {
-                let group = d.group;
-                return group === 1
-                    ? gs.groupColor1
-                    : gs.groupColor2;
-            })
-            .style('stroke', 'black')
-            .style('opacity', 0.7)
-            .on('mouseover', (d) => {
-                _self.props.onMouseoverInstance(d.idx);
-            });
+      let gCircles = d3.select(svg)
+          .append('g')
+          .attr('transform', 'translate(10,10)');
 
-        // Handle mouseover action
-        circles
-            .filter((d) => d.idx === this.props.selectedInstance)
-            .style('stroke-width', 2);
+      const circles = gCircles
+          .selectAll('.item')
+          .data(data)
+          .enter().append('circle')
+          .attr('class', 'item')
+          .attr('cx', (d) => xScale(d.dim1))
+          .attr('cy', (d) => yScale(d.dim2))
+          .attr('r', 3)
+          .style('fill', (d) => {
+              let group = d.group;
+              return group === 1
+                  ? gs.groupColor1
+                  : gs.groupColor2;
+          })
+          .style('stroke', 'black')
+          .style('opacity', 0.7)
+          .on('mouseover', (d) => {
+              _self.props.onMouseoverInstance(d.idx);
+          });
 
-        return (
-          <div className={styles.InputSpaceView}>
-            <div className={index.title}>Input space</div>
-            <div className={styles.IndividualPlotStatusView}>
-                {svg.toReact()}
-                <div className={styles.IndividualStatus}>
-                    <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', margin: 5 }}/>
-                    <span>Index: 1</span>
-                    {this.renderSelectedInstance()}
-                </div>
-            </div>
-            <div className={styles.FeatureTableView}>
-              <div className={index.title}>Features</div>
-              <Table borderless className={styles.FeatureTable}>
-                <thead>
-                  <tr>
-                      <th>Features</th>
-                      <th>Custom weight</th>
-                      <th>Weight from model</th>
-                  </tr>
-                </thead>
-                <tbody className={styles.FeatureTableTbody}>
-                  <tr>
-                    <td>Age</td>
-                    <td>
-                      <Slider
-                          min={0}
-                          max={10}
-                          stepSize={0.1}
-                          labelStepSize={10}
-                          onChange={this.getChangeHandler("value2")}
-                          value={3}
-                      //vertical={vertical}
-                      />
-                    </td>
-                    <td>
-                      <Tag
-                          key='+1.15'
-                          //onRemove={removable && onRemove}
-                          //icon={icon === true ? "home" : undefined}
-                          //rightIcon={rightIcon === true ? "map" : undefined}
-                          minimal={true}
-                      >
-                          {'+1.15'}
-                      </Tag>
-                    </td>
-                  </tr>
-                </tbody>
-              </Table>
-            </div>
+      // Handle mouseover action
+      circles
+          .filter((d) => d.idx === this.props.selectedInstance)
+          .style('stroke-width', 2);
+
+      return (
+        <div className={styles.InputSpaceView}>
+          <div className={index.title}>Input space</div>
+          <div className={styles.IndividualPlotStatusView}>
+              {svg.toReact()}
+              <div className={styles.IndividualStatus}>
+                  <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', margin: 5 }}/>
+                  <span>Index: 1</span>
+                  {this.renderSelectedInstance()}
+              </div>
           </div>
-        );
+          <div className={styles.FeatureTableView}>
+            <div className={index.title}>Features</div>
+            <Table borderless className={styles.FeatureTable}>
+              <thead>
+                <tr>
+                    <th>Features</th>
+                    <th>Custom weight</th>
+                    <th>Weight from model</th>
+                </tr>
+              </thead>
+              <tbody className={styles.FeatureTableTbody}>
+                <tr>
+                  <td>Age</td>
+                  <td>
+                    <Slider
+                        min={0}
+                        max={10}
+                        stepSize={0.1}
+                        labelStepSize={10}
+                        onChange={this.getChangeHandler("value2")}
+                        value={3}
+                    //vertical={vertical}
+                    />
+                  </td>
+                  <td>
+                    <Tag
+                        key='+1.15'
+                        //onRemove={removable && onRemove}
+                        //icon={icon === true ? "home" : undefined}
+                        //rightIcon={rightIcon === true ? "map" : undefined}
+                        minimal={true}
+                    >
+                        {'+1.15'}
+                    </Tag>
+                  </td>
+                </tr>
+              </tbody>
+            </Table>
+          </div>
+        </div>
+      );
     }
 
     handleErrorOpen = () => this.setState({ isOpenError: true });

@@ -56,25 +56,26 @@ class RankingInspector extends Component {
 
   combineData() {
     const dataInputCoords = this.props.inputCoords,
-          dataOutput = this.props.output,
-          idx = _.map(dataOutput, (d) => d.idx);
+          data = this.props.rankingInstance,
+          instances = data.instances,
+          idx = _.map(instances, (d) => d.idx);
 
-    let data = [];
+    let combinedData = [];
 
     // Union 
-    data = _.map(idx, (currentIdx) => {
+    combinedData = _.map(idx, (currentIdx) => {
         let inputObj = _.find(dataInputCoords, {'idx': currentIdx}),
-            outputObj = _.find(dataOutput, {'idx': currentIdx});
+            instance = _.find(instances, {'idx': currentIdx});
 
         return {
           idx: currentIdx,
           group: inputObj.group,
           inputCoords: inputObj,
-          output: outputObj
+          instance: instance
         }
       });
 
-    return data;
+    return combinedData;
   }
   // Calculate distortions of combinatorial pairs (For pairwise distortion plot)
   calculatePairwiseDiffs() {
@@ -82,16 +83,13 @@ class RankingInspector extends Component {
           dataPairwiseInputDistances = this.props.pairwiseInputDistances,
           dataPairs = pairwise(data);   
 
-    console.log('dataPairs: ', dataPairs);
-    console.log('dataPairwiseInputDistances: ', dataPairwiseInputDistances)
-
     this.setScalesFromDataPairs(dataPairwiseInputDistances, dataPairs);
 
     let dataPairwiseDiffs = [];
     // Get difference between input space(from dataPairwiseInputDistances) and output space(from dataPairs.output.ranking)
     for(let i=0; i<dataPairs.length-1; i++){
       let diffInput = dataPairwiseInputDistances[i].input_dist,
-          diffOutput = Math.abs(dataPairs[i][0].output.ranking - dataPairs[i][1].output.ranking),
+          diffOutput = Math.abs(dataPairs[i][0].instance.ranking - dataPairs[i][1].instance.ranking),
           pair = 0;
 
       if((dataPairs[i][0].group === 1) && (dataPairs[i][1].group === 1))
@@ -104,8 +102,8 @@ class RankingInspector extends Component {
       dataPairwiseDiffs.push({
         idx1: dataPairs[i][0].idx,
         idx2: dataPairs[i][1].idx,
-        x1: dataPairs[i][0].output,
-        x2: dataPairs[i][1].output,
+        x1: dataPairs[i][0].instance,
+        x2: dataPairs[i][1].instance,
         pair: pair,
         diffInput: diffInput,
         diffOutput: diffOutput,
@@ -127,12 +125,11 @@ class RankingInspector extends Component {
     let dataPermutationDiffs = [], 
         input_idx = 0;
 
-    console.log('dataPermutationInputDistances: ', dataPermutationInputDistances);
     _.forEach(data, (obj1) => {
         let row = [];
         _.forEach(data, (obj2) => {
           const diffInput = dataPermutationInputDistances[input_idx].input_dist,
-                diffOutput = Math.abs(obj1.output.ranking - obj2.output.ranking);
+                diffOutput = Math.abs(obj1.instance.ranking - obj2.instance.ranking);
           let pair = 0;
 
             if((obj1.group === 1) && (obj2.group === 1))
@@ -150,8 +147,8 @@ class RankingInspector extends Component {
           row.push({
             idx1: obj1.idx,
             idx2: obj2.idx,
-            x1: obj1.output,
-            x2: obj2.output,
+            x1: obj1.instance,
+            x2: obj2.instance,
             pair: pair,
             diffInput: diffInput,
             diffOutput: diffOutput,
@@ -167,8 +164,6 @@ class RankingInspector extends Component {
         dataPermutationDiffs.push(row);
     });
 
-    console.log('dataPermutationDiffs: ', dataPermutationDiffs);
-
     return dataPermutationDiffs;
   }
 
@@ -178,21 +173,17 @@ class RankingInspector extends Component {
         .range([0, 1]);
     this.outputScale = d3.scaleLinear()
         .domain(d3.extent(dataPairs, (d) => 
-            Math.abs(d[0].output.ranking - d[1].output.ranking))
+            Math.abs(d[0].instance.ranking - d[1].instance.ranking))
         )
         .range([0, 1]);
   }
 
   handleRankingInstanceOptions(optionObj) {
-    console.log('passed option object: ', optionObj);
     this.props.onHandleRankingInstanceOptions(optionObj);
   }
 
-  handleModelRunning(rankingInstance) {
-    console.log('on the way up: ', rankingInstance);
-
-    // Check all parameters so that we send all we need to run a model
-    this.props.onRunningModel(rankingInstance);
+  handleModelRunning() {
+    this.props.onRunningModel();
   }
 
   handleMouseoverInstance(idx) {
@@ -202,84 +193,38 @@ class RankingInspector extends Component {
   }
 
   render() {
-    var data = [1,2,3,4,5];
-
+    if (!this.props.rankingInstance || this.props.rankingInstance.length === 0)
+        {
+      return <div />
+    }
     // Data
-    let selectedDataset = this.props.selectedDataset,
-        rankingInstance = this.props.rankingInstance,
-        features = rankingInstance.features,
-        sensitiveAttr = rankingInstance.sensitiveAttr,
-        output = this.props.output;
-          
-    let idx = _.map(selectedDataset, (d) => d.idx),
-          x = _.map(selectedDataset, (d) => _.pick(d, [...features, 'idx'])),
-          y = _.map(selectedDataset, (d) => _.pick(d, ['default', 'idx'])),
-          groups = _.map(selectedDataset, (d) => _.pick(d, [sensitiveAttr, 'idx'])),
-          rankings = _.map(output, (d) => _.pick(d, ['ranking', 'idx'])),
-          scores = _.map(output, (d) => _.pick(d, ['score', 'idx']));
-
-    // Merge multiple datasets (objects) as one object with all attributes together in each data point
-    // x, y, diffs, diffsInPermutations
-    
-    const dataIndividualFairnessView = _.map(idx, (currentIdx) => {
-            const xObj = _.find(x, {'idx': currentIdx}),
-                  yObj = _.find(y, {'idx': currentIdx})['default'],
-                  groupObj = _.find(groups, {'idx': currentIdx}),
-                  rankingObj = _.find(rankings, {'idx': currentIdx}),
-                  scoreObj = _.find(scores, {'idx': currentIdx});
-
-            return {
-              idx: currentIdx,
-              x: xObj,
-              y: yObj,
-              group: groupObj[sensitiveAttr],
-              ranking: rankingObj.ranking,
-              score: scoreObj.score
-            }
-          }),
-
-          dataGroupFairnessView = _.map(idx, (currentIdx) => {
-            const xObj = _.find(x, {'idx': currentIdx}),
-                  yObj = _.find(y, {'idx': currentIdx})['default'],
-                  groupObj = _.find(groups, {'idx': currentIdx}),
-                  rankingObj = _.find(rankings, {'idx': currentIdx}),
-                  scoreObj = _.find(scores, {'idx': currentIdx});
-
-            return {
-              idx: currentIdx,
-              x: xObj,
-              y: yObj,
-              group: groupObj[sensitiveAttr],
-              ranking: rankingObj.ranking,
-              score: scoreObj.score
-            }
-          });
+    const rankingInstance = this.props.rankingInstance,
+          features = rankingInstance.features,
+          sensitiveAttr = rankingInstance.sensitiveAttr;
 
     return (
       <div className={styles.RankingInspector}>
         <Generator className={styles.Generator}
-                   wholeDataset={this.props.wholeDataset}
-                   rankingInstance={this.props.rankingInstance}
+                   dataset={this.props.dataset}
+                   data={this.props.rankingInstance}
                    topk={this.props.topk}
                    onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}
                    onRunningModel={this.handleModelRunning}/>
-        <RankingView topk={this.props.topk} ranking={this.props.ranking} output={this.props.output} />
+        <RankingView topk={this.props.topk} 
+                     data={this.props.rankingInstance} />
         <InputSpaceView className={styles.InputSpaceView}
-                        data={dataIndividualFairnessView}
+                        data={this.props.rankingInstance}
                         inputCoords={this.props.inputCoords}
                         selectedInstance={this.state.selectedInstance} 
                         onMouseoverInstance={this.handleMouseoverInstance} />
-        <IndividualFairnessView data={dataIndividualFairnessView}
+        <IndividualFairnessView data={this.props.rankingInstance}
                                 pairwiseDiffs={this.calculatePairwiseDiffs()}
                                 pairwiseDiffsInPermutation={this.calculatePermutationPairwiseDiffs()}
                                 selectedInstance={this.state.selectedInstance}
                                 />
-        <GroupFairnessView data={dataGroupFairnessView}
-                           output={this.props.output} 
-                           topk={this.props.topk} 
-                           ranking={this.props.ranking} 
-                           wholeRanking={this.props.wholeRanking} className={styles.GroupFairnessView} />
-        {/* <UtilityView ranking={this.props.ranking} wholeRanking={this.props.wholeRanking} className={styles.UtilityView} /> */}
+        <GroupFairnessView className={styles.GroupFairnessView}
+                           data={this.props.rankingInstance} 
+                           topk={this.props.topk} />
       </div>
     );
   }

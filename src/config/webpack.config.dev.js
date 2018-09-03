@@ -91,7 +91,8 @@ module.exports = {
     alias: {
       // Support React Native Web
       // https://www.smashingmagazine.com/2016/08/a-glimpse-into-the-future-with-react-native-for-web/
-      "react-native": "react-native-web"
+      "react-native": "react-native-web",
+      "crossfilter": "crossfilter2"
     },
     plugins: [
       // Prevents users from importing files from outside of src/ (or node_modules/).
@@ -168,7 +169,7 @@ module.exports = {
                 options: {
                   importLoaders: 1,
                   modules: true,
-                  localIdentName: "[path][name]__[local]--[hash:base64:5]",
+                  localIdentName: "[path][name]__[local]",
                   getLocalIdent: (loaderContext, localIdentName, localName, options) => {
                     return loaderContext.resourcePath.includes('antd') ?
                       localName :

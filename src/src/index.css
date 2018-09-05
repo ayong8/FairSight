@@ -18,3 +18,9 @@
 .subTitle {
   margin: 10px;
 }
+
+.step1 i { color: #b5dafe; font-size: 1.6rem; }
+.step2 i { color: #54aaff; font-size: 1.6rem; }
+.step3 i { color: #1c88f3; font-size: 1.6rem; }
+.step4 i { color: #0575e5; font-size: 1.6rem; }
+.step5 i { color: #003569; font-size: 1.6rem; }

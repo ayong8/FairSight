@@ -21,12 +21,39 @@
         border-bottom: 1px solid lightgray;
     }
 
+    .step2 { 
+        color: #54aaff; 
+        font-size: 1.6rem;
+        margin-top: 8px;
+        margin-left: 5px; 
+    }
+    .step3 { 
+        color: #1c88f3; 
+        font-size: 1.6rem; 
+        margin-top: 8px;
+        margin-left: 5px;
+    }
+    .step4 { 
+        color: #0575e5; 
+        font-size: 1.6rem; 
+        margin-top: 8px;
+        margin-left: 5px;
+    }
+
     .Generator {
         grid-area: g;
     }
 
     .InputSpaceView {
         grid-area: i;
+
+        .inputSpaceViewTitleWrapper {
+            display: flex;
+
+            .inputSpaceViewTitle {
+                padding: 0;
+            }
+        }
 
         .FeatureTable {
             margin: 0 10px;
@@ -58,6 +85,13 @@
         grid-area: rk;
         display: flex;
 
+        .rankingViewTitleWrapper {
+            display: flex;
+
+            .rankingViewTitle {
+                padding: 0;
+            }
+        }
       
         .outputSummary {
             width: 30%;
@@ -92,9 +126,15 @@
             'mt mt'
             'dp dp';
         
-        .individualFairnessViewTitle {
-            grid-area: t;
+        .individualFairnessViewTitleWrapper {
+            display: flex;
+
+            .individualFairnessViewTitle {
+                grid-area: t;
+                padding: 0;
+            }
         }
+        
         .MatrixView {
             grid-area: mt;
             padding-top: 10px;
@@ -128,7 +168,7 @@
                 
                 display: flex;
                 align-items: center;
-                justify-content: flex-end;
+                // justify-content: flex-end;
             }
         }
     }

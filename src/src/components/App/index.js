@@ -216,7 +216,6 @@ class App extends Component {
 
     return (
       <div className={styles.App}>
-        <div className={styles.titleBar}></div>
         <Menubar topk={topk} 
                  datasetName='german.csv' 
                  onSelectSensitiveAttr={this.handleSelectSensitiveAttr} />

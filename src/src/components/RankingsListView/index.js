@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 import ReactFauxDOM from 'react-faux-dom';
 import _ from 'lodash';
 import { Table } from 'reactstrap';
+import { Icon } from 'antd';
 
 import styles from "./styles.scss";
 import index from "../../index.css";
@@ -119,7 +120,10 @@ class RankingsListView extends Component {
 
     return (
       <div className={styles.RankingsListView}>
-        <div className={index.title + ' ' + styles.title }> RANKINGS </div>
+        <div className={styles.titleWrapper}>
+          <Icon className={styles.step5} type="check-circle" theme="filled" /> &nbsp;
+          <div className={index.title + ' ' + styles.title }> Rankings </div>
+        </div>
         <div className={styles.addRanking}>+</div>
         <div className={styles.rankingCondition}>RANKING SVM + FEATURE 17</div>
         <Table borderless className={styles.FeatureTable}>

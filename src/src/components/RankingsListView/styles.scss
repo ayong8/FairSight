@@ -6,8 +6,18 @@
     background-color: whitesmoke;
     border: 1px solid #e3e1e1;
 
-    .title {
-      padding: 20px 10px;
+    .titleWrapper {
+        display: flex;
+
+        .title {
+            padding: 20px 3px;
+          }
+          .step5 { 
+              color: #003569; 
+              font-size: 1.6rem; 
+              margin-top: 12px;
+              margin-left: 5px;
+          }
     }
 }
 

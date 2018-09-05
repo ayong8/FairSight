@@ -129,8 +129,9 @@ class Generator extends Component {
   render() {
     return (
       <div className={styles.Generator}>
-        <div className={styles.generatorTitleWrapper + ' ' + index.title}>
-          <Icon type="check-circle" theme="filled" /> Generator
+        <div className={styles.generatorTitleWrapper}>
+          <Icon className={styles.step1} type="check-circle" theme="filled" /> &nbsp;
+          <span className={styles.generatorTitle + ' ' + index.title}>Generator</span>
           <br />
         </div>
         {/* // Sensitive Attribute selector */}

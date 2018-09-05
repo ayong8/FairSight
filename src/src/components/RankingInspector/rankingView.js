@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
-import { Slider } from 'antd';
+import { Slider, Icon } from 'antd';
 // import { BarChart } from 'react-dc';
 import dc from 'dc';
 import crossfilter from 'crossfilter';
@@ -196,7 +196,10 @@ class RankingView extends Component {
 
       return (
         <div className={styles.RankingView}>
-          <div className={index.title}>Output</div>
+          <div className={styles.rankingViewTitleWrapper}>
+            <Icon className={styles.step4} type="check-circle" theme="filled" /> &nbsp;
+            <div className={styles.rankingViewTitle + ' ' + index.title}>Output</div>
+          </div>
           <div className={styles.outputSummary}>Accuracy: {this.props.data.stat.accuracy}</div>
           <div className={styles.rankingSummary}>
             <div className={styles.rankingWrapper}>

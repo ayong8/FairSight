@@ -30,6 +30,7 @@ from sklearn import svm
 import numpy as np
 import statsmodels.api as sm
 from scipy import stats
+import math
 
 import json, simplejson
 
@@ -140,7 +141,7 @@ class RunRankSVM(APIView):
             'target': json_request['target'],
             'sensitiveAttr': json_request['sensitiveAttr'],
             'method': json_request['method'],
-            'stat': { 'accuracy': accuracy },
+            'stat': { 'accuracy': math.ceil(accuracy * 100) / 100.0 },
             'instances': instances_dict_list
         }
 
@@ -329,13 +330,12 @@ class CalculateConfidenceInterval(APIView):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
 
         reg_df = json_normalize(json_request)
+        idx1 = reg_df['idx1']
+        idx2 = reg_df['idx2']
         X = reg_df['X']
         y = reg_df['y']
         y_hat = reg_df['yHat']
 
-        # X = np.array([1,2,3,5,7,8,9,10])
-        # y = np.array([-0.5, -1, 2, -0.3, -1.3, -2, 3, 0])
-        # y_hat = np.array([0, 0, 0, 0, 0, 0, 0, 0])
         y_err = y - y_hat
         mean_x = X.mean()
         n = len(X)
@@ -344,14 +344,24 @@ class CalculateConfidenceInterval(APIView):
         s_err = np.sum(np.power(y_err, 2))
 
         conf_interval = t * np.sqrt((s_err/(n-2))*(1.0/n + (np.power((X-mean_x),2) / ((np.sum(np.power(X,2))) - n*(np.power(mean_x,2))))))
-        upper = y_hat + abs(conf_interval)
-        lower = y_hat - abs(conf_interval)
+        upper = y_hat + 2*abs(conf_interval)
+        lower = y_hat - 2*abs(conf_interval)
+        isFair = np.zeros(reg_df.shape[0]) # 0: false (unfair), 1: true (fair)
+        isUpper = np.ones(reg_df.shape[0])
+        isLower = np.zeros(reg_df.shape[0])
 
-        conf_interval_points_upper_df = pd.DataFrame({ 'x': X, 'y': upper })
+        conf_interval_points_upper_lower_df = pd.DataFrame({ 'x': X, 'upper': upper, 'lower': lower, 'idx1': idx1, 'idx2': idx2, 'distortion': y, 'isFair': isFair })
+        for idx, pair in conf_interval_points_upper_lower_df.iterrows():
+            print(pair['distortion'], pair['upper'], pair['lower'])
+            if (pair['distortion'] <= pair['upper']) and (pair['distortion'] >= pair['lower']):
+                conf_interval_points_upper_lower_df.loc[idx, 'isFair'] = 1
+
+        conf_interval_points_upper_df = pd.DataFrame({ 'x': X, 'y': upper, 'isUpper': isUpper, 'idx1': idx1, 'idx2': idx2, 'distortion': y, 'isFair': conf_interval_points_upper_lower_df['isFair'] })
         conf_interval_points_upper_df = conf_interval_points_upper_df.sort_values(by='x', ascending=True)
-        conf_interval_points_lower_df = pd.DataFrame({ 'x': X, 'y': lower })
+        conf_interval_points_lower_df = pd.DataFrame({ 'x': X, 'y': lower, 'isUpper': isLower, 'idx1': idx1, 'idx2': idx2, 'distortion': y, 'isFair': conf_interval_points_upper_lower_df['isFair'] })
         conf_interval_points_lower_df = conf_interval_points_lower_df.sort_values(by='x', ascending=True)
-        print(conf_interval_points_upper_df.loc[:20])
         conf_interval_points_df = pd.concat([conf_interval_points_upper_df, conf_interval_points_lower_df], axis=0)
+        conf_interval_points_df = conf_interval_points_df.sort_values(by=['idx1', 'idx2'])
+        print(conf_interval_points_upper_df.loc[:20])
 
         return Response(conf_interval_points_df.to_json(orient='records'))

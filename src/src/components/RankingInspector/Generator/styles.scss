@@ -15,6 +15,17 @@
 
   .generatorTitleWrapper {
     margin-bottom: 20px;
+    display: flex;
+    
+    .generatorTitle {
+        color: white;
+        padding: 0;
+    }
+    .step1 { 
+        color: #b5dafe; 
+        font-size: 1.6rem;
+        margin-top: 8px;
+    }
   }
 
   .generatorTitle > span {

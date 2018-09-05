@@ -4,7 +4,7 @@ import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { beeswarm } from 'd3-beeswarm';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { Checkbox } from 'antd';
+import { Checkbox, Icon } from 'antd';
 import regression from 'regression';
 
 import styles from './styles.scss';
@@ -126,7 +126,8 @@ class IndividualFairnessView extends Component {
       this.handleSelectSorting = this.handleSelectSorting.bind(this);
       this.handleSortingMatrixX = this.handleSortingMatrixX.bind(this);
       this.handleSortingMatrixY = this.handleSortingMatrixY.bind(this);
-  
+      this.handleSelectGroupCheckbox = this.handleSelectGroupCheckbox.bind(this);
+      this.handleSelectOutlierAndFairCheckbox = this.handleSelectOutlierAndFairCheckbox.bind(this);
     }
 
     componentDidMount() {
@@ -140,6 +141,8 @@ class IndividualFairnessView extends Component {
       // Calculate confidence interval
       const inputs = _.map(this.props.pairwiseDiffs, (d) => {
               return {
+                idx1: d.idx1,
+                idx2: d.idx2,
                 X: d.scaledDiffInput,
                 y: d.distortion,
                 yHat: 0
@@ -155,7 +158,9 @@ class IndividualFairnessView extends Component {
             return response.json();
           })   
           .then( (response) => {
-            confIntervalPoints = JSON.parse(response);
+            const confIntervalPoints = JSON.parse(response);
+            console.log(confIntervalPoints.filter((d) => d.isFair === 1));
+
             this.setState({
               confIntervalPoints: confIntervalPoints
             });
@@ -278,12 +283,14 @@ class IndividualFairnessView extends Component {
           dataPermutationDiffs = this.props.pairwiseDiffsInPermutation, // 2D-array
           dataPermutationDiffsFlattened = _.flatten(dataPermutationDiffs),
           dataObservedAndDecisions = this.props.dataObservedAndDecisions,
+          confIntervalPoints = this.state.confIntervalPoints,
           distortionMin = d3.extent(dataPermutationDiffsFlattened, (d) => d.distortion)[0],
           distortionMax = d3.extent(dataPermutationDiffsFlattened, (d) => d.distortion)[1],
           selectedInstance = this.props.selectedInstance;
       
       _self.dataPermutationDiffs = dataPermutationDiffs,
       this.calculateSumDistortion(instances, dataPermutationDiffsFlattened);
+      dataPairwiseDiffs = this.setFairInstancesFromConfidenceInterval(confIntervalPoints, dataPairwiseDiffs)
       this.calculateNDM(dataPermutationDiffs);
 
       // For x and y axis
@@ -825,6 +832,17 @@ class IndividualFairnessView extends Component {
           .attr('cy', (d) => _self.yMatrixScale(d.idx) + _self.cellWidth / 2);
     }
 
+    handleSelectGroupCheckbox(checked) {
+      console.log('checked');
+
+      console.log('filtered :', d3.selectAll('.coords_circle')
+        .filter((d) => d.pair !== 1));
+    }
+
+    handleSelectOutlierAndFairCheckbox(checked) {
+      console.log('checked');
+    }
+
     handleSelectSorting(e) {
       let _self = this;
 
@@ -880,11 +898,23 @@ class IndividualFairnessView extends Component {
       return instances;
     }
 
+    setFairInstancesFromConfidenceInterval(confIntervalPoints, dataPairwiseDiffs) {
+      let dataPairForConfInterval = _.filter(confIntervalPoints, (d) => d.isUpper === 1),
+          numPairs = dataPairwiseDiffs.length;
+
+          for(let i=0; i<numPairs; i++){
+            dataPairwiseDiffs[i].isFair = dataPairForConfInterval[i].isFair;
+          };
+
+          console.log(_.filter(dataPairwiseDiffs, (d) => d.isFair === 1));
+
+      return dataPairwiseDiffs;
+    }
+
     calculatePredictionIntervalandOutliers(dataPairwiseDiffs) {
       const distortions = _.map(dataPairwiseDiffs, (d) => {
-            const distortion = d.distortion;
-
-            const upperLimit = 0.90,  
+            const distortion = d.distortion,
+                  upperLimit = 0.90,  
                   lowerLimit = -0.90; // nt
 
             if((distortion > upperLimit) || (distortion < lowerLimit)) {
@@ -982,6 +1012,7 @@ class IndividualFairnessView extends Component {
   
     render() {
       if ((!this.props.data || this.props.data.length === 0) || 
+          (!this.state.confIntervalPoints || this.state.confIntervalPoints.length === 0) ||
           (!this.props.pairwiseDiffs || this.props.pairwiseDiffs.length === 0) || 
           (!this.props.pairwiseDiffsInPermutation || this.props.pairwiseDiffsInPermutation.length === 0)
          ) {
@@ -1113,6 +1144,7 @@ class IndividualFairnessView extends Component {
       _self.renderLegend();
 
       _self.calculatePredictionIntervalandOutliers(dataPairwiseDiffs);
+      console.log('fair info: ', dataPairwiseDiffs.map((d) => d.isFair));
       _self.calculateRSquared(dataPairwiseDiffs);
 
       const margin = 20,
@@ -1132,22 +1164,13 @@ class IndividualFairnessView extends Component {
           .datum(confIntervalPoints)
           .attr('class', 'conf_interval_line')
           .attr('d', confIntervalLine)
-          .style('stroke', 'blue')
+          .style('stroke', d3.rgb('lightblue').darker())
           .style('stroke-width', 1)
-          .style('fill', 'none');
+          .style('stroke-dasharray', '2, 2')
+          .style('fill', 'lightblue')
+          .style('opacity', 0.5);
 
-      const marginRect = gPlot
-                .append('rect')
-                .attr('class', 'margin_rect')
-                .attr('x', 0)
-                .attr('y', _self.yDecisionScale(0) - (outlierMargin/2))
-                .attr('width', _self.layout.plot.width)
-                .attr('height', margin * 2)
-                .style('fill', 'lightblue')
-                .style('opacity', 0.5)
-                .style('stroke', d3.rgb('lightgreen').darker())
-                .style('stroke-dasharray', '2, 2'),
-            upperOutlierArea = gPlot
+      const upperOutlierArea = gPlot
                 .append('rect')
                 .attr('class', 'upper_outlier_rect')
                 .attr('x', 0)
@@ -1169,29 +1192,38 @@ class IndividualFairnessView extends Component {
                 .style('opacity', 0.5)
                 .style('stroke', d3.rgb('pink').darker())
                 .style('stroke-dasharray', '2, 2');
+
+      console.log(_.filter(dataPairwiseDiffs, (d) => d.isFair === 1));
   
       const coordsCircles = gPlot
               .selectAll('.coords_circle')
               .data(dataPairwiseDiffs)
               .enter().append('circle')
               .attr('class', (d) => {
-                let groupClass;
+                const pairCircleClass = 'coords_circle',
+                      groupClass = (d.pair === 1) ? 'groupPair1'
+                          : (d.pair === 2) ? 'groupPair2'
+                          : 'betweenGroupPair',
+                      fairClass = (d.isFair === 1) ? 'fairPair'
+                          : '',
+                      outlierClass = (d.isOutlier === 1) ? 'outlierPair'
+                          : '';
 
-                if(d.pair === 1)
-                  groupClass = 'coords_circle_group1';
-                else if(d.pair === 2)
-                  groupClass = 'coords_circle_group2';
-                else
-                  groupClass = 'coords_circle_betweenGroup';
-
-                return 'coords_circle ' + groupClass;
+                return pairCircleClass + ' ' + groupClass + ' ' + fairClass + ' ' + outlierClass;
               })
               .attr('cx', (d) => _self.xObservedScale(Math.abs(d.scaledDiffInput)))
               .attr('cy', (d) => _self.yDistortionScale(d.distortion))
               .attr('r', 3)
               .style('fill', (d) => _self.pairColorScale(d.pair))
-              .style('stroke', (d) => 'black')
-              .style('stroke-width', (d) => (d.isOutlier === true)? 2 : 1)
+              .style('stroke', (d) => {
+                if (d.isFair === 1) {
+                  console.log(d.isFair);
+                }
+                return (d.isFair === 1) ? 'blue'
+                  : d.isOutlier ? 'red'
+                  : 'black'
+              })
+              .style('stroke-width', (d) => d.isFair || d.isOutlier ? 2 : 1)
               .style('opacity', 0.8)
               .style('stroke-opacity', 0.8)
               .on('mouseover', function(d, i) {
@@ -1501,7 +1533,7 @@ class IndividualFairnessView extends Component {
                 .style('opacity', 1);
 
               svgPlot.select('.group_fitting_line').remove();
-          })
+          });
 
       gLegend.append('text')
           .attr('x', 30)
@@ -1509,16 +1541,23 @@ class IndividualFairnessView extends Component {
           .text('Woman-Woman')
           .style('font-size', '11px');
 
-      const CheckboxGroup = Checkbox.Group;
-      const groupOptions = [
-          { label: 'Apple', value: 'Apple' },
-          { label: 'Pear', value: 'Pear' },
-          { label: 'Orange', value: 'Orange' },
-        ];
+      const CheckboxGroup = Checkbox.Group,
+            groupOptions = [
+            { label: 'Men', value: 'Men' },
+            { label: 'Women', value: 'Women' },
+            { label: 'Between', value: 'Between' }
+          ],
+            outlierAndFairOptions = [
+              { label: 'Outliers', value: 'Outliers' },
+              { label: 'Fair pairs', value: 'Fair pairs' }
+          ];
       
       return (
         <div className={styles.IndividualFairnessView}>
-          <div className={index.title + ' ' + styles.individualFairnessViewTitle}>Distortions</div>
+          <div className={styles.individualFairnessViewTitleWrapper}>
+            <Icon className={styles.step3} type="check-circle" theme="filled" /> &nbsp;
+            <div className={index.title + ' ' + styles.individualFairnessViewTitle}>Distortions</div>
+          </div>
           <div className={styles.MatrixView}> 
             <div className={index.subTitle}>Individual Distortions</div>
             <div className={styles.matrixDropdownWrapper}>
@@ -1549,9 +1588,11 @@ class IndividualFairnessView extends Component {
           <div className={styles.DistortionPlot}> 
             <div className={index.subTitle}>Pairwise Distortions</div>
             <div className={styles.IndividualFairnessViewBar}>
-              <span>Select: &nbsp;</span>
-              <CheckboxGroup options={groupOptions} defaultValue={['Apple']} />
-              sort by: &nbsp;
+              <span>Select groups: &nbsp;</span>
+              <CheckboxGroup options={groupOptions} defaultValue={['Women', 'Men', 'Between']} onChange={this.handleSelectGroupCheckbox} />
+              <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
+              <CheckboxGroup options={outlierAndFairOptions} defaultValue={[]} onChange={this.handleSelectOutlierAndFairCheckbox} />
+              {/* sort by: &nbsp;
               <Dropdown direction='down' className={styles.DistortionSortingDropdown} isOpen={this.state.dropdownOpen}  size='sm' toggle={this.sortDistortion}>
                 <DropdownToggle caret>
                   close to far
@@ -1560,7 +1601,7 @@ class IndividualFairnessView extends Component {
                   <DropdownItem value='pairwiseDistance' onClick={this.handleSelectSorting}>Pairwise distance (close to far)</DropdownItem>
                   <DropdownItem value='distortion' onClick={this.handleSelectSorting}>Distortion (small to large)</DropdownItem>
                 </DropdownMenu>
-              </Dropdown>
+              </Dropdown> */}
             </div>
             {this.svg.toReact()}
           </div>

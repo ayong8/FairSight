@@ -111,6 +111,7 @@ class RankingInspector extends Component {
         scaledDiffOutput: this.outputScale(diffOutput),
         distortion: this.outputScale(diffOutput) - this.inputScale(diffInput),
         absDistortion: Math.abs(this.outputScale(diffOutput) - this.inputScale(diffInput)),
+        isFair: false,
         isOutlier: false
       });
     }
@@ -156,6 +157,7 @@ class RankingInspector extends Component {
             scaledDiffOutput: this.outputScale(diffOutput),
             distortion: this.outputScale(diffOutput) - this.inputScale(diffInput),
             absDistortion: Math.abs(this.outputScale(diffOutput) - this.inputScale(diffInput)),
+            isFair: false,
             isOutlier: false
           });
 

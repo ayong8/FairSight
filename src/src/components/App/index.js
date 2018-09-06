@@ -29,7 +29,7 @@ class App extends Component {
       weights: {},
       sensitiveAttr: 'sex',
       selectedRanking: 0, // Index of a ranking selected among rankings in 'rankings'
-      selectedRankingInterval: {
+      selectedInstances: {
         from: 0,
         to: 10
       },
@@ -39,33 +39,20 @@ class App extends Component {
         features: ['credit_amount', 'income_perc', 'age'],
         target: 'default',
         method: 'RankSVM',
-        sumDistortion: 0
+        sumDistortion: 0,
+        instances: [],
+        stat: {
+          accuracy: 0,
+          goodnessOfFairness: 0,
+          sp: 0,
+          tp: 0,
+          fp: 0
+        }
       },
       output: [],
       pairwiseInputDistances: [],
       permutationInputDistances: [],
-      rankings: [
-        [
-          { ranking: 1, score: 90, group: 1 },
-          { ranking: 2, score: 88, group: 2 },
-          { ranking: 3, score: 85, group: 1 },
-          { ranking: 4, score: 80, group: 1 },
-          { ranking: 5, score: 77, group: 2 },
-          { ranking: 6, score: 75, group: 1 },
-          { ranking: 7, score: 73, group: 2 },
-          { ranking: 8, score: 70, group: 2 }
-        ],
-        [
-          { ranking: 1, score: 90, group: 1 },
-          { ranking: 2, score: 88, group: 1 },
-          { ranking: 3, score: 85, group: 1 },
-          { ranking: 4, score: 82, group: 1 },
-          { ranking: 5, score: 80, group: 2 },
-          { ranking: 6, score: 78, group: 1 },
-          { ranking: 7, score: 75, group: 2 },
-          { ranking: 8, score: 70, group: 1 }
-        ]
-      ]
+      rankings: []
     };
 
     this.handleModelRunning = this.handleModelRunning.bind(this);
@@ -89,16 +76,6 @@ class App extends Component {
               n: dataset.length
             });
           });
-
-    fetch('/dataset/getWeight')
-      .then( (response) => {
-        return response.json();
-      })   
-      .then( (responseWeight) => {
-          let weights = JSON.parse(responseWeight)[0];
-          
-          this.setState({weights: weights});
-        });
     
     // Response: All features, and values multiplied by weight
     fetch('/dataset/runRankSVM/', {
@@ -110,19 +87,12 @@ class App extends Component {
       })   
       .then( (response) => {
           let rankingInstance = JSON.parse(response);
+          console.log(rankingInstance);
           
-          console.log('ranRankSVM instance: ', rankingInstance);
-          this.setState({rankingInstance: rankingInstance});
-        });
-
-    fetch('/dataset/getSelectedDataset')
-      .then( (response) => {
-        return response.json();
-      })   
-      .then( (response) => {
-          let selectedDataset = _.values(JSON.parse(response));
-          
-          this.setState({selectedDataset: selectedDataset});
+          this.setState(prevState => ({
+            rankingInstance: rankingInstance,
+            rankings: [ ...prevState.rankings, rankingInstance ]
+          }));
         });
 
     fetch('/dataset/calculatePairwiseInputDistance/', {
@@ -201,7 +171,8 @@ class App extends Component {
   render() {
     if ((!this.state.rankingInstance || this.state.rankingInstance.length === 0) || 
         (!this.state.inputCoords || this.state.inputCoords.length === 0) ||
-        (!this.state.pairwiseInputDistances || this.state.pairwiseInputDistances.length === 0) || 
+        (!this.state.pairwiseInputDistances || this.state.pairwiseInputDistances.length === 0) ||
+        (!this.state.rankings || this.state.rankings.length === 0) || 
         (!this.state.topk)
        ) {
       return <div />
@@ -209,14 +180,17 @@ class App extends Component {
     console.log('rankingInstance: ', this.state.rankingInstance);
     // For the Ranking Inspector, only send down the selected ranking data
     const topk = this.state.topk,
-          rankingList = this.state.rankings,
+          rankings = this.state.rankings,
           dataset = this.state.dataset,
           selectedRankingId = this.state.selectedRanking,
-          selectedRanking = rankingList[selectedRankingId];
+          selectedRanking = rankings[selectedRankingId];
+
+    console.log(rankings);
 
     return (
       <div className={styles.App}>
-        <Menubar topk={topk} 
+        <Menubar topk={topk}
+                 data={this.state.rankingInstance}
                  datasetName='german.csv' 
                  onSelectSensitiveAttr={this.handleSelectSensitiveAttr} />
         <RankingsListView rankings={this.state.rankings} />
@@ -225,6 +199,7 @@ class App extends Component {
                           dataset={this.state.dataset}
                           rankingInstance={this.state.rankingInstance}
                           selectedDataset={this.state.selectedDataset}
+                          selectedInstances={this.state.selectedInstances}
                           inputCoords={this.state.inputCoords}
                           pairwiseInputDistances={this.state.pairwiseInputDistances}
                           permutationInputDistances={this.state.permutationInputDistances}

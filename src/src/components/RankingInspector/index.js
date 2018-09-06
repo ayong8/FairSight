@@ -213,7 +213,8 @@ class RankingInspector extends Component {
                    n={this.props.n}
                    onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}
                    onRunningModel={this.handleModelRunning}/>
-        <RankingView topk={this.props.topk} 
+        <RankingView topk={this.props.topk}
+                     selectedInstances={this.props.selectedInstances}
                      data={this.props.rankingInstance} />
         <InputSpaceView className={styles.InputSpaceView}
                         data={this.props.rankingInstance}

@@ -28,3 +28,7 @@ body {
   background-color: white !important;
   color: #003569 !important;
 }
+
+.badge-success {
+  font-size: 1.2rem;
+}

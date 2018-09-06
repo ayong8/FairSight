@@ -49,7 +49,6 @@ class InputSpaceView extends Component {
 
       return (
         <div className={styles.selectedInstanceInfo}>
-          <div>Index:&nbsp;{selectedInstanceIdx}</div>
           <div><b>Features</b></div>
           <div>{featureValueDivs}</div>
         </div>

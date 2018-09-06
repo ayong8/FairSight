@@ -134,8 +134,8 @@ class IndividualFairnessView extends Component {
       this.setState({
         sortMatrixXBy: 'sumDistortion',
         sortMatrixYBy: 'sumDistortion',
-        sortMatrixXdropdownValue: 'Total distortion',
-        sortMatrixYdropdownValue: 'Total distortion'
+        sortMatrixXdropdownValue: 'sumDistortion',
+        sortMatrixYdropdownValue: 'sumDistortion'
       });
 
       // Calculate confidence interval
@@ -165,6 +165,8 @@ class IndividualFairnessView extends Component {
               confIntervalPoints: confIntervalPoints
             });
           });
+      
+      this.calculateRSquared(this.props.pairwiseDiffs);
     }
   
     componentWillMount() {
@@ -294,8 +296,8 @@ class IndividualFairnessView extends Component {
       this.calculateNDM(dataPermutationDiffs);
 
       // For x and y axis
-      let dataX = [...instances],
-          dataY = [...instances];
+      let dataX = instances,
+          dataY = instances;
 
       // setState should be done within componentDidMount()
 
@@ -328,8 +330,8 @@ class IndividualFairnessView extends Component {
       const sortMatrixXBy = 'sumDistortion',
             sortMatrixYBy = 'sumDistortion';
 
-      let sortedX = _.sortBy(dataX, sortMatrixXBy),
-          sortedY = _.sortBy(dataY, sortMatrixYBy);
+      let sortedX = [...dataX].sort((a, b) => d3.ascending(a.sumDistortion, b.sumDistortion)),
+          sortedY = [...dataY].sort((a, b) => d3.ascending(a.sumDistortion, b.sumDistortion));
 
       _self.xMatrixScale
           .domain(_.map(sortedX, (d) => d.idx)),
@@ -694,17 +696,17 @@ class IndividualFairnessView extends Component {
           instances = data.instances,
           dataPermutationDiffs = this.dataPermutationDiffs;
 
-      const sortedX = _.sortBy(instances, 
-          (sortMatrixXBy === 'sumDistortion') ? 
-            sortMatrixXBy : 
-            'features.'+ sortMatrixXBy
-        );
+      const sortedX = [...instances].sort((a, b) => 
+                (sortMatrixXBy === 'sumDistortion') ?
+                d3.ascending(a.sumDistortion, b.sumDistortion) :
+                d3.ascending(a.features[sortMatrixXBy], b.features[sortMatrixXBy])
+            );
       
       _self.xMatrixScale.domain(
           _.map(sortedX, (d) => d.idx));
       _self.xAttributeScale.domain(
           d3.extent(instances, (d) => 
-            (sortMatrixXBy === 'sumDistortion')? 
+            (sortMatrixXBy === 'sumDistortion') ? 
               d.sumDistortion : 
               d.features[sortMatrixXBy]
           ));
@@ -775,7 +777,7 @@ class IndividualFairnessView extends Component {
             );
       
       _self.yMatrixScale.domain(
-          _.map(sortedY, 'idx'), (d) => d.idx );
+          _.map(sortedY, (d) => d.idx ));
       _self.yAttributeScale.domain(
           d3.extent(_.map(instances, (d) => 
             (sortMatrixYBy === 'sumDistortion') ? 
@@ -891,7 +893,7 @@ class IndividualFairnessView extends Component {
       _.forEach(instances, (d, i) => {
         instances[i].sumDistortion = dataPermutationDiffsForMatrix
             .filter((e) => e.idx1 === instances[i].idx)
-            .map((e) => e.scaledDiffInput - e.scaledDiffOutput)
+            .map((e) => Math.abs(e.scaledDiffInput - e.scaledDiffOutput))
             .reduce((sum, e) => sum + e);
       });
 
@@ -954,7 +956,15 @@ class IndividualFairnessView extends Component {
       
       rSquared = Math.round((SSR / SST) * 100) / 100;
 
-      console.log('r-squared: ', rSquared);
+      this.setState((prevState) => ({
+        rankingInstance: {
+          ...prevState.rankingInstance,
+          stat: {
+            ...prevState.rankingInstance,
+            goodnessOfFairness: rSquared
+          }
+        }
+      }));
     }
 
     calculateNDM(dataPermutationDiffs) {  // Noise Dissimilarity Measure for feature matrix
@@ -1127,7 +1137,7 @@ class IndividualFairnessView extends Component {
             xAxisViolinPlotLine = gViolinPlot.append('line')
               .attr('x1', -20)
               .attr('y1', _self.yDistortionScale(0))
-              .attr('x2', 70)
+              .attr('x2', 100)
               .attr('y2', _self.yDistortionScale(0))
               .style('stroke-dasharray', '3,3')
               .style('stroke', 'lightgray')
@@ -1145,7 +1155,6 @@ class IndividualFairnessView extends Component {
 
       _self.calculatePredictionIntervalandOutliers(dataPairwiseDiffs);
       console.log('fair info: ', dataPairwiseDiffs.map((d) => d.isFair));
-      _self.calculateRSquared(dataPairwiseDiffs);
 
       const margin = 20,
             outlierMargin = 5,
@@ -1318,17 +1327,23 @@ class IndividualFairnessView extends Component {
               .datum(fit.points)
               .attr('d', fittedLine)
               .style('stroke', 'black')
-              .style('fill', 'none'),
+              .style('fill', 'none')
+              .style('stroke-width', '3px')
+              .style('stroke-dasharray', '10,10'),
             fittedPath2 = gPlot.append('path')
               .datum(fitBetweenGroup.points)
               .attr('d', fittedLine)
-              .style('stroke', 'blue')
-              .style('fill', 'none'),
+              .style('stroke', '#8dee8c')
+              .style('fill', 'none')
+              .style('stroke-width', '3px')
+              .style('stroke-dasharray', '10,10'),
             fittedPath3 = gPlot.append('path')
               .datum(fitWithinGroup.points)
               .attr('d', fittedLine)
-              .style('stroke', 'red')
-              .style('fill', 'none');
+              .style('stroke', 'purple')
+              .style('fill', 'none')
+              .style('stroke-width', '3px')
+              .style('stroke-dasharray', '10,10');
       
       // Violin plot for summary
       const histoChart = d3.histogram()
@@ -1349,23 +1364,17 @@ class IndividualFairnessView extends Component {
               .domain(d3.extent(histoChartBetweenGroupPair, (d) => d.length))
               .range([0, 15]),
             areaWithinGroupPair1 = d3.area()
-              .x0(d => {
-                return -xViolinPlotWithinGroupPair1Scale(d.length);
-              })
+              .x0(d => -xViolinPlotWithinGroupPair1Scale(d.length))
               .x1(d => xViolinPlotWithinGroupPair1Scale(d.length))
               .y(d => _self.yDistortionScale(d.x0))
               .curve(d3.curveCatmullRom),
             areaWithinGroupPair2 = d3.area()
-              .x0(d => {
-                return -xViolinPlotWithinGroupPair2Scale(d.length);
-              })
+              .x0(d => -xViolinPlotWithinGroupPair2Scale(d.length))
               .x1(d => xViolinPlotWithinGroupPair2Scale(d.length))
               .y(d => _self.yDistortionScale(d.x0))
               .curve(d3.curveCatmullRom),
             areaBetweenGroupPair = d3.area()
-              .x0(d => {
-                return -xViolinPlotBetweenGroupPairScale(d.length);
-              })
+              .x0(d => -xViolinPlotBetweenGroupPairScale(d.length))
               .x1(d => xViolinPlotBetweenGroupPairScale(d.length))
               .y(d => _self.yDistortionScale(d.x0))
               .curve(d3.curveCatmullRom);
@@ -1379,6 +1388,7 @@ class IndividualFairnessView extends Component {
           .style('stroke','black')
           .style('stroke-width', 2)
           .style('fill', (d, i) => _self.pairColorScale(i + 1)) // i == 0 => pair == 1 => pair1
+          .style('fill-opacity', 0.8)
           .attr('d', (d, i) => {
             console.log(d, i);
             if (i+1 === 1)
@@ -1434,13 +1444,6 @@ class IndividualFairnessView extends Component {
             .attr('y2', _self.yGroupSkewScale(0))
             .style('stroke', 'black')
             .style('stroke-width', 3);
-
-      const groupSkewText = gGroupSkew
-            .append('text')
-            .attr('x', -10)
-            .attr('y', 10)
-            .text('Group skew: ' + groupSkewScore);
-
 
       const gLegend = d3.select(_self.svg).append('g')
           .attr('class', 'g_legend')
@@ -1603,6 +1606,7 @@ class IndividualFairnessView extends Component {
                 </DropdownMenu>
               </Dropdown> */}
             </div>
+            <div className={styles.summary}>Group skew: 1.09</div>
             {this.svg.toReact()}
           </div>
         </div>

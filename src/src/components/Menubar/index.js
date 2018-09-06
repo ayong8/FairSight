@@ -28,7 +28,11 @@ class Menubar extends Component {
   }
 
   render() {
+    if (!this.props.data || this.props.data.length === 0) {
+      return <div />
+    }
     const Step = Steps.Step;
+    const data = this.props.data;
 
     return (
       <div className={styles.Generator}>
@@ -42,15 +46,15 @@ class Menubar extends Component {
         </div>
         <div className={styles.ranking}>
           Current ranking: &nbsp;
-          <Badge className={styles.currentRanking} color="success" pill>R3</Badge>
+          <Badge className={styles.currentRanking} color="success" pill>{'R' + data.rankingId}</Badge>
         </div>
         <div className={styles.margin}>
           <Steps size='small' current={4} className={styles.ProcessIndicator}>
-            <Step className={index.step1} title="Generate" icon={<Icon type="check-circle" theme="filled" />} />
-            <Step className={index.step2} title="Explore" icon={<Icon type="check-circle" theme="filled" />} />
-            <Step className={index.step3} title="Analyze" icon={<Icon type="check-circle" theme="filled" />} />
-            <Step className={index.step4} title="Produce" icon={<Icon type="check-circle" theme="filled" />} />
-            <Step className={index.step5} title="Compare" icon={<Icon type="check-circle" theme="filled" />} />
+            <Step className={index.step1} title="Parameters" icon={<Icon type="check-circle" theme="filled" />} />
+            <Step className={index.step2} title="Input" icon={<Icon type="check-circle" theme="filled" />} />
+            <Step className={index.step3} title="Distortions" icon={<Icon type="check-circle" theme="filled" />} />
+            <Step className={index.step4} title="Output" icon={<Icon type="check-circle" theme="filled" />} />
+            <Step className={index.step5} title="Ranking list" icon={<Icon type="check-circle" theme="filled" />} />
           </Steps>
         </div>
         {/* <div className={styles.GeneratorNavBar}>

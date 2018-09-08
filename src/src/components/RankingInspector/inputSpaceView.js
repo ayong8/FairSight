@@ -40,15 +40,15 @@ class InputSpaceView extends Component {
       console.log('inputspace: ', this.props.data);
       let data = this.props.data,
           instances = data.instances,
-          selectedInstanceIdx = this.props.selectedInstance,
-          selectedInstance = instances.filter((d) => d.idx === selectedInstanceIdx)[0];
+          selectedRankingIntervalIdx = this.props.selectedInstance,
+          selectedInstance = instances.filter((d) => d.idx === selectedRankingIntervalIdx)[0];
 
       let featureValueDivs = Object.keys(selectedInstance.features).map((key) => {
                 return <div>&nbsp;&nbsp;{key + ': ' + selectedInstance.features[key]}</div>;
               });
 
       return (
-        <div className={styles.selectedInstanceInfo}>
+        <div className={styles.selectedRankingIntervalInfo}>
           <div><b>Features</b></div>
           <div>{featureValueDivs}</div>
         </div>
@@ -131,7 +131,7 @@ class InputSpaceView extends Component {
 
       // Handle mouseover action
       circles
-          .filter((d) => d.idx === this.props.selectedInstance)
+          .filter((d) => d.idx === this.props.selectedRankingInterval)
           .style('stroke-width', 2);
 
       return (

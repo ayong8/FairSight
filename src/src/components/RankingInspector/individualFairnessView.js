@@ -1042,7 +1042,7 @@ class IndividualFairnessView extends Component {
       let data = _self.props.data,
           dataPairwiseDiffs = _self.props.pairwiseDiffs,
           confIntervalPoints = _self.state.confIntervalPoints,
-          selectedInstanceIdx = _self.props.selectedInstance;
+          selectedInstanceIdx = _self.props.selectedRankingInterval;
 
       // data
       dataPairwiseDiffs = _.orderBy(dataPairwiseDiffs, ['scaledDiffInput']);

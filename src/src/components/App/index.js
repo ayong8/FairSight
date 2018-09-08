@@ -28,8 +28,8 @@ class App extends Component {
       inputCoords: [],
       weights: {},
       sensitiveAttr: 'sex',
-      selectedRanking: 0, // Index of a ranking selected among rankings in 'rankings'
-      selectedInstances: {
+      selectedInstance: 1, // Index of a ranking selected among rankings in 'rankings'
+      selectedRankingInterval: {
         from: 0,
         to: 10
       },
@@ -166,7 +166,14 @@ class App extends Component {
             rankingInstance: rankingInstance
           });
         });
-	}
+  }
+  
+  handleSelectedRankingInstance(interval) {
+    console.log('interval change: ', interval);
+    this.setState({
+      selectedRankingInterval: { from: interval[0], to: interval[1] }
+    });
+  }
 
   render() {
     if ((!this.state.rankingInstance || this.state.rankingInstance.length === 0) || 
@@ -199,12 +206,14 @@ class App extends Component {
                           dataset={this.state.dataset}
                           rankingInstance={this.state.rankingInstance}
                           selectedDataset={this.state.selectedDataset}
-                          selectedInstances={this.state.selectedInstances}
+                          selectedInstance={this.state.selectedInstance}
+                          selectedRankingInterval={this.state.selectedRankingInterval}
                           inputCoords={this.state.inputCoords}
                           pairwiseInputDistances={this.state.pairwiseInputDistances}
                           permutationInputDistances={this.state.permutationInputDistances}
                           ranking={selectedRanking} 
                           onRunningModel={this.handleModelRunning}
+                          onSelectedRankingIntervalChange={this.handleSelectedRankingInstance}
                           onHandleRankingInstanceOptions={this.handleRankingInstanceOptions} />
         <Footer />
       </div>

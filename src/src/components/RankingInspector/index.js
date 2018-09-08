@@ -41,17 +41,10 @@ class RankingInspector extends Component {
     this.inputScale;
     this.outputScale;
 
-    this.state = {
-      selectedInstance: 1, // idx
-      selectedRankingInterval: {
-        start: 10,
-        end: 20
-      }
-    }
-
     this.handleModelRunning = this.handleModelRunning.bind(this);
     this.handleMouseoverInstance = this.handleMouseoverInstance.bind(this);
     this.handleRankingInstanceOptions = this.handleRankingInstanceOptions.bind(this);
+    this.handleSelectedRankingIntervalChange = this.handleSelectedRankingIntervalChange.bind(this);
   }
 
   combineData() {
@@ -184,6 +177,10 @@ class RankingInspector extends Component {
     this.props.onHandleRankingInstanceOptions(optionObj);
   }
 
+  handleSelectedRankingIntervalChange(interval) {
+    this.props.onSelectedRankingIntervalChange(interval);
+  }
+
   handleModelRunning() {
     this.props.onRunningModel();
   }
@@ -214,17 +211,20 @@ class RankingInspector extends Component {
                    onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}
                    onRunningModel={this.handleModelRunning}/>
         <RankingView topk={this.props.topk}
-                     selectedInstances={this.props.selectedInstances}
-                     data={this.props.rankingInstance} />
+                     selectedRankingInterval={this.props.selectedRankingInterval}
+                     data={this.props.rankingInstance}
+                     onSelectedRankingIntervalChange={this.handleSelectedRankingIntervalChange} />
         <InputSpaceView className={styles.InputSpaceView}
                         data={this.props.rankingInstance}
                         inputCoords={this.props.inputCoords}
-                        selectedInstance={this.state.selectedInstance} 
+                        selectedInstance={this.props.selectedInstance}
+                        selectedRankingInterval={this.props.selectedRankingInterval} 
                         onMouseoverInstance={this.handleMouseoverInstance} />
         <IndividualFairnessView data={this.props.rankingInstance}
                                 pairwiseDiffs={this.calculatePairwiseDiffs()}
                                 pairwiseDiffsInPermutation={this.calculatePermutationPairwiseDiffs()}
-                                selectedInstance={this.state.selectedInstance}
+                                selectedInstance={this.props.selectedInstance}
+                                selectedRankingInterval={this.props.selectedRankingInterval}
                                 />
         <GroupFairnessView className={styles.GroupFairnessView}
                            data={this.props.rankingInstance} 

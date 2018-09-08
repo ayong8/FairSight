@@ -32,16 +32,17 @@ class RankingView extends Component {
           }
       };
 
-      this.onSelectedRankingIntervalChange = this.onSelectedRankingIntervalChange.bind(this);
+      this.handleSelectedRankingIntervalChange = this.handleSelectedRankingIntervalChange.bind(this);
     }
 
-    onSelectedRankingIntervalChange() {
-
+    handleSelectedRankingIntervalChange(interval) {
+      console.log(interval);
+      this.props.onSelectedRankingIntervalChange(interval);
     }
 
     render() {
       if ((!this.props.topk || this.props.topk.length === 0) ||
-          (!this.props.selectedInstances || this.props.selectedInstances.length === 0) ||
+          (!this.props.selectedRankingInterval || this.props.selectedRankingInterval.length === 0) ||
           (!this.props.data || this.props.data.length === 0)) {
         return <div />
       }
@@ -188,7 +189,7 @@ class RankingView extends Component {
                 {svgTopkRankingView.toReact()}
               </div>
             </div>
-            <Slider range step={1} defaultValue={[0, 50]} onChange={this.onSelectedRankingIntervalChange} />
+            <Slider range step={1} defaultValue={[0, 50]} onChange={this.handleSelectedRankingIntervalChange} />
           </div>
           {/* <div className={styles.wholeRanking}>
             <BarChart dimension={rankingDimension} 

@@ -286,7 +286,7 @@ class CalculatePairwiseInputDistance(APIView):
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
 
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+        whole_dataset_df = open_dataset('./data/german_credit_sample.csv').loc[:49,]
         whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, json_request['sensitiveAttr'])
         dataset_df = get_selected_dataset(whole_dataset_df, json_request['features'], json_request['target'])
         dataset_gower_distance = pd.DataFrame(dataset_df[ json_request['features'] ])

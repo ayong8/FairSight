@@ -120,6 +120,7 @@ class IndividualFairnessView extends Component {
         }
       };
 
+      this.renderSelectedInstance = this.renderSelectedInstance.bind(this);
       this.handleToggleMatrixX = this.handleToggleMatrixX.bind(this);
       this.handleToggleMatrixY = this.handleToggleMatrixY.bind(this);
       this.sortDistortion = this.sortDistortion.bind(this);
@@ -171,6 +172,25 @@ class IndividualFairnessView extends Component {
   
     componentWillMount() {
 
+    }
+
+    renderSelectedInstance() {
+      console.log('inputspace: ', this.props.data);
+      let data = this.props.data,
+          instances = data.instances,
+          selectedRankingIntervalIdx = this.props.selectedInstance,
+          selectedInstance = instances.filter((d) => d.idx === selectedRankingIntervalIdx)[0];
+
+      let featureValueDivs = Object.keys(selectedInstance.features).map((key) => {
+                return <div>&nbsp;&nbsp;{key + ': ' + selectedInstance.features[key]}</div>;
+              });
+
+      return (
+        <div className={styles.selectedRankingIntervalInfo}>
+          <div><b>Features</b></div>
+          <div>{featureValueDivs}</div>
+        </div>
+      );
     }
 
     renderMatrixXDropdownSelections() {
@@ -280,7 +300,8 @@ class IndividualFairnessView extends Component {
       _self.svgMatrix.style.setProperty('margin', '0 5%');
 
       let data = this.props.data,
-          instances = data.instances,
+          selectedRankingInterval = this.props.selectedRankingInterval,
+          instances = data.instances.slice(selectedRankingInterval.from, selectedRankingInterval.to),
           dataPairwiseDiffs = this.props.pairwiseDiffs,
           dataPermutationDiffs = this.props.pairwiseDiffsInPermutation, // 2D-array
           dataPermutationDiffsFlattened = _.flatten(dataPermutationDiffs),
@@ -1038,8 +1059,11 @@ class IndividualFairnessView extends Component {
       _self.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       _self.svg.setAttribute('transform', 'translate(0,10)');
       _self.svg.style.setProperty('margin', '0 10px');
+
+      console.log('ranking interval in render(): ', _self.props.selectedRankingInterval);
   
-      let data = _self.props.data,
+      let selectedRankingInterval = _self.props.selectedRankingInterval,
+          data = _self.props.data,
           dataPairwiseDiffs = _self.props.pairwiseDiffs,
           confIntervalPoints = _self.state.confIntervalPoints,
           selectedInstanceIdx = _self.props.selectedRankingInterval;
@@ -1553,6 +1577,10 @@ class IndividualFairnessView extends Component {
             outlierAndFairOptions = [
               { label: 'Outliers', value: 'Outliers' },
               { label: 'Fair pairs', value: 'Fair pairs' }
+          ],
+            colorOptions = [
+              { label: 'Signed', value: 'Signed' },
+              { label: 'Absolute', value: 'Absolute' }
           ];
       
       return (
@@ -1561,32 +1589,42 @@ class IndividualFairnessView extends Component {
             <Icon className={styles.step3} type="check-circle" theme="filled" /> &nbsp;
             <div className={index.title + ' ' + styles.individualFairnessViewTitle}>Distortions</div>
           </div>
-          <div className={styles.MatrixView}> 
-            <div className={index.subTitle}>Individual Distortions</div>
-            <div className={styles.matrixDropdownWrapper}>
-              <span>Sort x axis by: &nbsp;</span>
-              <Dropdown className={styles.sortMatrixXdropdown}
-                        isOpen={this.state.sortMatrixXdropdownOpen}  size='sm' toggle={this.handleToggleMatrixX}>
-                <DropdownToggle caret>
-                  {this.state.sortMatrixXdropdownValue}
-                </DropdownToggle>
-                <DropdownMenu>
-                  {this.renderMatrixXDropdownSelections()}
-                </DropdownMenu>
-              </Dropdown>
-              <span>Sort y axis by: &nbsp;</span>
-              <Dropdown className={styles.sortMatrixYdropdown}
-                        isOpen={this.state.sortMatrixYdropdownOpen}  size='sm' toggle={this.handleToggleMatrixY}>
-                <DropdownToggle caret>
-                  {this.state.sortMatrixYdropdownValue}
-                </DropdownToggle>
-                <DropdownMenu>
-                  {this.renderMatrixYDropdownSelections()}
-                </DropdownMenu>
-              </Dropdown>
+          <div className={styles.MatrixSelectedInstanceWrapper}>
+            <div className={styles.IndividualStatus}>
+              <div className={index.subTitle}>Selected Instance</div>
+              <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', margin: 5 }}/>
+              <span>Index: 1</span>
+              {this.renderSelectedInstance()}
             </div>
-            {this.svgMatrix.toReact()}
-            {this.svgLegend.toReact()}
+            <div className={styles.MatrixView}>
+              <div className={index.subTitle}>Individual Distortions</div>
+              <div className={styles.matrixDropdownWrapper}>
+                <span>Set distortion by: &nbsp;</span>
+                <CheckboxGroup options={groupOptions} defaultValue={[ 'Absolute' ]} onChange={this.handleSelectGroupCheckbox} />
+                <span>Sort x axis by: &nbsp;</span>
+                <Dropdown className={styles.sortMatrixXdropdown}
+                          isOpen={this.state.sortMatrixXdropdownOpen}  size='sm' toggle={this.handleToggleMatrixX}>
+                  <DropdownToggle caret>
+                    {this.state.sortMatrixXdropdownValue}
+                  </DropdownToggle>
+                  <DropdownMenu>
+                    {this.renderMatrixXDropdownSelections()}
+                  </DropdownMenu>
+                </Dropdown>
+                <span>Sort y axis by: &nbsp;</span>
+                <Dropdown className={styles.sortMatrixYdropdown}
+                          isOpen={this.state.sortMatrixYdropdownOpen}  size='sm' toggle={this.handleToggleMatrixY}>
+                  <DropdownToggle caret>
+                    {this.state.sortMatrixYdropdownValue}
+                  </DropdownToggle>
+                  <DropdownMenu>
+                    {this.renderMatrixYDropdownSelections()}
+                  </DropdownMenu>
+                </Dropdown>
+              </div>
+              {this.svgMatrix.toReact()}
+              {this.svgLegend.toReact()}
+            </div>
           </div>
           <div className={styles.DistortionPlot}> 
             <div className={index.subTitle}>Pairwise Distortions</div>

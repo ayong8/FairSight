@@ -31,7 +31,7 @@ class App extends Component {
       selectedInstance: 1, // Index of a ranking selected among rankings in 'rankings'
       selectedRankingInterval: {
         from: 0,
-        to: 10
+        to: 50
       },
       rankingInstance: {
         rankingId: 1,
@@ -60,7 +60,8 @@ class App extends Component {
   }
 
   componentDidMount() {
-    const rankingInstance = this.state.rankingInstance;
+    const selectedRankingInterval = this.state.selectedRankingInterval,
+          rankingInstance = this.state.rankingInstance;
 
     // data file loading here
     fetch('/dataset/file')

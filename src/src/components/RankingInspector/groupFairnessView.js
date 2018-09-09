@@ -282,9 +282,9 @@ class GroupFairnessView extends Component {
                   {this.svgTopKPlot.toReact()}
                 </div>
                 <div className={styles.score}>89</div>
-                <div className={styles.wholeDistribution}>
+                {/* <div className={styles.wholeDistribution}>
                   {this.svgWholeDistribution.toReact()}
-                </div>
+                </div> */}
               </div>
             </div>
             <div className={styles.conditionalParityPlot}>
@@ -296,18 +296,18 @@ class GroupFairnessView extends Component {
                   {this.svgTopKPlotTP.toReact()}
                 </div>
                 <div className={styles.score}>92</div>
-                <div className={styles.wholeDistribution}>
+                {/* <div className={styles.wholeDistribution}>
                   {this.svgWholeDistributionTP.toReact()}
-                </div>
+                </div> */}
               </div>
               <div className={styles.conditionalParityPlotWrapper}>
                 <div className={styles.topKPlot}>
                   {this.svgTopKPlotFP.toReact()}
                 </div>
                 <div className={styles.score}>89</div>
-                <div className={styles.wholeDistribution}>
+                {/* <div className={styles.wholeDistribution}>
                   {this.svgWholeDistributionFP.toReact()}
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

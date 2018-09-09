@@ -3,7 +3,6 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { Slider, Icon } from 'antd';
-// import { BarChart } from 'react-dc';
 import dc from 'dc';
 import crossfilter from 'crossfilter';
 
@@ -49,7 +48,8 @@ class RankingView extends Component {
 
       const _self = this;
 
-      const data = this.props.data,
+      const selectedRankingInterval = this.props.selectedRankingInterval,
+            data = this.props.data,
             instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse();
       _self.topk = this.props.topk;
       

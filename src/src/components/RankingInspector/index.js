@@ -48,9 +48,11 @@ class RankingInspector extends Component {
   }
 
   combineData() {
+    console.log('in combineData: ', this.props.rankingInstance);
     const dataInputCoords = this.props.inputCoords,
+          selectedRankingInterval = this.props.selectedRankingInterval,
           data = this.props.rankingInstance,
-          instances = data.instances,
+          instances = data.instances.slice(selectedRankingInterval.from, selectedRankingInterval.to),
           idx = _.map(instances, (d) => d.idx);
 
     let combinedData = [];
@@ -116,6 +118,9 @@ class RankingInspector extends Component {
   calculatePermutationPairwiseDiffs() {
     const data = this.combineData(),
           dataPermutationInputDistances = this.props.permutationInputDistances;
+
+    console.log('calculatePermutationPairwiseDiffs: ', data, dataPermutationInputDistances)
+
     let dataPermutationDiffs = [], 
         input_idx = 0;
 

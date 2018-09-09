@@ -36,25 +36,6 @@ class InputSpaceView extends Component {
         d3.select(svgFeatureTable)
     }
 
-    renderSelectedInstance() {
-      console.log('inputspace: ', this.props.data);
-      let data = this.props.data,
-          instances = data.instances,
-          selectedRankingIntervalIdx = this.props.selectedInstance,
-          selectedInstance = instances.filter((d) => d.idx === selectedRankingIntervalIdx)[0];
-
-      let featureValueDivs = Object.keys(selectedInstance.features).map((key) => {
-                return <div>&nbsp;&nbsp;{key + ': ' + selectedInstance.features[key]}</div>;
-              });
-
-      return (
-        <div className={styles.selectedRankingIntervalInfo}>
-          <div><b>Features</b></div>
-          <div>{featureValueDivs}</div>
-        </div>
-      );
-    }
-
     renderFeatures() {
         const data = this.props.data,
               features = data.features;
@@ -90,7 +71,7 @@ class InputSpaceView extends Component {
 
       const svg = new ReactFauxDOM.Element('svg');
 
-      svg.setAttribute('width', '60%');
+      svg.setAttribute('width', '95%');
       svg.setAttribute('height', '250px')
       svg.setAttribute('class', 'svg_input_space');
       svg.style.setProperty('margin', '0 10px');
@@ -142,13 +123,8 @@ class InputSpaceView extends Component {
           </div>
           <div className={styles.IndividualPlotStatusView}>
               {svg.toReact()}
-              <div className={styles.IndividualStatus}>
-                  <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', margin: 5 }}/>
-                  <span>Index: 1</span>
-                  {this.renderSelectedInstance()}
-              </div>
           </div>
-          <div className={styles.FeatureTableView}>
+          {/* <div className={styles.FeatureTableView}>
             <div className={index.title}>Features</div>
             <Table borderless className={styles.FeatureTable}>
               <thead>
@@ -162,7 +138,7 @@ class InputSpaceView extends Component {
                 {this.renderFeatures()}
               </tbody>
             </Table>
-          </div>
+          </div> */}
         </div>
       );
     }

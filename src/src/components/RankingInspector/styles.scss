@@ -3,12 +3,12 @@
     grid-row: 3 / 4;
 
     display: grid;
-    grid-template-columns: 17% 30% 55%;
-    grid-template-rows: 15% 65% 30%;
+    grid-template-columns: 17% 25% 55%;
+    grid-template-rows: 15% 35% 55%;
     grid-template-areas: 
         'g rk rk'
         'g i id'
-        'g i gf';
+        'g gf id';
 
     .InputSpaceView,
     .IndividualFairnessView,
@@ -134,10 +134,14 @@
                 padding: 0;
             }
         }
-        
-        .MatrixView {
+        .MatrixSelectedInstanceWrapper {
             grid-area: mt;
             padding-top: 10px;
+
+            display: flex;
+
+            .MatrixView {
+            }
         }
         .Legend {
             grid-area: lg;
@@ -176,9 +180,9 @@
     .GroupFairnessUtilityViewWrapper {
         grid-area: gf;
 
-        display: grid;
-        grid-template-columns: 70% 30%;     // Group Fairness View / Utility View
-        grid-template-rows: 10% 30% 60%;
+        // display: grid;
+        // grid-template-columns: 70% 30%;     // Group Fairness View / Utility View
+        // grid-template-rows: 10% 30% 60%;
 
         .GroupFairnessView {
             grid-column: 1;

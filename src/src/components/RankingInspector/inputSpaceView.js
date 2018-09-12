@@ -67,7 +67,8 @@ class InputSpaceView extends Component {
       }
 
       const _self = this,
-            data = _.toArray(this.props.inputCoords);
+            wholeInstances = _.toArray(this.props.inputCoords),
+            instances = wholeInstances.slice(0, 100);
 
       const svg = new ReactFauxDOM.Element('svg');
 
@@ -79,11 +80,11 @@ class InputSpaceView extends Component {
       svg.style.setProperty('border', '1px solid #dfdfdf');
 
       let xScale = d3.scaleLinear()
-          .domain(d3.extent(data, (d) => d.dim1))
+          .domain(d3.extent(instances, (d) => d.dim1))
           .range([0, 220]);
 
       let yScale = d3.scaleLinear()
-          .domain(d3.extent(data, (d) => d.dim2))
+          .domain(d3.extent(instances, (d) => d.dim2))
           .range([230, 0]);
 
       let gCircles = d3.select(svg)
@@ -92,7 +93,7 @@ class InputSpaceView extends Component {
 
       const circles = gCircles
           .selectAll('.item')
-          .data(data)
+          .data(instances)
           .enter().append('circle')
           .attr('class', 'item')
           .attr('cx', (d) => xScale(d.dim1))

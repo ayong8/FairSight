@@ -11,10 +11,21 @@ import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss'; // gs (=global style)
 
+function pairwise(list) {
+  if (list.length < 2) { return []; }
+  var first = list[0],
+      rest  = list.slice(1),
+      pairs = rest.map(function (x) { return [first, x]; });
+  return pairs.concat(pairwise(rest));
+}
 
 class IndividualFairnessView extends Component {
     constructor(props) {
       super(props);
+
+      // To calculate pairwise and permutation diffs
+      this.inputScale;
+      this.outputScale;
 
       this.combinedCoordsData = [],
       this.xObservedScale;
@@ -40,11 +51,20 @@ class IndividualFairnessView extends Component {
       this.cellWidth;
       this.cellHeight;
       this.cellColorDistortionScale;
+      this.cellColorAbsDistortionScale;
       this.sumDistortionScale;
 
+      this.dataPairwiseDiffs = [];
+      this.dataSelectedPairwiseDiffs = [];
       this.dataPermutationDiffs = [];
+      this.dataSelectedPermutationDiffs = [];
+      this.dataPermutationDiffsFlattened = [];
 
       this.state = {
+        selectedIntervalForMatrix: {
+          from: 1,
+          to: 50
+        },
         confIntervalPoints: [],
         dropdownOpen: false,
         sortMatrixXdropdownOpen: false,
@@ -132,15 +152,27 @@ class IndividualFairnessView extends Component {
     }
 
     componentDidMount() {
-      this.setState({
+      const _self = this,
+            data = this.props.data,
+            wholeInstances = data.instances;
+
+      _self.setState({
         sortMatrixXBy: 'sumDistortion',
         sortMatrixYBy: 'sumDistortion',
         sortMatrixXdropdownValue: 'sumDistortion',
         sortMatrixYdropdownValue: 'sumDistortion'
       });
 
+      _self.calculatePairwiseDiffs();
+      _self.calculatePermutationDiffs();
+      _self.calculateRSquared(_self.dataPairwiseDiffs);
+      _self.calculatePredictionIntervalandOutliers(_self.dataPairwiseDiffs);
+      _self.dataPermutationDiffsFlattened = _.flatten(_self.dataPermutationDiffs);
+      _self.calculateSumDistortion(wholeInstances, _self.dataPermutationDiffsFlattened);
+      _self.calculateNDM(_self.dataPermutationDiffs);
+
       // Calculate confidence interval
-      const inputs = _.map(this.props.pairwiseDiffs, (d) => {
+      const inputs = _.map(_self.dataPairwiseDiffs, (d) => {
               return {
                 idx1: d.idx1,
                 idx2: d.idx2,
@@ -149,7 +181,6 @@ class IndividualFairnessView extends Component {
                 yHat: 0
               }
           });
-      let confIntervalPoints = [];
 
       fetch('/dataset/calculateConfidenceInterval/', {
             method: 'post',
@@ -160,22 +191,256 @@ class IndividualFairnessView extends Component {
           })   
           .then( (response) => {
             const confIntervalPoints = JSON.parse(response);
-            console.log(confIntervalPoints.filter((d) => d.isFair === 1));
 
             this.setState({
               confIntervalPoints: confIntervalPoints
             });
+            _self.setFairInstancesFromConfidenceInterval(confIntervalPoints, _self.dataPairwiseDiffs);
           });
-      
-      this.calculateRSquared(this.props.pairwiseDiffs);
+    }
+
+    combineInputsAndOutputs() {
+      const _self = this;
+
+      const dataInputCoords = _self.props.inputCoords,
+            selectedRankingInterval = _self.props.selectedRankingInterval,
+            data = _self.props.data,
+            instances = data.instances,
+            idx = _.map(instances, (d) => d.idx);
+  
+      // Union 
+      const combinedData = _.map(idx, (currentIdx) => {
+          let inputObj = _.find(dataInputCoords, {'idx': currentIdx}),
+              instance = _.find(instances, {'idx': currentIdx});
+  
+          return {
+            idx: currentIdx,
+            group: inputObj.group,
+            inputCoords: inputObj,
+            instance: instance
+          }
+        });
+  
+      return combinedData;
+    }
+    // Calculate distortions of combinatorial pairs (For pairwise distortion plot)
+    calculatePairwiseDiffs() {
+      const _self = this;
+
+      const instances = _self.combineInputsAndOutputs(),
+            dataPairwiseInputDistances = _self.props.pairwiseInputDistances,
+            dataPairs = pairwise(instances);
+  
+      _self.setScalesFromDataPairs(dataPairwiseInputDistances, dataPairs);
+
+      // Get difference between input space(from dataPairwiseInputDistances) and output space(from dataPairs.output.ranking)
+      let dataPairwiseDiffs = [];
+      for(let i=0; i<dataPairs.length-1; i++){
+        let diffInput = dataPairwiseInputDistances[i].input_dist,
+            diffOutput = Math.abs(dataPairs[i][0].instance.ranking - dataPairs[i][1].instance.ranking),
+            pair = 0;
+  
+        if((dataPairs[i][0].group === 1) && (dataPairs[i][1].group === 1))
+          pair = 1;
+        else if((dataPairs[i][0].group === 2) && (dataPairs[i][1].group === 2))
+          pair = 2;
+        else if(dataPairs[i][0].group !== dataPairs[i][1].group)
+          pair = 3;
+  
+        dataPairwiseDiffs.push({
+          idx1: dataPairs[i][0].idx,
+          idx2: dataPairs[i][1].idx,
+          x1: dataPairs[i][0].instance,
+          x2: dataPairs[i][1].instance,
+          pair: pair,
+          diffInput: diffInput,
+          diffOutput: diffOutput,
+          scaledDiffInput: _self.inputScale(diffInput),
+          scaledDiffOutput: _self.outputScale(diffOutput),
+          distortion: _self.outputScale(diffOutput) - _self.inputScale(diffInput),
+          absDistortion: Math.abs(_self.outputScale(diffOutput) - _self.inputScale(diffInput)),
+          isFair: false,
+          isOutlier: false
+        });
+      }
+  
+      _self.dataPairwiseDiffs = dataPairwiseDiffs;
     }
   
-    componentWillMount() {
+    // Calculate distortions of permutational pairs (For matrix view)
+    calculatePermutationDiffs() {
+      const _self = this;
 
+      const instances = _self.combineInputsAndOutputs(),
+            dataPermutationInputDistances = _self.props.permutationInputDistances;
+  
+      let dataPermutationDiffs = [], 
+          input_idx = 0;
+  
+      _.forEach(instances, (obj1) => {
+          let row = [];
+          _.forEach(instances, (obj2) => {
+            const diffInput = dataPermutationInputDistances[input_idx].input_dist,
+                  diffOutput = Math.abs(obj1.instance.ranking - obj2.instance.ranking);
+            let pair = 0;
+  
+              if((obj1.group === 1) && (obj2.group === 1))
+                pair = 1;
+              else if((obj1.group === 2) && (obj2.group === 2))
+                pair = 2;
+              else if(obj1.group !== obj2.group)
+                pair = 3;
+            
+            row.push({
+              idx1: obj1.idx,
+              idx2: obj2.idx,
+              x1: obj1.instance,
+              x2: obj2.instance,
+              pair: pair,
+              diffInput: diffInput,
+              diffOutput: diffOutput,
+              scaledDiffInput: this.inputScale(diffInput),
+              scaledDiffOutput: this.outputScale(diffOutput),
+              distortion: this.outputScale(diffOutput) - this.inputScale(diffInput),
+              absDistortion: Math.abs(this.outputScale(diffOutput) - this.inputScale(diffInput)),
+              isFair: false,
+              isOutlier: false
+            });
+  
+            input_idx++;
+          });
+          dataPermutationDiffs.push(row);
+      });
+  
+      _self.dataPermutationDiffs = dataPermutationDiffs;
+    }
+  
+    setScalesFromDataPairs(dataPairwiseInputDistances, dataPairs){
+      const _self = this;
+
+      _self.inputScale = d3.scaleLinear()
+          .domain(d3.extent(dataPairwiseInputDistances, (d) => d.input_dist))
+          .range([0, 1]);
+      _self.outputScale = d3.scaleLinear()
+          .domain(d3.extent(dataPairs, (d) => 
+              Math.abs(d[0].instance.ranking - d[1].instance.ranking))
+          )
+          .range([0, 1]);
+    }
+
+    calculateSumDistortion(instances, dataPermutationDiffsForMatrix) {
+      _.forEach(instances, (d, i) => {
+        instances[i].sumDistortion = dataPermutationDiffsForMatrix
+            .filter((e) => e.idx1 === instances[i].idx)
+            .map((e) => e.absDistortion)
+            .reduce((sum, e) => sum + e);
+      });
+    }
+
+    setFairInstancesFromConfidenceInterval(confIntervalPoints, dataPairwiseDiffs) {
+      const _self = this;
+
+      const dataPairForConfInterval = _.filter(confIntervalPoints, (d) => d.isUpper === 1),
+            numPairs = dataPairwiseDiffs.length;
+
+            for(let i=0; i<numPairs; i++){
+              dataPairwiseDiffs[i].isFair = dataPairForConfInterval[i].isFair;
+            };
+
+      _self.dataPairwiseDiffs = dataPairwiseDiffs;
+    }
+
+    calculatePredictionIntervalandOutliers(dataPairwiseDiffs) {
+      const distortions = _.map(dataPairwiseDiffs, (d) => {
+            const distortion = d.distortion,
+                  upperLimit = 0.90,  
+                  lowerLimit = -0.90; // nt
+
+            if((distortion > upperLimit) || (distortion < lowerLimit)) {
+              d.isOutlier = true;
+            }
+          });
+    }
+
+    calculateRSquared(dataPairwiseDiffs) {
+      let SSR_arr = [], SST_arr = [],
+          SSR, SST, rSquared,
+          n = dataPairwiseDiffs.length,
+          meanY = _.sum(_.map(dataPairwiseDiffs, (d) => d.distortion)) / n;
+      
+      _.each(dataPairwiseDiffs, (d) => {
+        SSR_arr.push(Math.pow(meanY - 0, 2));
+        SST_arr.push(Math.pow(meanY - d.distortion, 2));
+      });
+
+      SSR = _.sum(SSR_arr);
+      SST = _.sum(SST_arr);
+      
+      rSquared = Math.round((SSR / SST) * 100) / 100;
+
+      this.setState((prevState) => ({
+        rankingInstance: {
+          ...prevState.rankingInstance,
+          stat: {
+            ...prevState.rankingInstance,
+            goodnessOfFairness: rSquared
+          }
+        }
+      }));
+    }
+
+    calculateNDM(dataSelectedPermutationDiffs) {  // Noise Dissimilarity Measure for feature matrix
+      // Generate a random permutation
+      let originalMat = _.map(dataSelectedPermutationDiffs, (arr) => _.map(arr, (d) => d.distortion)),
+          noiseMat = _.shuffle(originalMat),
+          n = originalMat.length,
+          NHX = 3, NHY = 3, r = 1,// Number of neighborhoods to look at
+          dissScoreArr = [],
+          dissScoreSum, NDM,
+          w = n * n * Math.pow((2*r + 1), 2);
+
+      for(let i=0; i<n; i++) {
+        dissScoreArr[i] = [];
+
+        for(let j=0; j<n; j++) {
+          // Check index i and j
+          let neighborArr = [],
+              sumSquaredDiffs = [],
+              validIdx = [],
+              NHsInOriginalMat = [], NHsInNoiseMat = [], 
+              NHInNoiseMatMostSimilar, minDiffs = [],
+              diffs = [];
+          // Collect valid index
+          for(let l=-1; l<=1; l++) {  // l = for x index of neighbors of originalMat[i][j]
+            // Put all neighbors to find the best nearest neighbor of i
+            for(let m=-1; m<=1; m++) {  // m = for y index of neighbors of originalMat[i][j]
+              if(typeof(originalMat[i+l]) !== 'undefined' && typeof(originalMat[i+l][j+m]) !== 'undefined') {
+                // Put it as valid idx to explore the same neighborhood area(index) for noiseMat
+                validIdx.push({ x: i+l, y: j+m });
+              }
+            }
+          }
+          // Go over all valid index for noiseMat, and get the best similar one to the current originalMat[i][j]
+          validIdx.forEach((idx) => {
+            NHsInNoiseMat.push(noiseMat[idx.x][idx.y]);
+            NHsInOriginalMat.push(originalMat[idx.x][idx.y]);
+          });
+
+          NHsInOriginalMat.forEach((o) => {
+            diffs = _.map(NHsInNoiseMat, (n) => Math.abs(o - n));
+            minDiffs.push(Math.min(...diffs));
+          });
+          sumSquaredDiffs = minDiffs.reduce((acc, curr) => acc + curr)
+          dissScoreArr[i].push(sumSquaredDiffs);
+        }
+      }
+      dissScoreSum = dissScoreArr.map((arr) => 
+              arr.reduce((acc, curr) => acc + curr)
+            ).reduce((acc, curr) => acc + curr);
+      NDM = dissScoreSum / w;
     }
 
     renderSelectedInstance() {
-      console.log('inputspace: ', this.props.data);
       let data = this.props.data,
           instances = data.instances,
           selectedRankingIntervalIdx = this.props.selectedInstance,
@@ -223,70 +488,6 @@ class IndividualFairnessView extends Component {
           </DropdownItem>));
     }
 
-    renderPlot() {
-      let _self = this;
-
-      _self.svgPlot = new ReactFauxDOM.Element('svg');
-
-      _self.svgPlot.setAttribute('width', _self.layout.svgPlot.width);
-      _self.svgPlot.setAttribute('height', _self.layout.svgPlot.height);
-      _self.svgPlot.setAttribute('0 0 200 200');
-      _self.svgPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      _self.svgPlot.style.setProperty('margin', '0 5%');
-
-      let dataPairwiseDiffs = this.props.pairwiseDiffs;
-
-      // sort by observed space difference
-      dataPairwiseDiffs = _.orderBy(dataPairwiseDiffs, ['scaledObserved']);
-
-      // Coordinate scales
-      this.xObservedScale2 = d3.scaleLinear()
-          .domain(d3.extent(dataPairwiseDiffs, (d) => d.scaledDiffInput))
-          .range([0, this.layout.svgPlot.width - this.layout.svgPlot.margin]);
-      this.yDecisionScale = d3.scaleLinear()
-          .domain(d3.extent(dataPairwiseDiffs, (d) => d.scaledDiffOutput))  
-          .range([this.layout.svgPlot.height, 0]);
-            
-      let gPlot = d3.select(this.svgPlot).append('g')
-          .attr('class', 'g_plot')
-          .attr('transform', 'translate(0, 0)');
-
-      const xAxisSetting = d3.axisTop(this.xObservedScale2).tickSize(0).ticks(0),
-            yAxisSetting = d3.axisRight(this.yDecisionScale).tickSize(0).ticks(0),
-            xAxis = gPlot.append('g')
-                .call(xAxisSetting)
-                .attr('class', 'indi_x_axis')
-                .attr('transform', 'translate(' + this.layout.svgPlot.margin + ',' + (this.layout.svgPlot.height - this.layout.svgPlot.margin) + ')'),
-            yAxis = gPlot.append('g')
-                .call(yAxisSetting)
-                .attr('class', 'indi_y_axis')
-                .attr('transform', 'translate(0,10)');
-
-      const coordsCircles = gPlot
-            .selectAll('.plot_circle')
-            .data(dataPairwiseDiffs)
-            .enter().append('circle')
-            .attr('class', (d) => {
-              let groupClass;
-
-              if(d.pair === 1)
-                groupClass = 'plot_circle_group1';
-              else if(d.pair === 2)
-                groupClass = 'plot_circle_group2';
-              else
-                groupClass = 'plot_circle_betweenGroup';
-
-              return 'plot_circle ' + groupClass;
-            })
-            .attr('cx', (d) => this.xObservedScale2(d.scaledDiffInput))
-            .attr('cy', (d) => this.yDecisionScale(d.scaledDiffOutput))
-            .attr('r', 1)
-            .style('fill', (d) => this.pairColorScale(d.pair))
-            .style('stroke', (d) => d3.rgb(this.pairColorScale(d.pair)).darker())
-            .style('opacity', 0.8)
-            .style('stroke-opacity', 0.8);
-    }
-
     renderMatrix() {
       let _self = this;
 
@@ -299,45 +500,47 @@ class IndividualFairnessView extends Component {
       _self.svgMatrix.setAttribute('class', 'svg_matrix');
       _self.svgMatrix.style.setProperty('margin', '0 5%');
 
-      let data = this.props.data,
-          selectedRankingInterval = this.props.selectedRankingInterval,
-          instances = data.instances.slice(selectedRankingInterval.from, selectedRankingInterval.to),
-          dataPairwiseDiffs = this.props.pairwiseDiffs,
-          dataPermutationDiffs = this.props.pairwiseDiffsInPermutation, // 2D-array
-          dataPermutationDiffsFlattened = _.flatten(dataPermutationDiffs),
-          dataObservedAndDecisions = this.props.dataObservedAndDecisions,
-          confIntervalPoints = this.state.confIntervalPoints,
-          distortionMin = d3.extent(dataPermutationDiffsFlattened, (d) => d.distortion)[0],
-          distortionMax = d3.extent(dataPermutationDiffsFlattened, (d) => d.distortion)[1],
-          selectedInstance = this.props.selectedInstance;
-      
-      _self.dataPermutationDiffs = dataPermutationDiffs,
-      this.calculateSumDistortion(instances, dataPermutationDiffsFlattened);
-      dataPairwiseDiffs = this.setFairInstancesFromConfidenceInterval(confIntervalPoints, dataPairwiseDiffs)
-      this.calculateNDM(dataPermutationDiffs);
+      let data = _self.props.data,
+          wholeInstances = data.instances,
+          instances = wholeInstances.slice(_self.state.selectedIntervalForMatrix.from - 1, _self.state.selectedIntervalForMatrix.to),
+          selectedRankingInterval = _self.props.selectedRankingInterval,
+          selectedInstance = _self.props.selectedInstance,
+          distortionMin = d3.extent(_self.dataPermutationDiffsFlattened, (d) => d.distortion)[0],
+          distortionMax = d3.extent(_self.dataPermutationDiffsFlattened, (d) => d.distortion)[1];
+
+      // Subsetting permutation distortions for selected interval
+      let dataSelectedPermutationDiffs = _self.dataPermutationDiffs,
+          dataPermutationDiffsFlattend = _.flatten(dataSelectedPermutationDiffs),
+          dataSelectedPermutationDiffsFlattend = _.filter(dataPermutationDiffsFlattend, (d) => 
+            (d.idx1 >= _self.state.selectedIntervalForMatrix.from) && (d.idx1 <= _self.state.selectedIntervalForMatrix.to) &&
+            (d.idx2 >= _self.state.selectedIntervalForMatrix.from) && (d.idx2 <= _self.state.selectedIntervalForMatrix.to)
+          );
 
       // For x and y axis
-      let dataX = instances,
-          dataY = instances;
-
-      // setState should be done within componentDidMount()
+      let dataX = wholeInstances,
+          dataY = wholeInstances,
+          dataSelectedX = instances,
+          dataSelectedY = instances;
 
       //*** Sort feature plot */
-      dataPermutationDiffsFlattened = _.flatten(dataPermutationDiffs);
+      _self.dataPermutationDiffsFlattened = _.flatten(_self.dataPermutationDiffs);
       
       _self.xMatrixScale = d3.scaleBand()
-          .domain(_.map(dataX, (d) => d.idx))  // For now, it's just an index of items(from observed)
+          .domain(_.map(dataSelectedX, (d) => d.idx))  // For now, it's just an index of items(from observed)
           .range([0, _self.layout.svgMatrix.matrixPlot.width]);
       _self.yMatrixScale = d3.scaleBand()
-          .domain(_.map(dataY, (d) => d.idx))  // For now, it's just an index of items(from observed)
+          .domain(_.map(dataSelectedY, (d) => d.idx))  // For now, it's just an index of items(from observed)
           .range([_self.layout.svgMatrix.matrixPlot.height, 0]);
       _self.cellWidth = _self.xMatrixScale.bandwidth();
       _self.cellHeight = _self.yMatrixScale.bandwidth();
       _self.cellColorDistortionScale = d3.scaleLinear()
           .domain([distortionMin, (distortionMin + distortionMax)/2, distortionMax])
           .range(['slateblue', 'white', 'palevioletred']);
+      _self.cellColorAbsDistortionScale = d3.scaleLinear()
+          .domain(d3.extent(_self.dataPermutationDiffsFlattened, (d) => d.absDistortion))
+          .range(['white', 'indigo']);
       _self.sumDistortionScale = d3.scaleLinear()
-          .domain(d3.extent(instances, (d) => d.sumDistortion))
+          .domain(d3.extent(wholeInstances, (d) => d.sumDistortion))
           .range([5, _self.layout.svgMatrix.distortionSumPlotRight.width - 10]);
       _self.xAttributeScale = d3.scaleLinear()
           .domain(d3.extent(dataX, (d) => d.features[Object.keys(d.features)[0]]))
@@ -351,21 +554,21 @@ class IndividualFairnessView extends Component {
       const sortMatrixXBy = 'sumDistortion',
             sortMatrixYBy = 'sumDistortion';
 
-      let sortedX = [...dataX].sort((a, b) => d3.ascending(a.sumDistortion, b.sumDistortion)),
-          sortedY = [...dataY].sort((a, b) => d3.ascending(a.sumDistortion, b.sumDistortion));
+      let sortedSelectedX = [...dataSelectedX].sort((a, b) => d3.ascending(a.sumDistortion, b.sumDistortion)),
+          sortedSelectedY = [...dataSelectedY].sort((a, b) => d3.ascending(a.sumDistortion, b.sumDistortion));
 
       _self.xMatrixScale
-          .domain(_.map(sortedX, (d) => d.idx)),
+          .domain(_.map(sortedSelectedX, (d) => d.idx)),
       _self.yMatrixScale
-          .domain(_.map(sortedY, (d) => d.idx));
+          .domain(_.map(sortedSelectedY, (d) => d.idx));
       _self.xAttributeScale
-          .domain(d3.extent(dataX, (d) => 
+          .domain(d3.extent(sortedSelectedX, (d) => 
             sortMatrixXBy === 'sumDistortion' ?
               d.sumDistortion :
               d.features[ sortMatrixXBy ])
           );
       _self.yAttributeScale
-          .domain(d3.extent(dataY, (d) => 
+          .domain(d3.extent(sortedSelectedY, (d) => 
             sortMatrixXBy === 'sumDistortion' ?
               d.sumDistortion :
               d.features[ sortMatrixYBy ])
@@ -375,7 +578,7 @@ class IndividualFairnessView extends Component {
               .attr('class', 'g_matrix')
               .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',0)'),
           gCells = gMatrix.selectAll('.g_cell')
-              .data(dataPermutationDiffsFlattened)
+              .data(dataSelectedPermutationDiffsFlattend)
               .enter().append('g')
               .attr('class', 'g_cell')
               .attr('transform', function(d){
@@ -412,7 +615,7 @@ class IndividualFairnessView extends Component {
               fillColor = 'red';
             }
             
-            return _self.cellColorDistortionScale(d.distortion);
+            return _self.cellColorAbsDistortionScale(d.distortion);
           })
           .style('stroke', (d) => {
             const distortion = d.distortion,
@@ -434,12 +637,9 @@ class IndividualFairnessView extends Component {
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.3);
 
-      console.log(_self.yAttributeScale.domain());
-      console.log(_self.yAttributeScale.range());
-
       // For Attribute plot on the left
       const attrRectsLeft = gAttrPlotLeft.selectAll('.attr_rect_left')
-          .data(sortedY)
+          .data(sortedSelectedY)
           .enter().append('rect')
           .attr('class', 'attr_rect_left')
           .attr('x', 0)
@@ -456,7 +656,7 @@ class IndividualFairnessView extends Component {
           .style('stroke-width', 0.3);
 
       gAttrPlotLeft.selectAll('.pair_rect_left')
-          .data(sortedY)
+          .data(sortedSelectedY)
           .enter().append('rect')
           .attr('class', 'pair_rect_left')
           .attr('x', 30)
@@ -473,7 +673,7 @@ class IndividualFairnessView extends Component {
           .attr('stroke-width', 0.5);
 
       gAttrPlotLeft.selectAll('.sum_distortion_rect_left')
-          .data(sortedY)
+          .data(sortedSelectedY)
           .enter().append('rect')
           .attr('class', 'sum_distortion_rect_left')
           .attr('x', (d) => 30 - _self.sumDistortionScale(d.sumDistortion))
@@ -489,7 +689,7 @@ class IndividualFairnessView extends Component {
           .attr('stroke-width', 0.2);
 
       gAttrPlotLeft.selectAll('.sum_distortion_circle_left')
-          .data(sortedY)
+          .data(sortedSelectedY)
           .enter().append('circle')
           .attr('class', 'sum_distortion_circle_left')
           .attr('cx', (d) => 30 - _self.sumDistortionScale(d.sumDistortion))
@@ -506,7 +706,7 @@ class IndividualFairnessView extends Component {
       // Bottom
       // For Attribute plot on the bottom
       const attrRectsBottom = gAttrPlotBottom.selectAll('.attr_rect_bottom')
-          .data(sortedX)
+          .data(sortedSelectedX)
           .enter().append('rect')
           .attr('class', 'attr_rect_bottom')
           .attr('x', (d) => _self.xMatrixScale(d.idx))
@@ -523,7 +723,7 @@ class IndividualFairnessView extends Component {
           .style('stroke-width', 0.3);
 
       gAttrPlotBottom.selectAll('.pair_rect_bottom')
-          .data(sortedX)
+          .data(sortedSelectedX)
           .enter().append('rect')
           .attr('class', 'pair_rect_bottom')
           .attr('x', (d) => _self.xMatrixScale(d.idx))
@@ -541,7 +741,7 @@ class IndividualFairnessView extends Component {
 
       // For sum distortion plot on the bottom
       gAttrPlotBottom.selectAll('.sum_distortion_rect_bottom')
-          .data(sortedX)
+          .data(sortedSelectedX)
           .enter().append('rect')
           .attr('class', 'sum_distortion_rect_bottom')
           .attr('x', (d) => _self.xMatrixScale(d.idx) + _self.cellWidth / 2)
@@ -557,7 +757,7 @@ class IndividualFairnessView extends Component {
           .attr('stroke-width', 0.2);
 
       gAttrPlotBottom.selectAll('.sum_distortion_circle_bottom')
-          .data(sortedX)
+          .data(sortedSelectedX)
           .enter().append('circle')
           .attr('class', 'sum_distortion_circle_bottom')
           .attr('cx', (d) => _self.xMatrixScale(d.idx) + _self.cellWidth / 2)
@@ -691,364 +891,7 @@ class IndividualFairnessView extends Component {
           .style('font-size', '11px');  
     }
 
-    handleToggleMatrixX() {
-      this.setState(prevState => ({
-        sortMatrixXdropdownOpen: !prevState.sortMatrixXdropdownOpen
-      }));
-    }
-
-    handleToggleMatrixY() {
-      this.setState(prevState => ({
-        sortMatrixYdropdownOpen: !prevState.sortMatrixYdropdownOpen
-      }));
-    }
-
-    sortDistortion() {
-      this.setState(prevState => ({
-        dropdownOpen: !prevState.dropdownOpen
-      }));
-    }
-
-    handleSortingMatrixX(e) {
-      let _self = this;
-
-      let sortMatrixXBy = e.target.value,
-          data = this.props.data,
-          instances = data.instances,
-          dataPermutationDiffs = this.dataPermutationDiffs;
-
-      const sortedX = [...instances].sort((a, b) => 
-                (sortMatrixXBy === 'sumDistortion') ?
-                d3.ascending(a.sumDistortion, b.sumDistortion) :
-                d3.ascending(a.features[sortMatrixXBy], b.features[sortMatrixXBy])
-            );
-      
-      _self.xMatrixScale.domain(
-          _.map(sortedX, (d) => d.idx));
-      _self.xAttributeScale.domain(
-          d3.extent(instances, (d) => 
-            (sortMatrixXBy === 'sumDistortion') ? 
-              d.sumDistortion : 
-              d.features[sortMatrixXBy]
-          ));
-
-      this.setState({ 
-        sortMatrixXBy: e.target.value,
-        sortMatrixXdropdownValue: sortMatrixXBy
-      });
-
-      let dataPermutationDiffsFlattened = _.flatten(dataPermutationDiffs);
-
-      // For matrix cells
-      d3.selectAll('.g_cell')
-          .data(dataPermutationDiffsFlattened)
-          .transition()
-          .duration(750)
-          .attr('transform', (d) =>
-            'translate(' + _self.xMatrixScale(d.idx1) + ',' + _self.yMatrixScale(d.idx2) + ')'
-          );
-
-      // Bottom
-      // For Attribute plot on the bottom
-      d3.selectAll('.attr_rect_bottom')
-          .data(instances)
-          .transition()
-          .duration(750)
-          .attr('x', (d) => _self.xMatrixScale(d.idx))
-          .attr('fill', (d) => {
-              return (sortMatrixXBy === 'sumDistortion') ? 
-                _self.xAttributeScale(d.sumDistortion) : 
-                _self.xAttributeScale(d.features[sortMatrixXBy])
-          });
-
-      d3.selectAll('.pair_rect_bottom')
-          .data(instances)
-          .transition()
-          .duration(750)
-          .attr('x', (d) => _self.xMatrixScale(d.idx));
-
-      // For sum distortion plot on the bottom
-      d3.selectAll('.sum_distortion_rect_bottom')
-          .data(instances)
-          .transition()
-          .duration(750)
-          .attr('x', (d) => _self.xMatrixScale(d.idx) + _self.cellWidth / 2);
-
-      d3.selectAll('.sum_distortion_circle_bottom')
-          .data(instances)
-          .transition()
-          .duration(750)
-          .attr('cx', (d) => _self.xMatrixScale(d.idx) + _self.cellWidth / 2);
-
-      this.calculateNDM(dataPermutationDiffs);
-    }
-
-    handleSortingMatrixY(e) {
-      let _self = this;
-
-      let sortMatrixYBy = e.target.value,
-          data = this.props.data,
-          instances = data.instances,
-          dataPermutationDiffs = this.dataPermutationDiffs;
-
-      const sortedY = _.sortBy(instances, 
-              (sortMatrixYBy === 'sumDistortion') ? 
-                sortMatrixYBy : 
-                'features.'+ sortMatrixYBy
-            );
-      
-      _self.yMatrixScale.domain(
-          _.map(sortedY, (d) => d.idx ));
-      _self.yAttributeScale.domain(
-          d3.extent(_.map(instances, (d) => 
-            (sortMatrixYBy === 'sumDistortion') ? 
-              d.sumDistortion : 
-              d.features[sortMatrixYBy]
-          ))
-        );
-
-      this.setState({ 
-        sortMatrixYBy: e.target.value,
-        sortMatrixYdropdownValue: sortMatrixYBy
-      });
-
-      let dataPermutationDiffsFlattened = _.flatten(dataPermutationDiffs);
-
-      d3.selectAll('.g_cell')
-          .data(dataPermutationDiffsFlattened)
-          .transition()
-          .duration(750)
-          .attr('transform', (d) =>
-            'translate(' + _self.xMatrixScale(d.idx1) + ',' + _self.yMatrixScale(d.idx2) + ')'
-          );
-
-      // Bottom
-      // For Attribute plot on the bottom
-      d3.selectAll('.attr_rect_left')
-          .data(instances)
-          .transition()
-          .duration(750)
-          .attr('y', (d) => _self.yMatrixScale(d.idx))
-          .attr('fill', (d) => 
-            (sortMatrixYBy === 'sumDistortion') ? 
-              _self.yAttributeScale(d.sumDistortion) : 
-              _self.yAttributeScale(d.features[sortMatrixYBy])
-          );
-
-      d3.selectAll('.pair_rect_left')
-          .data(instances)
-          .transition()
-          .duration(750)
-          .attr('y', (d) => _self.yMatrixScale(d.idx));
-
-      // For sum distortion plot on the bottom
-      d3.selectAll('.sum_distortion_rect_left')
-          .data(instances)
-          .transition()
-          .duration(750)
-          .attr('y', (d) => _self.yMatrixScale(d.idx) + _self.cellWidth / 2);
-
-      d3.selectAll('.sum_distortion_circle_left')
-          .data(instances)
-          .transition()
-          .duration(750)
-          .attr('cy', (d) => _self.yMatrixScale(d.idx) + _self.cellWidth / 2);
-    }
-
-    handleSelectGroupCheckbox(checked) {
-      console.log('checked');
-
-      console.log('filtered :', d3.selectAll('.coords_circle')
-        .filter((d) => d.pair !== 1));
-    }
-
-    handleSelectOutlierAndFairCheckbox(checked) {
-      console.log('checked');
-    }
-
-    handleSelectSorting(e) {
-      let _self = this;
-
-      this.setState({ sortBy: e.target.value });
-
-      let sortBy = e.target.value,
-          data = this.props.data,
-          instances = data.instances,
-          transition = d3.transition().duration(750);
-
-      console.log('data...: ', instances);
-      if(sortBy === 'distortion') {
-        _self.xObservedScale.domain(d3.extent(instances, (d) => d.distortion));
-
-        transition.select('.indi_x_axis').call(d3.axisTop(_self.xObservedScale).tickSize(0));
-        d3.selectAll('.coords_circle')
-                .data(instances)
-                .transition(transition)
-                .attr('cx', (d) => _self.xObservedScale(d.distortion));
-
-        d3.selectAll('.coords_rect')
-                .data(instances)
-                .transition(transition)
-                .attr('x', (d) => _self.xObservedScale(d.distortion));
-      } else if(sortBy === 'pairwiseDistance') {
-        _self.xObservedScale.domain(d3.extent(instances, (d) => d.features0));
-
-        transition.select('.indi_x_axis').call(d3.axisTop(_self.xObservedScale).tickSize(0));
-        d3.selectAll('.coords_circle')
-                .data(instances)
-                .transition(transition)
-                .attr('cx', (d) => _self.xObservedScale(d.features0));
-
-        d3.selectAll('.coords_rect')
-                .data(instances)
-                .transition(transition)
-                .attr('x', (d) => _self.xObservedScale(d.features0));
-      }
-
-      // Redefine scale
-      // Assign the new scale to axis
-      // Select all lines and circles, and update the coordinates according to the new scale
-    }
-
-    calculateSumDistortion(instances, dataPermutationDiffsForMatrix) {
-      _.forEach(instances, (d, i) => {
-        instances[i].sumDistortion = dataPermutationDiffsForMatrix
-            .filter((e) => e.idx1 === instances[i].idx)
-            .map((e) => Math.abs(e.scaledDiffInput - e.scaledDiffOutput))
-            .reduce((sum, e) => sum + e);
-      });
-
-      return instances;
-    }
-
-    setFairInstancesFromConfidenceInterval(confIntervalPoints, dataPairwiseDiffs) {
-      let dataPairForConfInterval = _.filter(confIntervalPoints, (d) => d.isUpper === 1),
-          numPairs = dataPairwiseDiffs.length;
-
-          for(let i=0; i<numPairs; i++){
-            dataPairwiseDiffs[i].isFair = dataPairForConfInterval[i].isFair;
-          };
-
-          console.log(_.filter(dataPairwiseDiffs, (d) => d.isFair === 1));
-
-      return dataPairwiseDiffs;
-    }
-
-    calculatePredictionIntervalandOutliers(dataPairwiseDiffs) {
-      const distortions = _.map(dataPairwiseDiffs, (d) => {
-            const distortion = d.distortion,
-                  upperLimit = 0.90,  
-                  lowerLimit = -0.90; // nt
-
-            if((distortion > upperLimit) || (distortion < lowerLimit)) {
-              d.isOutlier = true;
-              console.log('outlier: ', distortion);
-            }
-          });
-      
-      // fetch('/dataset/calculatePredictionIntervalandOutliers/', {
-      //       method: 'post',
-      //       body: JSON.stringify(inputs)
-      //     })
-      //     .then( (response) => {
-      //       return response.json();
-      //     })   
-      //     .then( (response) => {
-      //         let selectedDataset = _.values(JSON.parse(response));
-      //         console.log('selectedDataset: ', selectedDataset);
-              
-      //         this.setState({selectedDataset: selectedDataset});
-      //       });
-    }
-
-    calculateRSquared(dataPairwiseDiffs) {
-      let SSR_arr = [], SST_arr = [],
-          SSR, SST, rSquared,
-          n = dataPairwiseDiffs.length,
-          meanY = _.sum(_.map(dataPairwiseDiffs, (d) => d.distortion)) / n;
-      
-      _.each(dataPairwiseDiffs, (d) => {
-        SSR_arr.push(Math.pow(meanY - 0, 2));
-        SST_arr.push(Math.pow(meanY - d.distortion, 2));
-      });
-
-      SSR = _.sum(SSR_arr);
-      SST = _.sum(SST_arr);
-      
-      rSquared = Math.round((SSR / SST) * 100) / 100;
-
-      this.setState((prevState) => ({
-        rankingInstance: {
-          ...prevState.rankingInstance,
-          stat: {
-            ...prevState.rankingInstance,
-            goodnessOfFairness: rSquared
-          }
-        }
-      }));
-    }
-
-    calculateNDM(dataPermutationDiffs) {  // Noise Dissimilarity Measure for feature matrix
-      // Generate a random permutation
-      let originalMat = _.map(dataPermutationDiffs, (arr) => _.map(arr, (d) => d.distortion)),
-          noiseMat = _.shuffle(originalMat),
-          n = originalMat.length,
-          NHX = 3, NHY = 3, r = 1,// Number of neighborhoods to look at
-          dissScoreArr = [],
-          dissScoreSum, NDM,
-          w = n * n * Math.pow((2*r + 1), 2);
-
-      for(let i=0; i<n; i++) {
-        dissScoreArr[i] = [];
-
-        for(let j=0; j<n; j++) {
-          // Check index i and j
-          let neighborArr = [],
-              sumSquaredDiffs = [],
-              validIdx = [],
-              NHsInOriginalMat = [], NHsInNoiseMat = [], 
-              NHInNoiseMatMostSimilar, minDiffs = [],
-              diffs = [];
-          // Collect valid index
-          for(let l=-1; l<=1; l++) {  // l = for x index of neighbors of originalMat[i][j]
-            // Put all neighbors to find the best nearest neighbor of i
-            for(let m=-1; m<=1; m++) {  // m = for y index of neighbors of originalMat[i][j]
-              if(typeof(originalMat[i+l]) !== 'undefined' && typeof(originalMat[i+l][j+m]) !== 'undefined') {
-                // Put it as valid idx to explore the same neighborhood area(index) for noiseMat
-                validIdx.push({ x: i+l, y: j+m });
-              }
-            }
-          }
-          // Go over all valid index for noiseMat, and get the best similar one to the current originalMat[i][j]
-          validIdx.forEach((idx) => {
-            NHsInNoiseMat.push(noiseMat[idx.x][idx.y]);
-            NHsInOriginalMat.push(originalMat[idx.x][idx.y]);
-          });
-
-          NHsInOriginalMat.forEach((o) => {
-            diffs = _.map(NHsInNoiseMat, (n) => Math.abs(o - n));
-            minDiffs.push(Math.min(...diffs));
-          });
-          sumSquaredDiffs = minDiffs.reduce((acc, curr) => acc + curr)
-          dissScoreArr[i].push(sumSquaredDiffs);
-        }
-      }
-      console.log(dissScoreArr);
-      dissScoreSum = dissScoreArr.map((arr) => 
-              arr.reduce((acc, curr) => acc + curr)
-            ).reduce((acc, curr) => acc + curr);
-      NDM = dissScoreSum / w;
-      console.log('NDM score: ', NDM);
-    }
-  
-    render() {
-      if ((!this.props.data || this.props.data.length === 0) || 
-          (!this.state.confIntervalPoints || this.state.confIntervalPoints.length === 0) ||
-          (!this.props.pairwiseDiffs || this.props.pairwiseDiffs.length === 0) || 
-          (!this.props.pairwiseDiffsInPermutation || this.props.pairwiseDiffsInPermutation.length === 0)
-         ) {
-        return <div />
-      }
+    renderPlot() {
       let _self = this;
 
       _self.svg = new ReactFauxDOM.Element('svg');
@@ -1060,11 +903,9 @@ class IndividualFairnessView extends Component {
       _self.svg.setAttribute('transform', 'translate(0,10)');
       _self.svg.style.setProperty('margin', '0 10px');
 
-      console.log('ranking interval in render(): ', _self.props.selectedRankingInterval);
-  
       let selectedRankingInterval = _self.props.selectedRankingInterval,
           data = _self.props.data,
-          dataPairwiseDiffs = _self.props.pairwiseDiffs,
+          dataPairwiseDiffs = _self.dataPairwiseDiffs,
           confIntervalPoints = _self.state.confIntervalPoints,
           selectedInstanceIdx = _self.props.selectedRankingInterval;
 
@@ -1171,14 +1012,7 @@ class IndividualFairnessView extends Component {
 
       _self.pairColorScale = d3.scaleThreshold()
             .domain([1, 2, 3, 4])  // pair is one or two or three
-            .range(['white', gs.groupColor1, gs.groupColor2, gs.betweenGroupColor, gs.withinGroupColor]);      
-
-      _self.renderMatrix();
-      _self.renderPlot();
-      _self.renderLegend();
-
-      _self.calculatePredictionIntervalandOutliers(dataPairwiseDiffs);
-      console.log('fair info: ', dataPairwiseDiffs.map((d) => d.isFair));
+            .range(['white', gs.groupColor1, gs.groupColor2, gs.betweenGroupColor, gs.withinGroupColor]);   
 
       const margin = 20,
             outlierMargin = 5,
@@ -1186,11 +1020,8 @@ class IndividualFairnessView extends Component {
             lowerLimit = -0.90,
             upperLimit = 0.90;
             
-      console.log(confIntervalPoints);
       let confIntervalLine = d3.line()
-          .x((d) => {
-            return _self.xObservedScale(d.x)
-          })
+          .x((d) => {_self.xObservedScale(d.x)})
           .y((d) => _self.yDistortionScale(d.y));
 
       const confInterval = gPlot.append('path')
@@ -1225,8 +1056,6 @@ class IndividualFairnessView extends Component {
                 .style('opacity', 0.5)
                 .style('stroke', d3.rgb('pink').darker())
                 .style('stroke-dasharray', '2, 2');
-
-      console.log(_.filter(dataPairwiseDiffs, (d) => d.isFair === 1));
   
       const coordsCircles = gPlot
               .selectAll('.coords_circle')
@@ -1249,9 +1078,6 @@ class IndividualFairnessView extends Component {
               .attr('r', 3)
               .style('fill', (d) => _self.pairColorScale(d.pair))
               .style('stroke', (d) => {
-                if (d.isFair === 1) {
-                  console.log(d.isFair);
-                }
                 return (d.isFair === 1) ? 'blue'
                   : d.isOutlier ? 'red'
                   : 'black'
@@ -1414,7 +1240,6 @@ class IndividualFairnessView extends Component {
           .style('fill', (d, i) => _self.pairColorScale(i + 1)) // i == 0 => pair == 1 => pair1
           .style('fill-opacity', 0.8)
           .attr('d', (d, i) => {
-            console.log(d, i);
             if (i+1 === 1)
               return areaWithinGroupPair1(d);
             else if (i+1 === 2)
@@ -1567,6 +1392,234 @@ class IndividualFairnessView extends Component {
           .attr('y', 63)
           .text('Woman-Woman')
           .style('font-size', '11px');
+    }
+
+    handleToggleMatrixX() {
+      this.setState(prevState => ({
+        sortMatrixXdropdownOpen: !prevState.sortMatrixXdropdownOpen
+      }));
+    }
+
+    handleToggleMatrixY() {
+      this.setState(prevState => ({
+        sortMatrixYdropdownOpen: !prevState.sortMatrixYdropdownOpen
+      }));
+    }
+
+    sortDistortion() {
+      this.setState(prevState => ({
+        dropdownOpen: !prevState.dropdownOpen
+      }));
+    }
+
+    handleSortingMatrixX(e) {
+      let _self = this;
+
+      let sortMatrixXBy = e.target.value,
+          data = this.props.data,
+          instances = data.instances,
+          dataSelectedPermutationDiffs = this.dataSelectedPermutationDiffs;
+
+      const sortedX = [...instances].sort((a, b) => 
+                (sortMatrixXBy === 'sumDistortion') ?
+                d3.ascending(a.sumDistortion, b.sumDistortion) :
+                d3.ascending(a.features[sortMatrixXBy], b.features[sortMatrixXBy])
+            );
+      
+      _self.xMatrixScale.domain(
+          _.map(sortedX, (d) => d.idx));
+      _self.xAttributeScale.domain(
+          d3.extent(instances, (d) => 
+            (sortMatrixXBy === 'sumDistortion') ? 
+              d.sumDistortion : 
+              d.features[sortMatrixXBy]
+          ));
+
+      this.setState({ 
+        sortMatrixXBy: e.target.value,
+        sortMatrixXdropdownValue: sortMatrixXBy
+      });
+
+      let dataSelectedPermutationDiffsFlattend = _.flatten(dataSelectedPermutationDiffs);
+
+      // For matrix cells
+      d3.selectAll('.g_cell')
+          .data(dataSelectedPermutationDiffsFlattend)
+          .transition()
+          .duration(750)
+          .attr('transform', (d) =>
+            'translate(' + _self.xMatrixScale(d.idx1) + ',' + _self.yMatrixScale(d.idx2) + ')'
+          );
+
+      // Bottom
+      // For Attribute plot on the bottom
+      d3.selectAll('.attr_rect_bottom')
+          .data(instances)
+          .transition()
+          .duration(750)
+          .attr('x', (d) => _self.xMatrixScale(d.idx))
+          .attr('fill', (d) => {
+              return (sortMatrixXBy === 'sumDistortion') ? 
+                _self.xAttributeScale(d.sumDistortion) : 
+                _self.xAttributeScale(d.features[sortMatrixXBy])
+          });
+
+      d3.selectAll('.pair_rect_bottom')
+          .data(instances)
+          .transition()
+          .duration(750)
+          .attr('x', (d) => _self.xMatrixScale(d.idx));
+
+      // For sum distortion plot on the bottom
+      d3.selectAll('.sum_distortion_rect_bottom')
+          .data(instances)
+          .transition()
+          .duration(750)
+          .attr('x', (d) => _self.xMatrixScale(d.idx) + _self.cellWidth / 2);
+
+      d3.selectAll('.sum_distortion_circle_bottom')
+          .data(instances)
+          .transition()
+          .duration(750)
+          .attr('cx', (d) => _self.xMatrixScale(d.idx) + _self.cellWidth / 2);
+
+      this.calculateNDM(dataSelectedPermutationDiffs);
+    }
+
+    handleSortingMatrixY(e) {
+      let _self = this;
+
+      let sortMatrixYBy = e.target.value,
+          data = this.props.data,
+          instances = data.instances,
+          dataSelectedPermutationDiffs = this.dataSelectedPermutationDiffs;
+
+      const sortedY = _.sortBy(instances, 
+              (sortMatrixYBy === 'sumDistortion') ? 
+                sortMatrixYBy : 
+                'features.'+ sortMatrixYBy
+            );
+      
+      _self.yMatrixScale.domain(
+          _.map(sortedY, (d) => d.idx ));
+      _self.yAttributeScale.domain(
+          d3.extent(_.map(instances, (d) => 
+            (sortMatrixYBy === 'sumDistortion') ? 
+              d.sumDistortion : 
+              d.features[sortMatrixYBy]
+          ))
+        );
+
+      this.setState({ 
+        sortMatrixYBy: e.target.value,
+        sortMatrixYdropdownValue: sortMatrixYBy
+      });
+
+      let dataSelectedPermutationDiffsFlattend = _.flatten(dataSelectedPermutationDiffs);
+
+      d3.selectAll('.g_cell')
+          .data(dataSelectedPermutationDiffsFlattend)
+          .transition()
+          .duration(750)
+          .attr('transform', (d) =>
+            'translate(' + _self.xMatrixScale(d.idx1) + ',' + _self.yMatrixScale(d.idx2) + ')'
+          );
+
+      // Bottom
+      // For Attribute plot on the bottom
+      d3.selectAll('.attr_rect_left')
+          .data(instances)
+          .transition()
+          .duration(750)
+          .attr('y', (d) => _self.yMatrixScale(d.idx))
+          .attr('fill', (d) => 
+            (sortMatrixYBy === 'sumDistortion') ? 
+              _self.yAttributeScale(d.sumDistortion) : 
+              _self.yAttributeScale(d.features[sortMatrixYBy])
+          );
+
+      d3.selectAll('.pair_rect_left')
+          .data(instances)
+          .transition()
+          .duration(750)
+          .attr('y', (d) => _self.yMatrixScale(d.idx));
+
+      // For sum distortion plot on the bottom
+      d3.selectAll('.sum_distortion_rect_left')
+          .data(instances)
+          .transition()
+          .duration(750)
+          .attr('y', (d) => _self.yMatrixScale(d.idx) + _self.cellWidth / 2);
+
+      d3.selectAll('.sum_distortion_circle_left')
+          .data(instances)
+          .transition()
+          .duration(750)
+          .attr('cy', (d) => _self.yMatrixScale(d.idx) + _self.cellWidth / 2);
+    }
+
+    handleSelectGroupCheckbox(checked) {
+    }
+
+    handleSelectOutlierAndFairCheckbox(checked) {
+    }
+
+    handleSelectSorting(e) {
+      let _self = this;
+
+      this.setState({ sortBy: e.target.value });
+
+      let sortBy = e.target.value,
+          data = this.props.data,
+          instances = data.instances,
+          transition = d3.transition().duration(750);
+
+      if(sortBy === 'distortion') {
+        _self.xObservedScale.domain(d3.extent(instances, (d) => d.distortion));
+
+        transition.select('.indi_x_axis').call(d3.axisTop(_self.xObservedScale).tickSize(0));
+        d3.selectAll('.coords_circle')
+                .data(instances)
+                .transition(transition)
+                .attr('cx', (d) => _self.xObservedScale(d.distortion));
+
+        d3.selectAll('.coords_rect')
+                .data(instances)
+                .transition(transition)
+                .attr('x', (d) => _self.xObservedScale(d.distortion));
+      } else if(sortBy === 'pairwiseDistance') {
+        _self.xObservedScale.domain(d3.extent(instances, (d) => d.features0));
+
+        transition.select('.indi_x_axis').call(d3.axisTop(_self.xObservedScale).tickSize(0));
+        d3.selectAll('.coords_circle')
+                .data(instances)
+                .transition(transition)
+                .attr('cx', (d) => _self.xObservedScale(d.features0));
+
+        d3.selectAll('.coords_rect')
+                .data(instances)
+                .transition(transition)
+                .attr('x', (d) => _self.xObservedScale(d.features0));
+      }
+
+      // Redefine scale
+      // Assign the new scale to axis
+      // Select all lines and circles, and update the coordinates according to the new scale
+    }
+  
+    render() {
+      if ((!this.props.data || this.props.data.length === 0) || 
+          (!this.state.confIntervalPoints || this.state.confIntervalPoints.length === 0)
+         ) {
+        return <div />
+      }
+      let _self = this;
+
+      const dataPairwiseDiffs = this.props.dataPairwiseDiffs;
+         
+      _self.renderPlot();
+      _self.renderMatrix();
+      _self.renderLegend();
 
       const CheckboxGroup = Checkbox.Group,
             groupOptions = [
@@ -1590,17 +1643,19 @@ class IndividualFairnessView extends Component {
             <div className={index.title + ' ' + styles.individualFairnessViewTitle}>Distortions</div>
           </div>
           <div className={styles.MatrixSelectedInstanceWrapper}>
-            <div className={styles.IndividualStatus}>
+            <div className={styles.IndividualStatusView}>
               <div className={index.subTitle}>Selected Instance</div>
-              <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', margin: 5 }}/>
-              <span>Index: 1</span>
-              {this.renderSelectedInstance()}
+              <div className={styles.IndividualStatus}>
+                <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', margin: 5 }}/>
+                <span>Index: 1</span>
+                {this.renderSelectedInstance()}
+              </div>
             </div>
             <div className={styles.MatrixView}>
               <div className={index.subTitle}>Individual Distortions</div>
               <div className={styles.matrixDropdownWrapper}>
                 <span>Set distortion by: &nbsp;</span>
-                <CheckboxGroup options={groupOptions} defaultValue={[ 'Absolute' ]} onChange={this.handleSelectGroupCheckbox} />
+                <CheckboxGroup options={colorOptions} defaultValue={[ 'Absolute' ]} onChange={this.handleSelectGroupCheckbox} />
                 <span>Sort x axis by: &nbsp;</span>
                 <Dropdown className={styles.sortMatrixXdropdown}
                           isOpen={this.state.sortMatrixXdropdownOpen}  size='sm' toggle={this.handleToggleMatrixX}>

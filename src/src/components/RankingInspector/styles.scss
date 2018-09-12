@@ -3,7 +3,7 @@
     grid-row: 3 / 4;
 
     display: grid;
-    grid-template-columns: 17% 25% 55%;
+    grid-template-columns: 20% 20% 60%;
     grid-template-rows: 15% 35% 55%;
     grid-template-areas: 
         'g rk rk'
@@ -67,14 +67,6 @@
             width: 100%;
             margin: 10px 10px;
 
-            .IndividualStatus {
-                width: 45%;
-                height: 200px;
-                padding: 5px;
-                background-color: #f7f7f7;
-                border: 1px solid lightgray;
-            }
-
             .selectedInstanceInfo {
                 margin: 5px;
             }
@@ -137,8 +129,20 @@
         .MatrixSelectedInstanceWrapper {
             grid-area: mt;
             padding-top: 10px;
-
             display: flex;
+
+            .IndividualStatusView {
+                width: 25%;
+
+                .IndividualStatus {
+                    height: 200px;
+                    padding: 5px;
+                    margin: 5px;
+                    background-color: #f7f7f7;
+                    border: 1px solid lightgray;
+                }
+            }
+            
 
             .MatrixView {
             }

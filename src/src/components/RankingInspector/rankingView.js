@@ -39,6 +39,56 @@ class RankingView extends Component {
       this.props.onSelectedRankingIntervalChange(interval);
     }
 
+    renderHistogram() {
+      // const selectedRankingInterval = this.props.selectedRankingInterval,
+      //       data = this.props.data,
+      //       instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse();
+      // _self.topk = this.props.topk;
+
+      // // Set up the layout
+      // const svgHistogram = new ReactFauxDOM.Element('svg');
+
+      // svgHistogram.setAttribute('width', 300);
+      // svgHistogram.setAttribute('height', _self.layout.svgRanking.height);
+      // svgHistogram.setAttribute('class', 'svg_top_histogram');
+      // svgHistogram.style.setProperty('border', '1px dashed #003569');
+      // svgHistogram.style.setProperty('margin', '5px');
+
+      // // Violin plot for summary
+      // const histoChart = d3.histogram()
+      //         .domain(_self.yDistortionScale.domain())
+      //         .thresholds([-1, -0.8, -0.6, -0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1])
+      //         .value(d => d),
+      //       histoChartWhole = histoChart(_.map(dataPairwiseDiffs, (d) => d.distortion)),
+      //       histoChartWithinGroupPair1 = histoChart(_.map(dataWithinGroupPair1, (d) => d.distortion)),
+      //       histoChartWithinGroupPair2 = histoChart(_.map(dataWithinGroupPair2, (d) => d.distortion)),
+      //       histoChartBetweenGroupPair = histoChart(_.map(dataBetweenGroupPair, (d) => d.distortion)),
+      //       xViolinPlotWithinGroupPair1Scale = d3.scaleLinear()
+      //         .domain(d3.extent(histoChartWithinGroupPair1, (d) => d.length))
+      //         .range([0, 15]),
+      //       xViolinPlotWithinGroupPair2Scale = d3.scaleLinear()
+      //         .domain(d3.extent(histoChartWithinGroupPair2, (d) => d.length))
+      //         .range([0, 15]),
+      //       xViolinPlotBetweenGroupPairScale = d3.scaleLinear()
+      //         .domain(d3.extent(histoChartBetweenGroupPair, (d) => d.length))
+      //         .range([0, 15]),
+      //       areaWithinGroupPair1 = d3.area()
+      //         .x0(d => -xViolinPlotWithinGroupPair1Scale(d.length))
+      //         .x1(d => xViolinPlotWithinGroupPair1Scale(d.length))
+      //         .y(d => _self.yDistortionScale(d.x0))
+      //         .curve(d3.curveCatmullRom),
+      //       areaWithinGroupPair2 = d3.area()
+      //         .x0(d => -xViolinPlotWithinGroupPair2Scale(d.length))
+      //         .x1(d => xViolinPlotWithinGroupPair2Scale(d.length))
+      //         .y(d => _self.yDistortionScale(d.x0))
+      //         .curve(d3.curveCatmullRom),
+      //       areaBetweenGroupPair = d3.area()
+      //         .x0(d => -xViolinPlotBetweenGroupPairScale(d.length))
+      //         .x1(d => xViolinPlotBetweenGroupPairScale(d.length))
+      //         .y(d => _self.yDistortionScale(d.x0))
+      //         .curve(d3.curveCatmullRom);
+    }
+
     render() {
       if ((!this.props.topk || this.props.topk.length === 0) ||
           (!this.props.selectedRankingInterval || this.props.selectedRankingInterval.length === 0) ||
@@ -142,34 +192,39 @@ class RankingView extends Component {
         .style('fill', 'lightgray')
         .style('opacity', 0.5);
 
-      // Place the Topk bar
-      gTopkRanking
-        .append('circle')
-        .attr('class', 'Topk_bar')
-        .attr('cx', (d) => xRectTopkRankingScale(_self.topk))
-        .attr('cy', (d) => _self.layout.rankingPlot.height)
-        .attr('r', 3)
-        .style('fill', 'black')
-        .style('stroke', 'none')
-        .style('shape-rendering', 'crispEdge')
-        .style('stroke-width', 1.5);
-        
-      gTopkRanking
-        .append('line')
-        .attr('class', 'Topk_bar')
-        .attr('x1', (d) => xRectTopkRankingScale(_self.topk))
-        .attr('y1', (d) => 0)
-        .attr('x2', (d) => xRectTopkRankingScale(_self.topk))
-        .attr('y2', (d) => _self.layout.rankingPlot.height)
-        .style('stroke', 'black')
-        .style('stroke-dasharray', '3,3')
-        .style('shape-rendering', 'crispEdge')
-        .style('stroke-width', 1.5);
-
       const ndx               = crossfilter(data),
             rankingDimension  = ndx.dimension((d) => d.ranking),
             scores            = rankingDimension.group().reduceSum((d) => d.score),
             xRankingScale     = d3.scaleLinear().domain(_.map(data, (d) => d.ranking));
+
+      // load your general data
+      const chartData = _.map(instances, (d) => {
+            return { 
+              ranking: d.ranking, 
+              score: d.score 
+            }});
+
+      const width = 700,
+        height = 300,
+        margins = {left: 100, right: 100, top: 50, bottom: 50},
+        // chart series,
+        // field: is what field your data want to be selected
+        // name: the name of the field that display in legend
+        // color: what color is the line
+        chartSeries = [
+          {
+            field: 'total',
+            name: 'Total',
+            color: '#ff7f0e'
+          }
+        ],
+        // your x accessor
+        x = function(d) {
+          return d.ranking;
+        },
+        xScale = 'ordinal',
+        // your brush height
+        brushHeight = 100;
 
       return (
         <div className={styles.RankingView}>

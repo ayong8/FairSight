@@ -4,7 +4,7 @@
 
     display: grid;
     grid-template-columns: 20% 20% 60%;
-    grid-template-rows: 15% 35% 55%;
+    grid-template-rows: 20% 35% 55%;
     grid-template-areas: 
         'g rk rk'
         'g i id'
@@ -72,40 +72,6 @@
             }
         }
     }
-
-    .RankingView {
-        grid-area: rk;
-        display: flex;
-
-        .rankingViewTitleWrapper {
-            display: flex;
-
-            .rankingViewTitle {
-                padding: 0;
-            }
-        }
-      
-        .outputSummary {
-            width: 30%;
-            margin: 10px;
-        }
-        .rankingSummary {
-            margin: 10px;
-        }
-
-        .wholeRanking {
-            background-color: yellow;
-        }
-
-        .whole_ranking_div {
-            width: 500px;
-            height: 500px;
-        }
-
-        .rankingWrapper {
-            display: flex;
-        }
-      }
 
     .IndividualFairnessView {
         grid-area: id;

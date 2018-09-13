@@ -6,18 +6,19 @@ import { Slider, Icon } from 'antd';
 import dc from 'dc';
 import crossfilter from 'crossfilter';
 
-import styles from './styles.scss';
-import index from '../../index.css';
-import gs from '../../config/_variables.scss'; // gs (=global style)
+import WholeRankingChart from './wholeRankingChart';
 
-/* props: this.props.ranking
-  => selected ranking data
-*/
+import styles from './styles.scss';
+import index from '../../../index.css';
+import gs from '../../../config/_variables.scss'; // gs (=global style)
+
 class RankingView extends Component {
     constructor(props) {
       super(props);
     
+      this.svgWholeRankingChart;
       this.topk = 10;
+      this.groupColorScale;
       this.numWholeRanking;
       this.layout = {
           svgRanking: {
@@ -28,6 +29,10 @@ class RankingView extends Component {
               width: 700,
               height: 70,
               margin: 10
+          },
+          wholeRankingChart: {
+            width: 700,
+            height: 30
           }
       };
 
@@ -37,6 +42,65 @@ class RankingView extends Component {
     handleSelectedRankingIntervalChange(interval) {
       console.log(interval);
       this.props.onSelectedRankingIntervalChange(interval);
+    }
+
+    renderWholeRankingChart() {
+      const _self = this;
+
+      const selectedRankingInterval = this.props.selectedRankingInterval,
+            data = this.props.data,
+            instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse();
+      _self.topk = this.props.topk;
+
+      // Set up the layout
+      _self.svgWholeRankingChart = new ReactFauxDOM.Element('svg');
+
+      _self.svgWholeRankingChart.setAttribute('width', _self.layout.wholeRankingChart.width);
+      _self.svgWholeRankingChart.setAttribute('height', _self.layout.wholeRankingChart.height + 10);
+      _self.svgWholeRankingChart.setAttribute('class', 'svg_whole_ranking_chart');
+      _self.svgWholeRankingChart.style.setProperty('margin', '5px');
+
+      const xTopkThreshold = 10;
+
+      const xWholeRankingScale = d3.scaleBand()
+            .domain(d3.range(400))
+            .range([0, _self.layout.wholeRankingChart.width]),
+          yScoreRanking = d3.scaleLinear()
+            .domain([0, 100])
+            .range([0, _self.layout.wholeRankingChart.height]);
+
+      const svgSelect = d3.select(_self.svgWholeRankingChart),
+            gRect = svgSelect.append('g')
+                .attr('transform', 'translate(0,0)');
+
+      gRect.selectAll('.rect_whole_ranking')
+        .data(instances)
+        .enter().append('rect')
+        .attr('class', (d) => 'rect_whole_ranking rect_whole_ranking_' + d.ranking)
+        .attr('x', (d) => xWholeRankingScale(d.ranking))
+        .attr('y', (d) => _self.layout.wholeRankingChart.height - yScoreRanking(d.score))
+        .attr('width', 3)
+        .attr('height', (d) => yScoreRanking(d.score))
+        .style('fill', (d) => _self.groupColorScale(d.group))
+        .style('stroke', 'white')
+        .style('shape-rendering', 'crispEdge')
+        .style('stroke-width', 0.5);
+
+      // brush
+      const brush = d3.brush()
+          .extent([[0, 0], [_self.layout.wholeRankingChart.width, _self.layout.wholeRankingChart.height]])
+          .on("end", brushended);
+
+      svgSelect.append("g")
+        .attr("class", "brush")
+        .call(brush);
+
+      function brushended() {
+        if (!d3.event.sourceEvent) return; // Only transition after input.
+        if (!d3.event.selection) return; // Ignore empty selections.
+
+        console.log(d3.event.selection);
+      }
     }
 
     renderHistogram() {
@@ -129,8 +193,9 @@ class RankingView extends Component {
             .range([0, _self.layout.rankingPlot.height]),
           yRectSelectedInstancesRankingScale = d3.scaleLinear()
             .domain(d3.extent(data, (d) => d.score))
-            .range([_self.layout.rankingPlot.height, 0]),
-          groupColorScale = d3.scaleOrdinal()
+            .range([_self.layout.rankingPlot.height, 0]);
+
+      _self.groupColorScale = d3.scaleOrdinal()
             .range([gs.groupColor1, gs.groupColor2])
             .domain([1, 2]);
 
@@ -149,7 +214,7 @@ class RankingView extends Component {
         .attr('y', (d) => _self.layout.rankingPlot.height - yRectTopkRankingScale(d.score))
         .attr('width', 10)
         .attr('height', (d) => yRectTopkRankingScale(d.score))
-        .style('fill', (d) => groupColorScale(d.group))
+        .style('fill', (d) => _self.groupColorScale(d.group))
         .style('stroke', 'white')
         .style('shape-rendering', 'crispEdge')
         .style('stroke-width', 1.5);
@@ -162,7 +227,7 @@ class RankingView extends Component {
         .attr('y', (d) => _self.layout.rankingPlot.height - yRectTopkRankingScale(d.score))
         .attr('width', xRectSelectedInstancesRankingScale.bandwidth())
         .attr('height', (d) => yRectTopkRankingScale(d.score))
-        .style('fill', (d) => groupColorScale(d.group))
+        .style('fill', (d) => _self.groupColorScale(d.group))
         .style('stroke', 'white')
         .style('shape-rendering', 'crispEdge')
         .style('stroke-width', 1.5);
@@ -226,6 +291,8 @@ class RankingView extends Component {
         // your brush height
         brushHeight = 100;
 
+      _self.renderWholeRankingChart();
+
       return (
         <div className={styles.RankingView}>
           <div className={styles.rankingViewTitleWrapper}>
@@ -244,6 +311,10 @@ class RankingView extends Component {
                 {svgTopkRankingView.toReact()}
               </div>
             </div>
+            <WholeRankingChart 
+              data={this.props.data}
+              width={700} height={30} margin={10}
+            />
             <Slider range step={1} defaultValue={[0, 50]} onChange={this.handleSelectedRankingIntervalChange} />
           </div>
           {/* <div className={styles.wholeRanking}>

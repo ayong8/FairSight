@@ -1059,7 +1059,7 @@ class IndividualFairnessView extends Component {
   
       const coordsCircles = gPlot
               .selectAll('.coords_circle')
-              .data(dataPairwiseDiffs)
+              .data(_.sampleSize(dataPairwiseDiffs, 100)) // Random sampling by Fisher-Yate shuffle
               .enter().append('circle')
               .attr('class', (d) => {
                 const pairCircleClass = 'coords_circle',

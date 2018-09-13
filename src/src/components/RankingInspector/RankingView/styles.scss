@@ -1,0 +1,33 @@
+.RankingView {
+  grid-area: rk;
+  display: flex;
+
+  .rankingViewTitleWrapper {
+      display: flex;
+
+      .rankingViewTitle {
+          padding: 0;
+      }
+  }
+
+  .outputSummary {
+      width: 30%;
+      margin: 10px;
+  }
+  .rankingSummary {
+      margin: 10px;
+  }
+
+  .wholeRanking {
+      background-color: yellow;
+  }
+
+  .whole_ranking_div {
+      width: 500px;
+      height: 500px;
+  }
+
+  .rankingWrapper {
+      display: flex;
+  }
+}

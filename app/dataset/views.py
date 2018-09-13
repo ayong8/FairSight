@@ -88,8 +88,6 @@ class RunRankSVM(APIView):
 
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'));
-        print('json_request: ', json_request.keys());
-        print('json_features: ', json_request['features']);
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         whole_dataset_df = do_encoding_categorical_vars(whole_dataset_df, json_request['sensitiveAttr'])
         dataset_df = get_selected_dataset(whole_dataset_df, json_request['features'], json_request['target'])
@@ -132,8 +130,6 @@ class RunRankSVM(APIView):
                 features_dict[ feature_key ] = output_item[ feature_key ]
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
-
-        print(instances_dict_list[0])
 
         ranking_instance_dict = {
             'rankingId': json_request['rankingId'],
@@ -352,7 +348,6 @@ class CalculateConfidenceInterval(APIView):
 
         conf_interval_points_upper_lower_df = pd.DataFrame({ 'x': X, 'upper': upper, 'lower': lower, 'idx1': idx1, 'idx2': idx2, 'distortion': y, 'isFair': isFair })
         for idx, pair in conf_interval_points_upper_lower_df.iterrows():
-            print(pair['distortion'], pair['upper'], pair['lower'])
             if (pair['distortion'] <= pair['upper']) and (pair['distortion'] >= pair['lower']):
                 conf_interval_points_upper_lower_df.loc[idx, 'isFair'] = 1
 

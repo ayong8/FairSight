@@ -5,7 +5,7 @@ import ReactFauxDOM from 'react-faux-dom';
 
 import Generator from './Generator';
 import InputSpaceView from './inputSpaceView';
-import RankingView from './rankingView';
+import RankingView from './RankingView';
 import IndividualFairnessView from './individualFairnessView';
 import GroupFairnessView from './groupFairnessView';
 import UtilityView from './utilityView';

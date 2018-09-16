@@ -1,8 +1,12 @@
 .RankingView {
   grid-area: rk;
-  display: flex;
+  display: grid;
+  grid-template-areas:
+    't s tr sr'
+    'sn rs rs rs';
 
   .rankingViewTitleWrapper {
+      grid-area: t;
       display: flex;
 
       .rankingViewTitle {
@@ -11,23 +15,21 @@
   }
 
   .outputSummary {
-      width: 30%;
-      margin: 10px;
-  }
-  .rankingSummary {
-      margin: 10px;
+    grid-area: s;
+    margin: 10px;
   }
 
-  .wholeRanking {
-      background-color: yellow;
+  .topkRankingView {
+    grid-area: tr;
   }
-
-  .whole_ranking_div {
-      width: 500px;
-      height: 500px;
+  .selectedRankingView {
+    grid-area: sr;
   }
-
-  .rankingWrapper {
-      display: flex;
+  .sliderName {
+    grid-area: sn;
+  }
+  .rankingSliderWrapper {
+    grid-area: rs;
+    padding: 0 20px;
   }
 }

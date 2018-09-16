@@ -36,71 +36,77 @@ class RankingView extends Component {
           }
       };
 
-      this.handleSelectedRankingIntervalChange = this.handleSelectedRankingIntervalChange.bind(this);
+      this.handleSelectedRankingInterval = this.handleSelectedRankingInterval.bind(this);
+      this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
     }
 
-    handleSelectedRankingIntervalChange(interval) {
+    handleSelectedRankingInterval(interval) {
       console.log(interval);
-      this.props.onSelectedRankingIntervalChange(interval);
+      this.props.onSelectedRankingInterval(interval);
+    }
+
+    handleSelectedTopk(topk) {
+      this.props.onSelectedTopk(topk);
     }
 
     renderWholeRankingChart() {
-      const _self = this;
+      // const _self = this;
 
-      const selectedRankingInterval = this.props.selectedRankingInterval,
-            data = this.props.data,
-            instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse();
-      _self.topk = this.props.topk;
+      // const selectedRankingInterval = this.props.selectedRankingInterval,
+      //       data = this.props.data,
+      //       instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse();
+      // _self.topk = this.props.topk;
 
-      // Set up the layout
-      _self.svgWholeRankingChart = new ReactFauxDOM.Element('svg');
+      // // Set up the layout
+      // _self.svgWholeRankingChart = new ReactFauxDOM.Element('svg');
+      // _self.svgWholeRankingChart.setAttribute('width', _self.layout.wholeRankingChart.width);
+      // _self.svgWholeRankingChart.setAttribute('height', _self.layout.wholeRankingChart.height + 10);
+      // _self.svgWholeRankingChart.setAttribute('class', 'svg_whole_ranking_chart');
+      // _self.svgWholeRankingChart.style.setProperty('margin', '5px');
 
-      _self.svgWholeRankingChart.setAttribute('width', _self.layout.wholeRankingChart.width);
-      _self.svgWholeRankingChart.setAttribute('height', _self.layout.wholeRankingChart.height + 10);
-      _self.svgWholeRankingChart.setAttribute('class', 'svg_whole_ranking_chart');
-      _self.svgWholeRankingChart.style.setProperty('margin', '5px');
+      // const xTopkThreshold = 10;
 
-      const xTopkThreshold = 10;
+      // const xWholeRankingScale = d3.scaleBand()
+      //         .domain(d3.range(400))
+      //         .range([0, _self.layout.wholeRankingChart.width]),
+      //       yScoreRanking = d3.scaleLinear()
+      //         .domain([0, 100])
+      //         .range([0, _self.layout.wholeRankingChart.height]);
 
-      const xWholeRankingScale = d3.scaleBand()
-            .domain(d3.range(400))
-            .range([0, _self.layout.wholeRankingChart.width]),
-          yScoreRanking = d3.scaleLinear()
-            .domain([0, 100])
-            .range([0, _self.layout.wholeRankingChart.height]);
+      // const svgSelect = d3.select(_self.svgWholeRankingChart),
+      //       gRect = svgSelect.append('g')
+      //           .attr('transform', 'translate(0,0)');
 
-      const svgSelect = d3.select(_self.svgWholeRankingChart),
-            gRect = svgSelect.append('g')
-                .attr('transform', 'translate(0,0)');
+      // console.log('dataBin: ', dataBin);
 
-      gRect.selectAll('.rect_whole_ranking')
-        .data(instances)
-        .enter().append('rect')
-        .attr('class', (d) => 'rect_whole_ranking rect_whole_ranking_' + d.ranking)
-        .attr('x', (d) => xWholeRankingScale(d.ranking))
-        .attr('y', (d) => _self.layout.wholeRankingChart.height - yScoreRanking(d.score))
-        .attr('width', 3)
-        .attr('height', (d) => yScoreRanking(d.score))
-        .style('fill', (d) => _self.groupColorScale(d.group))
-        .style('stroke', 'white')
-        .style('shape-rendering', 'crispEdge')
-        .style('stroke-width', 0.5);
+      // gRect.selectAll('.rect_whole_ranking')
+      //   .data(dataBin)
+      //   .enter().append('rect')
+      //   .attr('class', (d) => 'rect_whole_ranking rect_whole_ranking_' + d.ranking)
+      //   .attr('x', (d) => xHistogramScale(d.x0))
+      //   .attr('y', (d) => _self.layout.wholeRankingChart.height - yScoreRanking(d.score))
+      //   .attr('width', 6)
+      //   .attr('height', (d) => yHistogramScale(d.length))
+      //   .style('fill', (d) => _self.groupColorScale(1))
+      //   .style('stroke', 'white')
+      //   .style('shape-rendering', 'crispEdge')
+      //   .style('stroke-width', 0.5);
 
-      // brush
-      const brush = d3.brush()
-          .extent([[0, 0], [_self.layout.wholeRankingChart.width, _self.layout.wholeRankingChart.height]])
-          .on("end", brushended);
+      // // brush
+      // const brush = d3.brush()
+      //     .extent([[0, 0], [_self.layout.wholeRankingChart.width, _self.layout.wholeRankingChart.height]])
+      //     .on("end", brushended);
 
-      svgSelect.append("g")
-        .attr("class", "brush")
-        .call(brush);
+      // svgSelect.append("g")
+      //   .attr("class", "brush")
+      //   .call(brush);
 
-      function brushended() {
-        if (!d3.event.sourceEvent) return; // Only transition after input.
-        if (!d3.event.selection) return; // Ignore empty selections.
+      // function brushended() {
+      //   if (!d3.event.sourceEvent) return; // Only transition after input.
+      //   if (!d3.event.selection) return; // Ignore empty selections.
 
-        console.log(d3.event.selection);
-      }
+      //   console.log(d3.event.selection);
+      // }
     }
 
     renderHistogram() {
@@ -219,19 +225,6 @@ class RankingView extends Component {
         .style('shape-rendering', 'crispEdge')
         .style('stroke-width', 1.5);
 
-      gWholeRanking.selectAll('.rect_whole_ranking')
-        .data(dataSelectedInstances)
-        .enter().append('rect')
-        .attr('class', (d) => 'rect_whole_ranking rect_whole_ranking_' + d.ranking)
-        .attr('x', (d) => xRectSelectedInstancesRankingScale(d.ranking))
-        .attr('y', (d) => _self.layout.rankingPlot.height - yRectTopkRankingScale(d.score))
-        .attr('width', xRectSelectedInstancesRankingScale.bandwidth())
-        .attr('height', (d) => yRectTopkRankingScale(d.score))
-        .style('fill', (d) => _self.groupColorScale(d.group))
-        .style('stroke', 'white')
-        .style('shape-rendering', 'crispEdge')
-        .style('stroke-width', 1.5);
-
       // define the line
       let wholeRankingLine = d3.line()
         .x((d) => xRectSelectedInstancesRankingScale(d.ranking))
@@ -299,29 +292,34 @@ class RankingView extends Component {
             <Icon className={styles.step4} type="check-circle" theme="filled" /> &nbsp;
             <div className={styles.rankingViewTitle + ' ' + index.title}>Output</div>
           </div>
-          <div className={styles.outputSummary}>Accuracy: {this.props.data.stat.accuracy}</div>
-          <div className={styles.rankingSummary}>
-            <div className={styles.rankingWrapper}>
-              <div>
-                <div>Top-k ranking</div>
-                {svgTopkRankingView.toReact()}
-              </div>
-              <div>
-                <div>Selected ranking</div>
-                {svgTopkRankingView.toReact()}
-              </div>
-            </div>
-            <WholeRankingChart 
+          <div className={styles.outputSummary}>
+            <div className={index.subTitle}>Summary</div>
+            <div>Accuracy: {this.props.data.stat.accuracy}</div>
+          </div>
+          <div className={styles.topkRankingView}>
+            <div>Top-k ranking</div>
+            {svgTopkRankingView.toReact()}
+          </div>
+          <div className={styles.selectedRankingView}>
+            <div>Selected ranking</div>
+            {svgTopkRankingView.toReact()}
+          </div>
+          <div className={styles.sliderName}>
+            <div>Interval</div>
+            <div>Top-k</div>
+          </div>
+          <div className={styles.rankingSliderWrapper}>
+            <WholeRankingChart
               data={this.props.data}
               width={700} height={30} margin={10}
+              onSelectedRankingInterval={this.props.handleSelectedRankingInterval}
             />
-            <Slider range step={1} defaultValue={[0, 50]} onChange={this.handleSelectedRankingIntervalChange} />
+            <Slider 
+              step={1} 
+              defaultValue={30} 
+              onChange={this.handleSelectedTopk} 
+            />
           </div>
-          {/* <div className={styles.wholeRanking}>
-            <BarChart dimension={rankingDimension} 
-                      group={scores} 
-                      x={xRankingScale} />
-          </div> */}
         </div>
       );
     }

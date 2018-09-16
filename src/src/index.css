@@ -16,7 +16,8 @@
   }
 
 .subTitle {
-  margin: 10px;
+  color: #00346b;
+  font-weight: 500;
 }
 
 .step1 i { color: #b5dafe; font-size: 1.6rem; }

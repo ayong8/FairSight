@@ -144,7 +144,6 @@ class IndividualFairnessView extends Component {
       this.handleToggleMatrixX = this.handleToggleMatrixX.bind(this);
       this.handleToggleMatrixY = this.handleToggleMatrixY.bind(this);
       this.sortDistortion = this.sortDistortion.bind(this);
-      this.handleSelectSorting = this.handleSelectSorting.bind(this);
       this.handleSortingMatrixX = this.handleSortingMatrixX.bind(this);
       this.handleSortingMatrixY = this.handleSortingMatrixY.bind(this);
       this.handleSelectGroupCheckbox = this.handleSelectGroupCheckbox.bind(this);
@@ -615,7 +614,7 @@ class IndividualFairnessView extends Component {
               fillColor = 'red';
             }
             
-            return _self.cellColorAbsDistortionScale(d.distortion);
+            return _self.cellColorAbsDistortionScale(d.absDistortion);
           })
           .style('stroke', (d) => {
             const distortion = d.distortion,
@@ -1562,49 +1561,6 @@ class IndividualFairnessView extends Component {
     }
 
     handleSelectOutlierAndFairCheckbox(checked) {
-    }
-
-    handleSelectSorting(e) {
-      let _self = this;
-
-      this.setState({ sortBy: e.target.value });
-
-      let sortBy = e.target.value,
-          data = this.props.data,
-          instances = data.instances,
-          transition = d3.transition().duration(750);
-
-      if(sortBy === 'distortion') {
-        _self.xObservedScale.domain(d3.extent(instances, (d) => d.distortion));
-
-        transition.select('.indi_x_axis').call(d3.axisTop(_self.xObservedScale).tickSize(0));
-        d3.selectAll('.coords_circle')
-                .data(instances)
-                .transition(transition)
-                .attr('cx', (d) => _self.xObservedScale(d.distortion));
-
-        d3.selectAll('.coords_rect')
-                .data(instances)
-                .transition(transition)
-                .attr('x', (d) => _self.xObservedScale(d.distortion));
-      } else if(sortBy === 'pairwiseDistance') {
-        _self.xObservedScale.domain(d3.extent(instances, (d) => d.features0));
-
-        transition.select('.indi_x_axis').call(d3.axisTop(_self.xObservedScale).tickSize(0));
-        d3.selectAll('.coords_circle')
-                .data(instances)
-                .transition(transition)
-                .attr('cx', (d) => _self.xObservedScale(d.features0));
-
-        d3.selectAll('.coords_rect')
-                .data(instances)
-                .transition(transition)
-                .attr('x', (d) => _self.xObservedScale(d.features0));
-      }
-
-      // Redefine scale
-      // Assign the new scale to axis
-      // Select all lines and circles, and update the coordinates according to the new scale
     }
   
     render() {

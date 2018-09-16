@@ -32,15 +32,20 @@ class RankingInspector extends Component {
     this.handleModelRunning = this.handleModelRunning.bind(this);
     this.handleMouseoverInstance = this.handleMouseoverInstance.bind(this);
     this.handleRankingInstanceOptions = this.handleRankingInstanceOptions.bind(this);
-    this.handleSelectedRankingIntervalChange = this.handleSelectedRankingIntervalChange.bind(this);
+    this.handleSelectedRankingInterval = this.handleSelectedRankingInterval.bind(this);
+    this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
   }
 
   handleRankingInstanceOptions(optionObj) {
     this.props.onHandleRankingInstanceOptions(optionObj);
   }
 
-  handleSelectedRankingIntervalChange(interval) {
-    this.props.onSelectedRankingIntervalChange(interval);
+  handleSelectedRankingInterval(interval) {
+    this.props.onSelectedRankingInterval(interval);
+  }
+
+  handleSelectedTopk(topk) {
+    this.props.onSelectedTopk(topk);
   }
 
   handleModelRunning() {
@@ -75,7 +80,8 @@ class RankingInspector extends Component {
         <RankingView topk={this.props.topk}
                      selectedRankingInterval={this.props.selectedRankingInterval}
                      data={this.props.rankingInstance}
-                     onSelectedRankingIntervalChange={this.handleSelectedRankingIntervalChange} />
+                     onSelectedRankingInterval={this.handleSelectedRankingInterval}
+                     onSelectedTopk={this.handleSelectedTopk} />
         <InputSpaceView className={styles.InputSpaceView}
                         data={this.props.rankingInstance}
                         topk={this.props.topk}

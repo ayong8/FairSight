@@ -1,8 +1,9 @@
 import React from 'react';
 import * as d3 from 'd3';
+import _ from 'lodash';
 import { Bar } from '@vx/shape';
 import { genRandomNormalPoints } from '@vx/mock-data';
-import { scaleLinear, scaleBand } from '@vx/scale';
+import { scaleLinear } from '@vx/scale';
 import { Group } from '@vx/group';
 import { AxisLeft, AxisBottom } from '@vx/axis';
 import { BoxBrush, withBrush, getCoordsFromEvent, constrainToRegion } from '@vx/brush';
@@ -14,6 +15,13 @@ class WholeRankingChart extends React.Component {
   constructor(props) {
     super(props);
     const { data, width, height, margin } = props;
+
+    this.layout = {
+      wholeRankingchart: {
+        width: 1000,
+        height: 50
+      }
+    }
 
     this.extent = {
       x0: margin.left,
@@ -27,7 +35,7 @@ class WholeRankingChart extends React.Component {
       y: d3.extent(data.instances, (d) => d.score)
     };
 
-    this.xScale = scaleBand({
+    this.xScale = scaleLinear({
       domain: this.initialDomain.x,
       range: [0, 800] //[0, width - margin.left - margin.right],
     });
@@ -87,30 +95,27 @@ class WholeRankingChart extends React.Component {
     const { data, width, height, brush, margin } = this.props;
     const { xScale, yScale } = this;
     const { instances } = data;
-
-    const x = d => d[0];
-    const y = d => d[1];
-    const z = d => d[2];
+    const dataBin = d3.histogram()
+            .domain([0, 100])
+            .thresholds(d3.range(0, 100, 1))
+            (_.map(instances, (d) => d.score));
+    const topInstances = [...instances].sort((a, b) => 
+              d3.descending(a.score, b.score)
+            ).slice(0, 100);
 
     const xMax = width - margin.left - margin.right;
     const yMax = height - margin.top - margin.bottom;
 
-    const topInstances = instances.slice(0, 100);
-
+    this.xScale.domain([100, 0]);
+    this.yScale.domain(d3.extent(dataBin, (d) => typeof(d.length) !== 'undefined' ? d.length : 0));
+                       
     if (brush.domain) {
       const { domain } = brush;
       const { x0, x1, y0, y1 } = domain;
+      const invertedDomain = [x0, x1].map((d) => xScale.customInvert(d));
 
-      console.log('in brush: ', brush, brush.domain, x0);
-      console.log('scale invert: ', [x0, x1].map((d) => xScale.customInvert(d)));
-
-      //xScale.domain([x0, x1].map(d => d - margin.left).map(xScale.invertExtent));
-      // yScale.domain([y1, y0].map(d => d - margin.top).map(yScale.invert));
+      this.props.onSelectedRankingInterval({ from: invertedDomain[0], to: invertedDomain[1] });
     }
-
-    console.log('data', instances);
-    console.log('xScale: ', xScale.domain(), xScale.range());
-    console.log('yScale: ', yScale.domain(), yScale.range());
 
     xScale.customInvert = (function(){
         var domain = xScale.domain()
@@ -127,36 +132,32 @@ class WholeRankingChart extends React.Component {
         ref={c => {
           this.svg = c;
         }}
-        width={width}
-        height={height}
+        width={this.layout.wholeRankingchart.width}
+        height={this.layout.wholeRankingchart.height}
+        margin={10}
         onMouseDown={this.handleMouseDown}
         onMouseMove={this.handleMouseMove}
         onMouseUp={this.handleMouseUp}
       >
         <AxisBottom
           scale={xScale}
-          top={yMax + margin.top}
-          left={margin.left}
+          top={30}
+          left={0 + 10}
           label={''}
           stroke={'#1b1a1e'}
           tickTextFill={'#1b1a1e'}
         />
-        <AxisLeft
-          scale={yScale}
-          top={margin.top}
-          left={margin.left}
-          label={''}
-          stroke={'#1b1a1e'}
-          tickTextFill={'#1b1a1e'}
-        />
-        <Group top={margin.top} left={margin.left}>
-          {topInstances.map(instance => {
+        <Group 
+          top={margin.top} 
+          left={margin.left + 10}
+        >
+          {dataBin.map(bin => {
             return (
               <Bar
-                width={2}
-                height={30 - yScale(instance.score)}
-                x={xScale(instance.ranking)}
-                y={yScale(instance.score)}
+                width={6}
+                height={30 - yScale(bin.length)}
+                x={xScale(bin.x0)}
+                y={yScale(bin.length)}
                 fill={'gray'}
                 stroke={'black'}
                 strokeWidth={1}

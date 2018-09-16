@@ -56,6 +56,8 @@ class App extends Component {
     };
 
     this.handleModelRunning = this.handleModelRunning.bind(this);
+    this.handleSelectedRankingInterval = this.handleSelectedRankingInterval.bind(this);
+    this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
     this.handleRankingInstanceOptions = this.handleRankingInstanceOptions.bind(this);
   }
 
@@ -134,7 +136,6 @@ class App extends Component {
         ...optionObj
       }
     }));
-    console.log(this.state.rankingInstance);
   }
 
   handleModelRunning(){
@@ -147,9 +148,6 @@ class App extends Component {
         rankingId: prevState.rankingInstance.rankingId + 1
       }
     }));
-
-    console.log('run button toggled');
-    console.log('rankingInstance: ', rankingInstance);
     
     fetch('/dataset/run' + rankingInstance.method + '/', {
         method: 'post',
@@ -160,8 +158,6 @@ class App extends Component {
       })   
       .then( (response) => {
           const rankingInstance = JSON.parse(response);
-
-          console.log('runmodel instance: ', rankingInstance);
           
           this.setState({
             rankingInstance: rankingInstance
@@ -169,10 +165,17 @@ class App extends Component {
         });
   }
   
-  handleSelectedRankingInstance(interval) {
+  handleSelectedRankingInterval(interval) {
     console.log('interval change: ', interval);
     this.setState({
-      selectedRankingInterval: { from: interval[0], to: interval[1] }
+      selectedRankingInterval: { from: interval.from, to: interval.to }
+    });
+  }
+
+  handleSelectedTopk(topk) {
+    console.log('topk in App.js: ', topk);
+    this.setState({
+      topk: topk
     });
   }
 
@@ -212,9 +215,10 @@ class App extends Component {
                           inputCoords={this.state.inputCoords}
                           pairwiseInputDistances={this.state.pairwiseInputDistances}
                           permutationInputDistances={this.state.permutationInputDistances}
-                          ranking={selectedRanking} 
+                          ranking={selectedRanking}
                           onRunningModel={this.handleModelRunning}
-                          onSelectedRankingIntervalChange={this.handleSelectedRankingInstance}
+                          onSelectedRankingInterval={this.handleSelectedRankingInterval}
+                          onSelectedTopk={this.handleSelectedTopk}
                           onHandleRankingInstanceOptions={this.handleRankingInstanceOptions} />
         <Footer />
       </div>

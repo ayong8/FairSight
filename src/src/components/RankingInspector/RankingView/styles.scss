@@ -2,8 +2,10 @@
   grid-area: rk;
   display: grid;
   grid-template-areas:
-    't s tr sr'
-    'sn rs rs rs';
+    't s s tr sr'
+    'sn si rs rs rs';
+
+  margin: 0 20px;
 
   .rankingViewTitleWrapper {
       grid-area: t;
@@ -28,8 +30,16 @@
   .sliderName {
     grid-area: sn;
   }
+  .sliderInput {
+    grid-area: si;
+  }
   .rankingSliderWrapper {
     grid-area: rs;
     padding: 0 20px;
+    .wholeRankingChartWrapper,
+    .topkSliderWrapper {
+      display: flex;
+      justify-content: center;
+    }
   }
 }

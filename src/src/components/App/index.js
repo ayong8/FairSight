@@ -61,6 +61,12 @@ class App extends Component {
     this.handleRankingInstanceOptions = this.handleRankingInstanceOptions.bind(this);
   }
 
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   if (this.state.color !== nextState.color) { return true; }
+
+  //   return false;
+  // }
+
   componentDidMount() {
     const selectedRankingInterval = this.state.selectedRankingInterval,
           rankingInstance = this.state.rankingInstance;
@@ -202,14 +208,12 @@ class App extends Component {
       <div className={styles.App}>
         <Menubar topk={topk}
                  data={this.state.rankingInstance}
-                 datasetName='german.csv' 
                  onSelectSensitiveAttr={this.handleSelectSensitiveAttr} />
         <RankingsListView rankings={this.state.rankings} />
         <RankingInspector topk={this.state.topk}
                           n={this.state.n}
                           dataset={this.state.dataset}
                           rankingInstance={this.state.rankingInstance}
-                          selectedDataset={this.state.selectedDataset}
                           selectedInstance={this.state.selectedInstance}
                           selectedRankingInterval={this.state.selectedRankingInterval}
                           inputCoords={this.state.inputCoords}

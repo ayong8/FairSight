@@ -54,11 +54,20 @@ class IndividualFairnessView extends Component {
       this.cellColorAbsDistortionScale;
       this.sumDistortionScale;
 
+      this.xHistoMatrixScale;
+      this.yHistoMatrixScale;
+      this.cellHistoWidth;
+      this.cellHistoHeight;
+      this.sumAbsDistortionScale;
+
       this.dataPairwiseDiffs = [];
       this.dataSelectedPairwiseDiffs = [];
       this.dataPermutationDiffs = [];
       this.dataSelectedPermutationDiffs = [];
       this.dataPermutationDiffsFlattened = [];
+
+      this.dataBin = [];
+      this.dataBinFlattened = [];
 
       this.state = {
         selectedIntervalForMatrix: {
@@ -87,7 +96,7 @@ class IndividualFairnessView extends Component {
           height: 150 // 100% of whole layout
         },
         svgMatrix: {
-          width: 300,
+          width: 500,
           height: 250,
           margin: 10,
           matrixPlot: {
@@ -109,6 +118,10 @@ class IndividualFairnessView extends Component {
           distortionSumPlotRight: {
             width: 30,
             height: 200
+          },
+          histoMatrix: {
+            width: 100,
+            height: 100
           }
         },
         svgPlot: {
@@ -488,7 +501,7 @@ class IndividualFairnessView extends Component {
     }
 
     renderMatrix() {
-      let _self = this;
+      const _self = this;
 
       _self.svgMatrix = new ReactFauxDOM.Element('svg');
   
@@ -521,8 +534,35 @@ class IndividualFairnessView extends Component {
           dataSelectedX = instances,
           dataSelectedY = instances;
 
+      const nDataPerAxis = 50,
+            nXData = 50,  // # of data points per axis
+            nYData = 50,
+            nBinPerAxis = 10,
+            nXBin = 10,
+            nYBin = 10,
+            nDataPerBin = (nXData * nYData) / (nXBin * nYBin);
+
+      for (let i=0; i<nXBin; i++) {
+        _self.dataBin[i] = [];
+        for (let j=0; j<nYBin; j++) {
+          _self.dataBin[i][j] = {};
+          _self.dataBin[i][j].sumAbsDistortion = 0;
+          _self.dataBin[i][j].idx1 = i;
+          _self.dataBin[i][j].idx2 = j;
+
+          for (let k=i*nDataPerBin; k<(i+1)*nDataPerBin; k++) {
+            for (let l=j*nDataPerBin; l<(j+1)*nDataPerBin; l++) {
+              _self.dataBin[i][j].sumAbsDistortion += _self.dataPermutationDiffs[k][l].absDistortion;
+            }
+          }
+        }
+      }
+
+      console.log('dataBin: ', _self.dataBin);
+
       //*** Sort feature plot */
       _self.dataPermutationDiffsFlattened = _.flatten(_self.dataPermutationDiffs);
+      _self.dataBinFlattened = _.flatten(_self.dataBin);
       
       _self.xMatrixScale = d3.scaleBand()
           .domain(_.map(dataSelectedX, (d) => d.idx))  // For now, it's just an index of items(from observed)
@@ -547,6 +587,19 @@ class IndividualFairnessView extends Component {
       _self.yAttributeScale = d3.scaleLinear()
           .domain(d3.extent(dataY, (d) => d.features[Object.keys(d.features)[0]]))
           .range(['white', '#5598b7']);
+
+      // For sum heatmap matrix
+      _self.xHistoMatrixScale = d3.scaleBand()
+          .domain(d3.range(nBinPerAxis))  // For now, it's just an index of items(from observed)
+          .range([0, _self.layout.svgMatrix.histoMatrix.width]);
+      _self.yHistoMatrixScale = d3.scaleBand()
+          .domain(d3.range(nBinPerAxis))  // For now, it's just an index of items(from observed)
+          .range([_self.layout.svgMatrix.histoMatrix.height, 0]);
+      _self.cellHistoWidth = _self.xHistoMatrixScale.bandwidth();
+      _self.cellHistoHeight = _self.yHistoMatrixScale.bandwidth();
+      _self.sumAbsDistortionScale = d3.scaleLinear()
+          .domain(d3.extent(_self.dataBinFlattened, (d) => d.sumAbsDistortion))
+          .range(['white', 'indigo']);
 
       //*** Initial sort
       // Sort x or y data (Sort by the feature & add sorting index)
@@ -573,23 +626,33 @@ class IndividualFairnessView extends Component {
               d.features[ sortMatrixYBy ])
           );
 
-      let gMatrix = d3.select(_self.svgMatrix).append('g')
-              .attr('class', 'g_matrix')
-              .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',0)'),
-          gCells = gMatrix.selectAll('.g_cell')
-              .data(dataSelectedPermutationDiffsFlattend)
-              .enter().append('g')
-              .attr('class', 'g_cell')
-              .attr('transform', function(d){
-                return 'translate(' + _self.xMatrixScale(d.idx1) + ',' + _self.yMatrixScale(d.idx2) + ')';
-              }),
-          gAttrPlotLeft = d3.select(_self.svgMatrix).append('g')
-              .attr('class', 'g_attr_plot_x')
-              .attr('transform', 'translate(0,0)'),
-          gAttrPlotBottom = d3.select(_self.svgMatrix).append('g')
-              .attr('class', 'g_attr_plot_y')
-              .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',' + 
-                                                _self.layout.svgMatrix.matrixPlot.height + ')');
+      const gMatrix = d3.select(_self.svgMatrix).append('g')
+                .attr('class', 'g_matrix')
+                .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',0)'),
+            gCells = gMatrix.selectAll('.g_cell')
+                .data(dataSelectedPermutationDiffsFlattend)
+                .enter().append('g')
+                .attr('class', 'g_cell')
+                .attr('transform', function(d){
+                  return 'translate(' + _self.xMatrixScale(d.idx1) + ',' + _self.yMatrixScale(d.idx2) + ')';
+                }),
+            gAttrPlotLeft = d3.select(_self.svgMatrix).append('g')
+                .attr('class', 'g_attr_plot_x')
+                .attr('transform', 'translate(0,0)'),
+            gAttrPlotBottom = d3.select(_self.svgMatrix).append('g')
+                .attr('class', 'g_attr_plot_y')
+                .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',' + 
+                                                  _self.layout.svgMatrix.matrixPlot.height + ')'),
+            gHistoMatrix = d3.select(_self.svgMatrix).append('g')
+                .attr('class', 'g_histo_matrix')
+                .attr('transform', 'translate(' + (_self.layout.svgMatrix.attrPlotLeft.width + _self.layout.svgMatrix.matrixPlot.width + 50) + ',0)'),
+            gHistoCells = gHistoMatrix.selectAll('.g_histo_cell')
+                .data(_self.dataBinFlattened)
+                .enter().append('g')
+                .attr('class', 'g_histo_cell')
+                .attr('transform', function(d){
+                  return 'translate(' + _self.xHistoMatrixScale(d.idx1) + ',' + _self.yHistoMatrixScale(d.idx2) + ')';
+                });
                                 
       // For Matrix plot
       gCells.append('rect')
@@ -778,13 +841,37 @@ class IndividualFairnessView extends Component {
       attrRectsBottom
           .filter((d) => d.idx === selectedInstance)
           .style('stroke-width', 2);
+
+      // For histo matrix
+      gHistoCells.append('rect')
+          .attr('class', 'histo_rect')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', _self.cellHistoWidth)
+          .attr('height', _self.cellHistoHeight)
+          .style('fill', (d) => _self.sumAbsDistortionScale(d.sumAbsDistortion))
+          .style('stroke', (d) => 'black')
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.3);
+
+      gHistoMatrix.append('rect')
+          .attr('class', 'histo_selected_area')
+          .attr('x', 0)
+          .attr('y', 0)
+          .attr('width', _self.xHistoMatrixScale(2) - _self.xHistoMatrixScale(0))
+          .attr('height', _self.yHistoMatrixScale(0) - _self.yHistoMatrixScale(2))
+          .style('fill', (d) => '#8BC34A')
+          .style('fill-opacity', 0.5)
+          .style('stroke', (d) => 'black')
+          .style('stroke-dasharray', '2,2')
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.3);
     }
 
     renderLegend() {
       let _self = this;
 
       _self.svgLegend = new ReactFauxDOM.Element('svg');
-  
       _self.svgLegend.setAttribute('width', _self.layout.svgLegend.width);
       _self.svgLegend.setAttribute('height', _self.layout.svgLegend.height);
       _self.svgLegend.setAttribute('0 0 200 200');

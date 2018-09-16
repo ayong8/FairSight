@@ -19,6 +19,12 @@ class RankingsListView extends Component {
     this.renderRankingInstances = this.renderRankingInstances.bind(this);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.rankings !== nextProps.rankings) { return true; }
+
+    return false;
+  }
+
   renderRankingInstances() {
     const dataRankings = this.props.rankings;
     console.log('dataRankings: ', dataRankings);

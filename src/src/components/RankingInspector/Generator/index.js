@@ -22,9 +22,11 @@ class Generator extends Component {
     };
 
     this.toggleSensitiveAttrDropdown = this.toggleSensitiveAttrDropdown.bind(this);
+    this.toggleTargetDropdown = this.toggleTargetDropdown.bind(this);
     this.toggleMethodDropdown = this.toggleMethodDropdown.bind(this);
     this.handleClickSensitiveAttr = this.handleClickSensitiveAttr.bind(this);
     this.handleSelectFeatures = this.handleSelectFeatures.bind(this);
+    this.handleClickTarget = this.handleClickTarget.bind(this);
     this.handleClickRun = this.handleClickRun.bind(this);
   }
 
@@ -187,17 +189,6 @@ class Generator extends Component {
             <DropdownItem>Logistic Regression</DropdownItem>
           </DropdownMenu>
         </Dropdown>
-        <div className={styles.topkSelector}>
-          <div className={styles.selectTopk}>Top-k</div>
-          <Slider min={1} max={this.props.n} onChange={this.onTopkChange} value={this.props.topk} />
-          <InputNumber
-            min={1}
-            max={this.props.n}
-            style={{ marginLeft: 16 }}
-            value={this.props.topk}
-            onChange={this.onTopkChange}
-          />
-        </div>
         <div className={styles.runButtonWrapper}>
           <Button className={styles.buttonGenerateRanking} color="danger" onClick={this.handleClickRun}>RUN</Button>
         </div>

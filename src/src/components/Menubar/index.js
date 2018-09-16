@@ -19,6 +19,13 @@ class Menubar extends Component {
     };
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.topk !== nextProps.topk) { return true; }
+    if (this.props.data !== nextProps.data) { return true; }
+
+    return false;
+  }
+
   toggle() {
     this.setState({
       dropdownOpen: !this.state.dropdownOpen

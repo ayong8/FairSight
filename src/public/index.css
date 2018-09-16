@@ -32,3 +32,8 @@ body {
 .badge-success {
   font-size: 1.2rem;
 }
+
+.ant-slider-track,
+.ant-slider-handle {
+  background-color: #00346b;
+}

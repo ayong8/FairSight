@@ -36,6 +36,16 @@ class RankingInspector extends Component {
     this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (this.props.topk !== nextProps.topk) { return true; }
+    if (this.props.dataset !== nextProps.dataset) { return true; }
+    if (this.props.rankingInstance !== nextProps.rankingInstance) { return true; }
+    if (this.props.selectedInstance !== nextProps.selectedInstance) { return true; }
+    if (this.props.selectedRankingInterval !== nextProps.selectedRankingInterval) { return true; }
+
+    return false;
+  }
+
   handleRankingInstanceOptions(optionObj) {
     this.props.onHandleRankingInstanceOptions(optionObj);
   }
@@ -77,7 +87,8 @@ class RankingInspector extends Component {
                    n={this.props.n}
                    onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}
                    onRunningModel={this.handleModelRunning}/>
-        <RankingView topk={this.props.topk}
+        <RankingView n={this.props.n}
+                     topk={this.props.topk}
                      selectedRankingInterval={this.props.selectedRankingInterval}
                      data={this.props.rankingInstance}
                      onSelectedRankingInterval={this.handleSelectedRankingInterval}

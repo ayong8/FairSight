@@ -7,11 +7,6 @@ body {
   color: #5b5b5b !important;
 }
 
-/* Reactstrap => dropdown menu
-.show {
-  display: flex !important;
-} */
-
 /* react-slider => customize */
 .rangeslider-horizontal .rangeslider__fill {
   background-color: blue;
@@ -33,6 +28,7 @@ body {
   font-size: 1.2rem;
 }
 
+/* ant design => customize */
 .ant-slider-track,
 .ant-slider-handle {
   background-color: #00346b !important;
@@ -40,8 +36,13 @@ body {
 .ant-table {
   width: 90% !important;
   margin: 0 auto !important;
+  font-size: 1rem !important;
 }
 .ant-table-row > td,
 .ant-table-thead > tr > th {
   padding: 8px !important;
+  font-size: 1rem !important;
+}
+.ant-table-thead > tr > th {
+  background-color: #b4d9fe !important;
 }

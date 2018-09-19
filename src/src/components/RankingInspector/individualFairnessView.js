@@ -547,17 +547,13 @@ class IndividualFairnessView extends Component {
           dataSelectedX = instances,
           dataSelectedY = instances;
 
-      const nDataPerAxis = 50,
-            nXData = 50,  // # of data points per axis
-            nYData = 50,
-            nBinPerAxis = 10,
-            nXBin = 10,
-            nYBin = 10,
-            nDataPerBin = (nXData * nYData) / (nXBin * nYBin);
+      const nDataPerAxis = this.props.n,  // # of data points per axis
+            nBinPerAxis = 10,             // nBinPerAxis == nXBin == nYBin
+            nDataPerBin = nDataPerAxis / nBinPerAxis;
 
-      for (let i=0; i<nXBin; i++) {
+      for (let i=0; i<nBinPerAxis; i++) {
         _self.dataBin[i] = [];
-        for (let j=0; j<nYBin; j++) {
+        for (let j=0; j<nBinPerAxis; j++) {
           _self.dataBin[i][j] = {};
           _self.dataBin[i][j].sumAbsDistortion = 0;
           _self.dataBin[i][j].idx1 = i;
@@ -607,7 +603,7 @@ class IndividualFairnessView extends Component {
           .range([0, _self.layout.svgMatrix.histoMatrix.width]);
       _self.yHistoMatrixScale = d3.scaleBand()
           .domain(d3.range(nBinPerAxis))  // For now, it's just an index of items(from observed)
-          .range([_self.layout.svgMatrix.histoMatrix.height, 0]);
+          .range([0, _self.layout.svgMatrix.histoMatrix.height]);
       _self.cellHistoWidth = _self.xHistoMatrixScale.bandwidth();
       _self.cellHistoHeight = _self.yHistoMatrixScale.bandwidth();
       _self.sumAbsDistortionScale = d3.scaleLinear()

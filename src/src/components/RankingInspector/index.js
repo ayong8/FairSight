@@ -101,6 +101,7 @@ class RankingInspector extends Component {
                         selectedRankingInterval={this.props.selectedRankingInterval} 
                         onMouseoverInstance={this.handleMouseoverInstance} />
         <IndividualFairnessView data={this.props.rankingInstance}
+                                n={this.props.n}
                                 selectedInstance={this.props.selectedInstance}
                                 selectedRankingInterval={this.props.selectedRankingInterval}
                                 pairwiseInputDistances={this.props.pairwiseInputDistances}

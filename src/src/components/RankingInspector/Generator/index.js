@@ -226,8 +226,8 @@ class Generator extends Component {
             {this.props.data.method}
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItem header>RankSVM</DropdownItem>
-            <DropdownItem disabled>SVM</DropdownItem>
+            <DropdownItem>SVM</DropdownItem>
+            <DropdownItem>RankSVM</DropdownItem>
             <DropdownItem>Logistic Regression</DropdownItem>
           </DropdownMenu>
         </Dropdown>

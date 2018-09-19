@@ -37,6 +37,11 @@ class App extends Component {
         rankingId: 1,
         sensitiveAttr: 'sex',
         features: ['credit_amount', 'income_perc', 'age'],
+        featureSpecs: [
+          { name: 'credit_amount', type: 'continuous', range: 'continuous'},
+          { name: 'income_perc', type: 'continuous', range: 'continuous'},
+          { name: 'age', type: 'continuous', range: 'continuous'}
+        ],
         target: 'default',
         method: 'RankSVM',
         sumDistortion: 0,
@@ -87,7 +92,7 @@ class App extends Component {
           });
     
     // Response: All features, and values multiplied by weight
-    fetch('/dataset/runRankSVM/', {
+    fetch('/dataset/runSVM/', {
         method: 'post',
         body: JSON.stringify(rankingInstance)
       })

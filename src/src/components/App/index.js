@@ -194,9 +194,9 @@ class App extends Component {
        ) {
       return <div />
     }
-    console.log('rankingInstance: ', this.state.rankingInstance);
     // For the Ranking Inspector, only send down the selected ranking data
     const topk = this.state.topk,
+          rankingInstance = this.state.rankingInstance,
           rankings = this.state.rankings,
           dataset = this.state.dataset,
           selectedRankingId = this.state.selectedRanking,
@@ -213,7 +213,7 @@ class App extends Component {
         <RankingInspector topk={this.state.topk}
                           n={this.state.n}
                           dataset={this.state.dataset}
-                          rankingInstance={this.state.rankingInstance}
+                          rankingInstance={rankingInstance}
                           selectedInstance={this.state.selectedInstance}
                           selectedRankingInterval={this.state.selectedRankingInterval}
                           inputCoords={this.state.inputCoords}

@@ -3,14 +3,14 @@
     grid-row: 3 / 4;
 
     display: grid;
-    grid-template-columns: 20% 20% 60%;
+    grid-template-columns: 25% 20% 60%;
     grid-template-rows: 20% 35% 55%;
     grid-template-areas: 
         'g rk rk'
         'g i id'
         'g gf id';
 
-    margin: 0 20px;
+    margin: 0 5px;
 
     .InputSpaceView,
     .IndividualFairnessView,
@@ -31,12 +31,6 @@
     }
     .step3 { 
         color: #1c88f3; 
-        font-size: 1.6rem; 
-        margin-top: 8px;
-        margin-left: 5px;
-    }
-    .step4 { 
-        color: #0575e5; 
         font-size: 1.6rem; 
         margin-top: 8px;
         margin-left: 5px;
@@ -122,7 +116,7 @@
             background-color: #e5e5e5;
             border: 1px solid lightgrey;
             border-radius: 3px;
-            margin: 15px 10px;    
+            margin: 5px;    
             padding: 5px;
             
             display: flex;
@@ -181,15 +175,17 @@
             .conditionalParityPlotWrapper
             {
                 display: grid;
-                grid-template-columns: 30% 10% 60%;
+                grid-template-columns: 10% 90%;
+                grid-template-areas: 'sc tp';
 
                 border-bottom: 1px solid lightgray;
                 padding: 5px;
                 margin: 5px;
 
                 .topKPlot {
-                    grid-column: 1;
+                    grid-area: tp;
                     align-self: center;
+                    justify-self: center;
 
                     display: flex;
                     align-items: center;
@@ -197,8 +193,9 @@
                 }
 
                 .score {
-                    grid-column: 2;
+                    grid-area: sc;
                     align-self: center;
+                    justify-self: center;
 
                     font-size: 1.2rem;
                     font-weight: 600;

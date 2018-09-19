@@ -9,6 +9,10 @@ import { AxisLeft, AxisBottom } from '@vx/axis';
 import { BoxBrush, withBrush, getCoordsFromEvent, constrainToRegion } from '@vx/brush';
 import { Motion, spring } from 'react-motion';
 
+import styles from './styles.scss';
+import index from '../../../index.css';
+import gs from '../../../config/_variables.scss'; // gs (=global style)
+
 const points = genRandomNormalPoints();
 
 class WholeRankingChart extends React.Component {
@@ -16,10 +20,12 @@ class WholeRankingChart extends React.Component {
     super(props);
     const { data, width, height, margin } = props;
 
+    this.invertedDomain = [];
+
     this.layout = {
       wholeRankingchart: {
-        width: 1000,
-        height: 50
+        width: 800,
+        height: 60
       }
     }
 
@@ -31,7 +37,7 @@ class WholeRankingChart extends React.Component {
     };
 
     this.initialDomain = {
-      x: d3.range(100),
+      x: [0, 100],
       y: d3.extent(data.instances, (d) => d.score)
     };
 
@@ -88,10 +94,12 @@ class WholeRankingChart extends React.Component {
       return;
     }
     onBrushReset(event);
-    this.scaleReset();
+    this.props.onSelectedRankingInterval({ from: this.invertedDomain[0], to: this.invertedDomain[1] });
   }
 
   render() {
+    const _self = this;
+
     const { data, width, height, brush, margin } = this.props;
     const { xScale, yScale } = this;
     const { instances } = data;
@@ -106,21 +114,27 @@ class WholeRankingChart extends React.Component {
     const xMax = width - margin.left - margin.right;
     const yMax = height - margin.top - margin.bottom;
 
-    this.xScale.domain([100, 0]);
-    this.yScale.domain(d3.extent(dataBin, (d) => typeof(d.length) !== 'undefined' ? d.length : 0));
+    _self.xScale.domain([100, 0]);
+    _self.yScale.domain(d3.extent(dataBin, (d) => typeof(d.length) !== 'undefined' ? d.length : 0));
                        
     if (brush.domain) {
       const { domain } = brush;
       const { x0, x1, y0, y1 } = domain;
-      const invertedDomain = [x0, x1].map((d) => xScale.customInvert(d));
+      _self.invertedDomain = [x0, x1].map((d) => { 
+                console.log('domain before invert: ', d);
+                return xScale.customInvert(d)
+              });
 
-      this.props.onSelectedRankingInterval({ from: invertedDomain[0], to: invertedDomain[1] });
+      console.log('brush: ', brush);
+      console.log('inverted domain: ', _self.invertedDomain);
     }
 
     xScale.customInvert = (function(){
-        var domain = xScale.domain()
-        var range = xScale.range()
-        var scale = d3.scaleQuantize().domain(range).range(domain)
+        var domain = xScale.domain();
+        var range = xScale.range();
+        var scale = d3.scaleQuantize().domain(range).range(d3.range(100, 0, -1));
+
+        console.log(domain, range, scale, scale.domain(), scale.range());
     
         return function(x){
             return scale(x)
@@ -128,45 +142,47 @@ class WholeRankingChart extends React.Component {
     })()
 
     return (
-      <svg
-        ref={c => {
-          this.svg = c;
-        }}
-        width={this.layout.wholeRankingchart.width}
-        height={this.layout.wholeRankingchart.height}
-        margin={10}
-        onMouseDown={this.handleMouseDown}
-        onMouseMove={this.handleMouseMove}
-        onMouseUp={this.handleMouseUp}
-      >
-        <AxisBottom
-          scale={xScale}
-          top={30}
-          left={0 + 10}
-          label={''}
-          stroke={'#1b1a1e'}
-          tickTextFill={'#1b1a1e'}
-        />
-        <Group 
-          top={margin.top} 
-          left={margin.left + 10}
+      <div className={styles.WholeRankingChart}>
+        <svg
+          ref={c => {
+            this.svg = c;
+          }}
+          width={this.layout.wholeRankingchart.width}
+          height={this.layout.wholeRankingchart.height}
+          margin={10}
+          onMouseDown={this.handleMouseDown}
+          onMouseMove={this.handleMouseMove}
+          onMouseUp={this.handleMouseUp}
         >
-          {dataBin.map(bin => {
-            return (
-              <Bar
-                width={6}
-                height={30 - yScale(bin.length)}
-                x={xScale(bin.x0)}
-                y={yScale(bin.length)}
-                fill={'gray'}
-                stroke={'black'}
-                strokeWidth={1}
-              />
-            );
-          })}
-        </Group>
-        <BoxBrush brush={brush} />
-      </svg>
+          <AxisBottom
+            scale={xScale}
+            top={30}
+            left={0 + 10}
+            label={''}
+            stroke={'#1b1a1e'}
+            tickTextFill={'#1b1a1e'}
+          />
+          <Group 
+            top={margin.top} 
+            left={margin.left + 10}
+          >
+            {dataBin.map((bin, idx) => {
+              return (
+                <Bar key={idx}
+                  width={6}
+                  height={30 - yScale(bin.length)}
+                  x={xScale(bin.x0)}
+                  y={yScale(bin.length)}
+                  fill={'#00346b'}
+                  stroke={'black'}
+                  strokeWidth={1}
+                />
+              );
+            })}
+          </Group>
+          <BoxBrush brush={brush} />
+        </svg>
+      </div>
     );
   }
 }

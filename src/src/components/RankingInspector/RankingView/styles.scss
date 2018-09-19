@@ -1,45 +1,87 @@
 .RankingView {
   grid-area: rk;
-  display: grid;
-  grid-template-areas:
-    't s s tr sr'
-    'sn si rs rs rs';
 
-  margin: 0 20px;
+  margin: 0 10px;
+  background-color: white;
+  border-left: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
+
+  display: grid;
+  grid-template-columns: 10% 15% 15% 55%;
+  grid-template-rows: 25% 25% 30% 20%;
+  grid-template-areas:
+    't s tt tr'
+    't s st sr'
+    'ti ts ts ts'
+    'wri wr wr wr';
+
+  .step4 { 
+    color: #0575e5; 
+    font-size: 1.6rem; 
+    margin-top: 8px;
+    margin-left: 5px;
+  }
 
   .rankingViewTitleWrapper {
       grid-area: t;
       display: flex;
 
-      .rankingViewTitle {
-          padding: 0;
-      }
+    .rankingViewTitle { padding: 0; }
   }
 
-  .outputSummary {
+  .outputSummary { 
     grid-area: s;
-    margin: 10px;
-  }
+    background-color: #f6f5f5;
+    border: 1px solid #d3d3d3;
 
-  .topkRankingView {
-    grid-area: tr;
-  }
-  .selectedRankingView {
-    grid-area: sr;
-  }
-  .sliderName {
-    grid-area: sn;
-  }
-  .sliderInput {
-    grid-area: si;
-  }
-  .rankingSliderWrapper {
-    grid-area: rs;
-    padding: 0 20px;
-    .wholeRankingChartWrapper,
-    .topkSliderWrapper {
-      display: flex;
-      justify-content: center;
+    .summaryStat {
+      margin-left: 10px
     }
+  }
+  .topkRankingViewTitle {
+    grid-area: tt;
+    align-self: center;
+  }
+  .topkRankingView {
+    grid-area: tr; 
+    margin-left: 10px;
+    padding: 0 10px;
+  }
+  .selectedRankingViewTitle {
+    grid-area: st;
+    align-self: center;
+  }
+  .selectedRankingView { 
+    grid-area: sr;
+    margin-left: 10px;
+    padding: 0 10px;
+  }
+  .sliderNameWholeRanking {
+    text-align: center; 
+  }
+  .sliderNameTopkSlider {
+  }
+  .wholeRankingInputWrapper {
+    grid-area: wri;
+    justify-self: center;
+    align-self: center;
+
+    .wholeRankingInput {
+      display: flex;
+    }
+  }
+  .topkInput {
+    grid-area: ti;
+    justify-self: center;
+    align-self: center;
+  }
+  .WholeRankingChart {
+    grid-area: wr;
+    align-self: center;
+    background-color: gray;
+  }
+  .topkSlider {
+    grid-area: ts;
+    align-self: center;
   }
 }

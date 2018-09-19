@@ -35,5 +35,13 @@ body {
 
 .ant-slider-track,
 .ant-slider-handle {
-  background-color: #00346b;
+  background-color: #00346b !important;
+}
+.ant-table {
+  width: 90% !important;
+  margin: 0 auto !important;
+}
+.ant-table-row > td,
+.ant-table-thead > tr > th {
+  padding: 8px !important;
 }

@@ -29,7 +29,7 @@ class RankingsListView extends Component {
     const dataRankings = this.props.rankings;
     console.log('dataRankings: ', dataRankings);
 
-    return _.map(dataRankings, (ranking) => {
+    return _.map(dataRankings, (ranking, idx) => {
           const instances = ranking.instances;
 
           const svg = new ReactFauxDOM.Element('svg');
@@ -63,7 +63,7 @@ class RankingsListView extends Component {
                 .style('shape-rendering', 'crispEdge')
                 .style('stroke-width', 0.3);
 
-        return ( <tr>
+        return ( <tr key={idx}>
                   <td>{'R' + ranking.rankingId}</td>
                   <td>{svg.toReact()}</td>
                   <th>..</th>

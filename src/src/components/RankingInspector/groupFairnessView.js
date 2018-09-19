@@ -58,7 +58,7 @@ class GroupFairnessView extends Component {
       let svg, svgClassName;
       svg = new ReactFauxDOM.Element('svg');
   
-      svg.setAttribute('width', this.layout.topKPlot.width);
+      svg.setAttribute('width', '100%');
       svg.setAttribute('height', this.layout.topKPlot.height);
       svg.setAttribute('0 0 100 100');
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
@@ -145,116 +145,6 @@ class GroupFairnessView extends Component {
       }
     }
 
-    renderWholeDistribution(mode) {
-      let _self = this;
-
-      let data = this.props.data,
-          instances = data.instances,
-          topk = this.props.topk,
-          dataTopk = [...instances].slice(0, topk);
-
-      const histoData = (mode === 'whole') ? instances 
-                      : (mode === 'TP') ? _.filter(instances, (d) => d.target === 0) 
-                      : (mode === 'FP') ? _.filter(instances, (d) => d.target === 1)
-                      : 'error';
-  
-      const dataGroup1 = _.chain(histoData)
-                          .filter((d) => d.group === 1)
-                          .map((d) => d.score)
-                          .value(),
-            dataGroup2 = _.chain(histoData)
-                          .filter((d) => d.group === 2)
-                          .map((d) => d.score)
-                          .value();
-      
-      const dataBinGroup1 = d3.histogram()
-                        .domain([0, 100])
-                        .thresholds(d3.range(0, 100, 5))
-                        (dataGroup1),
-            dataBinGroup2 = d3.histogram()
-                        .domain([0, 100])
-                        .thresholds(d3.range(0, 100, 5))
-                        (dataGroup2);
-
-      let svg, svgClassName;
-      svg = new ReactFauxDOM.Element('svg');
-
-      svg.setAttribute('width', this.layout.wholeDistribution.width);
-      svg.setAttribute('height', this.layout.wholeDistribution.height);
-      svg.setAttribute('0 0 100 100');
-      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      //svg.setAttribute('class', svgClassName);
-  
-      // Both groups share the same x and y scale
-      let xScale, yScale, xAxis;
-
-      let groupHistogramBar1, groupHistogramBar2;
-
-      xScale = d3.scaleLinear()
-            .domain(d3.extent(dataBinGroup1, (d) => d.x0))
-            .range([0, this.layout.wholeDistribution.width]),
-      yScale = d3.scaleLinear()
-            .domain(d3.extent(dataBinGroup1, (d) => d.length))
-            .range([this.layout.wholeDistribution.height, 0]);
-  
-      xAxis = d3.select(svg)
-          .append('g')
-          .attr('transform', 'translate(0,49)')
-          .call(d3.axisBottom(xScale).tickSize(0).tickFormat(""));
-
-      xAxis.select('path')
-          .style('stroke', 'lightgray');
-  
-      groupHistogramBar1 = d3.select(svg).selectAll('.bar1')
-          .data(dataBinGroup1)
-          .enter().append('g')
-          .attr('class', 'bar1')
-          .attr('transform', function(d) {
-            return 'translate(' + xScale(d.x0) + ',' + yScale(d.length) + ')'; 
-          });
-  
-      groupHistogramBar1.append('rect')
-          .attr('x', 0)
-          .attr('width', function(d) { return _self.layout.wholeDistribution.width / 20; })
-          .attr('height', function(d) { return 100 - yScale(d.length); })
-          .style('fill', gs.groupColor1)
-          .style('opacity', 0.5)
-          // .style('stroke', 'black')
-          .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.5);
-  
-      groupHistogramBar2 = d3.select(svg).selectAll('.bar2')
-          .data(dataBinGroup2)
-          .enter().append('g')
-          .attr('class', 'bar2')
-          .attr('transform', function(d) {
-            return 'translate(' + xScale(d.x0) + ',' + yScale(d.length) + ')'; 
-          });
-  
-      groupHistogramBar2.append('rect')
-          .attr('x', 0)
-          .attr('width', function(d) { return _self.layout.wholeDistribution.width / 20; })
-          .attr('height', function(d) { return 100 - yScale(d.length); })
-          .style('fill', gs.groupColor2)
-          .style('opacity', 0.5)
-          // .style('stroke', 'black')
-          .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.5);
-
-      if (mode === 'whole') {
-        svgClassName = 'wholeDistribution';
-        this.svgWholeDistribution = svg;     
-      }
-      else if (mode === 'TP') {
-        svgClassName = 'wholeDistributionTP';
-        this.svgWholeDistributionTP = svg;
-      }
-      else if (mode === 'FP') {
-        svgClassName = 'wholeDistributionFP';
-        this.svgWholeDistributionFP = svg;
-      }
-    }
-
     render() {
       if ((!this.props.data || this.props.data.length === 0)) {
         return <div />
@@ -263,9 +153,6 @@ class GroupFairnessView extends Component {
       this.renderTopKPlot('whole');
       this.renderTopKPlot('TP');
       this.renderTopKPlot('FP');
-      this.renderWholeDistribution('whole');
-      this.renderWholeDistribution('TP');
-      this.renderWholeDistribution('FP');
 
       return (
         <div className={styles.GroupFairnessUtilityViewWrapper}>
@@ -278,10 +165,10 @@ class GroupFairnessView extends Component {
                 Statistical Parity
               </div>
               <div className={styles.statParityPlotsWrapper}>
+                <div className={styles.score}>89</div>
                 <div className={styles.topKPlot}>
                   {this.svgTopKPlot.toReact()}
                 </div>
-                <div className={styles.score}>89</div>
                 {/* <div className={styles.wholeDistribution}>
                   {this.svgWholeDistribution.toReact()}
                 </div> */}
@@ -292,22 +179,19 @@ class GroupFairnessView extends Component {
                 Conditional Parity (TP/FP)
               </div>
               <div className={styles.conditionalParityPlotWrapper}>
+                <div className={styles.score}>92</div>
                 <div className={styles.topKPlot}>
                   {this.svgTopKPlotTP.toReact()}
                 </div>
-                <div className={styles.score}>92</div>
                 {/* <div className={styles.wholeDistribution}>
                   {this.svgWholeDistributionTP.toReact()}
                 </div> */}
               </div>
               <div className={styles.conditionalParityPlotWrapper}>
+                <div className={styles.score}>89</div>
                 <div className={styles.topKPlot}>
                   {this.svgTopKPlotFP.toReact()}
                 </div>
-                <div className={styles.score}>89</div>
-                {/* <div className={styles.wholeDistribution}>
-                  {this.svgWholeDistributionFP.toReact()}
-                </div> */}
               </div>
             </div>
           </div>

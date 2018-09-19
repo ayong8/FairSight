@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Alert, Button, FormGroup, FormText, Input, Label,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { TreeSelect, Slider, InputNumber, Icon } from 'antd';
+import { TreeSelect, Slider, InputNumber, Icon, Table } from 'antd';
 
 import styles from "./styles.scss";
 import index from '../../../index.css';
@@ -84,8 +84,9 @@ class Generator extends Component {
     let allColumns = Object.keys(dataset[0]),
         allFeatures = allColumns.filter((d) => d !== exceptForIdColumn);
 
-    return allFeatures.map((feature) => 
+    return allFeatures.map((feature, idx) => 
         (<DropdownItem 
+          key={idx}
           value={feature}
           onClick={this.handleClickSensitiveAttr}>
           {feature}
@@ -110,7 +111,7 @@ class Generator extends Component {
 
   renderFeatureSelections() {
     let dataset = this.props.dataset,
-        exceptForIdColumn = 'id';
+        exceptForIdColumn = 'idx';
 
     // Extract all feature names (every column except for idx)
     let allColumns = Object.keys(dataset[0]),
@@ -122,6 +123,22 @@ class Generator extends Component {
         </TreeNode>));
   }
 
+  renderFeatureSelectionsForTable() {
+    let dataset = this.props.dataset,
+        exceptForIdColumn = 'idx';
+
+    // Extract all feature names (every column except for idx)
+    let allColumns = Object.keys(dataset[0]),
+        allFeatures = allColumns.filter((d) => d !== exceptForIdColumn);
+
+    return allFeatures.map((feature) => 
+        ({
+          feature: feature.replace(/_/g, ' '),
+          dist: 10,
+          corr: 10
+        }));
+  }
+
   onTopkChange = (value) => {
     this.setState({
       topkInput: value
@@ -129,6 +146,24 @@ class Generator extends Component {
   }
 
   render() {
+    const columns = [
+      { title: 'Feature', dataIndex: 'feature', key: 1, width: 100 },
+      { title: 'Dist', dataIndex: 'dist', key: 2 },
+      { title: 'Corr', dataIndex: 'corr', key: 3 }
+    ];
+    const dataFeatureTable = this.renderFeatureSelectionsForTable();
+
+    // rowSelection object indicates the need for row selection
+    const rowSelection = {
+      onChange: (selectedRowKeys, selectedRows) => {
+        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
+      },
+      getCheckboxProps: record => ({
+        disabled: record.name === 'Disabled User', // Column configuration not to be checked
+        name: record.name,
+      }),
+    };
+
     return (
       <div className={styles.Generator}>
         <div className={styles.generatorTitleWrapper}>
@@ -163,6 +198,13 @@ class Generator extends Component {
           onChange={this.handleSelectFeatures} >
           {this.renderFeatureSelections()}
         </TreeSelect>
+        <Table 
+          rowSelection={rowSelection}
+          columns={columns} 
+          dataSource={dataFeatureTable} 
+          scroll={{ y: 100 }}
+          pagination={false}
+        />
         {/* // Target variable selector */}
         <div className={styles.selectSensitiveAttr}>Target variable</div>
         <Dropdown className={styles.targetDropdown} 

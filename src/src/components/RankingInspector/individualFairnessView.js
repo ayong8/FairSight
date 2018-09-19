@@ -163,6 +163,19 @@ class IndividualFairnessView extends Component {
       this.handleSelectOutlierAndFairCheckbox = this.handleSelectOutlierAndFairCheckbox.bind(this);
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+      if (this.props.data !== nextProps.data) { return true; }
+      if (this.props.selectedInstance !== nextProps.selectedInstance) { return true; }
+      if (this.props.selectedRankingInterval !== nextProps.selectedRankingInterval) { return true; }
+      if (this.props.pairwiseInputDistances !== nextProps.pairwiseInputDistances) { return true; }
+      if (this.props.permutationInputDistances !== nextProps.permutationInputDistances) { return true; }
+      if (this.props.inputCoords !== nextProps.inputCoords) { return true; }
+
+      if (this.state.confIntervalPoints !== nextState.confIntervalPoints) { return true; }
+  
+      return false;
+    }
+
     componentDidMount() {
       const _self = this,
             data = this.props.data,
@@ -458,8 +471,8 @@ class IndividualFairnessView extends Component {
           selectedRankingIntervalIdx = this.props.selectedInstance,
           selectedInstance = instances.filter((d) => d.idx === selectedRankingIntervalIdx)[0];
 
-      let featureValueDivs = Object.keys(selectedInstance.features).map((key) => {
-                return <div>&nbsp;&nbsp;{key + ': ' + selectedInstance.features[key]}</div>;
+      let featureValueDivs = Object.keys(selectedInstance.features).map((key, idx) => {
+                return <div key={idx}>&nbsp;&nbsp;{key + ': ' + selectedInstance.features[key]}</div>;
               });
 
       return (
@@ -510,7 +523,7 @@ class IndividualFairnessView extends Component {
       _self.svgMatrix.setAttribute('0 0 200 200');
       _self.svgMatrix.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       _self.svgMatrix.setAttribute('class', 'svg_matrix');
-      _self.svgMatrix.style.setProperty('margin', '0 5%');
+      _self.svgMatrix.style.setProperty('margin', '10px 5%');
 
       let data = _self.props.data,
           wholeInstances = data.instances,
@@ -645,7 +658,7 @@ class IndividualFairnessView extends Component {
                                                   _self.layout.svgMatrix.matrixPlot.height + ')'),
             gHistoMatrix = d3.select(_self.svgMatrix).append('g')
                 .attr('class', 'g_histo_matrix')
-                .attr('transform', 'translate(' + (_self.layout.svgMatrix.attrPlotLeft.width + _self.layout.svgMatrix.matrixPlot.width + 50) + ',0)'),
+                .attr('transform', 'translate(' + (_self.layout.svgMatrix.attrPlotLeft.width + _self.layout.svgMatrix.matrixPlot.width + 20) + ',0)'),
             gHistoCells = gHistoMatrix.selectAll('.g_histo_cell')
                 .data(_self.dataBinFlattened)
                 .enter().append('g')
@@ -1034,10 +1047,10 @@ class IndividualFairnessView extends Component {
             absAvgWithinGroupPair = absSumWithinGroupPair / dataWithinGroupPair.length,
             absAvgBetweenGroupPair = absSumBetweenGroupPair / dataBetweenGroupPair.length,
             groupSkewAvgs = [
-              avgWithinGroupPair1, 
-              avgWithinGroupPair2, 
-              avgBetweenGroupPair,
-              avgWithinGroupPair
+              absAvgWithinGroupPair1, 
+              absAvgWithinGroupPair2, 
+              absAvgWithinGroupPair,
+              absAvgBetweenGroupPair
             ];
 
       // Coordinate scales
@@ -1051,9 +1064,8 @@ class IndividualFairnessView extends Component {
             .domain([0, 1, 2, 3, 4, 5])
             .range([0, _self.layout.groupSkew.width]),
       _self.yGroupSkewScale = d3.scaleLinear()  // Max value among sum of pairs
-            .domain([ -Math.max(Math.abs(avgWithinGroupPair1), Math.abs(avgWithinGroupPair2), Math.abs(avgWithinGroupPair), Math.abs(avgBetweenGroupPair)),
-                       Math.max(Math.abs(avgWithinGroupPair1), Math.abs(avgWithinGroupPair2), Math.abs(avgWithinGroupPair), Math.abs(avgBetweenGroupPair)) ])
-            .range([_self.layout.plot.height - 5, 0]);
+            .domain([ 0, Math.max(avgWithinGroupPair1, avgWithinGroupPair2, avgWithinGroupPair, avgBetweenGroupPair) ])
+            .range([_self.layout.plot.height - 10, 0]);
 
       const gPlot = d3.select(_self.svg).append('g')
               .attr('class', 'g_plot')
@@ -1348,16 +1360,17 @@ class IndividualFairnessView extends Component {
           .attr('x', (d, i) => _self.xGroupSkewScale(i + 1))
           .attr('y', (d) => 
             d > 0
-              ? _self.yGroupSkewScale(d) 
+              ? _self.yGroupSkewScale(d) + 1
               : _self.yGroupSkewScale(0)
           )
-          .attr('width', 3)
+          .attr('width', 1)
           .attr('height', (d) => 
               Math.abs(_self.yGroupSkewScale(d) - _self.yGroupSkewScale(0))
           )
-          .style('fill', (d, i) => _self.pairColorScale(i + 1))
-          .style('stroke', 'black')
-          .style('stroke-width', 0.5);
+          .style('fill', 'none')
+          .style('stroke', (d, i) => _self.pairColorScale(i + 1))
+          .style('stroke-width', 1)
+          .style('stroke-dasharray', '5,5');
 
       gGroupSkew
           .selectAll('.groupSkewCircle')
@@ -1721,7 +1734,6 @@ class IndividualFairnessView extends Component {
                 </Dropdown>
               </div>
               {this.svgMatrix.toReact()}
-              {this.svgLegend.toReact()}
             </div>
           </div>
           <div className={styles.DistortionPlot}> 

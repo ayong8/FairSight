@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
-import UtilityView from './utilityView';
+import UtilityView from '../UtilityView';
 
 import styles from './styles.scss';
 import index from '../../index.css';
@@ -155,7 +155,7 @@ class GroupFairnessView extends Component {
       this.renderTopKPlot('FP');
 
       return (
-        <div className={styles.GroupFairnessUtilityViewWrapper}>
+        <div className={styles.GroupFairnessViewWrapper}>
           <div className={styles.GroupFairnessView}>
             <div className={index.title + ' ' + styles.title}>
               Group Fairness
@@ -195,7 +195,6 @@ class GroupFairnessView extends Component {
               </div>
             </div>
           </div>
-          <UtilityView className={styles.UtilityView} />
         </div>
       );
     }

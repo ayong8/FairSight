@@ -49,6 +49,9 @@ def get_selected_dataset(whole_dataset_df, selected_x, selected_y):
 
     return dataset_df
 
+# def extract_whole_features(whole_dataset_df):
+#     whole_dataset_df.columns
+
 def do_encoding_categorical_vars(whole_dataset_df, categorical_var):
     # Figure out all categories in a feature
     categories = whole_dataset_df[categorical_var].unique()
@@ -162,7 +165,7 @@ class RunSVM(APIView):
         idx_col = dataset_df['idx']
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
-        svm_fit = svm.SVC(kernel='linear', random_state=0).fit(X_train, y_train)
+        svm_fit = svm.SVC(kernel='linear', random_state=0, cache_size=7000).fit(X_train, y_train)
         accuracy = svm_fit.score(X_test, y_test)
         # pred_probs = svm_fit.predict_proba(X)
 

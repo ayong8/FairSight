@@ -10,8 +10,8 @@ import { BoxBrush, withBrush, getCoordsFromEvent, constrainToRegion } from '@vx/
 import { Motion, spring } from 'react-motion';
 
 import styles from './styles.scss';
-import index from '../../../index.css';
-import gs from '../../../config/_variables.scss'; // gs (=global style)
+import index from '../../index.css';
+import gs from '../../config/_variables.scss'; // gs (=global style)
 
 const points = genRandomNormalPoints();
 

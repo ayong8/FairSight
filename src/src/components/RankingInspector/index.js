@@ -14,17 +14,6 @@ import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss'; // gs (=global style)
 
-_.rename = function(obj, key, newKey) {
-  
-  if(_.includes(_.keys(obj), key)) {
-    obj[newKey] = _.clone(obj[key], true);
-
-    delete obj[key];
-  }
-  
-  return obj;
-};
-
 class RankingInspector extends Component {
   constructor(props) {
     super(props);
@@ -80,13 +69,6 @@ class RankingInspector extends Component {
 
     return (
       <div className={styles.RankingInspector}>
-        <Generator className={styles.Generator}
-                   dataset={this.props.dataset}
-                   data={this.props.rankingInstance}
-                   topk={this.props.topk}
-                   n={this.props.n}
-                   onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}
-                   onRunningModel={this.handleModelRunning}/>
         <RankingView n={this.props.n}
                      topk={this.props.topk}
                      selectedRankingInterval={this.props.selectedRankingInterval}

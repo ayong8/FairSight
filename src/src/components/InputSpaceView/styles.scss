@@ -1,0 +1,28 @@
+.InputSpaceView {
+  grid-area: i;
+}
+
+.inputSpaceViewTitleWrapper {
+  display: flex;
+
+  .inputSpaceViewTitle {
+      padding: 0;
+  }
+}
+
+.FeatureTable {
+  margin: 0 10px;
+  border: 1px solid lightgray;
+}
+.FeatureTable > thead {
+  border-bottom: 1px solid lightgray;
+}
+.IndividualPlotStatusView {
+  display: flex;
+  width: 100%;
+  margin: 10px 10px;
+
+  .selectedInstanceInfo {
+      margin: 5px;
+  }
+}

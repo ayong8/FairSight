@@ -42,12 +42,8 @@ class Menubar extends Component {
     const data = this.props.data;
 
     return (
-      <div className={styles.Generator}>
+      <div className={styles.Menubar}>
         <div className={styles.appTitle}>FAIRSIGHT</div>
-        <div className={styles.addDataset}>
-          <span className={styles.addDatasetTitle}>Dataset</span>
-          <Badge className={styles.currentDataset} color="success" pill>german.csv</Badge>
-        </div>
         <div className={styles.addRanking}>
           <Button>+</Button>
         </div>
@@ -55,7 +51,10 @@ class Menubar extends Component {
           Current ranking: &nbsp;
           <Badge className={styles.currentRanking} color="success" pill>{'R' + data.rankingId}</Badge>
         </div>
-        <div className={styles.margin}>
+        <div className={styles.FilterView}>
+          ddd
+        </div>
+        {/* <div className={styles.margin}>
           <Steps size='small' current={4} className={styles.ProcessIndicator}>
             <Step className={index.step1} title="Parameters" icon={<Icon type="check-circle" theme="filled" />} />
             <Step className={index.step2} title="Input" icon={<Icon type="check-circle" theme="filled" />} />
@@ -63,7 +62,7 @@ class Menubar extends Component {
             <Step className={index.step4} title="Output" icon={<Icon type="check-circle" theme="filled" />} />
             <Step className={index.step5} title="Ranking list" icon={<Icon type="check-circle" theme="filled" />} />
           </Steps>
-        </div>
+        </div> */}
         {/* <div className={styles.GeneratorNavBar}>
           <div className={styles.navBarDataset}>Dataset</div>
           <div className={styles.navBarInput}>

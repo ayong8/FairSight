@@ -9,8 +9,8 @@ import crossfilter from 'crossfilter';
 import WholeRankingChart from './wholeRankingChart';
 
 import styles from './styles.scss';
-import index from '../../../index.css';
-import gs from '../../../config/_variables.scss'; // gs (=global style)
+import index from '../../index.css';
+import gs from '../../config/_variables.scss'; // gs (=global style)
 
 class RankingView extends Component {
     constructor(props) {

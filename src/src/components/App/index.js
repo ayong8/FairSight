@@ -4,17 +4,18 @@ import { connect } from 'react-redux';
 
 import * as d3 from 'd3';
 import _ from 'lodash';
-import { Button } from 'reactstrap';
 import styles from "./styles.scss";
 import 'antd/dist/antd.css';
 
-import Footer from "components/Footer";
 import Menubar from 'components/Menubar';
-import RankingInspector from 'components/RankingInspector';
+import Generator from 'components/Generator';
 import RankingsListView from 'components/RankingsListView';
-import TableView from 'components/TableView';
-
-import dimReductionData from '../../data/dim_reduction_result.json';
+import InputSpaceView from 'components/InputSpaceView';
+import RankingView from 'components/RankingView';
+import IndividualFairnessView from 'components/IndividualFairnessView';
+import GroupFairnessView from 'components/GroupFairnessView';
+import UtilityView from 'components/UtilityView';
+import Footer from "components/Footer";
 
 class App extends Component {
   constructor(props) {
@@ -22,6 +23,7 @@ class App extends Component {
 
     this.state = {
       dataset: [],
+      wholeFeatures: [],
       topk: 20,
       n: 40,
       selectedDataset: [],  // A subset of the dataset that include features, target, and idx
@@ -64,6 +66,7 @@ class App extends Component {
     this.handleSelectedRankingInterval = this.handleSelectedRankingInterval.bind(this);
     this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
     this.handleRankingInstanceOptions = this.handleRankingInstanceOptions.bind(this);
+    this.handleMouseoverInstance = this.handleMouseoverInstance.bind(this);
   }
 
   // shouldComponentUpdate(nextProps, nextState) {
@@ -92,7 +95,7 @@ class App extends Component {
           });
     
     // Response: All features, and values multiplied by weight
-    fetch('/dataset/runSVM/', {
+    fetch('/dataset/runRankSVM/', {
         method: 'post',
         body: JSON.stringify(rankingInstance)
       })
@@ -190,6 +193,12 @@ class App extends Component {
     });
   }
 
+  handleMouseoverInstance(idx) {
+    this.setState({
+      selectedInstance: idx
+    });
+  }
+
   render() {
     if ((!this.state.rankingInstance || this.state.rankingInstance.length === 0) || 
         (!this.state.inputCoords || this.state.inputCoords.length === 0) ||
@@ -215,7 +224,38 @@ class App extends Component {
                  data={this.state.rankingInstance}
                  onSelectSensitiveAttr={this.handleSelectSensitiveAttr} />
         <RankingsListView rankings={this.state.rankings} />
-        <RankingInspector topk={this.state.topk}
+        <Generator className={styles.Generator}
+                   dataset={this.state.dataset}
+                   data={this.state.rankingInstance}
+                   topk={this.state.topk}
+                   n={this.state.n}
+                   onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}
+                   onRunningModel={this.handleModelRunning}/>
+        <RankingView n={this.state.n}
+                     topk={this.state.topk}
+                     selectedRankingInterval={this.state.selectedRankingInterval}
+                     data={this.state.rankingInstance}
+                     onSelectedRankingInterval={this.handleSelectedRankingInterval}
+                     onSelectedTopk={this.handleSelectedTopk} />
+        <InputSpaceView className={styles.InputSpaceView}
+                        data={this.state.rankingInstance}
+                        topk={this.state.topk}
+                        inputCoords={this.state.inputCoords}
+                        selectedInstance={this.state.selectedInstance}
+                        selectedRankingInterval={this.state.selectedRankingInterval} 
+                        onMouseoverInstance={this.handleMouseoverInstance} />
+        <IndividualFairnessView data={this.state.rankingInstance}
+                                n={this.state.n}
+                                selectedInstance={this.state.selectedInstance}
+                                selectedRankingInterval={this.state.selectedRankingInterval}
+                                pairwiseInputDistances={this.state.pairwiseInputDistances}
+                                permutationInputDistances={this.state.permutationInputDistances}
+                                inputCoords={this.state.inputCoords}
+                                />
+        <GroupFairnessView className={styles.GroupFairnessView}
+                           data={this.state.rankingInstance} 
+                           topk={this.state.topk} />
+        {/* <RankingInspector topk={this.state.topk}
                           n={this.state.n}
                           dataset={this.state.dataset}
                           rankingInstance={rankingInstance}
@@ -225,10 +265,9 @@ class App extends Component {
                           pairwiseInputDistances={this.state.pairwiseInputDistances}
                           permutationInputDistances={this.state.permutationInputDistances}
                           ranking={selectedRanking}
-                          onRunningModel={this.handleModelRunning}
                           onSelectedRankingInterval={this.handleSelectedRankingInterval}
-                          onSelectedTopk={this.handleSelectedTopk}
-                          onHandleRankingInstanceOptions={this.handleRankingInstanceOptions} />
+                          onSelectedTopk={this.handleSelectedTopk}  /> */}
+        <UtilityView className={styles.UtilityView} />
         <Footer />
       </div>
     );

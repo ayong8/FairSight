@@ -13,16 +13,23 @@ body {
   width: 97.5%;
   height: 1000px;
   margin: 0 auto;
-  display: grid;
-  grid-template-rows: 50px 50px 1100px 300px 80px;
-  grid-template-columns: 20% 45% 15% 20%;
-  row-gap: 10px;
-
+  margin-top: 50px;
   margin-bottom: -10px;
+
+  display: grid;
+  row-gap: 10px;
+  column-gap: 10px;
+  grid-template-rows: 50px 80px 130px 300px 300px 250px 80px;
+  grid-template-columns: 20% 15% 43% 20%;
+  grid-template-areas:
+    'm m m m'
+    'g r r l'
+    'g r r l'
+    'g i id l'
+    'g gf id l'
+    'g u id l'
+    'f f f f';
 }
-// .mainViewWrapper {
-//   grid-area: 'Generator';
-// }
 
 .margin {
   grid-column: 1 / 5;
@@ -31,5 +38,38 @@ body {
   align-items: flex-end;
 }
 
-.menuBar {
+.DatasetView,
+.InputSpaceView,
+.IndividualFairnessView,
+.GroupFairnessView,
+.RankingView,
+.UtilityView {
+    margin: 10px;
+    background-color: white;
+    border-left: 1px solid lightgray;
+    border-bottom: 1px solid lightgray;
+}
+
+.Menubar { grid-area: m; }
+.Generator { grid-area: g; }
+.RankingsListView { grid-area: l; }
+.InputSpaceView { grid-area: i; }
+.IndividualFairnessView { grid-area: id; }
+.GroupFairnessView { grid-area: gf; }
+.RankingView { grid-area: r; }
+.UtilityView { grid-area: u; }
+.Footer { grid-area: f; }
+
+// UI Components
+.step2 { 
+  color: #54aaff; 
+  font-size: 1.6rem;
+  margin-top: 8px;
+  margin-left: 5px; 
+}
+.step3 { 
+  color: #1c88f3; 
+  font-size: 1.6rem; 
+  margin-top: 8px;
+  margin-left: 5px;
 }

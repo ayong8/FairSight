@@ -4,7 +4,7 @@ import { Alert, Button, FormGroup, FormText, Input, Label,
 import { TreeSelect, Slider, InputNumber, Icon, Table } from 'antd';
 
 import styles from "./styles.scss";
-import index from '../../../index.css';
+import index from '../../index.css';
 
 const TreeNode = TreeSelect.TreeNode;
 

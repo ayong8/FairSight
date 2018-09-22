@@ -265,9 +265,9 @@ class IndividualFairnessView extends Component {
             diffOutput = Math.abs(dataPairs[i][0].instance.ranking - dataPairs[i][1].instance.ranking),
             pair = 0;
   
-        if((dataPairs[i][0].group === 1) && (dataPairs[i][1].group === 1))
+        if((dataPairs[i][0].group === 0) && (dataPairs[i][1].group === 0))
           pair = 1;
-        else if((dataPairs[i][0].group === 2) && (dataPairs[i][1].group === 2))
+        else if((dataPairs[i][0].group === 1) && (dataPairs[i][1].group === 1))
           pair = 2;
         else if(dataPairs[i][0].group !== dataPairs[i][1].group)
           pair = 3;

@@ -21,6 +21,7 @@ class Generator extends Component {
       topkInput: 0
     };
 
+    this.renderSelectProtectedGroup = this.renderSelectProtectedGroup.bind(this);
     this.toggleSensitiveAttrDropdown = this.toggleSensitiveAttrDropdown.bind(this);
     this.toggleTargetDropdown = this.toggleTargetDropdown.bind(this);
     this.toggleMethodDropdown = this.toggleMethodDropdown.bind(this);
@@ -49,22 +50,21 @@ class Generator extends Component {
   }
 
   handleClickSensitiveAttr(e) {
-    let selectedSensitiveAttr = e.target.value;
+    const selectedSensitiveAttr = e.target.value;
     this.props.onSelectRankingInstanceOptions({ sensitiveAttr: selectedSensitiveAttr });
   }
 
   handleClickTarget(e) {
-    let selectedTarget = e.target.value;
+    const selectedTarget = e.target.value;
     this.props.onSelectRankingInstanceOptions({ target: selectedTarget });
   }
 
   handleSelectFeatures(selectedFeatures) {
-    console.log(selectedFeatures);
     this.props.onSelectRankingInstanceOptions({ features: selectedFeatures });
   }
 
   handleClickMethod(e) {
-    let selectedMethod = e.target.value;
+    const selectedMethod = e.target.value;
     this.props.onSelectRankingInstanceOptions({ method: selectedMethod });
   }
 
@@ -76,50 +76,48 @@ class Generator extends Component {
     this.setState({ value });
   }
 
+  renderSelectProtectedGroup() {
+    const { rankingInstance } = this.props,
+          { sensitiveAttr } = rankingInstance;
+
+    return (
+      <div>
+        <div>Select protected group</div>
+        <div>Male, Female</div>
+      </div>
+    );
+  }
+
   renderSensitiveAttrSelections() {
-    let dataset = this.props.dataset,
-        exceptForIdColumn = 'id';
+    const { features } = this.props;
 
-    // Extract all feature names (every column except for idx)
-    let allColumns = Object.keys(dataset[0]),
-        allFeatures = allColumns.filter((d) => d !== exceptForIdColumn);
-
-    return allFeatures.map((feature, idx) => 
+    return features.map((feature, idx) => 
         (<DropdownItem 
           key={idx}
-          value={feature}
+          value={feature.name}
           onClick={this.handleClickSensitiveAttr}>
-          {feature}
+          {feature.name}
         </DropdownItem>));
   }
 
   renderTargetSelections() {
-    let dataset = this.props.dataset,
-        exceptForIdColumn = 'id';
+    const { features } = this.props;
 
-    // Extract all feature names (every column except for idx)
-    let allColumns = Object.keys(dataset[0]),
-        allFeatures = allColumns.filter((d) => d !== exceptForIdColumn);
-
-    return allFeatures.map((feature) => 
+    return features.map((feature, idx) => 
         (<DropdownItem 
-          value={feature}
+          key={idx}
+          value={feature.name}
           onClick={this.handleClickTarget}>
-          {feature}
+          {feature.name}
         </DropdownItem>));
   }
 
   renderFeatureSelections() {
-    let dataset = this.props.dataset,
-        exceptForIdColumn = 'idx';
+    const { features } = this.props;
 
-    // Extract all feature names (every column except for idx)
-    let allColumns = Object.keys(dataset[0]),
-        allFeatures = allColumns.filter((d) => d !== exceptForIdColumn);
-
-    return allFeatures.map((feature) => 
-        (<TreeNode value={feature} 
-                   title={feature}>
+    return features.map((feature) => 
+        (<TreeNode value={feature.name} 
+                   title={feature.name}>
         </TreeNode>));
   }
 
@@ -183,6 +181,8 @@ class Generator extends Component {
             {this.renderSensitiveAttrSelections()}
           </DropdownMenu>
         </Dropdown>
+        {/* // Protected Group selector */}
+
         {/* // Feature selector */}
         <div className={styles.selectFeatures}>Features</div>
         <TreeSelect

@@ -52,7 +52,8 @@ class Menubar extends Component {
           <Badge className={styles.currentRanking} color="success" pill>{'R' + data.rankingId}</Badge>
         </div>
         <div className={styles.FilterView}>
-          ddd
+          <Icon type="filter" theme="outlined" />
+          &nbsp;Filter
         </div>
         {/* <div className={styles.margin}>
           <Steps size='small' current={4} className={styles.ProcessIndicator}>

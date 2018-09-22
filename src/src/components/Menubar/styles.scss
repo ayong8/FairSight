@@ -5,7 +5,7 @@
     width: 100%;
 
     display: grid;
-    grid-template-columns: 15% 6% 20% 35%;
+    grid-template-columns: 15% 6% 20% 38%;
     grid-template-rows: 100%;
     grid-template-areas: 
       't a r f';
@@ -44,7 +44,11 @@
     }
 
     .FilterView {
-        grid-area: f;
+      grid-area: f;
+      justify-self: end;
+      align-self: end;
+      padding-bottom: 5px;
+      font-size: 1.1rem;
     }
 
     .ranking {

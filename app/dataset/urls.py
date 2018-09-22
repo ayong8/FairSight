@@ -8,6 +8,11 @@ urlpatterns = [
         name='file'
     ),
     url(
+        regex=r'^extractFeatures/$',
+        view=views.ExtractFeatures.as_view(),
+        name='features'
+    ),
+    url(
         regex=r'^runRankSVM/$',
         view=views.RunRankSVM.as_view(),
         name='rankSVM'
@@ -21,21 +26,6 @@ urlpatterns = [
         regex=r'^runMDS/$',
         view=views.RunMDS.as_view(),
         name='mds'
-    ),
-    url(
-        regex=r'^getWeight/$',
-        view=views.GetWeight.as_view(),
-        name='weight'
-    ),
-    url(
-        regex=r'^getWeightedDataset/$',
-        view=views.GetWeightedDataset.as_view(),
-        name='weight'
-    ),
-    url(
-        regex=r'^getSelectedDataset/$',
-        view=views.GetSelectedDataset.as_view(),
-        name='selectedDataset'
     ),
     url(
         regex=r'^setSensitiveAttr/$',

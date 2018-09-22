@@ -23,7 +23,7 @@ class App extends Component {
 
     this.state = {
       dataset: [],
-      wholeFeatures: [],
+      features: [],
       topk: 20,
       n: 40,
       selectedDataset: [],  // A subset of the dataset that include features, target, and idx
@@ -38,7 +38,7 @@ class App extends Component {
       rankingInstance: {
         rankingId: 1,
         sensitiveAttr: 'sex',
-        features: ['credit_amount', 'income_perc', 'age'],
+        features: ['credit_amount', 'installment_as_income_perc', 'age'],
         featureSpecs: [
           { name: 'credit_amount', type: 'continuous', range: 'continuous'},
           { name: 'income_perc', type: 'continuous', range: 'continuous'},
@@ -85,14 +85,26 @@ class App extends Component {
           return response.json() 
         })   
         .then( (file) => {
-            let dataset = _.values(JSON.parse(file));
-            console.log('whole dataset:', dataset);
+          const dataset = _.values(JSON.parse(file));
 
-            this.setState({
-              dataset: dataset,
-              n: dataset.length
-            });
+          this.setState({
+            dataset: dataset,
+            n: dataset.length
           });
+        });
+
+    fetch('/dataset/extractFeatures')
+      .then( (response) => {
+          return response.json() 
+        })
+        .then( (response) => {
+          const features = _.values(JSON.parse(response));
+          console.log('features:', features);
+
+          this.setState({
+            features: features
+          });
+        });
     
     // Response: All features, and values multiplied by weight
     fetch('/dataset/runRankSVM/', {
@@ -103,8 +115,7 @@ class App extends Component {
         return response.json();
       })   
       .then( (response) => {
-          let rankingInstance = JSON.parse(response);
-          console.log(rankingInstance);
+          const rankingInstance = JSON.parse(response);
           
           this.setState(prevState => ({
             rankingInstance: rankingInstance,
@@ -120,9 +131,9 @@ class App extends Component {
         return response.json();
       })   
       .then( (response) => {
-          let json_response = JSON.parse(response),
-              pairwiseInputDistances = json_response.pairwiseDistances,
-              permutationInputDistances = json_response.permutationDistances;
+          const json_response = JSON.parse(response),
+                pairwiseInputDistances = json_response.pairwiseDistances,
+                permutationInputDistances = json_response.permutationDistances;
           
           this.setState({
             pairwiseInputDistances: pairwiseInputDistances,
@@ -131,12 +142,16 @@ class App extends Component {
         });
 
     // Response: Dim coordinates
-    fetch('/dataset/runMDS')
+    fetch('/dataset/runMDS/', {
+        method: 'post',
+        body: JSON.stringify(rankingInstance)
+      })
       .then( (response) => {
         return response.json();
       })   
       .then( (responseOutput) => {
-          let dimReductions = _.values(JSON.parse(responseOutput));
+          const dimReductions = _.values(JSON.parse(responseOutput));
+          console.log('mds result: ', dimReductions);
           
           this.setState({inputCoords: dimReductions});
         });
@@ -216,7 +231,7 @@ class App extends Component {
           selectedRankingId = this.state.selectedRanking,
           selectedRanking = rankings[selectedRankingId];
 
-    console.log(rankings);
+    console.log('state: ', this.state);
 
     return (
       <div className={styles.App}>
@@ -226,7 +241,8 @@ class App extends Component {
         <RankingsListView rankings={this.state.rankings} />
         <Generator className={styles.Generator}
                    dataset={this.state.dataset}
-                   data={this.state.rankingInstance}
+                   features={this.state.features}
+                   rankingInstance={this.state.rankingInstance}
                    topk={this.state.topk}
                    n={this.state.n}
                    onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}

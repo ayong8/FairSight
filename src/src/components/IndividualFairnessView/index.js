@@ -1691,7 +1691,6 @@ class IndividualFairnessView extends Component {
       return (
         <div className={styles.IndividualFairnessView}>
           <div className={styles.individualFairnessViewTitleWrapper}>
-            <Icon className={styles.step3} type="check-circle" theme="filled" /> &nbsp;
             <div className={index.title + ' ' + styles.individualFairnessViewTitle}>Distortions</div>
           </div>
           <div className={styles.MatrixSelectedInstanceWrapper}>

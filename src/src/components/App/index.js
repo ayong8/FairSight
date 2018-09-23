@@ -235,6 +235,7 @@ class App extends Component {
 
     return (
       <div className={styles.App}>
+        <div className={styles.marginDiv}></div>
         <Menubar topk={topk}
                  data={this.state.rankingInstance}
                  onSelectSensitiveAttr={this.handleSelectSensitiveAttr} />

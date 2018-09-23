@@ -119,7 +119,6 @@ class InputSpaceView extends Component {
       return (
         <div className={styles.InputSpaceView}>
           <div className={styles.inputSpaceViewTitleWrapper}>
-            <Icon className={styles.step2} type="check-circle" theme="filled" /> &nbsp;
             <div className={styles.inputSpaceViewTitle + ' ' + index.title}>Input space</div>
           </div>
           <div className={styles.IndividualPlotStatusView}>

@@ -19,9 +19,10 @@ body {
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
-  grid-template-rows: 50px 80px 130px 300px 300px 250px 80px;
+  grid-template-rows: 20px 30px 80px 130px 300px 300px 250px 80px;
   grid-template-columns: 20% 15% 43% 20%;
   grid-template-areas:
+    'mg mg mg mg'
     'm m m m'
     'g r r l'
     'g r r l'
@@ -50,6 +51,7 @@ body {
     border-bottom: 1px solid lightgray;
 }
 
+.marginDiv { grid-area: mg; }
 .Menubar { grid-area: m; }
 .Generator { grid-area: g; }
 .RankingsListView { grid-area: l; }

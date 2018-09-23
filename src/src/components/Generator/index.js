@@ -122,16 +122,11 @@ class Generator extends Component {
   }
 
   renderFeatureSelectionsForTable() {
-    let dataset = this.props.dataset,
-        exceptForIdColumn = 'idx';
+    const { features } = this.props;
 
-    // Extract all feature names (every column except for idx)
-    let allColumns = Object.keys(dataset[0]),
-        allFeatures = allColumns.filter((d) => d !== exceptForIdColumn);
-
-    return allFeatures.map((feature) => 
+    return features.map((feature) => 
         ({
-          feature: feature.replace(/_/g, ' '),
+          feature: feature.name.replace(/_/g, ' '),
           dist: 10,
           corr: 10
         }));
@@ -175,21 +170,21 @@ class Generator extends Component {
                   isOpen={this.state.sensitiveAttrDropdownOpen} 
                   toggle={this.toggleSensitiveAttrDropdown}>
           <DropdownToggle className={styles.sensitiveAttrDropdownToggle} caret>
-            {this.props.data.sensitiveAttr}
+            {this.props.rankingInstance.sensitiveAttr}
           </DropdownToggle>
           <DropdownMenu>
             {this.renderSensitiveAttrSelections()}
           </DropdownMenu>
         </Dropdown>
         {/* // Protected Group selector */}
-
+        { typeof(this.props.rankingInstance.sensitiveAttr) !== 'undefined' ? this.renderSelectProtectedGroup : false }
         {/* // Feature selector */}
         <div className={styles.selectFeatures}>Features</div>
         <TreeSelect
           className={styles.featureSelector}
           showSearch
           style={{ width: 330 }}
-          value={this.props.data.features}
+          value={this.props.rankingInstance.features}
           dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
           placeholder='Please select'
           allowClear
@@ -211,7 +206,7 @@ class Generator extends Component {
                   isOpen={this.state.targetDropdownOpen} 
                   toggle={this.toggleTargetDropdown}>
           <DropdownToggle className={styles.targetDropdownToggle} caret>
-            {this.props.data.target}
+            {this.props.rankingInstance.target}
           </DropdownToggle>
           <DropdownMenu>
             {this.renderTargetSelections()}
@@ -223,7 +218,7 @@ class Generator extends Component {
                   isOpen={this.state.methodDropdownOpen} 
                   toggle={this.toggleMethodDropdown}>
           <DropdownToggle className={styles.methodDropdownToggle} caret>
-            {this.props.data.method}
+            {this.props.rankingInstance.method}
           </DropdownToggle>
           <DropdownMenu>
             <DropdownItem>SVM</DropdownItem>

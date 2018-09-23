@@ -47,14 +47,6 @@ class Menubar extends Component {
         <div className={styles.addRanking}>
           <Button>+</Button>
         </div>
-        <div className={styles.ranking}>
-          Current ranking: &nbsp;
-          <Badge className={styles.currentRanking} color="success" pill>{'R' + data.rankingId}</Badge>
-        </div>
-        <div className={styles.FilterView}>
-          <Icon type="filter" theme="outlined" />
-          &nbsp;Filter
-        </div>
         {/* <div className={styles.margin}>
           <Steps size='small' current={4} className={styles.ProcessIndicator}>
             <Step className={index.step1} title="Parameters" icon={<Icon type="check-circle" theme="filled" />} />

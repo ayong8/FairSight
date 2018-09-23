@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
-import { Slider, Icon, InputNumber } from 'antd';
+import { Slider, Icon, InputNumber, Badge } from 'antd';
 import dc from 'dc';
 import crossfilter from 'crossfilter';
 
@@ -23,13 +23,13 @@ class RankingView extends Component {
               height: 80
           },
           topkRankingView: {
-            width: 350,
+            width: 450,
             height: 60,
             margin: 10,
             bw: 7 // bar width
           },
           selectedIntervalView: {
-            width: 350,
+            width: 450,
             height: 40,
             margin: 10,
             bw: 7 // bar width
@@ -139,25 +139,66 @@ class RankingView extends Component {
 
       return (
         <div className={styles.RankingView}>
-          <div className={styles.rankingViewTitleWrapper}>
-            <Icon className={styles.step4} type='check-circle' theme='filled' /> &nbsp;
-            <div className={styles.rankingViewTitle + ' ' + index.title}>Output</div>
+          <div className={styles.rankingViewTitle + ' ' + index.title}>
+            Current ranking: &nbsp;
+            <Badge className={styles.currentRanking} color="success" pill>{'R' + data.rankingId}</Badge>
           </div>
-          <div className={styles.outputSummary}>
-            <div className={index.subTitle}>Summary</div>
-            <div className={styles.summaryStat}>Accuracy: {this.props.data.stat.accuracy}</div>
+          <div className={styles.summaryViewTitle + ' ' + index.subTitle}>Summary</div>
+          <div className={styles.summaryView}>
+            <div className={styles.accuracyWrapper}>
+              <div className={styles.accuracyTitle}>Accuracy</div>
+              <div className={styles.accuracy}>80%</div>
+            </div>
+            <div className={styles.groupFairnessWrapper}>
+              <div className={styles.groupFairnessTitle}>Statistical Parity</div>
+              <div className={styles.groupFairness}>96</div>
+            </div>
+            <div className={styles.individualFairnessWrapper}>
+              <div className={styles.individualFairnessTitle}>Goodness</div>
+              <div className={styles.individualFairness}>0.5</div>
+            </div>
           </div>
-          <div className={styles.topkRankingViewTitle + ' ' + index.subTitle}>Top-k ranking</div>
-          <div className={styles.topkRankingView}>
+          <div className={styles.filterViewTitle  + ' ' + index.subTitle}>
+            <Icon type="filter" theme="outlined" />
+            &nbsp;Filter
+          </div>
+          {/* <div className={styles.topkRankingView}>
             {svgTopkRankingView.toReact()}
           </div>
           <div className={styles.selectedRankingViewTitle + ' ' + index.subTitle}>Selected ranking</div>
           <div className={styles.selectedRankingView}>
             {svgTopkRankingView.toReact()}
+          </div> */}
+          <div className={styles.topkFilterView}>
+            <div className={styles.topkInput}>
+              <div className={styles.topkFilterTitle}>Top-k</div>
+              &nbsp;&nbsp;
+              <InputNumber
+                className={styles.topkInput}
+                size='small'
+                min={1}
+                max={this.props.n}
+                style={{ width: 40 }}
+                value={this.props.topk}
+                onChange={this.onTopkChange}
+              />
+            </div>
+            <div className={styles.topkSlider}>
+              <Slider 
+                className={styles.topkSlider}
+                step={1} 
+                min={1}
+                max={this.props.n}
+                value={this.props.topk}
+                style={{ width: 450 }}
+                onChange={this.handleSelectedTopk} 
+              />
+            </div>
           </div>
-          <div className={styles.wholeRankingInputWrapper}>
-            <div className={styles.sliderNameWholeRanking}>Interval</div>
-            <div className={styles.wholeRankingInput}>
+          <div className={styles.intervalFilterView}>            
+            <div className={styles.intervalInput}>
+              <div className={styles.intervalFilterTitle}>Interval</div>
+              &nbsp;&nbsp;
               <InputNumber
                 size='small'
                 min={1}
@@ -176,34 +217,11 @@ class RankingView extends Component {
                 onChange={this.onTopkChange}
               />
             </div>
-          </div>
-          <div className={styles.topkInput}>
-            <div>Top-k</div>
-            <InputNumber
-              className={styles.topkInput}
-              size='small'
-              min={1}
-              max={this.props.n}
-              style={{ width: 40 }}
-              value={this.props.topk}
-              onChange={this.onTopkChange}
-            />
-          </div>
-          <WholeRankingChart
-            className={styles.wholeRankingChart}
-            data={this.props.data}
-            width={700} height={30} margin={10}
-            onSelectedRankingInterval={this.handleSelectedRankingInterval}
-          />
-          <div className={styles.topkSlider}>
-            <Slider 
-              className={styles.topkSlider}
-              step={1} 
-              min={1}
-              max={this.props.n}
-              defaultValue={30}
-              style={{ width: 800 }}
-              onChange={this.handleSelectedTopk} 
+            <WholeRankingChart
+              className={styles.intervalFilter}
+              data={this.props.data}
+              width={700} height={30} margin={10}
+              onSelectedRankingInterval={this.handleSelectedRankingInterval}
             />
           </div>
         </div>

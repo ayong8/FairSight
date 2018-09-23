@@ -2,85 +2,64 @@
   grid-area: r;
 
   background-color: white;
-  border-left: 1px solid lightgray;
-  border-bottom: 1px solid lightgray;
+  padding: 0 10px;
 
   display: grid;
-  grid-template-columns: 10% 15% 15% 55%;
-  grid-template-rows: 25% 25% 30% 20%;
-  grid-template-areas:
-    't s tt tr'
-    't s st sr'
-    'ti ts ts ts'
-    'wri wr wr wr';
+  row-gap: 10px;
+  column-gap: 10px;
+  grid-template-columns: 50% 50%;
+  grid-template-rows: 15% 10% 30% 40%;
+  grid-template-areas: 
+    't t'
+    'st ft'
+    's tf'
+    's if';
 
-  .step4 { 
-    color: #0575e5; 
-    font-size: 1.6rem; 
-    margin-top: 8px;
-    margin-left: 5px;
-  }
-
-  .rankingViewTitleWrapper {
+  .rankingViewTitle {
       grid-area: t;
-      display: flex;
-
-    .rankingViewTitle { padding: 0; }
   }
-
-  .outputSummary { 
-    grid-area: s;
-    background-color: #f6f5f5;
-    border: 1px solid #d3d3d3;
-
-    .summaryStat {
-      margin-left: 10px
-    }
-  }
-  .topkRankingViewTitle {
-    grid-area: tt;
-    align-self: center;
-  }
-  .topkRankingView {
-    grid-area: tr; 
-    margin-left: 10px;
-    padding: 0 10px;
-  }
-  .selectedRankingViewTitle {
+  .summaryViewTitle { 
     grid-area: st;
-    align-self: center;
+    border-bottom: 1px solid #d7d7d7;
   }
-  .selectedRankingView { 
-    grid-area: sr;
-    margin-left: 10px;
-    padding: 0 10px;
-  }
-  .sliderNameWholeRanking {
-    text-align: center; 
-  }
-  .sliderNameTopkSlider {
-  }
-  .wholeRankingInputWrapper {
-    grid-area: wri;
-    justify-self: center;
-    align-self: center;
+  .summaryView { 
+    grid-area: s; 
+    display: flex;
 
-    .wholeRankingInput {
+    .accuracyWrapper,
+    .groupFairnessWrapper,
+    .individualFairnessWrapper {
+      width: 30%;
+    }
+
+    .accuracy,
+    .groupFairness,
+    .individualFairness {
+      font-size: 2rem;
+    }
+
+  }
+  .filterViewTitle { 
+    grid-area: ft;
+    border-bottom: 1px solid #d7d7d7;
+  }
+  .topkFilterView { 
+    grid-area: tf;
+
+    .topkInput {
       display: flex;
+      align-items: center;
+    }
+    .topkSlider {
+      align-self: center;
     }
   }
-  .topkInput {
-    grid-area: ti;
-    justify-self: center;
-    align-self: center;
-  }
-  .WholeRankingChart {
-    grid-area: wr;
-    align-self: center;
-    background-color: gray;
-  }
-  .topkSlider {
-    grid-area: ts;
-    align-self: center;
+  .intervalFilterView { 
+    grid-area: if; 
+
+    .intervalInput {
+      display: flex;
+      align-items: center;
+    }
   }
 }

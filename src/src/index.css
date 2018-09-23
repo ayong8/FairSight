@@ -1,8 +1,6 @@
 .title {
     display:flex;
     align-items: center;
-    /* justify-content:center; */
-    padding-left: 10px;
 
     height: 30px;
     margin: 1px 1px;
@@ -17,8 +15,7 @@
 
 .subTitle {
   color: #00346b;
-  font-weight: 500;
-  padding: 10px;
+  font-size: 1.2rem;
 }
 
 .step1 i { color: #b5dafe; font-size: 1.6rem; }

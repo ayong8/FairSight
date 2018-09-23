@@ -24,7 +24,7 @@ class WholeRankingChart extends React.Component {
 
     this.layout = {
       wholeRankingchart: {
-        width: 800,
+        width: 450,
         height: 60
       }
     }
@@ -43,7 +43,7 @@ class WholeRankingChart extends React.Component {
 
     this.xScale = scaleLinear({
       domain: this.initialDomain.x,
-      range: [0, 800] //[0, width - margin.left - margin.right],
+      range: [0, this.layout.wholeRankingchart.width] //[0, width - margin.left - margin.right],
     });
 
     this.yScale = scaleLinear({

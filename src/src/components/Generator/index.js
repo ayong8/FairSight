@@ -1,9 +1,9 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 import { Alert, Button, FormGroup, FormText, Input, Label,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { TreeSelect, Slider, InputNumber, Icon, Table } from 'antd';
+import { TreeSelect, Slider, InputNumber, Icon, Table, Badge, Radio } from 'antd';
 
-import styles from "./styles.scss";
+import styles from './styles.scss';
 import index from '../../index.css';
 
 const TreeNode = TreeSelect.TreeNode;
@@ -29,6 +29,7 @@ class Generator extends Component {
     this.handleSelectFeatures = this.handleSelectFeatures.bind(this);
     this.handleClickTarget = this.handleClickTarget.bind(this);
     this.handleClickRun = this.handleClickRun.bind(this);
+    this.handleClickGroup = this.handleClickGroup.bind(this);
   }
 
   toggleSensitiveAttrDropdown() {
@@ -72,6 +73,10 @@ class Generator extends Component {
     this.props.onRunningModel();
   }
 
+  handleClickGroup() {
+    console.log('clicked');
+  }
+
   onChange = (value) => {
     this.setState({ value });
   }
@@ -79,11 +84,27 @@ class Generator extends Component {
   renderSelectProtectedGroup() {
     const { rankingInstance } = this.props,
           { sensitiveAttr } = rankingInstance;
+    const sensitiveAttrName = sensitiveAttr.name,
+          protectedGroup = sensitiveAttr.protectedGroup,
+          nonProtectedGroup = sensitiveAttr.nonProtectedGroup;
 
     return (
-      <div>
-        <div>Select protected group</div>
-        <div>Male, Female</div>
+      <div className={styles.selectProtectedGroupWrapper}>
+        <div className={styles.selectProtectedGroupTitle}>Select protected group</div>
+        <Radio.Group className={styles.protectedGroupRadioButton} defaultValue='a' buttonStyle='solid' size='small'>
+          <Radio.Button value={protectedGroup}>{protectedGroup}</Radio.Button>
+          <Radio.Button value={nonProtectedGroup}>Female</Radio.Button>
+        </Radio.Group>
+        <div className={styles.selectProtectedGroup}>
+          <div className={styles.group1}>
+            <Badge onClick={this.handleClickGroup} status='error' />
+            Male
+          </div>
+          <div className={styles.group2}>
+            <Badge status='default' />
+            Female
+          </div>
+        </div>
       </div>
     );
   }
@@ -160,7 +181,7 @@ class Generator extends Component {
     return (
       <div className={styles.Generator}>
         <div className={styles.generatorTitleWrapper}>
-          <Icon className={styles.step1} type="check-circle" theme="filled" /> &nbsp;
+          <Icon className={styles.step1} type='check-circle' theme='filled' /> &nbsp;
           <span className={styles.generatorTitle + ' ' + index.title}>Generator</span>
           <br />
         </div>
@@ -177,7 +198,7 @@ class Generator extends Component {
           </DropdownMenu>
         </Dropdown>
         {/* // Protected Group selector */}
-        { typeof(this.props.rankingInstance.sensitiveAttr) !== 'undefined' ? this.renderSelectProtectedGroup : false }
+        { typeof(this.props.rankingInstance.sensitiveAttr) === 'undefined' ? <div></div> : this.renderSelectProtectedGroup() }
         {/* // Feature selector */}
         <div className={styles.selectFeatures}>Features</div>
         <TreeSelect
@@ -227,7 +248,7 @@ class Generator extends Component {
           </DropdownMenu>
         </Dropdown>
         <div className={styles.runButtonWrapper}>
-          <Button className={styles.buttonGenerateRanking} color="danger" onClick={this.handleClickRun}>RUN</Button>
+          <Button className={styles.buttonGenerateRanking} color='danger' onClick={this.handleClickRun}>RUN</Button>
         </div>
       </div>
     );

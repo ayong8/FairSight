@@ -29,7 +29,6 @@ class App extends Component {
       selectedDataset: [],  // A subset of the dataset that include features, target, and idx
       inputCoords: [],
       weights: {},
-      sensitiveAttr: 'sex',
       selectedInstance: 1, // Index of a ranking selected among rankings in 'rankings'
       selectedRankingInterval: {
         from: 0,
@@ -37,14 +36,13 @@ class App extends Component {
       },
       rankingInstance: {
         rankingId: 1,
-        sensitiveAttr: 'sex',
-        features: ['credit_amount', 'installment_as_income_perc', 'age'],
-        featureSpecs: [
+        sensitiveAttr: { name: 'sex', type: 'categorical', range: ['man', 'woman'] },
+        features: [
           { name: 'credit_amount', type: 'continuous', range: 'continuous'},
-          { name: 'income_perc', type: 'continuous', range: 'continuous'},
+          { name: 'installment_as_income_perc', type: 'continuous', range: 'continuous'},
           { name: 'age', type: 'continuous', range: 'continuous'}
         ],
-        target: 'default',
+        target: { name: 'default', type: 'categorical', range: [0, 1] },
         method: 'RankSVM',
         sumDistortion: 0,
         instances: [],
@@ -158,13 +156,28 @@ class App extends Component {
   }
 
   handleRankingInstanceOptions(optionObj) {  // optionObj e.g., { sensitiveAttr: 'sex' }
-    console.log('passed option object to top component: ', optionObj)
-    this.setState(prevState => ({
-      rankingInstance: {
-        ...prevState.rankingInstance,
-        ...optionObj
+    this.setState(prevState => {
+      if (Object.keys(optionObj)[0] === 'method') {
+        return {
+          rankingInstance: {
+            ...prevState.rankingInstance,
+            ...optionObj
+          }}
       }
-    }));
+      
+      else {
+        const featureName = Object.values(optionObj)[0];
+        const features = this.state.features;
+        const featureObj = features.filter((d) => d.name === featureName);
+
+        return {
+          rankingInstance: {
+            ...prevState.rankingInstance,
+            ...featureObj
+          }}
+      }
+     });
+     console.log('rankingInstance after update: ', this.state.rankingInstance);
   }
 
   handleModelRunning(){

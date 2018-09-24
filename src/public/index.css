@@ -46,3 +46,23 @@ body {
 .ant-table-thead > tr > th {
   background-color: #b4d9fe !important;
 }
+
+.ant-radio-group {
+  font-size: 1rem !important;
+  margin: 2px !important;
+  margin-left: 10px !important;
+}
+
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  background-color: #ff7043 !important;
+  border-color: #ff7043 !important;
+}
+
+.ant-radio-button-wrapper {
+  background-color: lightgray !important;
+  padding: 0 15px !important;
+}
+
+.ant-badge-status-error {
+  background-color: #ff7043 !important;
+}

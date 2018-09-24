@@ -43,6 +43,8 @@ def open_dataset(file_path):
     return whole_dataset_df
 
 def get_selected_dataset(whole_dataset_df, selected_x, selected_y, selected_sensitive_attr):
+    print('selected_x: ', selected_x)
+    print(whole_dataset_df)
     selected_x_df = whole_dataset_df[selected_x]
     selected_y_col = whole_dataset_df[selected_y]
     selected_sensitive_attr_col = whole_dataset_df[selected_sensitive_attr]
@@ -61,7 +63,6 @@ def do_encoding_categorical_vars(whole_dataset_df):
             dataset_df[feature] = dataset_df[feature].cat.codes
 
     return dataset_df
-
 
 class LoadFile(APIView):
     def get(self, request, format=None):
@@ -82,7 +83,7 @@ class ExtractFeatures(APIView):
                 dataset_df[feature] = pd.Categorical(dataset_df[feature])
                 categories = dataset_df[feature].cat.categories
                 dataset_df[feature] = dataset_df[feature].cat.codes
-                feature_info = { 'name': feature, 'type': 'categorical', 'range': 'categorical' }
+                feature_info = { 'name': feature, 'type': 'categorical', 'range': list(categories) }
             else:
                 feature_info = { 'name': feature, 'type': 'continuous', 'range': 'continuous' }
             
@@ -97,13 +98,17 @@ class RunRankSVM(APIView):
 
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
+        feature_names = [ feature['name'] for feature in json_request['features'] ]
+        target_name = json_request['target']['name']
+        sensitive_attr_name = json_request['sensitiveAttr']['name']
+
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         dataset_df = do_encoding_categorical_vars(whole_dataset_df)
-        dataset_df = get_selected_dataset(dataset_df, json_request['features'], json_request['target'], json_request['sensitiveAttr'])
+        dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
         dataset_df = dataset_df.sort_values(by='idx', ascending=True)
 
-        X = dataset_df[ json_request['features'] ]
-        y = dataset_df[ json_request['target'] ]
+        X = dataset_df[ feature_names ]
+        y = dataset_df[ target_name ]
         idx_col = dataset_df['idx']
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42)
@@ -112,7 +117,7 @@ class RunRankSVM(APIView):
 
         output_df = X.copy()
         output_df['idx'] = idx_col
-        output_df['group'] = whole_dataset_df[ json_request['sensitiveAttr'] ]
+        output_df['group'] = whole_dataset_df[ sensitive_attr_name ]
         output_df['target'] = y
 
         weighted_X_df = X.copy()
@@ -134,16 +139,16 @@ class RunRankSVM(APIView):
         instances_dict_list = list(output_df.T.to_dict().values())
         for output_item in instances_dict_list:  # Go over all items
             features_dict = {}
-            for feature_key in json_request['features']:
+            for feature_key in feature_names:
                 features_dict[ feature_key ] = output_item[ feature_key ]
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
 
         ranking_instance_dict = {
             'rankingId': json_request['rankingId'],
-            'features': json_request['features'],
-            'target': json_request['target'],
-            'sensitiveAttr': json_request['sensitiveAttr'],
+            'features': feature_names,
+            'target': target_name,
+            'sensitiveAttr': sensitive_attr_name,
             'method': json_request['method'],
             'stat': { 'accuracy': math.ceil(accuracy * 100) / 100.0 },
             'instances': instances_dict_list
@@ -158,13 +163,17 @@ class RunSVM(APIView):
 
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
+        feature_names = [ feature['name'] for feature in json_request['features'] ]
+        target_name = json_request['target']['name']
+        sensitive_attr_name = json_request['sensitiveAttr']['name']
+
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         dataset_df = do_encoding_categorical_vars(whole_dataset_df)
-        dataset_df = get_selected_dataset(dataset_df, json_request['features'], json_request['target'], json_request['sensitiveAttr'])
+        dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
         dataset_df = dataset_df.sort_values(by='idx', ascending=True)
 
-        X = dataset_df[ json_request['features'] ]
-        y = dataset_df[ json_request['target'] ]
+        X = dataset_df[ feature_names ]
+        y = dataset_df[ target_name ]
         idx_col = dataset_df['idx']
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
@@ -174,7 +183,7 @@ class RunSVM(APIView):
 
         output_df = X.copy()
         output_df['idx'] = idx_col
-        output_df['group'] = whole_dataset_df[ json_request['sensitiveAttr'] ]
+        output_df['group'] = whole_dataset_df[ sensitive_attr_name ]
         output_df['target'] = y
 
         weighted_X_df = X.copy()
@@ -197,16 +206,16 @@ class RunSVM(APIView):
         instances_dict_list = list(output_df.T.to_dict().values())
         for output_item in instances_dict_list:  # Go over all items
             features_dict = {}
-            for feature_key in json_request['features']:
+            for feature_key in feature_names:
                 features_dict[ feature_key ] = output_item[ feature_key ]
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
 
         ranking_instance_dict = {
             'rankingId': json_request['rankingId'],
-            'features': json_request['features'],
-            'target': json_request['target'],
-            'sensitiveAttr': json_request['sensitiveAttr'],
+            'features': feature_names,
+            'target': target_name,
+            'sensitiveAttr': sensitive_attr_name,
             'method': json_request['method'],
             'stat': { 'accuracy': math.ceil(accuracy * 100) / 100.0 },
             'instances': instances_dict_list
@@ -227,12 +236,16 @@ class RunMDS(APIView):
 
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
+        feature_names = [ feature['name'] for feature in json_request['features'] ]
+        target_name = json_request['target']['name']
+        sensitive_attr_name = json_request['sensitiveAttr']['name']
+
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         dataset_df = do_encoding_categorical_vars(whole_dataset_df)
-        dataset_df = get_selected_dataset(dataset_df, json_request['features'], json_request['target'], json_request['sensitiveAttr'])
-        features = pd.DataFrame(dataset_df[json_request['features']])
+        dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
+        features = pd.DataFrame(dataset_df[feature_names])
 
-        d = pairwise_distances(features)
+        d = pairwise_distances(pd.DataFrame(features))
 
         df_mds_result = pd.DataFrame(MDS(n_components=2, metric=False, random_state=3).fit_transform(d), features.index)
         df_mds_result['idx'] = dataset_df['idx']
@@ -249,13 +262,17 @@ class CalculatePairwiseInputDistance(APIView):
 
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
+        feature_names = [ feature['name'] for feature in json_request['features'] ]
+        target_name = json_request['target']['name']
+        sensitive_attr_name = json_request['sensitiveAttr']['name']
+
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         dataset_df = do_encoding_categorical_vars(whole_dataset_df)
-        dataset_df = get_selected_dataset(dataset_df, json_request['features'], json_request['target'], json_request['sensitiveAttr'])
-        dataset_gower_distance = pd.DataFrame(dataset_df[ json_request['features'] ])
+        dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
+        dataset_gower_distance = pd.DataFrame(dataset_df[ feature_names ])
         dataset_gower_distance = dataset_gower_distance.set_index(dataset_df['idx'])
 
-        for feature in json_request['features']:
+        for feature in feature_names:
             dataset_gower_distance[ feature ] = dataset_gower_distance[ feature ].astype(float)
         
         pairwise_distances = gower_distances(dataset_gower_distance)

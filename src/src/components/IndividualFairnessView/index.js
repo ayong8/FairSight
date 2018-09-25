@@ -486,12 +486,12 @@ class IndividualFairnessView extends Component {
     renderMatrixXDropdownSelections() {
       const data = this.props.data;
 
-      let allFeatures = [...data.features],
-          distortionSelection = 'sumDistortion';
-      allFeatures.push(distortionSelection);
+      const featureNames = data.features.map((d) => d.name),
+            distortionSelection = 'sumDistortion';
+      featureNames.push(distortionSelection);
 
-      return allFeatures.map((feature) => 
-          (<DropdownItem 
+      return featureNames.map((feature) => 
+          (<DropdownItem
               value={feature} 
               onClick={this.handleSortingMatrixX}>
               {feature}
@@ -499,13 +499,13 @@ class IndividualFairnessView extends Component {
     }
 
     renderMatrixYDropdownSelections() {
-      let data = this.props.data;
+      const data = this.props.data;
 
-      let allFeatures = [...data.features],
+      const featureNames = data.features.map((d) => d.name),
           distortionSelection = 'sumDistortion';
-      allFeatures.push(distortionSelection);
+      featureNames.push(distortionSelection);
 
-      return allFeatures.map((feature) => 
+      return featureNames.map((feature) => 
           (<DropdownItem 
               value={feature} 
               onClick={this.handleSortingMatrixY}>

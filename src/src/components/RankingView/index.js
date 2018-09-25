@@ -66,8 +66,11 @@ class RankingView extends Component {
             intervalFrom = intervalIdx.from,
             intervalTo = intervalIdx.to,
             data = this.props.data,
+            { stat } = data,
             instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse(),
             topk = this.props.topk;
+
+      const accuracy = stat.accuracy;
       
       // Split the data into Topk and the rest
       const dataTopk = instances.slice(0, topk),
@@ -147,7 +150,7 @@ class RankingView extends Component {
           <div className={styles.summaryView}>
             <div className={styles.accuracyWrapper}>
               <div className={styles.accuracyTitle}>Accuracy</div>
-              <div className={styles.accuracy}>80%</div>
+              <div className={styles.accuracy}>{accuracy + '%'}</div>
             </div>
             <div className={styles.groupFairnessWrapper}>
               <div className={styles.groupFairnessTitle}>Statistical Parity</div>

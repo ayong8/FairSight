@@ -21,13 +21,13 @@ class Generator extends Component {
       topkInput: 0
     };
 
-    this.renderSelectProtectedGroup = this.renderSelectProtectedGroup.bind(this);
     this.toggleSensitiveAttrDropdown = this.toggleSensitiveAttrDropdown.bind(this);
     this.toggleTargetDropdown = this.toggleTargetDropdown.bind(this);
     this.toggleMethodDropdown = this.toggleMethodDropdown.bind(this);
     this.handleClickSensitiveAttr = this.handleClickSensitiveAttr.bind(this);
     this.handleSelectFeatures = this.handleSelectFeatures.bind(this);
     this.handleClickTarget = this.handleClickTarget.bind(this);
+    this.handleClickMethod = this.handleClickMethod.bind(this);
     this.handleClickRun = this.handleClickRun.bind(this);
     this.handleClickGroup = this.handleClickGroup.bind(this);
   }
@@ -53,6 +53,15 @@ class Generator extends Component {
   handleClickSensitiveAttr(e) {
     const selectedSensitiveAttr = e.target.value;
     this.props.onSelectRankingInstanceOptions({ sensitiveAttr: selectedSensitiveAttr });
+  }
+
+  handleClickProtectedGroup(e){
+    const selectedProtectedGroup = e.target.value,
+          groups = this.props.sensitiveAttr.range;
+    this.props.onSelectProtectedGroup({ 
+      protectedGroup: selectedProtectedGroup, 
+      nonProtectedGroup: groups.filter((group) => group !== selectedProtectedGroup)[0]
+    });
   }
 
   handleClickTarget(e) {
@@ -85,15 +94,23 @@ class Generator extends Component {
     const { rankingInstance } = this.props,
           { sensitiveAttr } = rankingInstance;
     const sensitiveAttrName = sensitiveAttr.name,
+          group1 = sensitiveAttr.range[0],
+          group2 = sensitiveAttr.range[1],
           protectedGroup = sensitiveAttr.protectedGroup,
           nonProtectedGroup = sensitiveAttr.nonProtectedGroup;
 
     return (
       <div className={styles.selectProtectedGroupWrapper}>
         <div className={styles.selectProtectedGroupTitle}>Select protected group</div>
-        <Radio.Group className={styles.protectedGroupRadioButton} defaultValue='a' buttonStyle='solid' size='small'>
-          <Radio.Button value={protectedGroup}>{protectedGroup}</Radio.Button>
-          <Radio.Button value={nonProtectedGroup}>Female</Radio.Button>
+        <Radio.Group 
+          className={styles.protectedGroupRadioButton} 
+          onChange={this.handleClickProtectedGroup} 
+          defaultValue={group1} 
+          buttonStyle='solid' 
+          size='small'
+        >
+          <Radio.Button value={group1}>{group1}</Radio.Button>
+          <Radio.Button value={group2}>{group2}</Radio.Button>
         </Radio.Group>
         <div className={styles.selectProtectedGroup}>
           <div className={styles.group1}>
@@ -153,6 +170,18 @@ class Generator extends Component {
         }));
   }
 
+  renderMethods() {
+    const { methods } = this.props;
+
+    return methods.map((method, idx) => 
+        (<DropdownItem 
+          key={idx}
+          value={method.name}
+          onClick={this.handleClickMethod}>
+          {method.name}
+        </DropdownItem>));
+  }
+
   onTopkChange = (value) => {
     this.setState({
       topkInput: value
@@ -160,6 +189,18 @@ class Generator extends Component {
   }
 
   render() {
+    const { rankingInstance } = this.props,
+          { features, sensitiveAttr, target, method } = rankingInstance;
+
+    const featureNames = features.map((feature) => feature.name),
+          targetName = target.name,
+          sensitiveAttrName = sensitiveAttr.name,
+          methodName = method.name;
+
+    console.log('featureNames: ', featureNames);
+    console.log('targetName: ', targetName);
+    console.log('sensitiveAttrName: ', sensitiveAttrName);
+
     const columns = [
       { title: 'Feature', dataIndex: 'feature', key: 1, width: 100 },
       { title: 'Dist', dataIndex: 'dist', key: 2 },
@@ -181,7 +222,6 @@ class Generator extends Component {
     return (
       <div className={styles.Generator}>
         <div className={styles.generatorTitleWrapper}>
-          <Icon className={styles.step1} type='check-circle' theme='filled' /> &nbsp;
           <span className={styles.generatorTitle + ' ' + index.title}>Generator</span>
           <br />
         </div>
@@ -191,7 +231,7 @@ class Generator extends Component {
                   isOpen={this.state.sensitiveAttrDropdownOpen} 
                   toggle={this.toggleSensitiveAttrDropdown}>
           <DropdownToggle className={styles.sensitiveAttrDropdownToggle} caret>
-            {this.props.rankingInstance.sensitiveAttr}
+            {sensitiveAttrName}
           </DropdownToggle>
           <DropdownMenu>
             {this.renderSensitiveAttrSelections()}
@@ -205,7 +245,7 @@ class Generator extends Component {
           className={styles.featureSelector}
           showSearch
           style={{ width: 330 }}
-          value={this.props.rankingInstance.features}
+          value={featureNames}
           dropdownStyle={{ maxHeight: 400, overflow: 'auto' }}
           placeholder='Please select'
           allowClear
@@ -218,8 +258,13 @@ class Generator extends Component {
           rowSelection={rowSelection}
           columns={columns} 
           dataSource={dataFeatureTable} 
-          scroll={{ y: 100 }}
+          scroll={{ y: 200 }}
           pagination={false}
+          onRow={(record) => {
+            return {
+              onSelect: this.handleSelectFeatures
+            };
+          }}
         />
         {/* // Target variable selector */}
         <div className={styles.selectSensitiveAttr}>Target variable</div>
@@ -227,7 +272,7 @@ class Generator extends Component {
                   isOpen={this.state.targetDropdownOpen} 
                   toggle={this.toggleTargetDropdown}>
           <DropdownToggle className={styles.targetDropdownToggle} caret>
-            {this.props.rankingInstance.target}
+            {targetName}
           </DropdownToggle>
           <DropdownMenu>
             {this.renderTargetSelections()}
@@ -239,12 +284,10 @@ class Generator extends Component {
                   isOpen={this.state.methodDropdownOpen} 
                   toggle={this.toggleMethodDropdown}>
           <DropdownToggle className={styles.methodDropdownToggle} caret>
-            {this.props.rankingInstance.method}
+            {methodName}
           </DropdownToggle>
           <DropdownMenu>
-            <DropdownItem>SVM</DropdownItem>
-            <DropdownItem>RankSVM</DropdownItem>
-            <DropdownItem>Logistic Regression</DropdownItem>
+            {this.renderMethods()}
           </DropdownMenu>
         </Dropdown>
         <div className={styles.runButtonWrapper}>

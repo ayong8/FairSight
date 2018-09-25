@@ -24,6 +24,11 @@ class App extends Component {
     this.state = {
       dataset: [],
       features: [],
+      methods: [
+        {name: 'RankSVM'},
+        {name: 'SVM'},
+        {name: 'Logistic Regression'}
+      ],
       topk: 20,
       n: 40,
       selectedDataset: [],  // A subset of the dataset that include features, target, and idx
@@ -36,14 +41,20 @@ class App extends Component {
       },
       rankingInstance: {
         rankingId: 1,
-        sensitiveAttr: { name: 'sex', type: 'categorical', range: ['man', 'woman'] },
+        sensitiveAttr: { 
+          name: 'sex', 
+          type: 'categorical', 
+          range: ['Male', 'Female'],
+          protectedGroup: 'Male',
+          nonProtectedGroup: 'Female' 
+        },
         features: [
-          { name: 'credit_amount', type: 'continuous', range: 'continuous'},
-          { name: 'installment_as_income_perc', type: 'continuous', range: 'continuous'},
-          { name: 'age', type: 'continuous', range: 'continuous'}
+          { name: 'credit_amount', type: 'continuous', range: 'continuous' },
+          { name: 'installment_as_income_perc', type: 'continuous', range: 'continuous' },
+          { name: 'age', type: 'continuous', range: 'continuous' }
         ],
         target: { name: 'default', type: 'categorical', range: [0, 1] },
-        method: 'RankSVM',
+        method: { name: 'RankSVM' },
         sumDistortion: 0,
         instances: [],
         stat: {
@@ -156,28 +167,39 @@ class App extends Component {
   }
 
   handleRankingInstanceOptions(optionObj) {  // optionObj e.g., { sensitiveAttr: 'sex' }
+    const { features, methods } = this.state;
+    
     this.setState(prevState => {
-      if (Object.keys(optionObj)[0] === 'method') {
-        return {
-          rankingInstance: {
-            ...prevState.rankingInstance,
-            ...optionObj
-          }}
-      }
-      
-      else {
-        const featureName = Object.values(optionObj)[0];
-        const features = this.state.features;
-        const featureObj = features.filter((d) => d.name === featureName);
+      const stateProperty = Object.keys(optionObj)[0];
+
+      if (stateProperty === 'method') {
+        const methodName = Object.values(optionObj)[0],
+              methodObj = methods.filter((d) => d.name === methodName)[0];
 
         return {
           rankingInstance: {
             ...prevState.rankingInstance,
-            ...featureObj
-          }}
+            method: {
+              ...methodObj
+            }
+          }};
+      }
+      
+      else {
+        const featureName = Object.values(optionObj)[0],
+              featureObj = features.filter((d) => d.name === featureName)[0]; // Go through all features and Select the feature object
+
+        return {
+          rankingInstance: {
+            ...prevState.rankingInstance,
+            [stateProperty]: {
+              ...featureObj
+            }
+          }
+        };
       }
      });
-     console.log('rankingInstance after update: ', this.state.rankingInstance);
+     
   }
 
   handleModelRunning(){
@@ -227,6 +249,19 @@ class App extends Component {
     });
   }
 
+  handleSensitiveAttr(groupsObj) {
+    this.setState(prevState => ({
+      rankingInstance: {
+        ...prevState.rankingInstance,
+        sensitiveAttr: {
+          ...prevState.sensitiveAttr,
+          protectedGroup: groupsObj.protectedGroup,
+          nonProtectedGroup: groupsObj.nonProtectedGroup
+        }
+      }
+    }));
+  }
+
   render() {
     if ((!this.state.rankingInstance || this.state.rankingInstance.length === 0) || 
         (!this.state.inputCoords || this.state.inputCoords.length === 0) ||
@@ -255,12 +290,15 @@ class App extends Component {
         <RankingsListView rankings={this.state.rankings} />
         <Generator className={styles.Generator}
                    dataset={this.state.dataset}
+                   methods={this.state.methods}
                    features={this.state.features}
                    rankingInstance={this.state.rankingInstance}
                    topk={this.state.topk}
                    n={this.state.n}
                    onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}
-                   onRunningModel={this.handleModelRunning}/>
+                   onRunningModel={this.handleModelRunning}
+                   onSelectProtectedGroup={this.handleSensitiveAttr}
+                   />
         <RankingView n={this.state.n}
                      topk={this.state.topk}
                      selectedRankingInterval={this.state.selectedRankingInterval}

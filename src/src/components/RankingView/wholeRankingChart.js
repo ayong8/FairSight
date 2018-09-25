@@ -170,7 +170,7 @@ class WholeRankingChart extends React.Component {
               return (
                 <Bar key={idx}
                   width={6}
-                  height={30 - yScale(bin.length)}
+                  height={25 - yScale(bin.length)}
                   x={xScale(bin.x0)}
                   y={yScale(bin.length)}
                   fill={'#00346b'}

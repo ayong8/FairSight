@@ -34,8 +34,8 @@ body {
   background-color: #00346b !important;
 }
 .ant-table {
-  width: 90% !important;
-  margin: 0 auto !important;
+  width: 100% !important;
+  margin: 10px auto !important;
   font-size: 1rem !important;
 }
 .ant-table-row > td,
@@ -65,4 +65,8 @@ body {
 
 .ant-badge-status-error {
   background-color: #ff7043 !important;
+}
+
+.dropdownmenu-show {
+  width: 90% !important;
 }

@@ -83,7 +83,6 @@ class RankingsListView extends Component {
     return (
       <div className={styles.RankingsListView}>
         <div className={styles.titleWrapper}>
-          <Icon className={styles.step5} type="check-circle" theme="filled" /> &nbsp;
           <div className={index.title + ' ' + styles.title }> Rankings </div>
         </div>
         <div className={styles.addRanking}>+</div>

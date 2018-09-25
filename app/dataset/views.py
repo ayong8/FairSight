@@ -98,9 +98,15 @@ class RunRankSVM(APIView):
 
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
-        feature_names = [ feature['name'] for feature in json_request['features'] ]
-        target_name = json_request['target']['name']
-        sensitive_attr_name = json_request['sensitiveAttr']['name']
+        
+        features = json_request['features']
+        target = json_request['target']
+        sensitive_attr = json_request['sensitiveAttr']
+        method = json_request['method']
+
+        feature_names = [ feature['name'] for feature in features ]
+        target_name = target['name']
+        sensitive_attr_name = sensitive_attr['name']
 
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         dataset_df = do_encoding_categorical_vars(whole_dataset_df)
@@ -146,11 +152,11 @@ class RunRankSVM(APIView):
 
         ranking_instance_dict = {
             'rankingId': json_request['rankingId'],
-            'features': feature_names,
-            'target': target_name,
-            'sensitiveAttr': sensitive_attr_name,
-            'method': json_request['method'],
-            'stat': { 'accuracy': math.ceil(accuracy * 100) / 100.0 },
+            'features': features,
+            'target': target,
+            'sensitiveAttr': sensitive_attr,
+            'method': method,
+            'stat': { 'accuracy': math.ceil(accuracy * 100) },
             'instances': instances_dict_list
         }
 
@@ -163,9 +169,15 @@ class RunSVM(APIView):
 
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
-        feature_names = [ feature['name'] for feature in json_request['features'] ]
-        target_name = json_request['target']['name']
-        sensitive_attr_name = json_request['sensitiveAttr']['name']
+
+        features = json_request['features']
+        target = json_request['target']
+        sensitive_attr = json_request['sensitiveAttr']
+        method = json_request['method']
+
+        feature_names = [ feature['name'] for feature in features ]
+        target_name = target['name']
+        sensitive_attr_name = sensitive_attr['name']
 
         whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
         dataset_df = do_encoding_categorical_vars(whole_dataset_df)
@@ -213,11 +225,11 @@ class RunSVM(APIView):
 
         ranking_instance_dict = {
             'rankingId': json_request['rankingId'],
-            'features': feature_names,
-            'target': target_name,
-            'sensitiveAttr': sensitive_attr_name,
-            'method': json_request['method'],
-            'stat': { 'accuracy': math.ceil(accuracy * 100) / 100.0 },
+            'features': features,
+            'target': target,
+            'sensitiveAttr': sensitive_attr,
+            'method': method,
+            'stat': { 'accuracy': math.ceil(accuracy * 100) },
             'instances': instances_dict_list
         }
 

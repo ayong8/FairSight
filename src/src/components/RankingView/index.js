@@ -2,10 +2,11 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
-import { Slider, Icon, InputNumber, Badge } from 'antd';
+import { Slider, Icon, InputNumber, Tag } from 'antd';
 import dc from 'dc';
 import crossfilter from 'crossfilter';
 
+import UtilityView from '../UtilityView';
 import WholeRankingChart from './wholeRankingChart';
 
 import styles from './styles.scss';
@@ -67,10 +68,10 @@ class RankingView extends Component {
             intervalTo = intervalIdx.to,
             data = this.props.data,
             { stat } = data,
+            { accuracy, goodnessOfFairness } = stat,
             instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse(),
             topk = this.props.topk;
-
-      const accuracy = stat.accuracy;
+            
       
       // Split the data into Topk and the rest
       const dataTopk = instances.slice(0, topk),
@@ -144,7 +145,7 @@ class RankingView extends Component {
         <div className={styles.RankingView}>
           <div className={styles.rankingViewTitle + ' ' + index.title}>
             Current ranking: &nbsp;
-            <Badge className={styles.currentRanking} color="success" pill>{'R' + data.rankingId}</Badge>
+            <Tag color="#108ee9">{'R' + data.rankingId}</Tag>
           </div>
           <div className={styles.summaryViewTitle + ' ' + index.subTitle}>Summary</div>
           <div className={styles.summaryView}>
@@ -158,7 +159,7 @@ class RankingView extends Component {
             </div>
             <div className={styles.individualFairnessWrapper}>
               <div className={styles.individualFairnessTitle}>Goodness</div>
-              <div className={styles.individualFairness}>0.5</div>
+              <div className={styles.individualFairness}>{goodnessOfFairness}</div>
             </div>
           </div>
           <div className={styles.filterViewTitle  + ' ' + index.subTitle}>
@@ -198,6 +199,11 @@ class RankingView extends Component {
               />
             </div>
           </div>
+          <UtilityView 
+              className={styles.UtilityView}
+              n={this.props.n}
+              rankingInstance={this.props.data}
+              topk={this.props.topk} />
           <div className={styles.intervalFilterView}>            
             <div className={styles.intervalInput}>
               <div className={styles.intervalFilterTitle}>Interval</div>

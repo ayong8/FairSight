@@ -15,16 +15,19 @@ class UtilityView extends Component {
       super(props);
       this.svg;
       this.layout = {
-        width: 100,
-        height: 100,
+        width: 500,
+        height: 80,
+        margin: 10,
+        marginLeft: 15,
         svg: {
-          width: 200,
-          height: 200
+          width: 450,
+          height: 60
         }
       }
     }
   
     render() {
+      const { rankingInstance, n, topk } = this.props;
       let sampleData = [
             { topK: 10,  statParity: 0, conditionalParity: 0 },
             { topK: 15,  statParity: 0.5, conditionalParity: -0.3 },
@@ -45,31 +48,30 @@ class UtilityView extends Component {
       this.svg.setAttribute('height', this.layout.svg.height);
       this.svg.setAttribute('0 0 100 100');
       this.svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      this.svg.style.setProperty('margin', '0 5%');
 
       gPlot = d3.select(this.svg).append('g')
-          .attr('transform', 'translate(0,0)');
+          .attr('transform', 'translate(' + this.layout.marginLeft + ',0)');
 
       xTopKScale = d3.scaleLinear()
-          .domain([10, 40])
-          .range([0, 180]);
+          .domain([1, n])
+          .range([0, this.layout.svg.width-this.layout.margin]);
 
       yLogScoreScale = d3.scaleLinear()
           .domain([-2, 2])
-          .range([180, 0]);
+          .range([(this.layout.svg.height-this.layout.margin), this.layout.margin]);
 
       xAxisSetting = d3.axisBottom(xTopKScale).tickSize(0).ticks(5);
       yAxisSetting = d3.axisLeft(yLogScoreScale).tickSize(0).ticks(5);
 
-      xAxis = gPlot.append('g')
+      xAxis = d3.select(this.svg).append('g')
           .call(xAxisSetting)
           .attr('class', 'xAxis')
-          .attr('transform', 'translate(0,180)');
+          .attr('transform', 'translate(' + this.layout.marginLeft + ',' + (this.layout.svg.height-this.layout.margin) + ')');
 
-      yAxis = gPlot.append('g')
+      yAxis = d3.select(this.svg).append('g')
           .call(yAxisSetting)
-          .attr('class', 'xAxis')
-          .attr('transform', 'translate(0,0)');
+          .attr('class', 'yAxis')
+          .attr('transform', 'translate('+ this.layout.marginLeft + ',0)');
 
       statParityLine = d3.line()
           .x((d) => xTopKScale(d.topK))
@@ -115,8 +117,8 @@ class UtilityView extends Component {
 
       return (
         <div className={styles.UtilityView}>
-          <div className={index.title}>Utility</div>
-          <div>(Statistical parity, Conditional parity)</div>
+          <div>Utility</div>
+          {/* <div>(Statistical parity, Conditional parity)</div> */}
           {this.svg.toReact()}
         </div>
       );

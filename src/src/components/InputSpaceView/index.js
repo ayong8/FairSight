@@ -101,7 +101,7 @@ class InputSpaceView extends Component {
           .attr('r', 3)
           .style('fill', (d) => {
               let group = d.group;
-              return group === 1
+              return group === 0
                   ? gs.groupColor1
                   : gs.groupColor2;
           })

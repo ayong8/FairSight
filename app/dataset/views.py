@@ -34,7 +34,7 @@ import math
 
 import json, simplejson
 
-numerical_features = ['duration_in_month', 'credit_amount', 'age', 'idx']
+numerical_features = ['duration_in_month', 'credit_amount', 'present_res_since', 'age', 'credits_this_bank', 'people_under_maintenance', 'idx']
 
 def open_dataset(file_path):
     entire_file_path = os.path.join(STATICFILES_DIRS[0], file_path)
@@ -43,8 +43,6 @@ def open_dataset(file_path):
     return whole_dataset_df
 
 def get_selected_dataset(whole_dataset_df, selected_x, selected_y, selected_sensitive_attr):
-    print('selected_x: ', selected_x)
-    print(whole_dataset_df)
     selected_x_df = whole_dataset_df[selected_x]
     selected_y_col = whole_dataset_df[selected_y]
     selected_sensitive_attr_col = whole_dataset_df[selected_sensitive_attr]
@@ -123,7 +121,7 @@ class RunRankSVM(APIView):
 
         output_df = X.copy()
         output_df['idx'] = idx_col
-        output_df['group'] = whole_dataset_df[ sensitive_attr_name ]
+        output_df['group'] = dataset_df[ sensitive_attr_name ]
         output_df['target'] = y
 
         weighted_X_df = X.copy()
@@ -195,7 +193,7 @@ class RunSVM(APIView):
 
         output_df = X.copy()
         output_df['idx'] = idx_col
-        output_df['group'] = whole_dataset_df[ sensitive_attr_name ]
+        output_df['group'] = dataset_df[ sensitive_attr_name ]
         output_df['target'] = y
 
         weighted_X_df = X.copy()
@@ -287,7 +285,16 @@ class CalculatePairwiseInputDistance(APIView):
         for feature in feature_names:
             dataset_gower_distance[ feature ] = dataset_gower_distance[ feature ].astype(float)
         
-        pairwise_distances = gower_distances(dataset_gower_distance)
+        is_categorical_feature_list = []
+        for feature_name in feature_names:
+            if feature_name in numerical_features:
+                is_categorical_feature_list.append(0)
+            else:
+                is_categorical_feature_list.append(1)
+
+        print(feature_names)
+        print(is_categorical_feature_list)
+        pairwise_distances = gower_distances(dataset_gower_distance, categorical_features=is_categorical_feature_list)
 
         # Convert 2d array to a list of pairwise dictionaries
         # Index starting from 1
@@ -308,7 +315,10 @@ class CalculatePairwiseInputDistance(APIView):
                         'input_dist': np.asscalar(pairwise_distances[i][j])
                     })
 
-        json_combined = simplejson.dumps({'pairwiseDistances': pairwise_distances_list, 'permutationDistances': permutation_distances_list})
+        json_combined = simplejson.dumps({
+                'pairwiseDistances': pairwise_distances_list, 
+                'permutationDistances': permutation_distances_list
+            })
 
         return Response(json_combined)
 

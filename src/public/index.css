@@ -70,3 +70,8 @@ body {
 .dropdownmenu-show {
   width: 90% !important;
 }
+
+.ant-tag {
+  padding: 0 10px !important;
+  font-size: 1.2rem !important;
+}

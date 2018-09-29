@@ -27,7 +27,6 @@ class RankingsListView extends Component {
 
   renderRankingInstances() {
     const dataRankings = this.props.rankings;
-    console.log('dataRankings: ', dataRankings);
 
     return _.map(dataRankings, (ranking, idx) => {
           const instances = ranking.instances;

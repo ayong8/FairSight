@@ -9,11 +9,12 @@
   row-gap: 10px;
   column-gap: 10px;
   grid-template-columns: 50% 50%;
-  grid-template-rows: 15% 10% 30% 40%;
+  grid-template-rows: 10% 10% 20% 25% 35%;
   grid-template-areas: 
     't t'
     'st ft'
     's tf'
+    's u'
     's if';
 
   .rankingViewTitle {
@@ -38,12 +39,13 @@
     .individualFairness {
       font-size: 2rem;
     }
-
   }
+
   .filterViewTitle { 
     grid-area: ft;
     border-bottom: 1px solid #d7d7d7;
   }
+
   .topkFilterView { 
     grid-area: tf;
 
@@ -55,6 +57,7 @@
       align-self: center;
     }
   }
+
   .intervalFilterView { 
     grid-area: if; 
 

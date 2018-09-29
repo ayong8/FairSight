@@ -2,7 +2,7 @@
   grid-area: id;
 
   display: grid;
-  grid-template-columns: 60% 45%;
+  grid-template-columns: 60% 40%;
   grid-template-rows: 30px 350px 230px;
   grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
       't t'
@@ -17,7 +17,7 @@
           padding: 0;
       }
   }
-  .MatrixSelectedInstanceWrapper {
+  .MatrixWrapper {
       grid-area: mt;
       padding-top: 10px;
       display: flex;

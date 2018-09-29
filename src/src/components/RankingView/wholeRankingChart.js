@@ -76,8 +76,6 @@ class WholeRankingChart extends React.Component {
     if (!brush.isBrushing) return;
     const { extent: region } = this;
 
-    console.log('in handleMouseMove: ', this);
-
     const { x, y } = getCoordsFromEvent(this.svg, event);
     onBrushDrag(constrainToRegion({ region, x, y }));
   }
@@ -85,8 +83,6 @@ class WholeRankingChart extends React.Component {
   handleMouseUp(event) {
     const { brush, onBrushEnd, onBrushReset } = this.props;
     const { extent: region } = this;
-
-    console.log('in handleMouseMove: ', this);
 
     if (brush.end) {
       const { x, y } = getCoordsFromEvent(this.svg, event);
@@ -121,20 +117,14 @@ class WholeRankingChart extends React.Component {
       const { domain } = brush;
       const { x0, x1, y0, y1 } = domain;
       _self.invertedDomain = [x0, x1].map((d) => { 
-                console.log('domain before invert: ', d);
                 return xScale.customInvert(d)
               });
-
-      console.log('brush: ', brush);
-      console.log('inverted domain: ', _self.invertedDomain);
     }
 
     xScale.customInvert = (function(){
         var domain = xScale.domain();
         var range = xScale.range();
         var scale = d3.scaleQuantize().domain(range).range(d3.range(100, 0, -1));
-
-        console.log(domain, range, scale, scale.domain(), scale.range());
     
         return function(x){
             return scale(x)

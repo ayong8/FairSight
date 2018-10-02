@@ -23,6 +23,11 @@ urlpatterns = [
         name='SVM'
     ),
     url(
+        regex=r'^runLR/$',
+        view=views.RunLR.as_view(),
+        name='LR'
+    ),
+    url(
         regex=r'^runMDS/$',
         view=views.RunMDS.as_view(),
         name='mds'

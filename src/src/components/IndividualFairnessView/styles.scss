@@ -48,8 +48,14 @@
       margin: 5px;    
       padding: 5px;
       
-      display: flex;
       align-items: center;
+
+      .sortMatrixXdropdownWrapper,
+      .sortMatrixYdropdownWrapper {
+          display: flex;
+          align-items: center;
+          margin: 3px;
+      }
 
       .sortMatrixXdropdown,
       .sortMatrixYdropdown {

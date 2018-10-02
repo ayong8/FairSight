@@ -107,111 +107,23 @@ class App extends Component {
 
   componentDidMount() {
     const _self = this;
-    const { rankingInstance, selectedRankingInterval } = this.state,
-          { instances } = rankingInstance;
-    let inputs;
+    const { rankingInstance } = this.state,
+          { method } = rankingInstance;
 
-    // data file loading here
-    function getDataset() {
-      return fetch('/dataset/file')
-              .then( (response) => {
-                  return response.json() 
-              })   
-              .then( (file) => {
-                const dataset = _.values(JSON.parse(file));
-
-                _self.setState({
-                  dataset: dataset,
-                  n: dataset.length
-                });
-              });
-    }
-
-    function getFeatures() {
-      return  fetch('/dataset/extractFeatures')
-                .then( (response) => {
-                  return response.json() 
-                })
-                .then( (response) => {
-                  const features = _.values(JSON.parse(response));
-                  console.log('features:', features);
-
-                  _self.setState({
-                    features: features
-                  });
-                });
-    }
-    
-    // Response: All features, and values multiplied by weight
-    function runRankSVM() {
-      return  fetch('/dataset/runRankSVM/', {
-                method: 'post',
-                body: JSON.stringify(rankingInstance)
-              })
-              .then( (response) => {
-                return response.json();
-              })   
-              .then( (response) => {
-                  const rankingInstance = JSON.parse(response);
-                  
-                  _self.setState(prevState => ({
-                    rankingInstance: rankingInstance,
-                    rankings: [ ...prevState.rankings, rankingInstance ]
-                  }));
-                });
-    }
-
-    function calculatePairwiseInputDistance() {
-      return  fetch('/dataset/calculatePairwiseInputDistance/', {
-                method: 'post',
-                body: JSON.stringify(rankingInstance)
-              })
-              .then( (response) => {
-                return response.json();
-              })   
-              .then( (response) => {
-                  const json_response = JSON.parse(response),
-                        pairwiseInputDistances = json_response.pairwiseDistances,
-                        permutationInputDistances = json_response.permutationDistances;
-                  
-                  _self.setState({
-                    pairwiseInputDistances: pairwiseInputDistances,
-                    permutationInputDistances: permutationInputDistances
-                  });
-                });
-    }
-
-    // Response: Dim coordinates
-    function runMDS() {
-      return fetch('/dataset/runMDS/', {
-                method: 'post',
-                body: JSON.stringify(rankingInstance)
-              })
-              .then( (response) => {
-                return response.json();
-              })   
-              .then( (responseOutput) => {
-                  const dimReductions = _.values(JSON.parse(responseOutput));
-                  console.log('mds result: ', dimReductions);
-                  
-                  _self.setState({inputCoords: dimReductions});
-                });
-    }
-
-    function getFetches(){
-      return Promise.all([getDataset(), getFeatures(), runRankSVM(), 
-        calculatePairwiseInputDistance(), runMDS()])
-    }
-
-    getFetches()
+    this.getFetches(rankingInstance, method)
     .then((responses) => {
-      console.log(responses);
+      const { rankingInstance } = this.state,
+          { instances } = rankingInstance;
+
+      let updatedInstances = [],
+          inputs = [];
+
       this.calculatePairwiseDiffs();
       this.calculatePermutationDiffs();
       this.permutationDiffsFlattened = _.flatten(this.permutationDiffs);
       this.calculateRSquared(this.pairwiseDiffs);
       this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
-      this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
+      updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       this.calculateNDM(this.permutationDiffs);
 
       this.setState((prevState) => ({
@@ -220,6 +132,7 @@ class App extends Component {
         permutationDiffsFlattened: this.permutationDiffsFlattened,
         rankingInstance: {
           ...prevState.rankingInstance,
+          instances: updatedInstances,
           stat: {
             ...prevState.rankingInstance.stat,
             goodnessOfFairness: this.rSquared
@@ -253,8 +166,143 @@ class App extends Component {
       });
       _self.setFairInstancesFromConfidenceInterval(confIntervalPoints, this.pairwiseDiffs);
     });
+  }
 
-    
+  getDataset() {
+    return fetch('/dataset/file')
+          .then( (response) => {
+              return response.json() 
+          })   
+          .then( (file) => {
+            const dataset = _.values(JSON.parse(file));
+
+            this.setState({
+              dataset: dataset,
+              n: dataset.length
+            });
+          });
+  }
+  
+  getFeatures() {
+    return fetch('/dataset/extractFeatures')
+        .then( (response) => {
+          return response.json() 
+        })
+        .then( (response) => {
+          const features = _.values(JSON.parse(response));
+
+          this.setState({
+            features: features
+          });
+        });
+  }
+  
+  // Response: All features, and values multiplied by weight
+  runRankSVM(rankingInstance) {
+    console.log('in runRankSVM: ', rankingInstance);
+    return fetch('/dataset/runRankSVM/', {
+            method: 'post',
+            body: JSON.stringify(rankingInstance)
+          })
+          .then( (response) => {
+            return response.json();
+          })   
+          .then( (response) => {
+              const rankingInstance = JSON.parse(response);
+              
+              this.setState(prevState => ({
+                rankingInstance: rankingInstance,
+                rankings: [ ...prevState.rankings, rankingInstance ]
+              }));
+            });
+  }
+
+  runLR(rankingInstance) {
+    return fetch('/dataset/runLR/', {
+            method: 'post',
+            body: JSON.stringify(rankingInstance)
+          })
+          .then( (response) => {
+            return response.json();
+          })   
+          .then( (response) => {
+              const rankingInstance = JSON.parse(response);
+              
+              this.setState(prevState => ({
+                rankingInstance: rankingInstance,
+                rankings: [ ...prevState.rankings, rankingInstance ]
+              }));
+            });
+  }
+
+  runSVM(rankingInstance) {
+    return fetch('/dataset/runSVM/', {
+            method: 'post',
+            body: JSON.stringify(rankingInstance)
+          })
+          .then( (response) => {
+            return response.json();
+          })   
+          .then( (response) => {
+              const rankingInstance = JSON.parse(response);
+              
+              this.setState(prevState => ({
+                rankingInstance: rankingInstance,
+                rankings: [ ...prevState.rankings, rankingInstance ]
+              }));
+            });
+  }
+  
+  calculatePairwiseInputDistance(rankingInstance) {
+    return fetch('/dataset/calculatePairwiseInputDistance/', {
+            method: 'post',
+            body: JSON.stringify(rankingInstance)
+          })
+          .then( (response) => {
+            return response.json();
+          })   
+          .then( (response) => {
+            const json_response = JSON.parse(response),
+                  pairwiseInputDistances = json_response.pairwiseDistances,
+                  permutationInputDistances = json_response.permutationDistances;
+            
+            this.setState({
+              pairwiseInputDistances: pairwiseInputDistances,
+              permutationInputDistances: permutationInputDistances
+            });
+          });
+  }
+  
+  // Response: Dim coordinates
+  runMDS(rankingInstance) {
+    return fetch('/dataset/runMDS/', {
+          method: 'post',
+          body: JSON.stringify(rankingInstance)
+        })
+        .then( (response) => {
+          return response.json();
+        })   
+        .then( (responseOutput) => {
+          const dimReductions = _.values(JSON.parse(responseOutput));
+          
+          this.setState({inputCoords: dimReductions});
+        });
+  }
+  
+  getFetches(rankingInstance, method) {
+    if (method.name === 'SVM') {
+      return Promise.all([this.getDataset(), 
+        this.getFeatures(), this.runRankSVM(rankingInstance), 
+        this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
+    } else if (method.name === 'RankSVM') {
+      return Promise.all([this.getDataset(), 
+        this.getFeatures(), this.runSVM(rankingInstance), 
+        this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
+    } else if (method.name === 'Logistic Regression') {
+      return Promise.all([this.getDataset(), 
+        this.getFeatures(), this.runLR(rankingInstance), 
+        this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
+    }
   }
 
   handleRankingInstanceOptions(optionObj) {  // optionObj e.g., { sensitiveAttr: 'sex' }
@@ -308,61 +356,67 @@ class App extends Component {
   }
 
   handleModelRunning(){
-    const { rankingInstance } = this.state;
-    rankingInstance.rankingId += 1;
+    const { rankingInstance } = this.state,
+          { method } = rankingInstance;
 
-    this.setState(prevState => ({
-      rankingInstance: {
-        ...prevState.rankingInstance,
-        rankingId: prevState.rankingInstance.rankingId + 1
-      }
-    }));
-    
-    fetch('/dataset/run' + rankingInstance.method.name + '/', {
-      method: 'post',
-      body: JSON.stringify(rankingInstance)
+    // data file loading here
+    this.getFetches(rankingInstance, method)
+    .then((responses) => {
+      const { rankingInstance } = this.state,
+          { instances } = rankingInstance,
+          rankingId = rankingInstance.rankingId + 1;
+
+      let updatedInstances = [],
+          inputs = [];
+
+      this.calculatePairwiseDiffs();
+      this.calculatePermutationDiffs();
+      this.permutationDiffsFlattened = _.flatten(this.permutationDiffs);
+      this.calculateRSquared(this.pairwiseDiffs);
+      this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
+      updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
+      this.calculateNDM(this.permutationDiffs);
+
+      this.setState((prevState) => ({
+        pairwiseDiffs: this.pairwiseDiffs,
+        permutationDiffs: this.permutationDiffs,
+        permutationDiffsFlattened: this.permutationDiffsFlattened,
+        rankingInstance: {
+          ...prevState.rankingInstance,
+          instances: updatedInstances,
+          rankingId: prevState.rankingInstance.rankingId + 1,
+          stat: {
+            ...prevState.rankingInstance.stat,
+            goodnessOfFairness: this.rSquared
+          }
+        }
+      }));
+
+      inputs = _.map(this.pairwiseDiffs, (d) => {
+          return {
+            idx1: d.idx1,
+            idx2: d.idx2,
+            X: d.scaledDiffInput,
+            y: d.distortion,
+            yHat: 0
+          }
+      });
+
+      return fetch('/dataset/calculateConfidenceInterval/', {
+        method: 'post',
+        body: JSON.stringify(inputs)
+      });
     })
     .then( (response) => {
       return response.json();
-    })   
+    })
     .then( (response) => {
-      const rankingInstance = JSON.parse(response);
+      const confIntervalPoints = JSON.parse(response);
 
-      fetch('/dataset/calculatePairwiseInputDistance/', {
-        method: 'post',
-        body: JSON.stringify(rankingInstance)
-      })
-      .then( (response) => {
-        return response.json();
-      })   
-      .then( (response) => {
-        const json_response = JSON.parse(response),
-              pairwiseInputDistances = json_response.pairwiseDistances,
-              permutationInputDistances = json_response.permutationDistances;
-        
-        this.setState({
-          rankingInstance: rankingInstance,
-          pairwiseInputDistances: pairwiseInputDistances,
-          permutationInputDistances: permutationInputDistances
-        });
+      this.setState({
+        confIntervalPoints: confIntervalPoints
       });
-
-      fetch('/dataset/runMDS/', {
-        method: 'post',
-        body: JSON.stringify(rankingInstance)
-      })
-      .then( (response) => {
-        return response.json();
-      })   
-      .then( (responseOutput) => {
-        const dimReductions = _.values(JSON.parse(responseOutput));
-        console.log('mds result: ', dimReductions);
-        
-        this.setState({
-          inputCoords: dimReductions
-        });
-      });
-      
+      this.setFairInstancesFromConfidenceInterval(confIntervalPoints, this.pairwiseDiffs);
     });
   }
   
@@ -527,12 +581,17 @@ class App extends Component {
   }
 
   calculateSumDistortion(instances, permutationDiffs) {
-    _.forEach(instances, (d, i) => {
-      instances[i].sumDistortion = permutationDiffs
-          .filter((e) => e.idx1 === instances[i].idx)
-          .map((e) => e.absDistortion)
-          .reduce((sum, e) => sum + e);
-    });
+    console.log('before cal: ', instances);
+    const updatedInstances = _.map(instances, (d, i) => {
+                d.sumDistortion = permutationDiffs
+                    .filter((e) => e.idx1 === instances[i].idx)
+                    .map((e) => e.absDistortion)
+                    .reduce((sum, e) => sum + e);
+
+                return d;
+              });
+    console.log('after cal: ', updatedInstances);
+    return updatedInstances;
   }
 
   setFairInstancesFromConfidenceInterval(confIntervalPoints, pairwiseDiffs) {
@@ -701,7 +760,8 @@ class App extends Component {
             permutationDiffs={this.permutationDiffs}
             permutationDiffsFlattened={this.permutationDiffsFlattened}
             confIntervalPoints={this.state.confIntervalPoints}
-            inputCoords={this.state.inputCoords} />
+            inputCoords={this.state.inputCoords}
+            onCalculateNDM={this.calculateNDM} />
         <GroupFairnessView 
             className={styles.GroupFairnessView}
             data={this.state.rankingInstance} 

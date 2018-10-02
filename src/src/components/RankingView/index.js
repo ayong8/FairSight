@@ -43,6 +43,8 @@ class RankingView extends Component {
 
       this.handleSelectedRankingInterval = this.handleSelectedRankingInterval.bind(this);
       this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
+      this.handleFromIntervalChange = this.handleFromIntervalChange.bind(this);
+      this.handleToIntervalChange = this.handleToIntervalChange.bind(this);
     }
 
     handleSelectedRankingInterval(interval) {
@@ -53,6 +55,9 @@ class RankingView extends Component {
     handleSelectedTopk(topk) {
       this.props.onSelectedTopk(topk);
     }
+
+    handleFromIntervalChange(intervalFrom) {}
+    handleToIntervalChange(intervalTo) {}
 
     render() {
       if ((!this.props.topk || this.props.topk.length === 0) ||
@@ -214,7 +219,7 @@ class RankingView extends Component {
                 max={this.props.n}
                 style={{ width: 40 }}
                 value={this.props.selectedRankingInterval.from}
-                onChange={this.onTopkChange}
+                onChange={this.handleFromIntervalChange}
               />
               <span>&nbsp;-&nbsp;</span>
               <InputNumber
@@ -223,7 +228,7 @@ class RankingView extends Component {
                 max={this.props.n}
                 style={{ width: 40 }}
                 value={this.props.selectedRankingInterval.to}
-                onChange={this.onTopkChange}
+                onChange={this.handleToIntervalChange}
               />
             </div>
             <WholeRankingChart

@@ -24,6 +24,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.manifold import MDS
 from sklearn.preprocessing import Imputer
+from sklearn.linear_model import LogisticRegression
 from sklearn import preprocessing
 from sklearn import svm
 
@@ -115,7 +116,7 @@ class RunRankSVM(APIView):
         y = dataset_df[ target_name ]
         idx_col = dataset_df['idx']
 
-        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=False)
         rank_svm = RankSVM().fit(X_train, y_train)
         accuracy = rank_svm.score(X_test, y_test)
 
@@ -233,6 +234,155 @@ class RunSVM(APIView):
 
         return Response(json.dumps(ranking_instance_dict))
 
+class RunLR(APIView):
+
+    def get(self, request, format=None):
+        pass
+
+    def post(self, request, format=None):
+        json_request = json.loads(request.body.decode(encoding='UTF-8'))
+
+        features = json_request['features']
+        target = json_request['target']
+        sensitive_attr = json_request['sensitiveAttr']
+        method = json_request['method']
+
+        feature_names = [ feature['name'] for feature in features ]
+        target_name = target['name']
+        sensitive_attr_name = sensitive_attr['name']
+
+        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+        dataset_df = do_encoding_categorical_vars(whole_dataset_df)
+        dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
+        dataset_df = dataset_df.sort_values(by='idx', ascending=True)
+
+        X = dataset_df[ feature_names ]
+        y = dataset_df[ target_name ]
+        idx_col = dataset_df['idx']
+
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
+        lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
+        accuracy = lr_fit.score(X_test, y_test)
+        pred_probs = lr_fit.predict_proba(X)
+        print('probs of lr: ')
+        print(pred_probs)
+
+        output_df = X.copy()
+        output_df['idx'] = idx_col
+        output_df['group'] = dataset_df[ sensitive_attr_name ]
+        output_df['target'] = y
+
+        weighted_X_df = X.copy()
+        for idx, feature in enumerate(X.columns):
+            weighted_X_df[feature] = X[feature] * lr_fit.coef_[0, idx]
+        output_df['weighted_sum'] = weighted_X_df.sum(axis=1)
+
+        # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
+        weight_from_leader = 100 / output_df['weighted_sum'].max()
+        min_max_scaler = preprocessing.MinMaxScaler()
+        scaled_sum = min_max_scaler.fit_transform(output_df['weighted_sum'].values.reshape(-1, 1))
+        output_df['score'] = scaled_sum * 100
+        # output_df['score'] = [ prob[0]*100 for prob in pred_probs ]
+
+        # Add rankings
+        output_df = output_df.sort_values(by='score', ascending=False)
+        output_df['ranking'] = range(1, len(output_df) + 1)
+
+        # Convert to dict and put all features into 'features' key
+        instances_dict_list = list(output_df.T.to_dict().values())
+        for output_item in instances_dict_list:  # Go over all items
+            features_dict = {}
+            for feature_key in feature_names:
+                features_dict[ feature_key ] = output_item[ feature_key ]
+                output_item.pop(feature_key, None)
+            output_item['features'] = features_dict
+
+        ranking_instance_dict = {
+            'rankingId': json_request['rankingId'],
+            'features': features,
+            'target': target,
+            'sensitiveAttr': sensitive_attr,
+            'method': method,
+            'stat': { 'accuracy': math.ceil(accuracy * 100) },
+            'instances': instances_dict_list
+        }
+
+        return Response(json.dumps(ranking_instance_dict))
+
+class RunLRA(APIView):
+
+    def get(self, request, format=None):
+        pass
+
+    def post(self, request, format=None):
+        json_request = json.loads(request.body.decode(encoding='UTF-8'))
+
+        features = json_request['features']
+        target = json_request['target']
+        sensitive_attr = json_request['sensitiveAttr']
+        method = json_request['method']
+
+        feature_names = [ feature['name'] for feature in features ]
+        target_name = target['name']
+        sensitive_attr_name = sensitive_attr['name']
+
+        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+        dataset_df = do_encoding_categorical_vars(whole_dataset_df)
+        dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
+        dataset_df = dataset_df.sort_values(by='idx', ascending=True)
+
+        X = dataset_df[ feature_names ]
+        y = dataset_df[ target_name ]
+        idx_col = dataset_df['idx']
+
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
+        lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
+        accuracy = lr_fit.score(X_test, y_test)
+        pred_probs = lr_fit.predict_proba(X)
+        print('probs of lr: ')
+        print(pred_probs)
+
+        output_df = X.copy()
+        output_df['idx'] = idx_col
+        output_df['group'] = dataset_df[ sensitive_attr_name ]
+        output_df['target'] = y
+
+        weighted_X_df = X.copy()
+        for idx, feature in enumerate(X.columns):
+            weighted_X_df[feature] = X[feature] * lr_fit.coef_[0, idx]
+        output_df['weighted_sum'] = weighted_X_df.sum(axis=1)
+
+        # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
+        weight_from_leader = 100 / output_df['weighted_sum'].max()
+        min_max_scaler = preprocessing.MinMaxScaler()
+        scaled_sum = min_max_scaler.fit_transform(output_df['weighted_sum'].values.reshape(-1, 1))
+        output_df['score'] = scaled_sum * 100
+        # output_df['score'] = [ prob[0]*100 for prob in pred_probs ]
+
+        # Add rankings
+        output_df = output_df.sort_values(by='score', ascending=False)
+        output_df['ranking'] = range(1, len(output_df) + 1)
+
+        # Convert to dict and put all features into 'features' key
+        instances_dict_list = list(output_df.T.to_dict().values())
+        for output_item in instances_dict_list:  # Go over all items
+            features_dict = {}
+            for feature_key in feature_names:
+                features_dict[ feature_key ] = output_item[ feature_key ]
+                output_item.pop(feature_key, None)
+            output_item['features'] = features_dict
+
+        ranking_instance_dict = {
+            'rankingId': json_request['rankingId'],
+            'features': features,
+            'target': target,
+            'sensitiveAttr': sensitive_attr,
+            'method': method,
+            'stat': { 'accuracy': math.ceil(accuracy * 100) },
+            'instances': instances_dict_list
+        }
+
+        return Response(json.dumps(ranking_instance_dict))
 
 class SetSensitiveAttr(APIView):
 

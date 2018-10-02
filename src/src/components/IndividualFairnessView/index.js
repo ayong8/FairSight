@@ -55,7 +55,8 @@ class IndividualFairnessView extends Component {
       //this.dataPairwiseDiffs = [];
       this.dataSelectedPairwiseDiffs = [];
       this.dataPermutationDiffs = [];
-      this.dataSelectedPermutationDiffs = [];
+      this.selectedPermutationDiffs = [];
+      this.selectedPermutationDiffsFlattened = [];
       this.dataPermutationDiffsFlattened = [];
 
       this.dataBin = [];
@@ -66,7 +67,10 @@ class IndividualFairnessView extends Component {
           from: 1,
           to: 50
         },
-        dropdownOpen: false,
+        selectedInstances: [],
+        selectedPairwiseDiffs: [],
+        selectedPermutationDiffs: [],
+        selectedPermutationDiffsFlattened: [],
         sortMatrixXdropdownOpen: false,
         sortMatrixYdropdownOpen: false,
         sortBy: 'close to far',
@@ -132,42 +136,36 @@ class IndividualFairnessView extends Component {
           width: 350,
           height: 150,
           padding: 10
-        },
-        get r() {
-          return d3.min([this.width, this.height]) / 3;
-        },
-        get centroid() {
-          return {
-            x: this.width / 2,
-            y: this.height / 2
-          };
         }
       };
 
-      this.handleToggleMatrixX = this.handleToggleMatrixX.bind(this);
-      this.handleToggleMatrixY = this.handleToggleMatrixY.bind(this);
-      this.sortDistortion = this.sortDistortion.bind(this);
+      this.toggleMatrixX = this.toggleMatrixX.bind(this);
+      this.toggleMatrixY = this.toggleMatrixY.bind(this);
       this.handleSortingMatrixX = this.handleSortingMatrixX.bind(this);
       this.handleSortingMatrixY = this.handleSortingMatrixY.bind(this);
       this.handleSelectGroupCheckbox = this.handleSelectGroupCheckbox.bind(this);
       this.handleSelectOutlierAndFairCheckbox = this.handleSelectOutlierAndFairCheckbox.bind(this);
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
-      if (this.props.data !== nextProps.data) { return true; }
-      if (this.props.selectedInstance !== nextProps.selectedInstance) { return true; }
-      if (this.props.selectedRankingInterval !== nextProps.selectedRankingInterval) { return true; }
-      if (this.props.pairwiseInputDistances !== nextProps.pairwiseInputDistances) { return true; }
-      if (this.props.permutationInputDistances !== nextProps.permutationInputDistances) { return true; }
-      if (this.props.inputCoords !== nextProps.inputCoords) { return true; }
-  
-      return false;
+    componentWillMount() {
+      const { data, permutationDiffs, permutationDiffsFlattened, selectedRankingInterval } = this.props,
+            { instances } = data,
+            selectedInstances = _.filter(instances, (d) => (d.idx >= selectedRankingInterval.from) && (d.idx <= selectedRankingInterval.to));
+
+      // Subsetting permutation distortions for selected interval
+      const selectedPermutationDiffsFlattend = _.filter(permutationDiffsFlattened, (d) => 
+            (d.idx1 >= selectedRankingInterval.from) && (d.idx1 <= selectedRankingInterval.to) &&
+            (d.idx2 >= selectedRankingInterval.from) && (d.idx2 <= selectedRankingInterval.to)
+          );
+
+      this.setState({
+        selectedInstances: selectedInstances,
+        selectedPermutationDiffsFlattend: selectedPermutationDiffsFlattend
+      });
     }
 
-    componentWillMount() {
+    componentDidMount() {
       const _self = this;
-      //       data = this.props.data,
-      //       wholeInstances = data.instances;
 
       _self.setState({
         sortMatrixXBy: 'sumDistortion',
@@ -175,67 +173,6 @@ class IndividualFairnessView extends Component {
         sortMatrixXdropdownValue: 'sumDistortion',
         sortMatrixYdropdownValue: 'sumDistortion'
       });
-    }
-
-    // componentDidMount() {
-    //   const _self = this;
-    //   const inputs = _.map(_self.dataPairwiseDiffs, (d) => {
-    //           return {
-    //             idx1: d.idx1,
-    //             idx2: d.idx2,
-    //             X: d.scaledDiffInput,
-    //             y: d.distortion,
-    //             yHat: 0
-    //           }
-    //       });
-
-    //   fetch('/dataset/calculateConfidenceInterval/', {
-    //     method: 'post',
-    //     body: JSON.stringify(inputs)
-    //   })
-    //   .then( (response) => {
-    //     return response.json();
-    //   })   
-    //   .then( (response) => {
-    //     const confIntervalPoints = JSON.parse(response);
-
-    //     this.setState({
-    //       confIntervalPoints: confIntervalPoints
-    //     });
-    //     _self.setFairInstancesFromConfidenceInterval(confIntervalPoints, _self.dataPairwiseDiffs);
-    //   });
-    // }
-
-    componentWillUpdate() {
-      // const _self = this,
-      //       data = this.props.data,
-      //       wholeInstances = data.instances;
-
-      // _self.setState({
-      //   sortMatrixXBy: 'sumDistortion',
-      //   sortMatrixYBy: 'sumDistortion',
-      //   sortMatrixXdropdownValue: 'sumDistortion',
-      //   sortMatrixYdropdownValue: 'sumDistortion'
-      // });
-
-      // _self.calculatePairwiseDiffs();
-      // _self.calculatePermutationDiffs();
-      // _self.calculateRSquared(_self.dataPairwiseDiffs);
-      // _self.calculatePredictionIntervalandOutliers(_self.dataPairwiseDiffs);
-      // _self.dataPermutationDiffsFlattened = _.flatten(_self.dataPermutationDiffs);
-      // _self.calculateSumDistortion(wholeInstances, _self.dataPermutationDiffsFlattened);
-      // _self.calculateNDM(_self.dataPermutationDiffs);
-
-      // // Calculate confidence interval
-      // const inputs = _.map(_self.dataPairwiseDiffs, (d) => {
-      //         return {
-      //           idx1: d.idx1,
-      //           idx2: d.idx2,
-      //           X: d.scaledDiffInput,
-      //           y: d.distortion,
-      //           yHat: 0
-      //         }
-      //     });
     }
 
     renderMatrixXDropdownSelections() {
@@ -246,8 +183,9 @@ class IndividualFairnessView extends Component {
             distortionSelection = 'sumDistortion';
       featureNames.push(distortionSelection);
 
-      return featureNames.map((feature) => 
+      return featureNames.map((feature, idx) => 
           (<DropdownItem
+              key={idx}
               value={feature} 
               onClick={this.handleSortingMatrixX}>
               {feature}
@@ -255,14 +193,16 @@ class IndividualFairnessView extends Component {
     }
 
     renderMatrixYDropdownSelections() {
-      const data = this.props.data;
+      const { data } = this.props,
+            { features } = data;
 
-      const featureNames = data.features.map((d) => d.name),
+      const featureNames = features.map((d) => d.name),
             distortionSelection = 'sumDistortion';
       featureNames.push(distortionSelection);
 
-      return featureNames.map((feature) => 
+      return featureNames.map((feature, idx) => 
           (<DropdownItem 
+              key={idx}
               value={feature} 
               onClick={this.handleSortingMatrixY}>
               {feature}
@@ -282,20 +222,13 @@ class IndividualFairnessView extends Component {
       _self.svgMatrix.style.setProperty('margin', '10px 5%');
 
       console.log('props in individualFairness', _self.props.data);
+      console.log('state in individualFairness', this.state);
 
-      const { data, permutationDiffs, permutationDiffsFlattened } = _self.props,
+      const { data, permutationDiffs, permutationDiffsFlattened, selectedInstance } = this.props,
             { instances } = data,
-            selectedInstances = instances.slice(_self.state.selectedIntervalForMatrix.from - 1, _self.state.selectedIntervalForMatrix.to),
-            selectedRankingInterval = _self.props.selectedRankingInterval,
-            selectedInstance = _self.props.selectedInstance,
+            { selectedInstances, selectedPermutationDiffsFlattend } = this.state,
             distortionMin = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[0],
             distortionMax = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[1];
-
-      // Subsetting permutation distortions for selected interval
-      let selectedPermutationDiffsFlattend = _.filter(permutationDiffsFlattened, (d) => 
-            (d.idx1 >= _self.state.selectedIntervalForMatrix.from) && (d.idx1 <= _self.state.selectedIntervalForMatrix.to) &&
-            (d.idx2 >= _self.state.selectedIntervalForMatrix.from) && (d.idx2 <= _self.state.selectedIntervalForMatrix.to)
-          );
 
       // For x and y axis
       let dataX = instances,
@@ -325,7 +258,6 @@ class IndividualFairnessView extends Component {
 
       //*** Sort feature plot */
       _self.dataBinFlattened = _.flatten(_self.dataBin);
-      
       _self.xMatrixScale = d3.scaleBand()
           .domain(_.map(dataSelectedX, (d) => d.idx))  // For now, it's just an index of items(from observed)
           .range([0, _self.layout.svgMatrix.matrixPlot.width]);
@@ -482,7 +414,7 @@ class IndividualFairnessView extends Component {
           .attr('x', (d) => 35 - _self.sumDistortionScale(d.sumDistortion))
           .attr('y', (d) => _self.yMatrixScale(d.idx))
           .attr('width', (d) => _self.sumDistortionScale(d.sumDistortion))
-          .attr('height', _self.yMatrixScale.bandwidth())
+          .attr('height', _self.yMatrixScale.bandwidth() - 0.5)
           .attr('fill', (d) => 
             (sortMatrixYBy === 'sumDistortion') ? 
               _self.yAttributeScale(d.sumDistortion) : 
@@ -499,7 +431,7 @@ class IndividualFairnessView extends Component {
           .attr('class', 'sum_distortion_rect_bottom')
           .attr('x', (d) => _self.xMatrixScale(d.idx))
           .attr('y', (d) => 5)
-          .attr('width', _self.xMatrixScale.bandwidth())
+          .attr('width', _self.xMatrixScale.bandwidth() - 0.5)
           .attr('height', (d) => _self.sumDistortionScale(d.sumDistortion))
           .attr('fill', (d) => 
             (sortMatrixYBy === 'sumDistortion') ? 
@@ -1144,33 +1076,26 @@ class IndividualFairnessView extends Component {
           .style('font-size', '11px');
     }
 
-    handleToggleMatrixX() {
-      this.setState(prevState => ({
-        sortMatrixXdropdownOpen: !prevState.sortMatrixXdropdownOpen
-      }));
+    toggleMatrixX() {
+      this.setState({
+        sortMatrixXdropdownOpen: !this.state.sortMatrixXdropdownOpen
+      });
     }
 
-    handleToggleMatrixY() {
-      this.setState(prevState => ({
-        sortMatrixYdropdownOpen: !prevState.sortMatrixYdropdownOpen
-      }));
-    }
-
-    sortDistortion() {
-      this.setState(prevState => ({
-        dropdownOpen: !prevState.dropdownOpen
-      }));
+    toggleMatrixY() {
+      this.setState({
+        sortMatrixYdropdownOpen: !this.state.sortMatrixYdropdownOpen
+      });
     }
 
     handleSortingMatrixX(e) {
       let _self = this;
 
       let sortMatrixXBy = e.target.value,
-          data = this.props.data,
-          instances = data.instances,
-          dataSelectedPermutationDiffs = this.dataSelectedPermutationDiffs;
+          { data } = this.props,
+          { selectedInstances, selectedPermutationDiffsFlattend } = this.state;
 
-      const sortedX = [...instances].sort((a, b) => 
+      const sortedX = [...selectedInstances].sort((a, b) => 
                 (sortMatrixXBy === 'sumDistortion') ?
                 d3.ascending(a.sumDistortion, b.sumDistortion) :
                 d3.ascending(a.features[sortMatrixXBy], b.features[sortMatrixXBy])
@@ -1179,7 +1104,7 @@ class IndividualFairnessView extends Component {
       _self.xMatrixScale.domain(
           _.map(sortedX, (d) => d.idx));
       _self.xAttributeScale.domain(
-          d3.extent(instances, (d) => 
+          d3.extent(selectedInstances, (d) => 
             (sortMatrixXBy === 'sumDistortion') ? 
               d.sumDistortion : 
               d.features[sortMatrixXBy]
@@ -1190,11 +1115,9 @@ class IndividualFairnessView extends Component {
         sortMatrixXdropdownValue: sortMatrixXBy
       });
 
-      let dataSelectedPermutationDiffsFlattend = _.flatten(dataSelectedPermutationDiffs);
-
       // For matrix cells
       d3.selectAll('.g_cell')
-          .data(dataSelectedPermutationDiffsFlattend)
+          .data(selectedPermutationDiffsFlattend)
           .transition()
           .duration(750)
           .attr('transform', (d) =>
@@ -1204,7 +1127,7 @@ class IndividualFairnessView extends Component {
       // Bottom
       // For Attribute plot on the bottom
       d3.selectAll('.attr_rect_bottom')
-          .data(instances)
+          .data(selectedInstances)
           .transition()
           .duration(750)
           .attr('x', (d) => _self.xMatrixScale(d.idx))
@@ -1215,36 +1138,35 @@ class IndividualFairnessView extends Component {
           });
 
       d3.selectAll('.pair_rect_bottom')
-          .data(instances)
+          .data(selectedInstances)
           .transition()
           .duration(750)
           .attr('x', (d) => _self.xMatrixScale(d.idx));
 
       // For sum distortion plot on the bottom
       d3.selectAll('.sum_distortion_rect_bottom')
-          .data(instances)
+          .data(selectedInstances)
           .transition()
           .duration(750)
           .attr('x', (d) => _self.xMatrixScale(d.idx) + _self.cellWidth / 2);
 
       d3.selectAll('.sum_distortion_circle_bottom')
-          .data(instances)
+          .data(selectedInstances)
           .transition()
           .duration(750)
           .attr('cx', (d) => _self.xMatrixScale(d.idx) + _self.cellWidth / 2);
 
-      this.calculateNDM(dataSelectedPermutationDiffs);
+      //this.props.onCalculateNDM(this.selectedPermutationDiffs);
     }
 
     handleSortingMatrixY(e) {
       let _self = this;
 
       let sortMatrixYBy = e.target.value,
-          data = this.props.data,
-          instances = data.instances,
-          dataSelectedPermutationDiffs = this.dataSelectedPermutationDiffs;
+          { data } = this.props,
+          { selectedInstances, selectedPermutationDiffsFlattend } = this.state;
 
-      const sortedY = _.sortBy(instances, 
+      const sortedY = _.sortBy(selectedInstances, 
               (sortMatrixYBy === 'sumDistortion') ? 
                 sortMatrixYBy : 
                 'features.'+ sortMatrixYBy
@@ -1253,7 +1175,7 @@ class IndividualFairnessView extends Component {
       _self.yMatrixScale.domain(
           _.map(sortedY, (d) => d.idx ));
       _self.yAttributeScale.domain(
-          d3.extent(_.map(instances, (d) => 
+          d3.extent(_.map(selectedInstances, (d) => 
             (sortMatrixYBy === 'sumDistortion') ? 
               d.sumDistortion : 
               d.features[sortMatrixYBy]
@@ -1265,10 +1187,8 @@ class IndividualFairnessView extends Component {
         sortMatrixYdropdownValue: sortMatrixYBy
       });
 
-      let dataSelectedPermutationDiffsFlattend = _.flatten(dataSelectedPermutationDiffs);
-
       d3.selectAll('.g_cell')
-          .data(dataSelectedPermutationDiffsFlattend)
+          .data(selectedPermutationDiffsFlattend)
           .transition()
           .duration(750)
           .attr('transform', (d) =>
@@ -1278,7 +1198,7 @@ class IndividualFairnessView extends Component {
       // Bottom
       // For Attribute plot on the bottom
       d3.selectAll('.attr_rect_left')
-          .data(instances)
+          .data(selectedInstances)
           .transition()
           .duration(750)
           .attr('y', (d) => _self.yMatrixScale(d.idx))
@@ -1289,23 +1209,25 @@ class IndividualFairnessView extends Component {
           );
 
       d3.selectAll('.pair_rect_left')
-          .data(instances)
+          .data(selectedInstances)
           .transition()
           .duration(750)
           .attr('y', (d) => _self.yMatrixScale(d.idx));
 
       // For sum distortion plot on the bottom
       d3.selectAll('.sum_distortion_rect_left')
-          .data(instances)
+          .data(selectedInstances)
           .transition()
           .duration(750)
           .attr('y', (d) => _self.yMatrixScale(d.idx) + _self.cellWidth / 2);
 
       d3.selectAll('.sum_distortion_circle_left')
-          .data(instances)
+          .data(selectedInstances)
           .transition()
           .duration(750)
           .attr('cy', (d) => _self.yMatrixScale(d.idx) + _self.cellWidth / 2);
+      
+      //this.props.onCalculateNDM(this.selectedPermutationDiffsFlattend);
     }
 
     handleSelectGroupCheckbox(checked) {
@@ -1323,6 +1245,8 @@ class IndividualFairnessView extends Component {
         return <div />
       }
       const _self = this;
+
+      console.log('this.state in indi: ', this.state);
          
       _self.renderPlot();
       _self.renderMatrix();
@@ -1352,28 +1276,36 @@ class IndividualFairnessView extends Component {
             <div className={styles.MatrixView}>
               <div className={index.subTitle}>Individual Distortions</div>
               <div className={styles.matrixDropdownWrapper}>
-                <span>Set distortion by: &nbsp;</span>
-                <CheckboxGroup options={colorOptions} defaultValue={[ 'Absolute' ]} onChange={this.handleSelectGroupCheckbox} />
-                <span>Sort x axis by: &nbsp;</span>
-                <Dropdown className={styles.sortMatrixXdropdown}
-                          isOpen={this.state.sortMatrixXdropdownOpen}  size='sm' toggle={this.handleToggleMatrixX}>
-                  <DropdownToggle caret>
-                    {this.state.sortMatrixXdropdownValue}
-                  </DropdownToggle>
-                  <DropdownMenu>
-                    {this.renderMatrixXDropdownSelections()}
-                  </DropdownMenu>
-                </Dropdown>
-                <span>Sort y axis by: &nbsp;</span>
-                <Dropdown className={styles.sortMatrixYdropdown}
-                          isOpen={this.state.sortMatrixYdropdownOpen}  size='sm' toggle={this.handleToggleMatrixY}>
-                  <DropdownToggle caret>
-                    {this.state.sortMatrixYdropdownValue}
-                  </DropdownToggle>
-                  <DropdownMenu>
-                    {this.renderMatrixYDropdownSelections()}
-                  </DropdownMenu>
-                </Dropdown>
+                {/* <span>Set distortion by: &nbsp;</span>
+                <CheckboxGroup options={colorOptions} defaultValue={[ 'Absolute' ]} onChange={this.handleSelectGroupCheckbox} /> */}
+                <div className={styles.sortMatrixXdropdownWrapper}>
+                  <span>Sort x axis by: &nbsp;</span>
+                  <Dropdown className={styles.sortMatrixXdropdown}
+                            isOpen={this.state.sortMatrixXdropdownOpen}  
+                            size='sm' 
+                            toggle={this.toggleMatrixX}>
+                    <DropdownToggle caret>
+                      {this.state.sortMatrixXdropdownValue}
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      {this.renderMatrixXDropdownSelections()}
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
+                <div className={styles.sortMatrixYdropdownWrapper}>
+                  <span>Sort y axis by: &nbsp;</span>
+                  <Dropdown className={styles.sortMatrixYdropdown}
+                            isOpen={this.state.sortMatrixYdropdownOpen}  
+                            size='sm' 
+                            toggle={this.toggleMatrixY}>
+                    <DropdownToggle caret>
+                      {this.state.sortMatrixYdropdownValue}
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      {this.renderMatrixYDropdownSelections()}
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
               </div>
               {this.svgMatrix.toReact()}
             </div>

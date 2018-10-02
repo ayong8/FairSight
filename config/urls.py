@@ -14,12 +14,7 @@ urlpatterns = [
     # User management
     url(r'^rest-auth/', include('rest_auth.urls')),
     url(r'^rest-auth/registration/', include('rest_auth.registration.urls')),
-    url(r'^users/', include('app.users.urls', namespace='users')),
-    url(r'^images/', include('app.images.urls', namespace='images')),
-    url(r'^dataset/', include('app.dataset.urls', namespace='dataset')),
-    url(r'^notifications/',
-        include('app.notifications.urls', namespace='notifications')),
-    url(r'^accounts/', include('allauth.urls')),
+    url(r'^dataset/', include(('app.dataset.urls', 'dataset'), namespace='dataset'))
     #url(r'^', views.ReactAppView.as_view()),
 
 

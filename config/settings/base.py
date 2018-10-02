@@ -61,12 +61,8 @@ THIRD_PARTY_APPS = [
 
 # Apps specific for this project go here.
 LOCAL_APPS = [
-    # custom users app
-    'app.users.apps.UsersConfig',
     # Your stuff: custom apps go here
-    'app.images.apps.ImagesConfig',  # images app
     'app.dataset.apps.DatasetConfig',  # dataset app
-    'app.notifications.apps.NotificationsConfig'  # notifications app
 ]
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
@@ -267,12 +263,12 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 ACCOUNT_ALLOW_REGISTRATION = env.bool(
     'DJANGO_ACCOUNT_ALLOW_REGISTRATION', True)
-ACCOUNT_ADAPTER = 'app.users.adapters.AccountAdapter'
-SOCIALACCOUNT_ADAPTER = 'app.users.adapters.SocialAccountAdapter'
+# ACCOUNT_ADAPTER = 'app.users.adapters.AccountAdapter'
+# SOCIALACCOUNT_ADAPTER = 'app.users.adapters.SocialAccountAdapter'
 
 # Custom user app defaults
 # Select the correct user model
-AUTH_USER_MODEL = 'users.User'
+# AUTH_USER_MODEL = 'users.User'
 
 # SLUGLIFIER
 AUTOSLUG_SLUGIFY_FUNCTION = 'slugify.slugify'

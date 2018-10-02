@@ -120,8 +120,7 @@ class Generator extends Component {
           onChange={this.handleClickProtectedGroup} 
           defaultValue={group1} 
           buttonStyle='solid' 
-          size='small'
-        >
+          size='small'>
           <Radio.Button value={group1}>{group1}</Radio.Button>
           <Radio.Button value={group2}>{group2}</Radio.Button>
         </Radio.Group>
@@ -179,18 +178,24 @@ class Generator extends Component {
     return features.map((feature) => {
       const featureName = feature.name;
 
-      if (featureName === 'credit_amount')
-        return {
-          feature: featureName.replace(/_/g, ' '),
-          dist: 10,
-          corr: _self.renderCorrPlotWithSensitiveAttr(featureName)
-        };
-      else
-        return {
-          feature: featureName.replace(/_/g, ' '),
-          dist: 10,
-          corr: 10
-        };
+      return {
+        feature: featureName.replace(/_/g, ' '),
+        dist: 10,
+        corr: _self.renderCorrPlotWithSensitiveAttr(featureName)
+      };
+
+      // if (featureName === 'credit_amount')
+      //   return {
+      //     feature: featureName.replace(/_/g, ' '),
+      //     dist: 10,
+      //     corr: _self.renderCorrPlotWithSensitiveAttr(featureName)
+      //   };
+      // else
+      //   return {
+      //     feature: featureName.replace(/_/g, ' '),
+      //     dist: 10,
+      //     corr: 10
+      //   };
       });
   }
 

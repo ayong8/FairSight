@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "3ad33cf52413353460d87e3f79528b5f61f19e0b8c4666018c15054fecca1b64"
+            "sha256": "ce89ec0c019c800cdf3a2112ed34ec3088fb09c1b20d585bb16b67b5e27cbcf4"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -405,10 +405,10 @@
         },
         "jedi": {
             "hashes": [
-                "sha256:b409ed0f6913a701ed474a614a3bb46e6953639033e31f769ca7581da5bd1ec1",
-                "sha256:c254b135fb39ad76e78d4d8f92765ebc9bf92cbc76f49e97ade1d5f5121e1f6f"
+                "sha256:0191c447165f798e6a730285f2eee783fff81b0d3df261945ecb80983b5c3ca7",
+                "sha256:b7493f73a2febe0dc33d51c99b474547f7f6c0b2c8fb2b21f453eef204c12148"
             ],
-            "version": "==0.12.1"
+            "version": "==0.13.1"
         },
         "jinja2": {
             "hashes": [
@@ -519,6 +519,13 @@
                 "sha256:895c63e93b94ac1e1690f5fdd40b65f07c8171e3e53cbd7793b5b96c0e0a7f24"
             ],
             "version": "==0.3.1"
+        },
+        "pathlib2": {
+            "hashes": [
+                "sha256:8eb170f8d0d61825e09a95b38be068299ddeda82f35e96c3301a8a5e7604cb83",
+                "sha256:d1aa2a11ba7b8f7b21ab852b1fb5afb277e1bb99d5dfc663380b5015c0d80c5a"
+            ],
+            "version": "==2.3.2"
         },
         "patsy": {
             "hashes": [
@@ -934,6 +941,13 @@
                 "sha256:801e38bd550b943563660a91de8d4b6fa5df60a542be9093f7abf819f86050cc"
             ],
             "version": "==1.2"
+        },
+        "themis-ml": {
+            "hashes": [
+                "sha256:94a908fa4f8746c6cc227c19896a0930108f88f046d955ff7d84d1b8471a7057"
+            ],
+            "index": "pypi",
+            "version": "==0.0.4"
         },
         "traitlets": {
             "hashes": [

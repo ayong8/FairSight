@@ -1,3 +1,4 @@
 {
-  "python.pythonPath": "/Users/yong8/.local/share/virtualenvs/FairSight2-1VTXp12b/bin/python"
+  "python.pythonPath": "/Users/yong8/.local/share/virtualenvs/FairSight2-1VTXp12b/bin/python",
+  "python.linting.pylintEnabled": false
 }

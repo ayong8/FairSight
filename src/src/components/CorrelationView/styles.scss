@@ -1,0 +1,25 @@
+.CorrelationView {
+  grid-area: cr;
+
+  .matrixDropdownWrapper {
+    background-color: #e5e5e5;
+    border: 1px solid lightgrey;
+    border-radius: 3px;
+    margin: 5px;    
+    padding: 5px;
+    
+    align-items: center;
+
+    .sortMatrixXdropdownWrapper,
+    .sortMatrixYdropdownWrapper {
+        display: flex;
+        align-items: center;
+        margin: 3px;
+    }
+
+    .sortMatrixXdropdown,
+    .sortMatrixYdropdown {
+        width: 25%;
+    }
+}
+}

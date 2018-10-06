@@ -1,0 +1,1001 @@
+,status_of_existing_checking_account,duration_in_month,credit_history,purpose,credit_amount,savings_account/bonds,present_employment_since,installment_rate_in_percentage_of_disposable_income,personal_status_and_sex,sex,other_debtors/guarantors,present_residence_since,property,age_in_years,other_installment_plans,housing,number_of_existing_credits_at_this_bank,job,number_of_people_being_liable_to_provide_maintenance_for,telephone,foreign_worker,credit_risk
+0,1,6,critical_account/other_credits_existing_not_at_this_bank,radio/television,1169,0,4,4,male_single,male,none,4,real_estate,67,none,own,2,2,1,1,1,1
+1,2,48,existing_credits_paid_back_duly_till_now,radio/television,5951,1,2,2,female_divorced/separated/married,female,none,2,real_estate,22,none,own,1,2,1,0,1,0
+2,0,12,critical_account/other_credits_existing_not_at_this_bank,education,2096,1,3,2,male_single,male,none,3,real_estate,49,none,own,1,1,2,0,1,1
+3,1,42,existing_credits_paid_back_duly_till_now,furniture/equipment,7882,1,3,2,male_single,male,guarantor,4,building_society_savings_agreement/life_insurance,45,none,for free,1,2,2,0,1,1
+4,1,24,delay_in_paying_off_in_the_past,car_(new),4870,1,2,3,male_single,male,none,4,unknown/no_property,53,none,for free,2,2,2,0,1,0
+5,0,36,existing_credits_paid_back_duly_till_now,education,9055,0,2,2,male_single,male,none,4,unknown/no_property,35,none,for free,1,1,2,1,1,1
+6,0,24,existing_credits_paid_back_duly_till_now,furniture/equipment,2835,3,4,3,male_single,male,none,4,building_society_savings_agreement/life_insurance,53,none,own,1,2,1,0,1,1
+7,2,36,existing_credits_paid_back_duly_till_now,car_(used),6948,1,2,2,male_single,male,none,2,car_or_other,35,none,rent,1,3,1,1,1,1
+8,0,12,existing_credits_paid_back_duly_till_now,radio/television,3059,4,3,2,male_divorced/separated,male,none,4,real_estate,61,none,own,1,1,1,0,1,1
+9,2,30,critical_account/other_credits_existing_not_at_this_bank,car_(new),5234,1,0,4,male_married/widowed,male,none,2,car_or_other,28,none,own,2,3,1,0,1,0
+10,2,12,existing_credits_paid_back_duly_till_now,car_(new),1295,1,1,3,female_divorced/separated/married,female,none,1,car_or_other,25,none,rent,1,2,1,0,1,0
+11,1,48,existing_credits_paid_back_duly_till_now,business,4308,1,1,3,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,24,none,rent,1,2,1,0,1,0
+12,2,12,existing_credits_paid_back_duly_till_now,radio/television,1567,1,2,1,female_divorced/separated/married,female,none,1,car_or_other,22,none,own,1,2,1,1,1,1
+13,1,24,critical_account/other_credits_existing_not_at_this_bank,car_(new),1199,1,4,4,male_single,male,none,4,car_or_other,60,none,own,2,1,1,0,1,0
+14,1,15,existing_credits_paid_back_duly_till_now,car_(new),1403,1,2,2,female_divorced/separated/married,female,none,4,car_or_other,28,none,rent,1,2,1,0,1,1
+15,1,24,existing_credits_paid_back_duly_till_now,radio/television,1282,2,2,4,female_divorced/separated/married,female,none,2,car_or_other,32,none,own,1,1,1,0,1,0
+16,0,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,2424,0,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,53,none,own,2,2,1,0,1,1
+17,1,30,no_credits_taken/all_credits_paid_back_duly,business,8072,0,1,2,male_single,male,none,3,car_or_other,25,bank,own,3,2,1,0,1,1
+18,2,24,existing_credits_paid_back_duly_till_now,car_(used),12579,1,4,4,female_divorced/separated/married,female,none,2,unknown/no_property,44,none,for free,1,3,1,1,1,0
+19,0,24,existing_credits_paid_back_duly_till_now,radio/television,3430,3,4,3,male_single,male,none,2,car_or_other,31,none,own,1,2,2,1,1,1
+20,0,9,critical_account/other_credits_existing_not_at_this_bank,car_(new),2134,1,2,4,male_single,male,none,4,car_or_other,48,none,own,3,2,1,1,1,1
+21,1,6,existing_credits_paid_back_duly_till_now,radio/television,2647,3,2,2,male_single,male,none,3,real_estate,44,none,rent,1,2,2,0,1,1
+22,1,10,critical_account/other_credits_existing_not_at_this_bank,car_(new),2241,1,1,1,male_single,male,none,3,real_estate,48,none,rent,2,1,2,0,0,1
+23,2,12,critical_account/other_credits_existing_not_at_this_bank,car_(used),1804,2,1,3,male_single,male,none,4,building_society_savings_agreement/life_insurance,44,none,own,1,2,1,0,1,1
+24,0,10,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,2069,0,2,2,male_married/widowed,male,none,1,car_or_other,26,none,own,2,2,1,0,0,1
+25,1,6,existing_credits_paid_back_duly_till_now,furniture/equipment,1374,1,2,1,male_single,male,none,2,real_estate,36,bank,own,1,1,1,1,1,1
+26,0,6,no_credits_taken/all_credits_paid_back_duly,radio/television,426,1,4,4,male_married/widowed,male,none,4,car_or_other,39,none,own,1,1,1,0,1,1
+27,3,12,all_credits_at_this_bank_paid_back_duly,radio/television,409,4,2,3,female_divorced/separated/married,female,none,3,real_estate,42,none,rent,2,2,1,0,1,1
+28,2,7,existing_credits_paid_back_duly_till_now,radio/television,2415,1,2,3,male_single,male,guarantor,2,real_estate,34,none,own,1,2,1,0,1,1
+29,1,60,delay_in_paying_off_in_the_past,business,6836,1,4,3,male_single,male,none,4,unknown/no_property,63,none,own,2,2,1,1,1,0
+30,2,18,existing_credits_paid_back_duly_till_now,business,1913,4,1,3,male_married/widowed,male,none,3,real_estate,36,bank,own,1,2,1,1,1,1
+31,1,24,existing_credits_paid_back_duly_till_now,furniture/equipment,4020,1,2,2,male_single,male,none,2,car_or_other,27,stores,own,1,2,1,0,1,1
+32,2,18,existing_credits_paid_back_duly_till_now,car_(new),5866,2,2,2,male_single,male,none,2,car_or_other,30,none,own,2,2,1,1,1,1
+33,0,12,critical_account/other_credits_existing_not_at_this_bank,business,1264,0,4,4,male_single,male,none,4,unknown/no_property,57,none,rent,1,1,1,0,1,1
+34,3,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1474,1,1,4,female_divorced/separated/married,female,none,1,building_society_savings_agreement/life_insurance,33,bank,own,1,3,1,1,1,1
+35,2,45,critical_account/other_credits_existing_not_at_this_bank,radio/television,4746,1,1,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,25,none,own,2,1,1,0,1,0
+36,0,48,critical_account/other_credits_existing_not_at_this_bank,education,6110,1,2,1,male_single,male,none,3,unknown/no_property,31,bank,for free,1,2,1,1,1,1
+37,3,18,existing_credits_paid_back_duly_till_now,radio/television,2100,1,2,4,male_single,male,co-applicant,2,real_estate,37,stores,own,1,2,1,0,1,0
+38,3,10,existing_credits_paid_back_duly_till_now,domestic_appliances,1225,1,2,2,male_single,male,none,2,car_or_other,37,none,own,1,2,1,1,1,1
+39,2,9,existing_credits_paid_back_duly_till_now,radio/television,458,1,2,4,male_single,male,none,3,real_estate,24,none,own,1,2,1,0,1,1
+40,0,30,existing_credits_paid_back_duly_till_now,radio/television,2333,3,4,4,male_single,male,none,2,car_or_other,30,bank,own,1,3,1,0,1,1
+41,2,12,existing_credits_paid_back_duly_till_now,radio/television,1158,3,2,3,male_divorced/separated,male,none,1,car_or_other,26,none,own,1,2,1,1,1,1
+42,2,18,delay_in_paying_off_in_the_past,repairs,6204,1,2,2,male_single,male,none,4,real_estate,44,none,own,1,1,2,1,1,1
+43,1,30,critical_account/other_credits_existing_not_at_this_bank,car_(used),6187,2,3,1,male_married/widowed,male,none,4,car_or_other,24,none,rent,2,2,1,0,1,1
+44,1,48,critical_account/other_credits_existing_not_at_this_bank,car_(used),6143,1,4,4,female_divorced/separated/married,female,none,4,unknown/no_property,58,stores,for free,2,1,1,0,1,0
+45,0,11,critical_account/other_credits_existing_not_at_this_bank,car_(new),1393,1,1,4,female_divorced/separated/married,female,none,4,car_or_other,35,none,own,2,3,1,0,1,1
+46,0,36,existing_credits_paid_back_duly_till_now,radio/television,2299,3,4,4,male_single,male,none,4,car_or_other,39,none,own,1,2,1,0,1,1
+47,1,6,existing_credits_paid_back_duly_till_now,car_(used),1352,3,0,1,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,23,none,rent,1,0,1,1,1,1
+48,0,11,critical_account/other_credits_existing_not_at_this_bank,car_(new),7228,1,2,1,male_single,male,none,4,building_society_savings_agreement/life_insurance,39,none,own,2,1,1,0,1,1
+49,0,12,existing_credits_paid_back_duly_till_now,radio/television,2073,2,2,4,female_divorced/separated/married,female,co-applicant,2,real_estate,28,none,own,1,2,1,0,1,1
+50,2,24,delay_in_paying_off_in_the_past,furniture/equipment,2333,0,1,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,29,bank,own,1,1,1,0,1,1
+51,2,27,delay_in_paying_off_in_the_past,car_(used),5965,1,4,1,male_single,male,none,2,car_or_other,30,none,own,2,3,1,1,1,1
+52,0,12,existing_credits_paid_back_duly_till_now,radio/television,1262,1,2,3,male_single,male,none,2,car_or_other,25,none,own,1,2,1,0,1,1
+53,0,18,existing_credits_paid_back_duly_till_now,car_(used),3378,0,2,2,male_single,male,none,1,building_society_savings_agreement/life_insurance,31,none,own,1,2,1,1,1,1
+54,2,36,delay_in_paying_off_in_the_past,car_(new),2225,1,4,4,male_single,male,none,4,unknown/no_property,57,bank,for free,2,2,1,1,1,0
+55,0,6,all_credits_at_this_bank_paid_back_duly,car_(new),783,0,2,1,male_single,male,guarantor,2,real_estate,26,stores,own,1,1,2,0,1,1
+56,2,12,existing_credits_paid_back_duly_till_now,radio/television,6468,0,0,2,male_single,male,none,1,unknown/no_property,52,none,own,1,3,1,1,1,0
+57,0,36,critical_account/other_credits_existing_not_at_this_bank,radio/television,9566,1,2,2,female_divorced/separated/married,female,none,2,car_or_other,31,stores,own,2,2,1,0,1,1
+58,3,18,existing_credits_paid_back_duly_till_now,car_(new),1961,1,4,3,female_divorced/separated/married,female,none,2,car_or_other,23,none,own,1,3,1,0,1,1
+59,1,36,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,6229,1,1,4,female_divorced/separated/married,female,co-applicant,4,unknown/no_property,23,none,rent,2,1,1,1,1,0
+60,2,9,existing_credits_paid_back_duly_till_now,business,1391,1,2,2,male_married/widowed,male,none,1,real_estate,27,bank,own,1,2,1,1,1,1
+61,2,15,critical_account/other_credits_existing_not_at_this_bank,radio/television,1537,0,4,4,male_single,male,guarantor,4,real_estate,50,none,own,2,2,1,1,1,1
+62,2,36,no_credits_taken/all_credits_paid_back_duly,business,1953,1,4,4,male_single,male,none,4,unknown/no_property,61,none,for free,1,3,1,1,1,0
+63,2,48,no_credits_taken/all_credits_paid_back_duly,business,14421,1,2,2,male_single,male,none,2,car_or_other,25,none,own,1,2,1,1,1,0
+64,0,24,existing_credits_paid_back_duly_till_now,radio/television,3181,1,1,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,26,none,own,1,2,1,1,1,1
+65,0,27,existing_credits_paid_back_duly_till_now,repairs,5190,0,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,48,none,own,4,2,2,1,1,1
+66,0,12,existing_credits_paid_back_duly_till_now,radio/television,2171,1,1,2,female_divorced/separated/married,female,none,2,car_or_other,29,bank,own,1,2,1,0,1,1
+67,2,12,existing_credits_paid_back_duly_till_now,car_(new),1007,4,2,4,male_married/widowed,male,none,1,real_estate,22,none,own,1,2,1,0,1,1
+68,0,36,existing_credits_paid_back_duly_till_now,education,1819,1,2,4,male_single,male,none,4,unknown/no_property,37,stores,for free,1,2,1,1,1,0
+69,0,36,existing_credits_paid_back_duly_till_now,radio/television,2394,0,2,4,female_divorced/separated/married,female,none,4,car_or_other,25,none,own,1,2,1,0,1,1
+70,0,36,existing_credits_paid_back_duly_till_now,car_(used),8133,1,2,1,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,30,bank,own,1,2,1,0,1,1
+71,0,7,critical_account/other_credits_existing_not_at_this_bank,radio/television,730,0,4,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,46,none,rent,2,1,1,1,1,1
+72,1,8,critical_account/other_credits_existing_not_at_this_bank,others,1164,1,4,3,male_single,male,none,4,unknown/no_property,51,bank,for free,2,3,2,1,1,1
+73,2,42,critical_account/other_credits_existing_not_at_this_bank,business,5954,1,3,2,female_divorced/separated/married,female,none,1,real_estate,41,bank,own,2,1,1,0,1,1
+74,1,36,existing_credits_paid_back_duly_till_now,education,1977,0,4,4,male_single,male,none,4,unknown/no_property,40,none,own,1,3,1,1,1,0
+75,1,12,critical_account/other_credits_existing_not_at_this_bank,car_(used),1526,1,4,4,male_single,male,none,4,unknown/no_property,66,none,for free,2,3,1,0,1,1
+76,1,42,existing_credits_paid_back_duly_till_now,radio/television,3965,1,1,4,male_single,male,none,3,car_or_other,34,none,own,1,2,1,0,1,0
+77,2,11,delay_in_paying_off_in_the_past,radio/television,4771,1,3,2,male_single,male,none,4,building_society_savings_agreement/life_insurance,51,none,own,1,2,1,0,1,1
+78,0,54,no_credits_taken/all_credits_paid_back_duly,car_(used),9436,0,2,2,male_single,male,none,2,building_society_savings_agreement/life_insurance,39,none,own,1,1,2,0,1,1
+79,2,30,existing_credits_paid_back_duly_till_now,furniture/equipment,3832,1,1,2,male_married/widowed,male,none,1,building_society_savings_agreement/life_insurance,22,none,own,1,2,1,0,1,1
+80,0,24,existing_credits_paid_back_duly_till_now,radio/television,5943,0,1,1,female_divorced/separated/married,female,none,1,car_or_other,44,none,own,2,2,1,1,1,0
+81,0,15,existing_credits_paid_back_duly_till_now,radio/television,1213,3,4,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,47,stores,own,1,2,1,1,1,1
+82,0,18,existing_credits_paid_back_duly_till_now,business,1568,2,2,3,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,24,none,rent,1,1,1,0,1,1
+83,1,24,existing_credits_paid_back_duly_till_now,others,1755,1,4,4,female_divorced/separated/married,female,guarantor,4,real_estate,58,none,own,1,1,1,1,1,1
+84,1,10,existing_credits_paid_back_duly_till_now,radio/television,2315,1,4,3,male_single,male,none,4,real_estate,52,none,own,1,1,1,0,1,1
+85,0,12,critical_account/other_credits_existing_not_at_this_bank,business,1412,1,2,4,female_divorced/separated/married,female,guarantor,2,real_estate,29,none,own,2,3,1,1,1,1
+86,2,18,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1295,1,1,4,female_divorced/separated/married,female,none,1,building_society_savings_agreement/life_insurance,27,none,own,2,2,1,0,1,1
+87,2,36,existing_credits_paid_back_duly_till_now,education,12612,2,2,1,male_single,male,none,4,unknown/no_property,47,none,for free,1,2,2,1,1,0
+88,1,18,existing_credits_paid_back_duly_till_now,car_(new),2249,2,3,4,male_single,male,none,3,car_or_other,30,none,own,1,3,2,1,1,1
+89,1,12,no_credits_taken/all_credits_paid_back_duly,repairs,1108,1,3,4,male_single,male,none,3,real_estate,28,none,own,2,2,1,0,1,0
+90,0,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,618,1,4,4,male_single,male,none,4,real_estate,56,none,own,1,2,1,0,1,1
+91,1,12,critical_account/other_credits_existing_not_at_this_bank,car_(used),1409,1,4,4,male_single,male,none,3,real_estate,54,none,own,1,2,1,0,1,1
+92,0,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,797,0,4,4,female_divorced/separated/married,female,none,3,building_society_savings_agreement/life_insurance,33,bank,own,1,1,2,0,1,0
+93,3,24,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,3617,0,4,4,male_single,male,co-applicant,4,unknown/no_property,20,none,rent,2,2,1,0,1,1
+94,2,12,existing_credits_paid_back_duly_till_now,car_(new),1318,4,4,4,male_single,male,none,4,real_estate,54,none,own,1,2,1,1,1,1
+95,2,54,no_credits_taken/all_credits_paid_back_duly,business,15945,1,1,3,male_single,male,none,4,unknown/no_property,58,none,rent,1,2,1,1,1,0
+96,0,12,critical_account/other_credits_existing_not_at_this_bank,education,2012,0,3,4,female_divorced/separated/married,female,none,2,car_or_other,61,none,own,1,2,1,0,1,1
+97,2,18,existing_credits_paid_back_duly_till_now,business,2622,2,2,4,male_single,male,none,4,car_or_other,34,none,own,1,2,1,0,1,1
+98,2,36,critical_account/other_credits_existing_not_at_this_bank,radio/television,2337,1,4,4,male_single,male,none,4,real_estate,36,none,own,1,2,1,0,1,1
+99,2,20,delay_in_paying_off_in_the_past,car_(used),7057,0,3,3,male_single,male,none,4,building_society_savings_agreement/life_insurance,36,bank,rent,2,3,2,1,1,1
+100,0,24,existing_credits_paid_back_duly_till_now,car_(new),1469,2,4,4,male_married/widowed,male,none,4,real_estate,41,none,rent,1,1,1,0,1,1
+101,2,36,existing_credits_paid_back_duly_till_now,radio/television,2323,1,3,4,male_single,male,none,4,car_or_other,24,none,rent,1,2,1,0,1,1
+102,0,6,delay_in_paying_off_in_the_past,radio/television,932,1,2,3,female_divorced/separated/married,female,none,2,real_estate,24,none,own,1,2,1,0,1,1
+103,2,9,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1919,1,3,4,male_single,male,none,3,car_or_other,35,none,rent,1,2,1,1,1,1
+104,0,12,existing_credits_paid_back_duly_till_now,car_(used),2445,0,1,2,male_married/widowed,male,none,4,car_or_other,26,none,rent,1,2,1,1,1,1
+105,2,24,critical_account/other_credits_existing_not_at_this_bank,others,11938,1,2,2,male_single,male,co-applicant,3,car_or_other,39,none,own,2,3,2,1,1,0
+106,0,18,all_credits_at_this_bank_paid_back_duly,car_(new),6458,1,4,2,male_single,male,none,4,unknown/no_property,39,bank,own,2,3,2,1,1,0
+107,2,12,existing_credits_paid_back_duly_till_now,car_(new),6078,1,3,2,male_single,male,none,2,car_or_other,32,none,own,1,2,1,0,1,1
+108,1,24,existing_credits_paid_back_duly_till_now,furniture/equipment,7721,0,1,1,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,30,none,own,1,2,1,1,0,1
+109,2,14,existing_credits_paid_back_duly_till_now,business,1410,3,4,1,male_married/widowed,male,none,2,real_estate,35,none,own,1,2,1,1,1,1
+110,2,6,delay_in_paying_off_in_the_past,business,1449,2,4,1,male_divorced/separated,male,none,2,car_or_other,31,bank,own,2,2,2,0,1,1
+111,3,15,existing_credits_paid_back_duly_till_now,education,392,1,1,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,23,none,rent,1,2,1,1,1,1
+112,2,18,existing_credits_paid_back_duly_till_now,car_(new),6260,1,3,3,male_single,male,none,3,real_estate,28,none,rent,1,1,1,0,1,1
+113,0,36,critical_account/other_credits_existing_not_at_this_bank,car_(new),7855,1,2,4,female_divorced/separated/married,female,none,2,real_estate,25,stores,own,2,2,1,1,1,0
+114,1,12,existing_credits_paid_back_duly_till_now,radio/television,1680,3,4,3,male_married/widowed,male,none,1,real_estate,35,none,own,1,2,1,0,1,1
+115,0,48,critical_account/other_credits_existing_not_at_this_bank,radio/television,3578,0,4,4,male_single,male,none,1,real_estate,47,none,own,1,2,1,1,1,1
+116,1,42,existing_credits_paid_back_duly_till_now,radio/television,7174,0,3,4,female_divorced/separated/married,female,none,3,car_or_other,30,none,own,1,3,1,1,1,0
+117,1,10,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,2132,0,1,2,female_divorced/separated/married,female,co-applicant,3,real_estate,27,none,rent,2,2,1,0,0,1
+118,1,33,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,4281,3,2,1,female_divorced/separated/married,female,none,4,car_or_other,23,none,own,2,2,1,0,1,0
+119,2,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),2366,3,3,3,male_divorced/separated,male,none,3,car_or_other,36,none,own,1,3,1,1,1,1
+120,1,21,existing_credits_paid_back_duly_till_now,radio/television,1835,1,2,3,female_divorced/separated/married,female,none,2,real_estate,25,none,own,2,2,1,1,1,0
+121,0,24,critical_account/other_credits_existing_not_at_this_bank,car_(used),3868,1,4,4,female_divorced/separated/married,female,none,2,car_or_other,41,none,rent,2,3,1,1,1,1
+122,0,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1768,1,2,3,male_single,male,none,2,real_estate,24,none,rent,1,1,1,0,1,1
+123,3,10,critical_account/other_credits_existing_not_at_this_bank,car_(new),781,1,4,4,male_single,male,none,4,unknown/no_property,63,none,for free,2,2,1,1,1,1
+124,2,18,existing_credits_paid_back_duly_till_now,furniture/equipment,1924,0,1,4,female_divorced/separated/married,female,none,3,real_estate,27,none,rent,1,2,1,0,1,0
+125,1,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),2121,1,2,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,30,none,own,2,2,1,0,1,1
+126,1,12,existing_credits_paid_back_duly_till_now,radio/television,701,1,2,4,male_married/widowed,male,none,2,real_estate,40,none,own,1,1,1,0,1,1
+127,2,12,existing_credits_paid_back_duly_till_now,repairs,639,1,2,4,male_single,male,none,2,car_or_other,30,none,own,1,2,1,0,1,0
+128,2,12,critical_account/other_credits_existing_not_at_this_bank,car_(used),1860,1,0,4,male_single,male,none,2,car_or_other,34,none,own,2,3,1,1,1,1
+129,1,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),3499,1,2,3,female_divorced/separated/married,female,co-applicant,2,real_estate,29,none,own,2,2,1,0,1,0
+130,2,48,existing_credits_paid_back_duly_till_now,car_(new),8487,0,3,1,female_divorced/separated/married,female,none,2,car_or_other,24,none,own,1,2,1,0,1,1
+131,1,36,delay_in_paying_off_in_the_past,education,6887,1,2,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,29,stores,own,1,2,1,1,1,0
+132,0,15,existing_credits_paid_back_duly_till_now,furniture/equipment,2708,1,1,2,male_single,male,none,3,building_society_savings_agreement/life_insurance,27,bank,own,2,1,1,0,1,1
+133,0,18,existing_credits_paid_back_duly_till_now,furniture/equipment,1984,1,2,4,male_single,male,none,4,unknown/no_property,47,bank,for free,2,2,1,0,1,1
+134,0,60,existing_credits_paid_back_duly_till_now,radio/television,10144,2,3,2,female_divorced/separated/married,female,none,4,real_estate,21,none,own,1,2,1,1,1,1
+135,0,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,1240,0,4,4,female_divorced/separated/married,female,none,2,real_estate,38,none,own,2,2,1,1,1,1
+136,0,27,delay_in_paying_off_in_the_past,car_(used),8613,4,2,2,male_single,male,none,2,car_or_other,27,none,own,2,2,1,0,1,1
+137,2,12,existing_credits_paid_back_duly_till_now,radio/television,766,3,2,4,male_single,male,none,3,real_estate,66,none,own,1,1,1,0,1,0
+138,2,15,critical_account/other_credits_existing_not_at_this_bank,radio/television,2728,0,3,4,male_single,male,guarantor,2,real_estate,35,bank,own,3,2,1,1,1,1
+139,3,12,existing_credits_paid_back_duly_till_now,radio/television,1881,1,2,2,female_divorced/separated/married,female,none,2,car_or_other,44,none,rent,1,1,1,1,1,1
+140,3,6,existing_credits_paid_back_duly_till_now,car_(new),709,4,1,2,male_married/widowed,male,none,2,real_estate,27,none,own,1,0,1,0,0,1
+141,2,36,existing_credits_paid_back_duly_till_now,radio/television,4795,1,1,4,female_divorced/separated/married,female,none,1,unknown/no_property,30,none,own,1,3,1,1,1,1
+142,1,27,existing_credits_paid_back_duly_till_now,radio/television,3416,1,2,3,male_single,male,none,2,car_or_other,27,none,own,1,3,1,0,1,1
+143,1,18,existing_credits_paid_back_duly_till_now,furniture/equipment,2462,1,2,2,male_single,male,none,2,car_or_other,22,none,own,1,2,1,0,1,0
+144,0,21,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,2288,1,1,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,23,none,own,1,2,1,1,1,1
+145,2,48,all_credits_at_this_bank_paid_back_duly,business,3566,2,3,4,male_single,male,none,2,car_or_other,30,none,own,1,2,1,0,1,1
+146,1,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),860,1,4,1,female_divorced/separated/married,female,none,4,unknown/no_property,39,none,own,2,2,1,1,1,1
+147,0,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),682,2,3,4,female_divorced/separated/married,female,none,3,car_or_other,51,none,own,2,2,1,1,1,1
+148,1,36,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,5371,1,2,3,male_single,male,guarantor,2,building_society_savings_agreement/life_insurance,28,none,own,2,2,1,0,1,1
+149,0,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,1582,4,4,4,male_single,male,none,4,car_or_other,46,none,own,2,2,1,0,1,1
+150,0,6,existing_credits_paid_back_duly_till_now,radio/television,1346,2,4,2,male_single,male,none,4,unknown/no_property,42,bank,for free,1,2,2,1,1,1
+151,0,10,existing_credits_paid_back_duly_till_now,radio/television,1924,1,2,1,male_single,male,none,4,building_society_savings_agreement/life_insurance,38,none,own,1,2,1,1,0,1
+152,3,36,existing_credits_paid_back_duly_till_now,radio/television,5848,1,2,4,male_single,male,none,1,car_or_other,24,none,own,1,2,1,0,1,1
+153,2,24,critical_account/other_credits_existing_not_at_this_bank,car_(used),7758,4,4,2,female_divorced/separated/married,female,none,4,unknown/no_property,29,none,rent,1,2,1,0,1,1
+154,2,24,delay_in_paying_off_in_the_past,business,6967,2,3,4,male_single,male,none,4,car_or_other,36,none,rent,1,3,1,1,1,1
+155,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1282,1,2,2,female_divorced/separated/married,female,none,4,car_or_other,20,none,rent,1,2,1,0,1,0
+156,1,9,critical_account/other_credits_existing_not_at_this_bank,repairs,1288,2,4,3,male_single,male,guarantor,4,real_estate,48,none,own,2,2,2,0,0,1
+157,1,12,all_credits_at_this_bank_paid_back_duly,retraining,339,1,4,4,male_married/widowed,male,none,1,car_or_other,45,bank,own,1,1,1,0,1,1
+158,2,24,existing_credits_paid_back_duly_till_now,car_(new),3512,2,3,2,male_single,male,none,3,car_or_other,38,bank,own,2,2,1,1,1,1
+159,0,6,critical_account/other_credits_existing_not_at_this_bank,radio/television,1898,0,2,1,male_single,male,none,2,real_estate,34,none,own,2,1,2,0,1,1
+160,0,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,2872,2,4,3,male_single,male,none,4,real_estate,36,none,own,1,2,2,1,1,1
+161,0,18,critical_account/other_credits_existing_not_at_this_bank,car_(new),1055,1,1,4,female_divorced/separated/married,female,none,1,building_society_savings_agreement/life_insurance,30,none,own,2,2,1,0,1,1
+162,0,15,existing_credits_paid_back_duly_till_now,domestic_appliances,1262,3,3,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,36,none,own,2,2,1,1,1,1
+163,2,10,existing_credits_paid_back_duly_till_now,car_(new),7308,1,0,2,male_single,male,none,4,unknown/no_property,70,bank,for free,1,3,1,1,1,1
+164,0,36,existing_credits_paid_back_duly_till_now,car_(new),909,3,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,36,none,own,1,2,1,0,1,1
+165,0,6,existing_credits_paid_back_duly_till_now,furniture/equipment,2978,3,2,1,male_single,male,none,2,car_or_other,32,none,own,1,2,1,1,1,1
+166,1,18,existing_credits_paid_back_duly_till_now,furniture/equipment,1131,1,0,4,female_divorced/separated/married,female,none,2,car_or_other,33,none,own,1,2,1,0,1,0
+167,2,11,existing_credits_paid_back_duly_till_now,furniture/equipment,1577,4,1,4,female_divorced/separated/married,female,none,1,real_estate,20,none,own,1,2,1,0,1,1
+168,0,24,existing_credits_paid_back_duly_till_now,furniture/equipment,3972,1,3,2,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,25,none,rent,1,2,1,1,1,1
+169,2,24,critical_account/other_credits_existing_not_at_this_bank,business,1935,1,4,4,male_divorced/separated,male,none,4,real_estate,31,none,own,2,2,1,1,1,0
+170,1,15,no_credits_taken/all_credits_paid_back_duly,car_(new),950,1,4,4,male_single,male,none,3,car_or_other,33,none,rent,2,2,2,0,1,0
+171,0,12,existing_credits_paid_back_duly_till_now,furniture/equipment,763,1,2,4,female_divorced/separated/married,female,none,1,real_estate,26,none,own,1,2,1,1,1,1
+172,2,24,delay_in_paying_off_in_the_past,furniture/equipment,2064,1,0,3,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,34,none,own,1,3,1,1,1,0
+173,2,8,existing_credits_paid_back_duly_till_now,radio/television,1414,1,2,4,male_single,male,guarantor,2,real_estate,33,none,own,1,2,1,0,0,1
+174,1,21,delay_in_paying_off_in_the_past,education,3414,1,1,2,male_single,male,none,1,building_society_savings_agreement/life_insurance,26,none,own,2,2,1,0,1,0
+175,0,30,all_credits_at_this_bank_paid_back_duly,car_(used),7485,0,0,4,female_divorced/separated/married,female,none,1,real_estate,53,bank,own,1,3,1,1,1,0
+176,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,2577,1,2,2,male_divorced/separated,male,none,1,car_or_other,42,none,own,1,2,1,0,1,1
+177,1,6,critical_account/other_credits_existing_not_at_this_bank,radio/television,338,3,4,4,male_single,male,none,4,car_or_other,52,none,own,2,2,1,0,1,1
+178,0,12,existing_credits_paid_back_duly_till_now,radio/television,1963,1,3,4,male_single,male,none,2,car_or_other,31,none,rent,2,3,2,1,1,1
+179,1,21,critical_account/other_credits_existing_not_at_this_bank,car_(new),571,1,4,4,male_single,male,none,4,real_estate,65,none,own,2,2,1,0,1,1
+180,0,36,delay_in_paying_off_in_the_past,business,9572,1,1,1,male_divorced/separated,male,none,1,car_or_other,28,none,own,2,2,1,0,1,0
+181,2,36,delay_in_paying_off_in_the_past,business,4455,1,2,2,male_divorced/separated,male,none,2,real_estate,30,stores,own,2,3,1,1,1,0
+182,1,21,all_credits_at_this_bank_paid_back_duly,car_(new),1647,0,2,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,40,none,own,2,1,2,0,1,0
+183,0,24,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,3777,4,2,4,male_single,male,none,4,real_estate,50,none,own,1,2,1,1,1,1
+184,2,18,critical_account/other_credits_existing_not_at_this_bank,car_(new),884,1,4,4,male_single,male,none,4,car_or_other,36,bank,own,1,2,2,1,1,0
+185,0,15,critical_account/other_credits_existing_not_at_this_bank,radio/television,1360,1,2,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,31,none,own,2,2,1,0,1,1
+186,2,9,all_credits_at_this_bank_paid_back_duly,car_(used),5129,1,4,2,female_divorced/separated/married,female,none,4,unknown/no_property,74,bank,for free,1,3,2,1,1,0
+187,2,16,critical_account/other_credits_existing_not_at_this_bank,car_(new),1175,1,0,2,male_single,male,none,3,car_or_other,68,none,for free,3,0,1,1,1,1
+188,1,12,existing_credits_paid_back_duly_till_now,radio/television,674,2,3,4,male_married/widowed,male,none,1,building_society_savings_agreement/life_insurance,20,none,own,1,2,1,0,1,0
+189,2,18,no_credits_taken/all_credits_paid_back_duly,furniture/equipment,3244,1,2,1,female_divorced/separated/married,female,none,4,car_or_other,33,bank,own,2,2,1,1,1,1
+190,0,24,existing_credits_paid_back_duly_till_now,business,4591,4,2,2,male_single,male,none,3,building_society_savings_agreement/life_insurance,54,none,own,3,3,1,1,1,0
+191,2,48,no_credits_taken/all_credits_paid_back_duly,business,3844,2,3,4,male_single,male,none,4,unknown/no_property,34,none,for free,1,1,2,0,1,0
+192,2,27,existing_credits_paid_back_duly_till_now,business,3915,1,2,4,male_single,male,none,2,car_or_other,36,none,own,1,2,2,1,1,0
+193,0,6,existing_credits_paid_back_duly_till_now,radio/television,2108,1,3,2,male_married/widowed,male,none,2,real_estate,29,none,rent,1,2,1,0,1,1
+194,2,45,existing_credits_paid_back_duly_till_now,radio/television,3031,2,2,4,male_single,male,guarantor,4,building_society_savings_agreement/life_insurance,21,none,rent,1,2,1,0,1,0
+195,2,9,critical_account/other_credits_existing_not_at_this_bank,education,1501,1,4,2,female_divorced/separated/married,female,none,3,car_or_other,34,none,own,2,3,1,1,1,0
+196,0,6,critical_account/other_credits_existing_not_at_this_bank,radio/television,1382,1,2,1,female_divorced/separated/married,female,none,1,car_or_other,28,none,own,2,2,1,1,1,1
+197,2,12,existing_credits_paid_back_duly_till_now,furniture/equipment,951,2,1,4,female_divorced/separated/married,female,none,4,car_or_other,27,bank,rent,4,2,1,0,1,0
+198,2,24,existing_credits_paid_back_duly_till_now,car_(used),2760,0,4,4,male_single,male,none,4,unknown/no_property,36,bank,for free,1,2,1,1,1,1
+199,2,18,delay_in_paying_off_in_the_past,furniture/equipment,4297,1,4,4,male_divorced/separated,male,none,3,unknown/no_property,40,none,own,1,3,1,1,1,0
+200,0,9,critical_account/other_credits_existing_not_at_this_bank,education,936,3,4,4,male_single,male,none,2,car_or_other,52,none,own,2,2,1,1,1,1
+201,1,12,existing_credits_paid_back_duly_till_now,car_(new),1168,1,2,4,male_married/widowed,male,none,3,real_estate,27,none,own,1,1,1,0,1,1
+202,0,27,delay_in_paying_off_in_the_past,business,5117,1,3,3,male_single,male,none,4,car_or_other,26,none,own,2,2,1,0,1,1
+203,1,12,existing_credits_paid_back_duly_till_now,retraining,902,1,3,4,male_married/widowed,male,none,4,building_society_savings_agreement/life_insurance,21,none,rent,1,2,1,0,1,0
+204,0,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),1495,1,4,4,male_single,male,none,1,real_estate,38,none,own,2,1,2,0,1,1
+205,1,30,critical_account/other_credits_existing_not_at_this_bank,car_(used),10623,1,4,3,male_single,male,none,4,unknown/no_property,38,none,for free,3,3,2,1,1,1
+206,0,12,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1935,1,4,4,male_single,male,none,4,real_estate,43,none,own,3,2,1,1,1,1
+207,2,12,critical_account/other_credits_existing_not_at_this_bank,domestic_appliances,1424,1,3,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,26,none,own,1,2,1,0,1,1
+208,1,24,existing_credits_paid_back_duly_till_now,business,6568,1,2,2,male_married/widowed,male,none,2,car_or_other,21,stores,own,1,1,1,0,1,1
+209,0,12,existing_credits_paid_back_duly_till_now,car_(used),1413,4,3,3,male_single,male,none,2,building_society_savings_agreement/life_insurance,55,none,own,1,2,1,0,0,1
+210,0,9,critical_account/other_credits_existing_not_at_this_bank,radio/television,3074,0,2,1,male_single,male,none,2,real_estate,33,none,own,2,2,2,0,1,1
+211,0,36,existing_credits_paid_back_duly_till_now,radio/television,3835,0,4,2,female_divorced/separated/married,female,none,4,real_estate,45,none,own,1,1,1,1,1,1
+212,1,27,no_credits_taken/all_credits_paid_back_duly,business,5293,1,0,2,male_single,male,none,4,building_society_savings_agreement/life_insurance,50,stores,own,2,2,1,1,1,0
+213,3,30,delay_in_paying_off_in_the_past,business,1908,1,4,4,male_single,male,none,4,real_estate,66,none,own,1,3,1,1,1,0
+214,0,36,critical_account/other_credits_existing_not_at_this_bank,radio/television,3342,0,4,4,male_single,male,none,2,car_or_other,51,none,own,1,2,1,1,1,1
+215,2,6,critical_account/other_credits_existing_not_at_this_bank,retraining,932,0,3,1,female_divorced/separated/married,female,none,3,building_society_savings_agreement/life_insurance,39,none,own,2,1,1,0,1,1
+216,1,18,no_credits_taken/all_credits_paid_back_duly,business,3104,1,3,3,male_single,male,none,1,building_society_savings_agreement/life_insurance,31,bank,own,1,2,1,1,1,1
+217,3,36,existing_credits_paid_back_duly_till_now,radio/television,3913,1,2,2,male_single,male,none,2,real_estate,23,none,own,1,2,1,1,1,1
+218,1,24,existing_credits_paid_back_duly_till_now,furniture/equipment,3021,1,2,2,male_divorced/separated,male,none,2,real_estate,24,none,rent,1,1,1,0,1,1
+219,0,10,existing_credits_paid_back_duly_till_now,car_(new),1364,1,2,2,female_divorced/separated/married,female,none,4,car_or_other,64,none,own,1,2,1,1,1,1
+220,2,12,existing_credits_paid_back_duly_till_now,radio/television,625,1,1,4,male_married/widowed,male,guarantor,1,real_estate,26,bank,own,1,1,1,0,1,1
+221,1,12,existing_credits_paid_back_duly_till_now,education,1200,0,2,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,23,bank,rent,1,2,1,1,1,1
+222,0,12,existing_credits_paid_back_duly_till_now,radio/television,707,1,2,4,male_single,male,none,2,real_estate,30,bank,own,2,2,1,0,1,1
+223,0,24,delay_in_paying_off_in_the_past,business,2978,0,2,4,male_single,male,none,4,real_estate,32,none,own,2,2,2,1,1,1
+224,0,15,existing_credits_paid_back_duly_till_now,car_(used),4657,1,2,3,male_single,male,none,2,car_or_other,30,none,own,1,2,1,1,1,1
+225,0,36,no_credits_taken/all_credits_paid_back_duly,repairs,2613,1,2,4,male_single,male,none,2,car_or_other,27,none,own,2,2,1,0,1,1
+226,2,48,existing_credits_paid_back_duly_till_now,radio/television,10961,4,3,1,male_single,male,co-applicant,2,unknown/no_property,27,bank,own,2,2,1,1,1,0
+227,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,7865,1,4,4,male_single,male,none,4,unknown/no_property,53,none,for free,1,3,1,1,1,0
+228,0,9,existing_credits_paid_back_duly_till_now,radio/television,1478,1,3,4,male_single,male,none,2,car_or_other,22,none,own,1,2,1,0,1,0
+229,1,24,existing_credits_paid_back_duly_till_now,furniture/equipment,3149,1,1,4,male_single,male,none,1,unknown/no_property,22,bank,for free,1,2,1,0,1,1
+230,3,36,existing_credits_paid_back_duly_till_now,radio/television,4210,1,2,4,male_single,male,none,2,car_or_other,26,none,own,1,2,1,0,1,0
+231,0,9,existing_credits_paid_back_duly_till_now,car_(new),2507,3,4,2,male_single,male,none,4,unknown/no_property,51,none,for free,1,1,1,0,1,1
+232,0,12,existing_credits_paid_back_duly_till_now,radio/television,2141,2,3,3,male_single,male,none,1,unknown/no_property,35,none,own,1,2,1,0,1,1
+233,2,18,existing_credits_paid_back_duly_till_now,radio/television,866,1,2,4,male_married/widowed,male,guarantor,2,real_estate,25,none,own,1,1,1,0,1,1
+234,0,4,critical_account/other_credits_existing_not_at_this_bank,radio/television,1544,1,3,2,male_single,male,none,1,real_estate,42,none,own,3,1,2,0,1,1
+235,1,24,existing_credits_paid_back_duly_till_now,radio/television,1823,1,0,4,male_single,male,none,2,car_or_other,30,stores,own,1,3,2,0,1,0
+236,2,6,existing_credits_paid_back_duly_till_now,car_(new),14555,0,0,1,male_single,male,none,2,building_society_savings_agreement/life_insurance,23,none,own,1,0,1,1,1,0
+237,2,21,existing_credits_paid_back_duly_till_now,business,2767,2,4,4,male_divorced/separated,male,none,2,car_or_other,61,bank,rent,2,1,1,0,1,0
+238,0,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,1291,1,2,4,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,35,none,own,2,2,1,0,1,1
+239,1,30,existing_credits_paid_back_duly_till_now,radio/television,2522,1,4,1,male_single,male,guarantor,3,building_society_savings_agreement/life_insurance,39,none,own,1,2,2,0,1,1
+240,1,24,existing_credits_paid_back_duly_till_now,car_(new),915,0,4,4,female_divorced/separated/married,female,none,2,car_or_other,29,bank,own,1,2,1,0,1,0
+241,0,6,existing_credits_paid_back_duly_till_now,radio/television,1595,1,3,3,male_single,male,none,2,building_society_savings_agreement/life_insurance,51,none,own,1,2,2,0,1,1
+242,1,48,no_credits_taken/all_credits_paid_back_duly,car_(used),4605,1,4,3,male_single,male,none,4,unknown/no_property,24,none,for free,2,2,2,0,1,0
+243,0,12,critical_account/other_credits_existing_not_at_this_bank,business,1185,1,2,3,female_divorced/separated/married,female,none,2,real_estate,27,none,own,2,2,1,0,1,1
+244,0,12,all_credits_at_this_bank_paid_back_duly,retraining,3447,3,2,4,female_divorced/separated/married,female,none,3,real_estate,35,none,own,1,1,2,0,1,1
+245,0,24,existing_credits_paid_back_duly_till_now,business,1258,1,3,4,male_single,male,none,1,real_estate,25,none,own,1,2,1,1,1,1
+246,0,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,717,1,4,4,male_single,male,none,4,real_estate,52,none,own,3,2,1,0,1,1
+247,0,6,no_credits_taken/all_credits_paid_back_duly,car_(new),1204,2,2,4,male_single,male,none,1,unknown/no_property,35,bank,rent,1,2,1,0,0,1
+248,3,24,existing_credits_paid_back_duly_till_now,furniture/equipment,1925,1,2,2,male_single,male,none,2,real_estate,26,none,own,1,2,1,0,1,1
+249,0,18,existing_credits_paid_back_duly_till_now,radio/television,433,1,0,3,female_divorced/separated/married,female,co-applicant,4,real_estate,22,none,rent,1,2,1,0,1,0
+250,1,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),666,4,3,3,female_divorced/separated/married,female,none,4,real_estate,39,none,own,2,1,1,1,1,1
+251,3,12,existing_credits_paid_back_duly_till_now,furniture/equipment,2251,1,2,1,female_divorced/separated/married,female,none,2,car_or_other,46,none,own,1,1,1,0,1,1
+252,2,30,existing_credits_paid_back_duly_till_now,car_(new),2150,1,2,4,female_divorced/separated/married,female,guarantor,2,unknown/no_property,24,bank,own,1,2,1,0,1,0
+253,0,24,delay_in_paying_off_in_the_past,furniture/equipment,4151,2,2,2,male_single,male,none,3,building_society_savings_agreement/life_insurance,35,none,own,2,2,1,0,1,1
+254,2,9,existing_credits_paid_back_duly_till_now,furniture/equipment,2030,0,3,2,male_single,male,none,1,car_or_other,24,none,own,1,2,1,1,1,1
+255,2,60,delay_in_paying_off_in_the_past,radio/television,7418,0,2,1,male_single,male,none,1,real_estate,27,none,own,1,1,1,0,1,1
+256,0,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,2684,1,2,4,male_single,male,none,2,real_estate,35,none,own,2,1,1,0,1,1
+257,1,12,all_credits_at_this_bank_paid_back_duly,radio/television,2149,1,2,4,male_divorced/separated,male,none,1,unknown/no_property,29,none,for free,1,2,1,0,1,0
+258,0,15,existing_credits_paid_back_duly_till_now,car_(used),3812,2,1,1,female_divorced/separated/married,female,none,4,car_or_other,23,none,own,1,2,1,1,1,1
+259,0,11,critical_account/other_credits_existing_not_at_this_bank,radio/television,1154,2,0,4,female_divorced/separated/married,female,none,4,real_estate,57,none,own,3,1,1,0,1,1
+260,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1657,1,2,2,male_single,male,none,2,real_estate,27,none,own,1,2,1,0,1,1
+261,1,24,existing_credits_paid_back_duly_till_now,radio/television,1603,1,4,4,female_divorced/separated/married,female,none,4,car_or_other,55,none,own,1,2,1,0,1,1
+262,1,18,critical_account/other_credits_existing_not_at_this_bank,car_(new),5302,1,4,2,male_single,male,none,4,unknown/no_property,36,none,for free,3,3,1,1,1,1
+263,0,12,critical_account/other_credits_existing_not_at_this_bank,education,2748,1,4,2,female_divorced/separated/married,female,none,4,unknown/no_property,57,bank,for free,3,1,1,0,1,1
+264,0,10,critical_account/other_credits_existing_not_at_this_bank,car_(new),1231,1,4,3,male_single,male,none,4,real_estate,32,none,own,2,1,2,0,0,1
+265,2,15,existing_credits_paid_back_duly_till_now,radio/television,802,1,4,4,male_single,male,none,3,car_or_other,37,none,own,1,2,2,0,1,0
+266,0,36,critical_account/other_credits_existing_not_at_this_bank,business,6304,0,4,4,male_single,male,none,4,real_estate,36,none,own,2,2,1,0,1,1
+267,0,24,existing_credits_paid_back_duly_till_now,radio/television,1533,1,1,4,female_divorced/separated/married,female,none,3,car_or_other,38,stores,own,1,2,1,1,1,1
+268,1,14,existing_credits_paid_back_duly_till_now,car_(new),8978,1,4,1,male_divorced/separated,male,none,4,building_society_savings_agreement/life_insurance,45,none,own,1,3,1,1,0,0
+269,0,24,existing_credits_paid_back_duly_till_now,radio/television,999,0,4,4,male_single,male,none,2,car_or_other,25,none,own,2,2,1,0,1,1
+270,0,18,existing_credits_paid_back_duly_till_now,car_(new),2662,0,3,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,32,none,own,1,2,1,0,0,1
+271,0,12,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1402,3,3,3,female_divorced/separated/married,female,none,4,car_or_other,37,none,rent,1,2,1,1,1,1
+272,2,48,all_credits_at_this_bank_paid_back_duly,car_(new),12169,0,0,4,male_single,male,co-applicant,4,unknown/no_property,36,none,for free,1,3,1,1,1,1
+273,2,48,existing_credits_paid_back_duly_till_now,radio/television,3060,1,3,4,male_single,male,none,4,real_estate,28,none,own,2,2,1,0,1,0
+274,1,30,existing_credits_paid_back_duly_till_now,repairs,11998,1,1,1,male_divorced/separated,male,none,1,unknown/no_property,34,none,own,1,1,1,1,1,0
+275,0,9,existing_credits_paid_back_duly_till_now,radio/television,2697,1,2,1,male_single,male,none,2,real_estate,32,none,own,1,2,2,0,1,1
+276,0,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,2404,1,2,2,female_divorced/separated/married,female,none,2,car_or_other,26,none,own,2,2,1,0,1,1
+277,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1262,0,4,2,male_divorced/separated,male,none,4,building_society_savings_agreement/life_insurance,49,none,own,1,1,1,1,1,1
+278,0,6,existing_credits_paid_back_duly_till_now,furniture/equipment,4611,1,1,1,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,32,none,own,1,2,1,0,1,0
+279,0,24,existing_credits_paid_back_duly_till_now,radio/television,1901,2,2,4,male_single,male,none,4,car_or_other,29,none,rent,1,3,1,1,1,1
+280,0,15,critical_account/other_credits_existing_not_at_this_bank,car_(used),3368,4,4,3,male_single,male,none,4,unknown/no_property,23,none,rent,2,2,1,1,1,1
+281,0,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1574,1,2,4,male_single,male,none,2,real_estate,50,none,own,1,2,1,0,1,1
+282,3,18,all_credits_at_this_bank_paid_back_duly,radio/television,1445,0,3,4,male_single,male,none,4,car_or_other,49,bank,own,1,1,1,0,1,1
+283,0,15,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1520,0,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,63,none,own,1,2,1,0,1,1
+284,2,24,critical_account/other_credits_existing_not_at_this_bank,car_(new),3878,2,1,4,male_divorced/separated,male,none,2,car_or_other,37,none,own,1,2,1,1,1,1
+285,1,47,existing_credits_paid_back_duly_till_now,car_(new),10722,1,1,1,female_divorced/separated/married,female,none,1,real_estate,35,none,own,1,1,1,1,1,1
+286,1,48,existing_credits_paid_back_duly_till_now,car_(used),4788,1,3,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,26,none,own,1,2,2,0,1,1
+287,2,48,delay_in_paying_off_in_the_past,others,7582,2,0,2,male_single,male,none,4,unknown/no_property,31,none,for free,1,3,1,1,1,1
+288,2,12,existing_credits_paid_back_duly_till_now,radio/television,1092,1,2,4,female_divorced/separated/married,female,guarantor,4,real_estate,49,none,own,2,2,1,1,1,1
+289,1,24,delay_in_paying_off_in_the_past,radio/television,1024,1,1,4,male_married/widowed,male,none,4,real_estate,48,stores,own,1,2,1,0,1,0
+290,0,12,existing_credits_paid_back_duly_till_now,business,1076,1,2,2,male_married/widowed,male,none,2,real_estate,26,none,own,1,2,1,1,0,1
+291,2,36,existing_credits_paid_back_duly_till_now,car_(used),9398,1,1,1,male_married/widowed,male,none,4,car_or_other,28,none,rent,1,3,1,1,1,0
+292,1,24,critical_account/other_credits_existing_not_at_this_bank,car_(used),6419,1,4,2,female_divorced/separated/married,female,none,4,unknown/no_property,44,none,for free,2,3,2,1,1,1
+293,3,42,critical_account/other_credits_existing_not_at_this_bank,car_(used),4796,1,4,4,male_single,male,none,4,unknown/no_property,56,none,for free,1,2,1,0,1,1
+294,0,48,critical_account/other_credits_existing_not_at_this_bank,business,7629,0,4,4,male_divorced/separated,male,none,2,car_or_other,46,bank,own,2,3,2,0,1,1
+295,2,48,existing_credits_paid_back_duly_till_now,furniture/equipment,9960,1,1,1,female_divorced/separated/married,female,none,2,car_or_other,26,none,own,1,2,1,1,1,0
+296,0,12,existing_credits_paid_back_duly_till_now,car_(used),4675,0,1,1,female_divorced/separated/married,female,none,4,car_or_other,20,none,rent,1,2,1,0,1,1
+297,0,10,existing_credits_paid_back_duly_till_now,car_(new),1287,0,4,4,male_single,male,co-applicant,2,building_society_savings_agreement/life_insurance,45,none,own,1,1,1,0,0,1
+298,0,18,existing_credits_paid_back_duly_till_now,furniture/equipment,2515,1,2,3,male_single,male,none,4,real_estate,43,none,own,1,2,1,1,1,1
+299,2,21,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,2745,4,3,3,male_single,male,none,2,car_or_other,32,none,own,2,2,1,1,1,1
+300,0,6,existing_credits_paid_back_duly_till_now,car_(new),672,1,0,1,female_divorced/separated/married,female,none,4,real_estate,54,none,own,1,0,1,1,1,1
+301,2,36,no_credits_taken/all_credits_paid_back_duly,radio/television,3804,1,2,4,female_divorced/separated/married,female,none,1,car_or_other,42,none,own,1,2,1,1,1,0
+302,3,24,critical_account/other_credits_existing_not_at_this_bank,car_(new),1344,0,3,4,male_single,male,none,2,real_estate,37,bank,own,2,1,2,0,1,0
+303,1,10,critical_account/other_credits_existing_not_at_this_bank,car_(new),1038,1,3,4,male_single,male,co-applicant,3,building_society_savings_agreement/life_insurance,49,none,own,2,2,1,1,1,1
+304,0,48,critical_account/other_credits_existing_not_at_this_bank,car_(new),10127,3,2,2,male_single,male,none,2,unknown/no_property,44,bank,for free,1,2,1,0,1,0
+305,0,6,existing_credits_paid_back_duly_till_now,furniture/equipment,1543,4,2,4,male_divorced/separated,male,none,2,real_estate,33,none,own,1,2,1,0,1,1
+306,0,30,existing_credits_paid_back_duly_till_now,car_(used),4811,0,3,2,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,24,stores,rent,1,1,1,0,1,1
+307,1,12,existing_credits_paid_back_duly_till_now,radio/television,727,2,1,4,male_married/widowed,male,none,3,unknown/no_property,33,none,own,1,1,1,1,1,0
+308,2,8,existing_credits_paid_back_duly_till_now,furniture/equipment,1237,1,2,3,female_divorced/separated/married,female,none,4,real_estate,24,none,own,1,2,1,0,1,0
+309,2,9,existing_credits_paid_back_duly_till_now,car_(new),276,1,2,4,male_married/widowed,male,none,4,real_estate,22,none,rent,1,1,1,0,1,1
+310,2,48,existing_credits_paid_back_duly_till_now,others,5381,0,0,3,male_single,male,none,4,unknown/no_property,40,bank,for free,1,0,1,1,1,1
+311,0,24,existing_credits_paid_back_duly_till_now,furniture/equipment,5511,2,2,4,male_single,male,none,1,car_or_other,25,stores,own,1,2,1,0,1,1
+312,3,24,existing_credits_paid_back_duly_till_now,furniture/equipment,3749,1,1,2,female_divorced/separated/married,female,none,4,car_or_other,26,none,own,1,2,1,0,1,1
+313,2,12,existing_credits_paid_back_duly_till_now,car_(new),685,1,3,2,male_married/widowed,male,none,3,car_or_other,25,bank,own,1,1,1,0,1,0
+314,3,4,existing_credits_paid_back_duly_till_now,car_(new),1494,0,1,1,male_single,male,none,2,real_estate,29,none,own,1,1,2,0,0,1
+315,1,36,all_credits_at_this_bank_paid_back_duly,furniture/equipment,2746,1,4,4,male_single,male,none,4,car_or_other,31,bank,own,1,2,1,0,1,0
+316,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,708,1,2,2,male_single,male,guarantor,3,building_society_savings_agreement/life_insurance,38,none,own,1,1,2,0,1,1
+317,2,24,existing_credits_paid_back_duly_till_now,furniture/equipment,4351,0,2,1,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,48,none,own,1,1,1,1,1,1
+318,0,12,critical_account/other_credits_existing_not_at_this_bank,education,701,1,2,4,male_single,male,none,2,car_or_other,32,none,own,2,2,1,0,1,1
+319,1,15,delay_in_paying_off_in_the_past,furniture/equipment,3643,1,4,1,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,27,none,own,2,1,1,0,1,1
+320,2,30,critical_account/other_credits_existing_not_at_this_bank,car_(new),4249,1,0,4,male_married/widowed,male,none,2,car_or_other,28,none,own,2,3,1,0,1,0
+321,1,24,existing_credits_paid_back_duly_till_now,radio/television,1938,1,1,4,male_divorced/separated,male,none,3,building_society_savings_agreement/life_insurance,32,none,own,1,2,1,0,1,0
+322,1,24,existing_credits_paid_back_duly_till_now,car_(used),2910,1,3,2,male_single,male,none,1,unknown/no_property,34,none,for free,1,3,1,1,1,1
+323,1,18,existing_credits_paid_back_duly_till_now,furniture/equipment,2659,4,2,4,male_single,male,none,2,car_or_other,28,none,own,1,2,1,0,1,1
+324,0,18,critical_account/other_credits_existing_not_at_this_bank,car_(new),1028,1,2,4,female_divorced/separated/married,female,none,3,real_estate,36,none,own,2,2,1,0,1,1
+325,1,8,critical_account/other_credits_existing_not_at_this_bank,car_(new),3398,1,3,1,male_single,male,none,4,real_estate,39,none,own,2,1,1,0,0,1
+326,0,12,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,5801,0,4,2,male_single,male,none,4,building_society_savings_agreement/life_insurance,49,none,rent,1,2,1,1,1,1
+327,0,24,existing_credits_paid_back_duly_till_now,car_(new),1525,4,3,4,female_divorced/separated/married,female,none,3,car_or_other,34,none,own,1,2,2,1,1,1
+328,3,36,existing_credits_paid_back_duly_till_now,radio/television,4473,1,4,4,male_single,male,none,2,car_or_other,31,none,own,1,2,1,0,1,1
+329,2,6,existing_credits_paid_back_duly_till_now,radio/television,1068,1,4,4,male_single,male,none,4,car_or_other,28,none,own,1,2,2,0,1,1
+330,1,24,critical_account/other_credits_existing_not_at_this_bank,car_(used),6615,1,0,2,male_single,male,none,4,unknown/no_property,75,none,for free,2,3,1,1,1,1
+331,0,18,critical_account/other_credits_existing_not_at_this_bank,education,1864,2,2,4,female_divorced/separated/married,female,none,2,real_estate,30,none,own,2,2,1,0,1,0
+332,2,60,existing_credits_paid_back_duly_till_now,car_(new),7408,2,1,4,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,24,none,own,1,3,1,0,1,0
+333,0,48,critical_account/other_credits_existing_not_at_this_bank,car_(used),11590,2,2,2,female_divorced/separated/married,female,none,4,car_or_other,24,bank,rent,2,1,1,0,1,0
+334,1,24,no_credits_taken/all_credits_paid_back_duly,furniture/equipment,4110,1,4,3,male_single,male,none,4,unknown/no_property,23,bank,rent,2,2,2,0,1,0
+335,1,6,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,3384,1,2,1,male_divorced/separated,male,none,4,real_estate,44,none,rent,1,3,1,1,1,0
+336,2,13,existing_credits_paid_back_duly_till_now,radio/television,2101,1,1,2,female_divorced/separated/married,female,guarantor,4,building_society_savings_agreement/life_insurance,23,none,own,1,1,1,0,1,1
+337,1,15,existing_credits_paid_back_duly_till_now,domestic_appliances,1275,0,2,4,female_divorced/separated/married,female,none,2,car_or_other,24,none,rent,1,2,1,0,1,0
+338,1,24,existing_credits_paid_back_duly_till_now,furniture/equipment,4169,1,2,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,28,none,own,1,2,1,0,1,1
+339,2,10,existing_credits_paid_back_duly_till_now,furniture/equipment,1521,1,2,4,male_divorced/separated,male,none,2,car_or_other,31,none,own,1,1,1,0,1,1
+340,2,24,critical_account/other_credits_existing_not_at_this_bank,education,5743,1,1,2,female_divorced/separated/married,female,none,4,unknown/no_property,24,none,for free,2,2,1,1,1,1
+341,1,21,existing_credits_paid_back_duly_till_now,furniture/equipment,3599,1,3,1,female_divorced/separated/married,female,none,4,car_or_other,26,none,rent,1,1,1,0,1,1
+342,2,18,existing_credits_paid_back_duly_till_now,radio/television,3213,3,1,1,male_married/widowed,male,none,3,real_estate,25,none,rent,1,2,1,0,1,1
+343,2,18,existing_credits_paid_back_duly_till_now,business,4439,1,4,1,male_single,male,co-applicant,1,real_estate,33,bank,own,1,3,1,1,1,1
+344,3,10,existing_credits_paid_back_duly_till_now,car_(new),3949,1,1,1,male_single,male,guarantor,1,building_society_savings_agreement/life_insurance,37,none,own,1,1,2,0,1,1
+345,0,15,critical_account/other_credits_existing_not_at_this_bank,radio/television,1459,1,2,4,female_divorced/separated/married,female,none,2,car_or_other,43,none,own,1,1,1,0,1,1
+346,2,13,critical_account/other_credits_existing_not_at_this_bank,radio/television,882,1,1,4,male_single,male,guarantor,4,real_estate,23,none,own,2,2,1,0,1,1
+347,2,24,existing_credits_paid_back_duly_till_now,radio/television,3758,3,0,1,female_divorced/separated/married,female,none,4,unknown/no_property,23,none,rent,1,0,1,0,1,1
+348,0,6,delay_in_paying_off_in_the_past,business,1743,2,2,1,male_single,male,none,2,real_estate,34,none,own,2,1,1,0,1,1
+349,2,9,critical_account/other_credits_existing_not_at_this_bank,education,1136,4,4,4,male_single,male,none,3,unknown/no_property,32,none,for free,2,2,2,0,1,0
+350,0,9,existing_credits_paid_back_duly_till_now,domestic_appliances,1236,1,1,1,female_divorced/separated/married,female,none,4,real_estate,23,none,rent,1,2,1,1,1,1
+351,2,9,existing_credits_paid_back_duly_till_now,furniture/equipment,959,1,2,1,female_divorced/separated/married,female,none,2,car_or_other,29,none,own,1,2,1,0,0,0
+352,0,18,critical_account/other_credits_existing_not_at_this_bank,car_(used),3229,0,0,2,male_single,male,none,4,unknown/no_property,38,none,own,1,3,1,1,1,1
+353,1,12,no_credits_taken/all_credits_paid_back_duly,radio/television,6199,1,2,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,28,none,rent,2,2,1,1,1,0
+354,0,10,existing_credits_paid_back_duly_till_now,education,727,3,4,4,male_single,male,none,4,unknown/no_property,46,none,for free,1,2,1,1,1,1
+355,2,24,existing_credits_paid_back_duly_till_now,car_(new),1246,1,1,4,male_single,male,none,2,real_estate,23,stores,own,1,1,1,0,1,0
+356,0,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,2331,0,4,1,male_single,male,co-applicant,4,real_estate,49,none,own,1,2,1,1,1,1
+357,0,36,delay_in_paying_off_in_the_past,radio/television,4463,1,2,4,male_single,male,none,2,car_or_other,26,none,own,2,3,1,1,1,0
+358,0,12,existing_credits_paid_back_duly_till_now,radio/television,776,1,2,4,male_married/widowed,male,none,2,real_estate,28,none,own,1,2,1,0,1,1
+359,1,30,existing_credits_paid_back_duly_till_now,furniture/equipment,2406,1,3,4,female_divorced/separated/married,female,none,4,real_estate,23,none,rent,1,2,1,0,1,0
+360,2,18,existing_credits_paid_back_duly_till_now,education,1239,0,2,4,male_single,male,none,4,unknown/no_property,61,none,for free,1,2,1,0,1,1
+361,3,12,existing_credits_paid_back_duly_till_now,radio/television,3399,0,4,2,male_single,male,none,3,car_or_other,37,none,own,1,3,1,0,1,1
+362,3,12,delay_in_paying_off_in_the_past,car_(new),2247,1,2,2,female_divorced/separated/married,female,none,2,car_or_other,36,stores,own,2,2,1,1,1,1
+363,0,6,existing_credits_paid_back_duly_till_now,furniture/equipment,1766,1,2,1,male_married/widowed,male,none,2,building_society_savings_agreement/life_insurance,21,none,rent,1,2,1,0,1,1
+364,1,18,existing_credits_paid_back_duly_till_now,furniture/equipment,2473,1,0,4,male_single,male,none,1,car_or_other,25,none,own,1,0,1,0,1,0
+365,0,12,existing_credits_paid_back_duly_till_now,business,1542,1,3,2,male_single,male,none,4,car_or_other,36,none,own,1,2,1,1,1,1
+366,0,18,critical_account/other_credits_existing_not_at_this_bank,car_(used),3850,1,3,3,male_single,male,none,1,car_or_other,27,none,own,2,2,1,0,1,1
+367,1,18,existing_credits_paid_back_duly_till_now,furniture/equipment,3650,1,1,1,female_divorced/separated/married,female,none,4,car_or_other,22,none,rent,1,2,1,0,1,1
+368,1,36,existing_credits_paid_back_duly_till_now,furniture/equipment,3446,1,4,4,male_single,male,none,2,car_or_other,42,none,own,1,2,2,0,1,0
+369,2,18,existing_credits_paid_back_duly_till_now,furniture/equipment,3001,1,3,2,female_divorced/separated/married,female,none,4,real_estate,40,none,rent,1,2,1,0,1,1
+370,0,36,existing_credits_paid_back_duly_till_now,car_(new),3079,0,2,4,male_single,male,none,4,real_estate,36,none,own,1,2,1,0,1,1
+371,0,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,6070,1,4,3,male_single,male,none,4,car_or_other,33,none,own,2,2,1,1,1,1
+372,0,10,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,2146,1,1,1,female_divorced/separated/married,female,none,3,real_estate,23,none,rent,2,2,1,0,1,1
+373,0,60,critical_account/other_credits_existing_not_at_this_bank,car_(new),13756,0,4,2,male_single,male,none,4,unknown/no_property,63,bank,for free,1,3,1,1,1,1
+374,2,60,all_credits_at_this_bank_paid_back_duly,others,14782,2,4,3,female_divorced/separated/married,female,none,4,unknown/no_property,60,bank,for free,2,3,1,1,1,0
+375,1,48,all_credits_at_this_bank_paid_back_duly,business,7685,1,3,2,female_divorced/separated/married,female,guarantor,4,car_or_other,37,none,rent,1,2,1,0,1,0
+376,0,18,delay_in_paying_off_in_the_past,radio/television,2320,1,0,2,male_married/widowed,male,none,3,real_estate,34,none,own,2,2,1,0,1,1
+377,0,7,delay_in_paying_off_in_the_past,radio/television,846,0,4,3,male_single,male,none,4,unknown/no_property,36,none,for free,1,2,1,0,1,1
+378,2,36,existing_credits_paid_back_duly_till_now,car_(new),14318,1,4,4,male_single,male,none,2,unknown/no_property,57,none,for free,1,3,1,1,1,0
+379,0,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),362,2,2,4,female_divorced/separated/married,female,none,4,car_or_other,52,none,own,2,1,1,0,1,1
+380,1,20,existing_credits_paid_back_duly_till_now,furniture/equipment,2212,0,3,4,male_single,male,none,4,car_or_other,39,none,own,1,2,1,1,1,1
+381,2,18,existing_credits_paid_back_duly_till_now,car_(used),12976,1,0,3,female_divorced/separated/married,female,none,4,unknown/no_property,38,none,for free,1,3,1,1,1,0
+382,0,22,existing_credits_paid_back_duly_till_now,car_(new),1283,0,3,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,25,none,rent,1,2,1,0,1,1
+383,3,12,existing_credits_paid_back_duly_till_now,car_(new),1330,1,1,4,male_single,male,none,1,real_estate,26,none,own,1,2,1,0,1,1
+384,0,30,delay_in_paying_off_in_the_past,business,4272,2,2,2,male_single,male,none,2,building_society_savings_agreement/life_insurance,26,none,own,2,1,1,0,1,1
+385,0,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,2238,1,2,2,female_divorced/separated/married,female,none,1,car_or_other,25,none,own,2,2,1,0,1,1
+386,0,18,existing_credits_paid_back_duly_till_now,radio/television,1126,0,1,4,female_divorced/separated/married,female,none,2,real_estate,21,none,rent,1,2,1,1,1,1
+387,2,18,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,7374,1,0,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,40,stores,own,2,3,1,1,1,1
+388,2,15,critical_account/other_credits_existing_not_at_this_bank,business,2326,3,2,2,male_single,male,none,4,car_or_other,27,bank,own,1,2,1,0,1,1
+389,0,9,existing_credits_paid_back_duly_till_now,business,1449,1,3,3,female_divorced/separated/married,female,none,2,car_or_other,27,none,own,2,2,1,0,1,1
+390,0,18,existing_credits_paid_back_duly_till_now,car_(new),1820,1,2,2,male_married/widowed,male,none,2,building_society_savings_agreement/life_insurance,30,none,own,1,3,1,1,1,1
+391,2,12,existing_credits_paid_back_duly_till_now,furniture/equipment,983,4,1,1,female_divorced/separated/married,female,none,4,real_estate,19,none,rent,1,1,1,0,1,1
+392,1,36,existing_credits_paid_back_duly_till_now,car_(new),3249,1,3,2,male_single,male,none,4,unknown/no_property,39,bank,for free,1,3,2,1,1,1
+393,1,6,critical_account/other_credits_existing_not_at_this_bank,radio/television,1957,1,3,1,female_divorced/separated/married,female,none,4,car_or_other,31,none,own,1,2,1,0,1,1
+394,0,9,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,2406,1,0,2,male_single,male,none,3,car_or_other,31,none,own,1,3,1,0,1,1
+395,2,39,delay_in_paying_off_in_the_past,education,11760,2,3,2,male_single,male,none,3,unknown/no_property,32,none,rent,1,2,1,1,1,1
+396,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,2578,1,0,3,female_divorced/separated/married,female,none,4,unknown/no_property,55,none,for free,1,3,1,0,1,1
+397,1,36,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,2348,1,2,3,male_married/widowed,male,none,2,building_society_savings_agreement/life_insurance,46,none,own,2,2,1,1,1,1
+398,2,12,existing_credits_paid_back_duly_till_now,car_(new),1223,1,4,1,male_divorced/separated,male,none,1,real_estate,46,none,rent,2,2,1,0,1,0
+399,0,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,1516,4,2,4,female_divorced/separated/married,female,none,1,real_estate,43,none,own,2,1,1,0,1,1
+400,0,18,existing_credits_paid_back_duly_till_now,radio/television,1473,1,1,3,male_married/widowed,male,none,4,real_estate,39,none,own,1,2,1,1,1,1
+401,2,18,critical_account/other_credits_existing_not_at_this_bank,business,1887,0,2,4,male_married/widowed,male,none,4,real_estate,28,bank,own,2,2,1,0,1,1
+402,0,24,delay_in_paying_off_in_the_past,business,8648,1,1,2,male_single,male,none,2,car_or_other,27,bank,own,2,2,1,1,1,0
+403,0,14,delay_in_paying_off_in_the_past,car_(new),802,1,2,4,male_single,male,none,2,car_or_other,27,none,own,2,1,1,0,1,1
+404,2,18,delay_in_paying_off_in_the_past,car_(new),2899,0,4,4,male_single,male,none,4,car_or_other,43,none,own,1,2,2,0,1,1
+405,2,24,existing_credits_paid_back_duly_till_now,radio/television,2039,1,1,1,male_married/widowed,male,none,1,building_society_savings_agreement/life_insurance,22,none,own,1,2,1,1,1,0
+406,0,24,critical_account/other_credits_existing_not_at_this_bank,car_(used),2197,0,3,4,male_single,male,none,4,car_or_other,43,none,own,2,2,2,1,1,1
+407,1,15,existing_credits_paid_back_duly_till_now,radio/television,1053,1,1,4,male_married/widowed,male,none,2,real_estate,27,none,own,1,2,1,0,0,1
+408,0,24,existing_credits_paid_back_duly_till_now,radio/television,3235,3,4,3,male_divorced/separated,male,none,2,car_or_other,26,none,own,1,3,1,1,1,1
+409,3,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),939,3,3,4,male_married/widowed,male,none,2,real_estate,28,none,own,3,2,1,1,1,0
+410,2,24,existing_credits_paid_back_duly_till_now,radio/television,1967,1,4,4,female_divorced/separated/married,female,none,4,car_or_other,20,none,own,1,2,1,1,1,1
+411,0,33,critical_account/other_credits_existing_not_at_this_bank,car_(used),7253,1,3,3,male_single,male,none,2,car_or_other,35,none,own,2,3,1,1,1,1
+412,0,12,critical_account/other_credits_existing_not_at_this_bank,business,2292,1,0,4,male_single,male,none,2,car_or_other,42,stores,own,2,3,1,1,1,0
+413,0,10,existing_credits_paid_back_duly_till_now,car_(new),1597,3,2,3,male_single,male,none,2,unknown/no_property,40,none,rent,1,1,2,0,0,1
+414,1,24,existing_credits_paid_back_duly_till_now,car_(new),1381,0,2,4,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,35,none,own,1,2,1,0,1,0
+415,0,36,critical_account/other_credits_existing_not_at_this_bank,car_(used),5842,1,4,2,male_single,male,none,2,building_society_savings_agreement/life_insurance,35,none,own,2,2,2,1,1,1
+416,1,12,existing_credits_paid_back_duly_till_now,car_(new),2579,1,1,4,male_single,male,none,1,real_estate,33,none,own,1,1,2,0,1,0
+417,1,18,delay_in_paying_off_in_the_past,education,8471,0,2,1,female_divorced/separated/married,female,none,2,car_or_other,23,none,rent,2,2,1,1,1,1
+418,0,21,existing_credits_paid_back_duly_till_now,car_(new),2782,3,3,1,female_divorced/separated/married,female,none,2,car_or_other,31,bank,own,1,3,1,0,1,1
+419,2,18,existing_credits_paid_back_duly_till_now,car_(new),1042,0,2,4,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,33,none,own,1,2,1,0,1,0
+420,0,15,existing_credits_paid_back_duly_till_now,car_(new),3186,4,3,2,female_divorced/separated/married,female,none,3,car_or_other,20,none,rent,1,2,1,0,1,1
+421,2,12,existing_credits_paid_back_duly_till_now,car_(used),2028,0,2,4,male_single,male,none,2,car_or_other,30,none,own,1,2,1,0,1,1
+422,2,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),958,1,3,2,male_single,male,none,3,real_estate,47,none,own,2,1,2,0,1,1
+423,0,21,delay_in_paying_off_in_the_past,furniture/equipment,1591,2,3,4,male_single,male,none,3,real_estate,34,none,own,2,3,1,0,1,1
+424,2,12,existing_credits_paid_back_duly_till_now,furniture/equipment,2762,0,4,1,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,25,bank,own,1,2,1,1,1,0
+425,2,18,existing_credits_paid_back_duly_till_now,car_(used),2779,1,2,1,male_married/widowed,male,none,3,car_or_other,21,none,rent,1,2,1,1,1,1
+426,0,28,critical_account/other_credits_existing_not_at_this_bank,radio/television,2743,1,4,4,male_single,male,none,2,car_or_other,29,none,own,2,2,1,0,1,1
+427,0,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,1149,4,2,4,male_single,male,none,3,real_estate,46,none,own,2,2,1,0,1,1
+428,0,9,existing_credits_paid_back_duly_till_now,furniture/equipment,1313,1,4,1,male_single,male,none,4,car_or_other,20,none,own,1,2,1,0,1,1
+429,1,18,critical_account/other_credits_existing_not_at_this_bank,repairs,1190,1,0,2,female_divorced/separated/married,female,none,4,unknown/no_property,55,none,for free,3,0,2,0,1,0
+430,0,5,existing_credits_paid_back_duly_till_now,business,3448,1,3,1,male_single,male,none,4,real_estate,74,none,own,1,1,1,0,1,1
+431,2,24,existing_credits_paid_back_duly_till_now,others,11328,1,2,2,male_single,male,co-applicant,3,car_or_other,29,bank,own,2,3,1,1,1,0
+432,1,6,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1872,1,0,4,male_single,male,none,4,unknown/no_property,36,none,for free,3,3,1,1,1,1
+433,0,24,critical_account/other_credits_existing_not_at_this_bank,repairs,2058,1,2,4,male_divorced/separated,male,none,2,real_estate,33,none,own,2,2,1,1,1,1
+434,1,9,existing_credits_paid_back_duly_till_now,furniture/equipment,2136,1,2,3,male_single,male,none,2,real_estate,25,none,own,1,2,1,0,1,1
+435,2,12,existing_credits_paid_back_duly_till_now,radio/television,1484,0,2,2,male_married/widowed,male,none,1,real_estate,25,none,own,1,2,1,1,1,0
+436,0,6,existing_credits_paid_back_duly_till_now,repairs,660,3,3,2,male_married/widowed,male,none,4,real_estate,23,none,rent,1,1,1,0,1,1
+437,0,24,critical_account/other_credits_existing_not_at_this_bank,car_(new),1287,4,4,4,female_divorced/separated/married,female,none,4,real_estate,37,none,own,2,2,1,1,1,1
+438,1,42,critical_account/other_credits_existing_not_at_this_bank,repairs,3394,1,0,4,male_single,male,co-applicant,4,car_or_other,65,none,own,2,0,1,0,1,1
+439,3,12,all_credits_at_this_bank_paid_back_duly,business,609,1,1,4,female_divorced/separated/married,female,none,1,real_estate,26,none,own,1,0,1,0,1,0
+440,0,12,existing_credits_paid_back_duly_till_now,car_(new),1884,1,4,4,male_single,male,none,4,car_or_other,39,none,own,1,3,1,1,1,1
+441,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1620,1,2,2,female_divorced/separated/married,female,co-applicant,3,building_society_savings_agreement/life_insurance,30,none,own,1,2,1,0,1,1
+442,2,20,delay_in_paying_off_in_the_past,others,2629,1,2,2,male_single,male,none,3,car_or_other,29,bank,own,2,2,1,1,1,1
+443,0,12,existing_credits_paid_back_duly_till_now,education,719,1,4,4,male_single,male,none,4,car_or_other,41,bank,own,1,1,2,0,1,0
+444,2,48,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,5096,1,2,2,female_divorced/separated/married,female,none,3,car_or_other,30,none,own,1,3,1,1,1,0
+445,0,9,critical_account/other_credits_existing_not_at_this_bank,education,1244,0,4,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,41,none,rent,2,1,1,0,1,1
+446,1,36,existing_credits_paid_back_duly_till_now,car_(new),1842,1,1,4,female_divorced/separated/married,female,none,4,car_or_other,34,none,own,1,2,1,1,1,0
+447,2,7,existing_credits_paid_back_duly_till_now,radio/television,2576,1,2,2,male_single,male,guarantor,2,real_estate,35,none,own,1,2,1,0,1,1
+448,3,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1424,0,4,3,female_divorced/separated/married,female,none,4,real_estate,55,none,own,1,3,1,1,1,1
+449,2,15,delay_in_paying_off_in_the_past,repairs,1512,4,2,3,male_married/widowed,male,none,3,building_society_savings_agreement/life_insurance,61,stores,own,2,2,1,0,1,0
+450,0,36,critical_account/other_credits_existing_not_at_this_bank,car_(used),11054,0,2,4,male_single,male,none,2,car_or_other,30,none,own,1,3,1,1,1,1
+451,0,6,existing_credits_paid_back_duly_till_now,radio/television,518,1,2,3,female_divorced/separated/married,female,none,1,real_estate,29,none,own,1,2,1,0,1,1
+452,0,12,no_credits_taken/all_credits_paid_back_duly,furniture/equipment,2759,1,4,2,male_single,male,none,4,building_society_savings_agreement/life_insurance,34,none,own,2,2,1,0,1,1
+453,0,24,existing_credits_paid_back_duly_till_now,car_(used),2670,1,4,4,male_single,male,none,4,car_or_other,35,none,own,1,3,1,1,1,1
+454,1,24,existing_credits_paid_back_duly_till_now,car_(new),4817,1,3,2,male_single,male,co-applicant,3,building_society_savings_agreement/life_insurance,31,none,own,1,2,1,1,1,0
+455,0,24,existing_credits_paid_back_duly_till_now,car_(used),2679,1,1,4,female_divorced/separated/married,female,none,1,unknown/no_property,29,none,own,1,3,1,1,1,1
+456,1,11,critical_account/other_credits_existing_not_at_this_bank,car_(new),3905,1,2,2,male_single,male,none,2,real_estate,36,none,rent,2,2,2,0,1,1
+457,1,12,existing_credits_paid_back_duly_till_now,car_(used),3386,1,4,3,male_single,male,none,4,unknown/no_property,35,none,for free,1,2,1,1,1,0
+458,1,6,existing_credits_paid_back_duly_till_now,domestic_appliances,343,1,1,4,female_divorced/separated/married,female,none,1,real_estate,27,none,own,1,2,1,0,1,1
+459,0,18,existing_credits_paid_back_duly_till_now,radio/television,4594,1,1,3,male_single,male,none,2,car_or_other,32,none,own,1,2,1,1,1,1
+460,1,36,existing_credits_paid_back_duly_till_now,furniture/equipment,3620,1,2,1,male_single,male,guarantor,2,building_society_savings_agreement/life_insurance,37,none,own,1,2,2,0,1,1
+461,1,15,existing_credits_paid_back_duly_till_now,car_(new),1721,1,1,2,male_single,male,none,3,real_estate,36,none,own,1,2,1,0,1,1
+462,2,12,existing_credits_paid_back_duly_till_now,furniture/equipment,3017,1,1,3,female_divorced/separated/married,female,none,1,real_estate,34,none,rent,1,3,1,0,1,1
+463,2,12,existing_credits_paid_back_duly_till_now,retraining,754,0,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,38,none,own,2,2,1,0,1,1
+464,0,18,existing_credits_paid_back_duly_till_now,business,1950,1,3,4,male_single,male,none,1,car_or_other,34,stores,own,2,2,1,1,1,1
+465,1,24,existing_credits_paid_back_duly_till_now,car_(used),2924,1,2,3,male_single,male,guarantor,4,unknown/no_property,63,bank,own,1,2,2,1,1,1
+466,1,24,delay_in_paying_off_in_the_past,radio/television,1659,1,1,4,female_divorced/separated/married,female,none,2,car_or_other,29,none,rent,1,1,1,1,1,0
+467,0,48,delay_in_paying_off_in_the_past,radio/television,7238,0,4,3,male_single,male,none,3,car_or_other,32,bank,own,2,2,2,0,1,1
+468,0,33,delay_in_paying_off_in_the_past,business,2764,1,2,2,female_divorced/separated/married,female,none,2,car_or_other,26,none,own,2,2,1,1,1,1
+469,0,24,delay_in_paying_off_in_the_past,car_(used),4679,1,3,3,male_single,male,none,3,car_or_other,35,none,own,2,1,1,1,1,1
+470,2,24,existing_credits_paid_back_duly_till_now,radio/television,3092,2,1,3,male_married/widowed,male,none,2,car_or_other,22,none,rent,1,2,1,1,1,0
+471,1,6,existing_credits_paid_back_duly_till_now,education,448,1,1,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,23,none,own,1,2,1,0,1,0
+472,1,9,existing_credits_paid_back_duly_till_now,car_(new),654,1,2,4,male_single,male,none,3,car_or_other,28,none,own,1,1,1,0,1,0
+473,0,6,existing_credits_paid_back_duly_till_now,retraining,1238,0,0,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,36,none,own,1,3,2,1,1,1
+474,2,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,1245,1,2,4,male_married/widowed,male,none,2,car_or_other,33,none,own,1,2,1,0,1,0
+475,1,18,no_credits_taken/all_credits_paid_back_duly,furniture/equipment,3114,1,1,1,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,26,none,rent,1,2,1,0,1,0
+476,0,39,existing_credits_paid_back_duly_till_now,car_(used),2569,3,2,4,male_single,male,none,4,car_or_other,24,none,own,1,2,1,0,1,1
+477,3,24,existing_credits_paid_back_duly_till_now,radio/television,5152,1,3,4,male_single,male,none,2,car_or_other,25,bank,own,1,2,1,0,1,1
+478,2,12,existing_credits_paid_back_duly_till_now,business,1037,2,3,3,male_single,male,none,4,real_estate,39,none,own,1,1,1,0,1,1
+479,1,15,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1478,1,4,4,male_single,male,none,4,car_or_other,44,none,own,2,2,2,1,1,1
+480,2,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,3573,1,2,1,female_divorced/separated/married,female,none,1,real_estate,23,none,own,1,1,1,0,1,1
+481,2,24,existing_credits_paid_back_duly_till_now,car_(new),1201,1,1,4,male_single,male,none,1,building_society_savings_agreement/life_insurance,26,none,own,1,2,1,0,1,1
+482,1,30,existing_credits_paid_back_duly_till_now,furniture/equipment,3622,4,4,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,57,none,rent,2,2,1,1,1,1
+483,0,15,delay_in_paying_off_in_the_past,furniture/equipment,960,4,3,3,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,30,none,own,2,2,1,0,1,1
+484,0,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),1163,3,2,4,male_single,male,none,4,real_estate,44,none,own,1,2,1,1,1,1
+485,2,6,delay_in_paying_off_in_the_past,car_(new),1209,1,0,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,47,none,own,1,3,1,1,1,0
+486,0,12,existing_credits_paid_back_duly_till_now,radio/television,3077,1,2,2,male_single,male,none,4,car_or_other,52,none,own,1,2,1,1,1,1
+487,0,24,existing_credits_paid_back_duly_till_now,car_(new),3757,1,4,4,female_divorced/separated/married,female,co-applicant,4,unknown/no_property,62,none,for free,1,2,1,1,1,1
+488,0,10,existing_credits_paid_back_duly_till_now,car_(new),1418,2,2,3,male_single,male,none,2,real_estate,35,none,rent,1,1,1,0,0,1
+489,0,6,existing_credits_paid_back_duly_till_now,car_(new),3518,1,2,2,male_single,male,guarantor,3,building_society_savings_agreement/life_insurance,26,none,rent,1,2,1,0,1,1
+490,0,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,1934,1,4,2,male_single,male,none,2,unknown/no_property,26,none,own,2,2,1,0,1,1
+491,2,27,no_credits_taken/all_credits_paid_back_duly,business,8318,1,4,2,female_divorced/separated/married,female,none,4,unknown/no_property,42,none,for free,2,3,1,1,1,0
+492,0,6,critical_account/other_credits_existing_not_at_this_bank,radio/television,1237,2,2,1,female_divorced/separated/married,female,none,1,building_society_savings_agreement/life_insurance,27,none,own,2,2,1,0,1,1
+493,2,6,existing_credits_paid_back_duly_till_now,radio/television,368,0,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,38,none,own,1,2,1,0,1,1
+494,1,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),2122,1,2,3,male_single,male,none,2,real_estate,39,none,rent,2,1,2,0,0,1
+495,1,24,existing_credits_paid_back_duly_till_now,furniture/equipment,2996,0,2,2,male_married/widowed,male,none,4,car_or_other,20,none,own,1,2,1,0,1,0
+496,2,36,existing_credits_paid_back_duly_till_now,furniture/equipment,9034,2,1,4,male_single,male,co-applicant,1,unknown/no_property,29,none,rent,1,3,1,1,1,0
+497,0,24,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1585,1,3,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,40,none,own,2,2,1,0,1,1
+498,2,18,existing_credits_paid_back_duly_till_now,radio/television,1301,1,4,4,male_married/widowed,male,guarantor,2,real_estate,32,none,own,1,1,1,0,1,1
+499,3,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),1323,2,4,2,male_divorced/separated,male,none,4,car_or_other,28,none,own,2,2,2,1,1,1
+500,1,24,existing_credits_paid_back_duly_till_now,car_(new),3123,1,1,4,female_divorced/separated/married,female,none,1,building_society_savings_agreement/life_insurance,27,none,own,1,2,1,0,1,0
+501,1,36,existing_credits_paid_back_duly_till_now,car_(used),5493,1,4,2,male_single,male,none,4,unknown/no_property,42,none,for free,1,2,2,0,1,1
+502,3,9,existing_credits_paid_back_duly_till_now,radio/television,1126,2,4,2,male_divorced/separated,male,none,4,real_estate,49,none,own,1,2,1,0,1,1
+503,2,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,1216,2,1,4,male_single,male,none,4,unknown/no_property,38,bank,own,2,2,2,0,1,0
+504,1,24,existing_credits_paid_back_duly_till_now,car_(new),1207,1,1,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,24,none,rent,1,2,1,0,1,0
+505,0,10,existing_credits_paid_back_duly_till_now,car_(new),1309,0,2,4,male_single,male,guarantor,4,building_society_savings_agreement/life_insurance,27,none,own,1,1,1,0,1,0
+506,3,15,critical_account/other_credits_existing_not_at_this_bank,car_(used),2360,3,2,2,male_single,male,none,2,car_or_other,36,none,own,1,2,1,1,1,1
+507,2,15,all_credits_at_this_bank_paid_back_duly,car_(new),6850,2,0,1,male_single,male,none,2,building_society_savings_agreement/life_insurance,34,none,own,1,3,2,1,1,0
+508,0,24,existing_credits_paid_back_duly_till_now,radio/television,1413,1,2,4,male_married/widowed,male,none,2,building_society_savings_agreement/life_insurance,28,none,own,1,2,1,0,1,1
+509,0,39,existing_credits_paid_back_duly_till_now,car_(used),8588,2,4,4,male_single,male,none,2,car_or_other,45,none,own,1,3,1,1,1,1
+510,1,12,existing_credits_paid_back_duly_till_now,car_(new),759,1,3,4,male_single,male,none,2,real_estate,26,none,own,1,2,1,0,1,0
+511,0,36,existing_credits_paid_back_duly_till_now,car_(used),4686,1,2,2,male_single,male,none,2,unknown/no_property,32,none,for free,1,3,1,1,1,1
+512,3,15,existing_credits_paid_back_duly_till_now,business,2687,1,3,2,male_single,male,none,4,building_society_savings_agreement/life_insurance,26,none,rent,1,2,1,1,1,1
+513,2,12,delay_in_paying_off_in_the_past,radio/television,585,1,2,4,male_married/widowed,male,co-applicant,4,real_estate,20,none,rent,2,2,1,0,1,1
+514,0,24,existing_credits_paid_back_duly_till_now,car_(new),2255,0,1,4,male_single,male,none,1,building_society_savings_agreement/life_insurance,54,none,own,1,2,1,0,1,1
+515,1,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),609,1,3,4,female_divorced/separated/married,female,none,3,building_society_savings_agreement/life_insurance,37,none,own,2,2,1,0,0,1
+516,1,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),1361,1,1,2,male_single,male,none,4,real_estate,40,none,own,1,1,2,0,0,1
+517,0,36,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,7127,1,1,2,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,23,none,rent,2,2,1,1,1,0
+518,1,6,existing_credits_paid_back_duly_till_now,car_(new),1203,2,4,3,male_single,male,none,2,building_society_savings_agreement/life_insurance,43,none,own,1,2,1,1,1,1
+519,0,6,critical_account/other_credits_existing_not_at_this_bank,radio/television,700,0,4,4,male_single,male,none,4,unknown/no_property,36,none,for free,2,2,1,0,1,1
+520,0,24,critical_account/other_credits_existing_not_at_this_bank,repairs,5507,1,4,3,male_single,male,none,4,unknown/no_property,44,none,for free,2,2,1,0,1,1
+521,1,18,existing_credits_paid_back_duly_till_now,radio/television,3190,1,2,2,female_divorced/separated/married,female,none,2,real_estate,24,none,own,1,2,1,0,1,0
+522,1,48,no_credits_taken/all_credits_paid_back_duly,furniture/equipment,7119,1,2,3,male_single,male,none,4,unknown/no_property,53,none,for free,2,2,2,0,1,0
+523,0,24,existing_credits_paid_back_duly_till_now,car_(used),3488,2,3,3,female_divorced/separated/married,female,none,4,car_or_other,23,none,own,1,2,1,0,1,1
+524,2,18,existing_credits_paid_back_duly_till_now,radio/television,1113,1,2,4,female_divorced/separated/married,female,guarantor,4,real_estate,26,none,own,1,1,2,0,1,1
+525,2,26,existing_credits_paid_back_duly_till_now,car_(used),7966,1,1,2,male_single,male,none,3,car_or_other,30,none,own,2,2,1,0,1,1
+526,0,15,critical_account/other_credits_existing_not_at_this_bank,education,1532,2,2,4,female_divorced/separated/married,female,none,3,car_or_other,31,none,own,1,2,1,0,1,1
+527,0,4,critical_account/other_credits_existing_not_at_this_bank,radio/television,1503,1,3,2,male_single,male,none,1,real_estate,42,none,own,2,1,2,0,1,1
+528,1,36,existing_credits_paid_back_duly_till_now,radio/television,2302,1,2,4,male_divorced/separated,male,none,4,car_or_other,31,none,rent,1,2,1,0,1,0
+529,1,6,existing_credits_paid_back_duly_till_now,car_(new),662,1,1,3,male_single,male,none,4,real_estate,41,none,own,1,1,2,1,1,1
+530,2,36,existing_credits_paid_back_duly_till_now,education,2273,1,3,3,male_single,male,none,1,car_or_other,32,none,own,2,2,2,0,1,1
+531,2,15,existing_credits_paid_back_duly_till_now,car_(new),2631,2,2,2,female_divorced/separated/married,female,none,4,car_or_other,28,none,rent,2,2,1,1,1,0
+532,0,12,delay_in_paying_off_in_the_past,car_(used),1503,1,2,4,male_married/widowed,male,none,4,real_estate,41,none,rent,1,2,1,0,1,1
+533,0,24,existing_credits_paid_back_duly_till_now,radio/television,1311,2,3,4,male_married/widowed,male,none,3,building_society_savings_agreement/life_insurance,26,none,own,1,2,1,1,1,1
+534,0,24,existing_credits_paid_back_duly_till_now,radio/television,3105,0,1,4,male_single,male,none,2,car_or_other,25,none,own,2,2,1,0,1,1
+535,3,21,critical_account/other_credits_existing_not_at_this_bank,education,2319,1,1,2,male_divorced/separated,male,none,1,car_or_other,33,none,rent,1,2,1,0,1,0
+536,1,6,existing_credits_paid_back_duly_till_now,car_(new),1374,0,0,4,female_divorced/separated/married,female,none,3,building_society_savings_agreement/life_insurance,75,none,own,1,3,1,1,1,1
+537,2,18,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,3612,1,4,3,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,37,none,own,1,2,1,1,1,1
+538,1,48,existing_credits_paid_back_duly_till_now,car_(new),7763,1,4,4,male_single,male,none,4,unknown/no_property,42,bank,for free,1,3,1,0,1,0
+539,3,18,existing_credits_paid_back_duly_till_now,furniture/equipment,3049,1,1,1,female_divorced/separated/married,female,none,1,building_society_savings_agreement/life_insurance,45,stores,own,1,1,1,0,1,1
+540,2,12,existing_credits_paid_back_duly_till_now,radio/television,1534,1,1,1,male_married/widowed,male,none,1,real_estate,23,none,rent,1,2,1,0,1,0
+541,0,24,delay_in_paying_off_in_the_past,car_(new),2032,1,4,4,male_single,male,none,4,unknown/no_property,60,none,for free,2,2,1,1,1,1
+542,1,30,existing_credits_paid_back_duly_till_now,furniture/equipment,6350,0,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,31,none,own,1,2,1,0,1,0
+543,3,18,existing_credits_paid_back_duly_till_now,furniture/equipment,2864,1,2,2,male_single,male,none,1,real_estate,34,none,own,1,1,2,0,1,0
+544,0,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),1255,1,4,4,male_single,male,none,4,real_estate,61,none,own,2,1,1,0,1,1
+545,1,24,delay_in_paying_off_in_the_past,car_(new),1333,1,0,4,male_single,male,none,2,real_estate,43,none,for free,2,2,2,0,1,0
+546,0,24,critical_account/other_credits_existing_not_at_this_bank,car_(new),2022,1,2,4,female_divorced/separated/married,female,none,4,car_or_other,37,none,own,1,2,1,1,1,1
+547,0,24,existing_credits_paid_back_duly_till_now,radio/television,1552,1,3,3,male_single,male,none,1,car_or_other,32,bank,own,1,2,2,0,1,1
+548,1,12,all_credits_at_this_bank_paid_back_duly,radio/television,626,1,2,4,female_divorced/separated/married,female,none,4,real_estate,24,bank,own,1,1,1,0,1,0
+549,0,48,critical_account/other_credits_existing_not_at_this_bank,car_(used),8858,0,3,2,male_single,male,none,1,unknown/no_property,35,none,for free,2,2,1,1,1,1
+550,0,12,critical_account/other_credits_existing_not_at_this_bank,repairs,996,0,3,4,female_divorced/separated/married,female,none,4,real_estate,23,none,own,2,2,1,0,1,1
+551,0,6,all_credits_at_this_bank_paid_back_duly,radio/television,1750,3,4,2,male_single,male,none,4,building_society_savings_agreement/life_insurance,45,bank,own,1,1,2,0,1,1
+552,1,48,existing_credits_paid_back_duly_till_now,radio/television,6999,1,3,1,male_married/widowed,male,guarantor,1,real_estate,34,none,own,2,2,1,1,1,0
+553,2,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),1995,2,1,4,male_single,male,none,1,car_or_other,27,none,own,1,2,1,0,1,1
+554,2,9,existing_credits_paid_back_duly_till_now,education,1199,1,3,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,67,none,own,2,3,1,1,1,1
+555,2,12,existing_credits_paid_back_duly_till_now,radio/television,1331,1,1,2,male_single,male,none,1,car_or_other,22,stores,own,1,2,1,0,1,0
+556,2,18,no_credits_taken/all_credits_paid_back_duly,car_(new),2278,2,1,3,female_divorced/separated/married,female,none,3,car_or_other,28,none,own,2,2,1,0,1,0
+557,0,21,no_credits_taken/all_credits_paid_back_duly,car_(new),5003,0,2,1,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,29,bank,own,2,2,1,1,1,0
+558,1,24,all_credits_at_this_bank_paid_back_duly,furniture/equipment,3552,1,3,3,male_single,male,none,4,car_or_other,27,bank,own,1,2,1,0,1,0
+559,2,18,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1928,1,1,2,male_single,male,none,2,real_estate,31,none,own,2,1,1,0,1,0
+560,1,24,existing_credits_paid_back_duly_till_now,car_(used),2964,0,4,4,male_single,male,none,4,unknown/no_property,49,bank,for free,1,2,2,1,1,1
+561,1,24,all_credits_at_this_bank_paid_back_duly,radio/television,1546,1,3,4,male_single,male,guarantor,4,car_or_other,24,bank,rent,1,1,1,0,1,0
+562,3,6,delay_in_paying_off_in_the_past,radio/television,683,1,1,2,female_divorced/separated/married,female,none,1,building_society_savings_agreement/life_insurance,29,bank,own,1,2,1,0,1,1
+563,2,36,existing_credits_paid_back_duly_till_now,car_(new),12389,0,2,1,male_single,male,none,4,unknown/no_property,37,none,for free,1,2,1,1,1,0
+564,2,24,delay_in_paying_off_in_the_past,business,4712,0,2,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,37,bank,own,2,3,1,1,1,1
+565,2,24,delay_in_paying_off_in_the_past,radio/television,1553,2,3,3,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,23,none,rent,2,2,1,1,1,1
+566,1,12,existing_credits_paid_back_duly_till_now,car_(new),1372,1,3,2,male_divorced/separated,male,none,3,car_or_other,36,none,own,1,2,1,0,1,0
+567,0,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,2578,4,4,2,male_single,male,none,2,car_or_other,34,none,own,1,2,1,0,1,1
+568,2,48,existing_credits_paid_back_duly_till_now,radio/television,3979,0,3,4,male_single,male,none,1,car_or_other,41,none,own,2,2,2,1,1,1
+569,1,48,existing_credits_paid_back_duly_till_now,radio/television,6758,1,2,3,female_divorced/separated/married,female,none,2,car_or_other,31,none,own,1,2,1,1,1,0
+570,1,24,existing_credits_paid_back_duly_till_now,furniture/equipment,3234,1,1,4,female_divorced/separated/married,female,none,4,real_estate,23,none,rent,1,1,1,1,1,0
+571,0,30,critical_account/other_credits_existing_not_at_this_bank,radio/television,5954,1,3,3,male_single,male,co-applicant,2,car_or_other,38,none,own,1,2,1,0,1,1
+572,0,24,existing_credits_paid_back_duly_till_now,car_(used),5433,0,0,2,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,26,none,rent,1,3,1,1,1,1
+573,1,15,existing_credits_paid_back_duly_till_now,business,806,1,2,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,22,none,own,1,1,1,0,1,1
+574,2,9,existing_credits_paid_back_duly_till_now,radio/television,1082,1,4,4,male_single,male,none,4,car_or_other,27,none,own,2,1,1,0,1,1
+575,0,15,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,2788,1,3,2,female_divorced/separated/married,female,co-applicant,3,car_or_other,24,bank,own,2,2,1,0,1,1
+576,2,12,existing_credits_paid_back_duly_till_now,radio/television,2930,1,3,2,female_divorced/separated/married,female,none,1,real_estate,27,none,own,1,2,1,0,1,1
+577,0,24,critical_account/other_credits_existing_not_at_this_bank,education,1927,0,2,3,female_divorced/separated/married,female,none,2,car_or_other,33,none,own,2,2,1,1,1,1
+578,2,36,critical_account/other_credits_existing_not_at_this_bank,car_(new),2820,1,1,4,male_divorced/separated,male,none,4,car_or_other,27,none,own,2,2,1,0,1,0
+579,0,24,existing_credits_paid_back_duly_till_now,retraining,937,1,1,4,male_married/widowed,male,none,3,car_or_other,27,none,own,2,1,1,0,1,1
+580,2,18,critical_account/other_credits_existing_not_at_this_bank,car_(new),1056,1,4,3,male_single,male,guarantor,3,real_estate,30,bank,own,2,2,1,0,1,0
+581,2,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),3124,1,1,1,male_single,male,none,3,real_estate,49,bank,own,2,1,2,0,1,1
+582,0,9,existing_credits_paid_back_duly_till_now,furniture/equipment,1388,1,2,4,female_divorced/separated/married,female,none,2,real_estate,26,none,rent,1,2,1,0,1,1
+583,2,36,existing_credits_paid_back_duly_till_now,repairs,2384,1,1,4,male_single,male,none,1,unknown/no_property,33,none,rent,1,1,1,0,1,0
+584,0,12,existing_credits_paid_back_duly_till_now,car_(new),2133,0,4,4,female_divorced/separated/married,female,none,4,unknown/no_property,52,none,for free,1,3,1,1,1,1
+585,1,18,existing_credits_paid_back_duly_till_now,furniture/equipment,2039,1,2,1,female_divorced/separated/married,female,none,4,real_estate,20,bank,rent,1,2,1,0,1,0
+586,1,9,critical_account/other_credits_existing_not_at_this_bank,car_(new),2799,1,2,2,male_single,male,none,2,real_estate,36,none,rent,2,2,2,0,1,1
+587,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1289,1,2,4,male_single,male,guarantor,1,building_society_savings_agreement/life_insurance,21,none,own,1,1,1,0,1,1
+588,1,18,existing_credits_paid_back_duly_till_now,domestic_appliances,1217,1,2,4,male_married/widowed,male,none,3,real_estate,47,none,own,1,1,1,1,1,0
+589,1,12,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,2246,1,4,3,male_single,male,none,3,building_society_savings_agreement/life_insurance,60,none,own,2,2,1,0,1,0
+590,1,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,385,1,3,4,female_divorced/separated/married,female,none,3,real_estate,58,none,own,4,1,1,1,1,1
+591,2,24,delay_in_paying_off_in_the_past,car_(new),1965,0,2,4,female_divorced/separated/married,female,none,4,car_or_other,42,none,rent,2,2,1,1,1,1
+592,0,21,existing_credits_paid_back_duly_till_now,business,1572,4,4,4,female_divorced/separated/married,female,none,4,real_estate,36,bank,own,1,1,1,0,1,1
+593,2,24,existing_credits_paid_back_duly_till_now,car_(new),2718,1,2,3,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,20,none,rent,1,1,1,1,1,0
+594,1,24,all_credits_at_this_bank_paid_back_duly,others,1358,0,4,4,male_single,male,none,3,car_or_other,40,stores,own,1,3,1,1,1,0
+595,2,6,all_credits_at_this_bank_paid_back_duly,car_(new),931,2,1,1,female_divorced/separated/married,female,none,1,building_society_savings_agreement/life_insurance,32,stores,own,1,1,1,0,1,0
+596,1,24,existing_credits_paid_back_duly_till_now,car_(new),1442,1,3,4,female_divorced/separated/married,female,none,4,car_or_other,23,none,rent,2,2,1,0,1,0
+597,2,24,no_credits_taken/all_credits_paid_back_duly,business,4241,1,2,1,male_single,male,none,4,real_estate,36,none,own,3,1,1,1,1,0
+598,0,18,critical_account/other_credits_existing_not_at_this_bank,car_(new),2775,1,3,2,male_single,male,none,2,building_society_savings_agreement/life_insurance,31,bank,own,2,2,1,0,1,0
+599,0,24,delay_in_paying_off_in_the_past,business,3863,1,2,1,male_single,male,none,2,unknown/no_property,32,none,for free,1,2,1,0,1,1
+600,2,7,existing_credits_paid_back_duly_till_now,radio/television,2329,1,1,1,female_divorced/separated/married,female,guarantor,1,real_estate,45,none,own,1,2,1,0,1,1
+601,2,9,existing_credits_paid_back_duly_till_now,furniture/equipment,918,1,2,4,female_divorced/separated/married,female,none,1,building_society_savings_agreement/life_insurance,30,none,own,1,2,1,0,1,0
+602,2,24,all_credits_at_this_bank_paid_back_duly,education,1837,1,3,4,female_divorced/separated/married,female,none,4,unknown/no_property,34,bank,for free,1,1,1,0,1,0
+603,0,36,existing_credits_paid_back_duly_till_now,furniture/equipment,3349,1,2,4,female_divorced/separated/married,female,none,2,car_or_other,28,none,own,1,3,1,1,1,0
+604,3,10,existing_credits_paid_back_duly_till_now,furniture/equipment,1275,1,1,4,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,23,none,own,1,2,1,0,1,1
+605,1,24,all_credits_at_this_bank_paid_back_duly,furniture/equipment,2828,3,2,4,male_single,male,none,4,real_estate,22,stores,own,1,2,1,1,1,1
+606,0,24,critical_account/other_credits_existing_not_at_this_bank,business,4526,1,2,3,male_single,male,none,2,real_estate,74,none,own,1,3,1,1,1,1
+607,2,36,existing_credits_paid_back_duly_till_now,radio/television,2671,2,2,4,female_divorced/separated/married,female,co-applicant,4,unknown/no_property,50,none,for free,1,2,1,0,1,0
+608,0,18,existing_credits_paid_back_duly_till_now,radio/television,2051,1,1,4,male_single,male,none,1,real_estate,33,none,own,1,2,1,0,1,1
+609,0,15,existing_credits_paid_back_duly_till_now,car_(used),1300,0,4,4,male_single,male,none,4,unknown/no_property,45,bank,for free,1,2,2,0,1,1
+610,1,12,existing_credits_paid_back_duly_till_now,domestic_appliances,741,2,0,4,female_divorced/separated/married,female,none,3,building_society_savings_agreement/life_insurance,22,none,own,1,2,1,0,1,0
+611,3,10,existing_credits_paid_back_duly_till_now,car_(new),1240,2,4,1,female_divorced/separated/married,female,none,4,unknown/no_property,48,none,for free,1,1,2,0,1,0
+612,1,21,existing_credits_paid_back_duly_till_now,radio/television,3357,4,1,4,female_divorced/separated/married,female,none,2,car_or_other,29,bank,own,1,2,1,0,1,1
+613,1,24,all_credits_at_this_bank_paid_back_duly,car_(used),3632,1,2,1,female_divorced/separated/married,female,guarantor,4,car_or_other,22,bank,rent,1,2,1,0,0,1
+614,0,18,delay_in_paying_off_in_the_past,furniture/equipment,1808,1,3,4,female_divorced/separated/married,female,none,1,real_estate,22,none,own,1,2,1,0,1,0
+615,2,48,no_credits_taken/all_credits_paid_back_duly,business,12204,0,2,2,male_single,male,none,2,car_or_other,48,bank,own,1,3,1,1,1,1
+616,2,60,delay_in_paying_off_in_the_past,radio/television,9157,0,2,2,male_single,male,none,2,unknown/no_property,27,none,for free,1,3,1,0,1,1
+617,1,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),3676,1,2,1,male_single,male,none,3,real_estate,37,none,rent,3,2,2,0,1,1
+618,2,30,existing_credits_paid_back_duly_till_now,furniture/equipment,3441,2,2,2,female_divorced/separated/married,female,co-applicant,4,car_or_other,21,none,rent,1,2,1,0,1,0
+619,0,12,existing_credits_paid_back_duly_till_now,car_(new),640,1,2,4,male_divorced/separated,male,none,2,real_estate,49,none,own,1,1,1,0,1,1
+620,2,21,critical_account/other_credits_existing_not_at_this_bank,business,3652,1,3,2,male_single,male,none,3,building_society_savings_agreement/life_insurance,27,none,own,2,2,1,0,1,1
+621,0,18,critical_account/other_credits_existing_not_at_this_bank,car_(new),1530,1,2,3,male_single,male,none,2,building_society_savings_agreement/life_insurance,32,bank,own,2,2,1,0,1,0
+622,0,48,existing_credits_paid_back_duly_till_now,business,3914,0,2,4,male_divorced/separated,male,none,2,real_estate,38,bank,own,1,2,1,0,1,0
+623,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1858,1,1,4,female_divorced/separated/married,female,none,1,car_or_other,22,none,rent,1,2,1,0,1,1
+624,1,18,existing_credits_paid_back_duly_till_now,radio/television,2600,1,2,4,male_single,male,none,4,unknown/no_property,65,none,for free,2,2,1,0,1,0
+625,0,15,existing_credits_paid_back_duly_till_now,radio/television,1979,0,4,4,male_single,male,none,2,car_or_other,35,none,own,1,2,1,0,1,1
+626,3,6,existing_credits_paid_back_duly_till_now,furniture/equipment,2116,1,2,2,male_single,male,none,2,real_estate,41,none,own,1,2,1,1,1,1
+627,2,9,all_credits_at_this_bank_paid_back_duly,car_(new),1437,2,3,2,male_single,male,none,3,unknown/no_property,29,none,own,1,2,1,0,1,0
+628,0,42,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,4042,3,2,4,male_single,male,none,4,real_estate,36,none,own,2,2,1,1,1,1
+629,0,9,existing_credits_paid_back_duly_till_now,education,3832,0,4,1,male_single,male,none,4,real_estate,64,none,own,1,1,1,0,1,1
+630,1,24,existing_credits_paid_back_duly_till_now,radio/television,3660,1,2,2,female_divorced/separated/married,female,none,4,car_or_other,28,none,own,1,2,1,0,1,1
+631,1,18,all_credits_at_this_bank_paid_back_duly,furniture/equipment,1553,1,2,4,male_single,male,none,3,car_or_other,44,bank,own,1,2,1,0,1,0
+632,2,15,existing_credits_paid_back_duly_till_now,radio/television,1444,0,1,4,male_single,male,none,1,building_society_savings_agreement/life_insurance,23,none,own,1,2,1,0,1,1
+633,0,9,existing_credits_paid_back_duly_till_now,furniture/equipment,1980,1,1,2,female_divorced/separated/married,female,co-applicant,2,car_or_other,19,none,rent,2,2,1,0,1,0
+634,2,24,existing_credits_paid_back_duly_till_now,car_(new),1355,1,1,3,female_divorced/separated/married,female,none,4,car_or_other,25,none,own,1,1,1,1,1,0
+635,0,12,existing_credits_paid_back_duly_till_now,education,1393,1,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,47,bank,own,3,2,2,1,1,1
+636,0,24,existing_credits_paid_back_duly_till_now,radio/television,1376,3,3,4,female_divorced/separated/married,female,none,1,car_or_other,28,none,own,1,2,1,0,1,1
+637,0,60,delay_in_paying_off_in_the_past,radio/television,15653,1,3,2,male_single,male,none,4,car_or_other,21,none,own,2,2,1,1,1,1
+638,0,12,existing_credits_paid_back_duly_till_now,radio/television,1493,1,1,4,female_divorced/separated/married,female,none,3,car_or_other,34,none,own,1,2,2,0,1,1
+639,1,42,delay_in_paying_off_in_the_past,radio/television,4370,1,3,3,male_single,male,none,2,building_society_savings_agreement/life_insurance,26,bank,own,2,2,2,1,1,0
+640,1,18,existing_credits_paid_back_duly_till_now,education,750,1,0,4,female_divorced/separated/married,female,none,1,real_estate,27,none,own,1,0,1,0,1,0
+641,2,15,existing_credits_paid_back_duly_till_now,repairs,1308,1,4,4,male_single,male,none,4,car_or_other,38,none,own,2,1,1,0,1,1
+642,0,15,existing_credits_paid_back_duly_till_now,education,4623,2,2,3,male_single,male,none,2,building_society_savings_agreement/life_insurance,40,none,own,1,3,1,1,1,0
+643,0,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,1851,1,3,4,male_married/widowed,male,guarantor,2,car_or_other,33,none,own,2,2,1,1,1,1
+644,1,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,1880,1,3,4,male_married/widowed,male,none,1,building_society_savings_agreement/life_insurance,32,none,own,2,3,1,1,1,1
+645,0,36,delay_in_paying_off_in_the_past,business,7980,0,1,4,male_single,male,none,4,car_or_other,27,none,rent,2,2,1,1,1,0
+646,1,30,no_credits_taken/all_credits_paid_back_duly,furniture/equipment,4583,1,2,2,male_divorced/separated,male,guarantor,2,real_estate,32,none,own,2,2,1,0,1,1
+647,0,12,existing_credits_paid_back_duly_till_now,car_(new),1386,3,2,2,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,26,none,own,1,2,1,0,1,0
+648,3,24,existing_credits_paid_back_duly_till_now,car_(new),947,1,3,4,male_single,male,none,3,unknown/no_property,38,bank,for free,1,2,2,0,1,0
+649,1,12,existing_credits_paid_back_duly_till_now,education,684,1,2,4,male_single,male,none,4,car_or_other,40,none,rent,1,1,2,0,1,0
+650,1,48,existing_credits_paid_back_duly_till_now,education,7476,1,3,4,male_single,male,none,1,unknown/no_property,50,none,for free,1,3,1,1,1,1
+651,2,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1922,1,2,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,37,none,own,1,1,1,0,1,0
+652,1,24,existing_credits_paid_back_duly_till_now,car_(new),2303,1,4,4,male_single,male,co-applicant,1,real_estate,45,none,own,1,2,1,0,1,0
+653,2,36,delay_in_paying_off_in_the_past,car_(new),8086,2,4,2,male_single,male,none,4,car_or_other,42,none,own,4,3,1,1,1,0
+654,0,24,critical_account/other_credits_existing_not_at_this_bank,car_(used),2346,1,3,4,male_single,male,none,3,car_or_other,35,none,own,2,2,1,1,1,1
+655,1,14,existing_credits_paid_back_duly_till_now,car_(new),3973,1,0,1,male_single,male,none,4,unknown/no_property,22,none,for free,1,2,1,0,1,1
+656,2,12,existing_credits_paid_back_duly_till_now,car_(new),888,1,4,4,male_single,male,none,4,car_or_other,41,bank,own,1,1,2,0,1,0
+657,0,48,existing_credits_paid_back_duly_till_now,radio/television,10222,0,3,4,male_single,male,none,3,car_or_other,37,stores,own,1,2,1,1,1,1
+658,2,30,no_credits_taken/all_credits_paid_back_duly,business,4221,1,2,2,female_divorced/separated/married,female,none,1,car_or_other,28,none,own,2,2,1,0,1,1
+659,2,18,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,6361,1,4,2,male_single,male,none,1,unknown/no_property,41,none,own,1,2,1,1,1,1
+660,3,12,existing_credits_paid_back_duly_till_now,radio/television,1297,1,2,3,male_married/widowed,male,none,4,real_estate,23,none,rent,1,2,1,0,1,1
+661,1,12,existing_credits_paid_back_duly_till_now,car_(new),900,0,2,4,male_married/widowed,male,none,2,car_or_other,23,none,own,1,2,1,0,1,0
+662,0,21,existing_credits_paid_back_duly_till_now,furniture/equipment,2241,1,4,4,male_single,male,none,2,real_estate,50,none,own,2,2,1,0,1,1
+663,2,6,delay_in_paying_off_in_the_past,furniture/equipment,1050,1,0,4,male_single,male,none,1,building_society_savings_agreement/life_insurance,35,stores,own,2,3,1,1,1,1
+664,3,6,critical_account/other_credits_existing_not_at_this_bank,education,1047,1,2,2,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,50,none,own,1,1,1,0,1,1
+665,0,24,critical_account/other_credits_existing_not_at_this_bank,others,6314,1,0,4,male_single,male,co-applicant,2,unknown/no_property,27,bank,own,2,3,1,1,1,1
+666,2,30,all_credits_at_this_bank_paid_back_duly,furniture/equipment,3496,4,2,4,male_single,male,none,2,car_or_other,34,stores,own,1,2,2,1,1,1
+667,0,48,all_credits_at_this_bank_paid_back_duly,business,3609,1,2,1,female_divorced/separated/married,female,none,1,real_estate,27,stores,own,1,2,1,0,1,1
+668,1,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),4843,1,4,3,male_single,male,co-applicant,4,building_society_savings_agreement/life_insurance,43,none,rent,2,2,1,1,1,0
+669,3,30,critical_account/other_credits_existing_not_at_this_bank,radio/television,3017,1,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,47,none,own,1,2,1,0,1,1
+670,0,24,critical_account/other_credits_existing_not_at_this_bank,business,4139,2,2,3,male_single,male,none,3,building_society_savings_agreement/life_insurance,27,none,own,2,1,1,1,1,1
+671,0,36,existing_credits_paid_back_duly_till_now,business,5742,2,3,2,male_single,male,none,2,car_or_other,31,none,own,2,2,1,1,1,1
+672,0,60,existing_credits_paid_back_duly_till_now,car_(new),10366,1,4,2,male_single,male,none,4,building_society_savings_agreement/life_insurance,42,none,own,1,3,1,1,1,1
+673,0,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),2080,3,2,1,male_married/widowed,male,none,2,car_or_other,24,none,own,1,2,1,0,1,1
+674,0,21,delay_in_paying_off_in_the_past,business,2580,3,1,4,male_single,male,none,2,real_estate,41,bank,own,1,1,2,0,1,0
+675,0,30,critical_account/other_credits_existing_not_at_this_bank,radio/television,4530,1,3,4,female_divorced/separated/married,female,none,4,car_or_other,26,none,rent,1,3,1,1,1,1
+676,0,24,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,5150,1,4,4,male_single,male,none,4,car_or_other,33,none,own,1,2,1,1,1,1
+677,2,72,existing_credits_paid_back_duly_till_now,radio/television,5595,2,2,2,male_married/widowed,male,none,2,car_or_other,24,none,own,1,2,1,0,1,0
+678,1,24,existing_credits_paid_back_duly_till_now,radio/television,2384,1,4,4,male_single,male,none,4,real_estate,64,bank,rent,1,1,1,0,1,1
+679,0,18,existing_credits_paid_back_duly_till_now,radio/television,1453,1,1,3,female_divorced/separated/married,female,none,1,real_estate,26,none,own,1,2,1,0,1,1
+680,0,6,existing_credits_paid_back_duly_till_now,education,1538,1,1,1,female_divorced/separated/married,female,none,2,unknown/no_property,56,none,own,1,2,1,0,1,1
+681,0,12,existing_credits_paid_back_duly_till_now,radio/television,2279,0,2,4,male_single,male,none,4,unknown/no_property,37,none,for free,1,2,1,1,1,1
+682,0,15,delay_in_paying_off_in_the_past,radio/television,1478,1,2,4,male_married/widowed,male,none,3,real_estate,33,bank,own,2,2,1,0,1,1
+683,0,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,5103,1,1,3,male_married/widowed,male,none,3,unknown/no_property,47,none,for free,3,2,1,1,1,1
+684,2,36,delay_in_paying_off_in_the_past,business,9857,2,3,1,male_single,male,none,3,building_society_savings_agreement/life_insurance,31,none,own,2,1,2,1,1,1
+685,0,60,existing_credits_paid_back_duly_till_now,car_(new),6527,0,2,4,male_single,male,none,4,unknown/no_property,34,none,for free,1,2,2,1,1,1
+686,3,10,critical_account/other_credits_existing_not_at_this_bank,radio/television,1347,0,3,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,27,none,own,2,2,1,1,1,1
+687,2,36,delay_in_paying_off_in_the_past,car_(new),2862,2,4,4,male_single,male,none,3,unknown/no_property,30,none,for free,1,2,1,0,1,1
+688,0,9,existing_credits_paid_back_duly_till_now,radio/television,2753,2,4,3,male_single,male,co-applicant,4,car_or_other,35,none,own,1,2,1,1,1,1
+689,1,12,existing_credits_paid_back_duly_till_now,car_(new),3651,4,2,1,male_single,male,none,3,building_society_savings_agreement/life_insurance,31,none,own,1,2,2,0,1,1
+690,1,15,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,975,1,2,2,male_divorced/separated,male,none,3,building_society_savings_agreement/life_insurance,25,none,own,2,2,1,0,1,1
+691,2,15,existing_credits_paid_back_duly_till_now,repairs,2631,2,2,3,female_divorced/separated/married,female,none,2,real_estate,25,none,own,1,1,1,0,1,1
+692,2,24,existing_credits_paid_back_duly_till_now,radio/television,2896,2,1,2,male_single,male,none,1,car_or_other,29,none,own,1,2,1,0,1,1
+693,1,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),4716,0,1,1,male_single,male,none,3,real_estate,44,none,own,2,1,2,0,1,1
+694,0,24,existing_credits_paid_back_duly_till_now,radio/television,2284,1,3,4,male_single,male,none,2,car_or_other,28,none,own,1,2,1,1,1,1
+695,0,6,existing_credits_paid_back_duly_till_now,car_(used),1236,3,2,2,male_single,male,none,4,building_society_savings_agreement/life_insurance,50,none,rent,1,2,1,0,1,1
+696,2,12,existing_credits_paid_back_duly_till_now,radio/television,1103,1,3,4,male_single,male,guarantor,3,real_estate,29,none,own,2,2,1,0,0,1
+697,0,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),926,1,0,1,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,38,none,own,1,0,1,0,1,1
+698,0,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,1800,1,2,4,male_single,male,none,2,car_or_other,24,none,own,2,2,1,0,1,1
+699,3,15,existing_credits_paid_back_duly_till_now,education,1905,1,4,4,male_single,male,none,4,car_or_other,40,none,rent,1,3,1,1,1,1
+700,0,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1123,3,2,4,female_divorced/separated/married,female,none,4,car_or_other,29,none,rent,1,1,1,0,1,0
+701,1,48,critical_account/other_credits_existing_not_at_this_bank,car_(used),6331,1,4,4,male_single,male,none,4,unknown/no_property,46,none,for free,2,2,1,1,1,0
+702,3,24,existing_credits_paid_back_duly_till_now,radio/television,1377,2,4,4,female_divorced/separated/married,female,none,2,unknown/no_property,47,none,for free,1,2,1,1,1,1
+703,2,30,delay_in_paying_off_in_the_past,business,2503,2,4,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,41,stores,own,2,2,1,0,1,1
+704,2,27,existing_credits_paid_back_duly_till_now,business,2528,1,1,4,female_divorced/separated/married,female,none,1,building_society_savings_agreement/life_insurance,32,none,own,1,2,2,1,1,1
+705,0,15,existing_credits_paid_back_duly_till_now,car_(new),5324,3,4,1,female_divorced/separated/married,female,none,4,unknown/no_property,35,none,for free,1,2,1,0,1,1
+706,2,48,existing_credits_paid_back_duly_till_now,car_(new),6560,2,3,3,male_single,male,none,2,building_society_savings_agreement/life_insurance,24,none,own,1,2,1,0,1,0
+707,2,12,no_credits_taken/all_credits_paid_back_duly,furniture/equipment,2969,1,1,4,female_divorced/separated/married,female,none,3,building_society_savings_agreement/life_insurance,25,none,rent,2,2,1,0,1,0
+708,2,9,existing_credits_paid_back_duly_till_now,radio/television,1206,1,4,4,female_divorced/separated/married,female,none,4,real_estate,25,none,own,1,2,1,0,1,1
+709,2,9,existing_credits_paid_back_duly_till_now,radio/television,2118,1,2,2,male_single,male,none,2,real_estate,37,none,own,1,1,2,0,1,1
+710,0,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,629,3,4,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,32,bank,own,2,3,1,1,1,1
+711,1,6,all_credits_at_this_bank_paid_back_duly,education,1198,1,4,4,female_divorced/separated/married,female,none,4,unknown/no_property,35,none,for free,1,2,1,0,1,0
+712,0,21,existing_credits_paid_back_duly_till_now,car_(used),2476,0,4,4,male_single,male,none,4,real_estate,46,none,own,1,3,1,1,1,1
+713,1,9,critical_account/other_credits_existing_not_at_this_bank,radio/television,1138,1,2,4,male_single,male,none,4,real_estate,25,none,own,2,1,1,0,1,1
+714,2,60,existing_credits_paid_back_duly_till_now,car_(new),14027,1,3,4,male_single,male,none,2,unknown/no_property,27,none,own,1,3,1,1,1,0
+715,0,30,critical_account/other_credits_existing_not_at_this_bank,car_(used),7596,0,4,1,male_single,male,none,4,car_or_other,63,none,own,2,2,1,0,1,1
+716,0,30,critical_account/other_credits_existing_not_at_this_bank,radio/television,3077,0,4,3,male_single,male,none,2,car_or_other,40,none,own,2,2,2,1,1,1
+717,0,18,existing_credits_paid_back_duly_till_now,radio/television,1505,1,2,4,male_single,male,none,2,unknown/no_property,32,none,for free,1,3,1,1,1,1
+718,3,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,3148,0,2,3,male_single,male,none,2,car_or_other,31,none,own,2,2,1,1,1,1
+719,2,20,no_credits_taken/all_credits_paid_back_duly,car_(used),6148,2,4,3,male_married/widowed,male,none,4,car_or_other,31,bank,own,2,2,1,1,1,1
+720,3,9,no_credits_taken/all_credits_paid_back_duly,radio/television,1337,1,1,4,male_single,male,none,2,car_or_other,34,none,own,2,3,1,1,1,0
+721,2,6,all_credits_at_this_bank_paid_back_duly,education,433,4,1,4,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,24,bank,rent,1,2,2,0,1,0
+722,1,12,existing_credits_paid_back_duly_till_now,car_(new),1228,1,2,4,female_divorced/separated/married,female,none,2,real_estate,24,none,own,1,1,1,0,1,0
+723,2,9,existing_credits_paid_back_duly_till_now,radio/television,790,3,2,4,female_divorced/separated/married,female,none,3,real_estate,66,none,own,1,1,1,0,1,1
+724,0,27,existing_credits_paid_back_duly_till_now,car_(new),2570,1,2,3,female_divorced/separated/married,female,none,3,real_estate,21,none,rent,1,2,1,0,1,0
+725,0,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),250,4,2,2,female_divorced/separated/married,female,none,2,real_estate,41,bank,own,2,1,1,0,1,1
+726,0,15,critical_account/other_credits_existing_not_at_this_bank,radio/television,1316,3,2,2,male_married/widowed,male,none,2,building_society_savings_agreement/life_insurance,47,none,own,2,1,1,0,1,1
+727,1,18,existing_credits_paid_back_duly_till_now,radio/television,1882,1,2,4,female_divorced/separated/married,female,none,4,car_or_other,25,bank,rent,2,2,1,0,1,0
+728,2,48,all_credits_at_this_bank_paid_back_duly,business,6416,1,4,4,female_divorced/separated/married,female,none,3,unknown/no_property,59,none,rent,1,2,1,0,1,0
+729,3,24,critical_account/other_credits_existing_not_at_this_bank,business,1275,4,2,2,male_divorced/separated,male,none,4,real_estate,36,none,own,2,2,1,1,1,1
+730,2,24,delay_in_paying_off_in_the_past,radio/television,6403,1,1,1,male_single,male,none,2,car_or_other,33,none,own,1,2,1,0,1,1
+731,1,24,existing_credits_paid_back_duly_till_now,radio/television,1987,1,2,2,male_single,male,none,4,real_estate,21,none,rent,1,1,2,0,1,0
+732,2,8,existing_credits_paid_back_duly_till_now,radio/television,760,1,3,4,female_divorced/separated/married,female,guarantor,2,real_estate,44,none,own,1,1,1,0,1,1
+733,0,24,existing_credits_paid_back_duly_till_now,car_(used),2603,4,2,2,female_divorced/separated/married,female,none,4,car_or_other,28,none,rent,1,2,1,1,1,1
+734,0,4,critical_account/other_credits_existing_not_at_this_bank,car_(new),3380,1,3,1,female_divorced/separated/married,female,none,1,real_estate,37,none,own,1,2,2,0,1,1
+735,2,36,all_credits_at_this_bank_paid_back_duly,domestic_appliances,3990,0,1,3,female_divorced/separated/married,female,none,2,unknown/no_property,29,bank,own,1,0,1,0,1,1
+736,2,24,existing_credits_paid_back_duly_till_now,car_(used),11560,1,2,1,female_divorced/separated/married,female,none,4,car_or_other,23,none,rent,2,3,1,0,1,0
+737,1,18,existing_credits_paid_back_duly_till_now,car_(new),4380,2,2,3,male_single,male,none,4,car_or_other,35,none,own,1,1,2,1,1,1
+738,0,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),6761,1,3,1,male_single,male,none,3,unknown/no_property,45,none,own,2,3,2,1,1,1
+739,2,30,no_credits_taken/all_credits_paid_back_duly,business,4280,2,2,4,female_divorced/separated/married,female,none,4,car_or_other,26,none,rent,2,1,1,0,1,0
+740,1,24,all_credits_at_this_bank_paid_back_duly,car_(new),2325,2,3,2,male_single,male,none,3,car_or_other,32,bank,own,1,2,1,0,1,1
+741,2,10,all_credits_at_this_bank_paid_back_duly,radio/television,1048,1,2,4,male_single,male,none,4,real_estate,23,stores,own,1,1,1,0,1,1
+742,0,21,existing_credits_paid_back_duly_till_now,radio/television,3160,0,4,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,41,none,own,1,2,1,1,1,1
+743,1,24,all_credits_at_this_bank_paid_back_duly,furniture/equipment,2483,3,2,4,male_single,male,none,4,real_estate,22,stores,own,1,2,1,1,1,1
+744,1,39,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,14179,0,3,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,30,none,own,2,3,1,1,1,1
+745,1,13,critical_account/other_credits_existing_not_at_this_bank,business,1797,1,1,3,male_single,male,none,1,building_society_savings_agreement/life_insurance,28,bank,own,2,1,1,0,1,1
+746,1,15,existing_credits_paid_back_duly_till_now,car_(new),2511,1,0,1,female_divorced/separated/married,female,none,4,car_or_other,23,none,rent,1,2,1,0,1,1
+747,1,12,existing_credits_paid_back_duly_till_now,car_(new),1274,1,1,3,female_divorced/separated/married,female,none,1,real_estate,37,none,own,1,1,1,0,1,0
+748,0,21,existing_credits_paid_back_duly_till_now,car_(used),5248,0,2,1,male_single,male,none,3,car_or_other,26,none,own,1,2,1,0,1,1
+749,0,15,existing_credits_paid_back_duly_till_now,car_(used),3029,1,3,2,male_single,male,none,2,car_or_other,33,none,own,1,2,1,0,1,1
+750,1,6,existing_credits_paid_back_duly_till_now,furniture/equipment,428,1,4,2,female_divorced/separated/married,female,none,1,building_society_savings_agreement/life_insurance,49,bank,own,1,2,1,1,1,1
+751,1,18,existing_credits_paid_back_duly_till_now,car_(new),976,1,1,1,female_divorced/separated/married,female,none,2,car_or_other,23,none,own,1,1,1,0,1,0
+752,2,12,existing_credits_paid_back_duly_till_now,business,841,2,3,2,female_divorced/separated/married,female,none,4,real_estate,23,none,rent,1,1,1,0,1,1
+753,0,30,critical_account/other_credits_existing_not_at_this_bank,radio/television,5771,1,3,4,female_divorced/separated/married,female,none,2,car_or_other,25,none,own,2,2,1,0,1,1
+754,0,12,delay_in_paying_off_in_the_past,repairs,1555,4,4,4,male_single,male,none,4,unknown/no_property,55,none,for free,2,2,2,0,1,0
+755,1,24,existing_credits_paid_back_duly_till_now,car_(new),1285,0,3,4,female_divorced/separated/married,female,none,4,unknown/no_property,32,none,rent,1,2,1,0,1,0
+756,3,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),1299,1,2,1,male_single,male,none,1,real_estate,74,none,own,3,0,2,0,0,1
+757,3,15,critical_account/other_credits_existing_not_at_this_bank,radio/television,1271,0,2,3,male_single,male,none,4,unknown/no_property,39,none,for free,2,2,1,1,1,0
+758,0,24,existing_credits_paid_back_duly_till_now,car_(new),1393,1,2,2,male_single,male,guarantor,2,real_estate,31,none,own,1,2,1,1,1,1
+759,1,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),691,1,4,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,35,none,own,2,2,1,0,1,0
+760,0,15,critical_account/other_credits_existing_not_at_this_bank,car_(new),5045,0,4,1,female_divorced/separated/married,female,none,4,car_or_other,59,none,own,1,2,1,1,1,1
+761,1,18,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,2124,1,2,4,female_divorced/separated/married,female,none,4,real_estate,24,none,rent,2,2,1,0,1,0
+762,1,12,existing_credits_paid_back_duly_till_now,radio/television,2214,1,2,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,24,none,own,1,1,1,0,1,1
+763,0,21,critical_account/other_credits_existing_not_at_this_bank,car_(new),12680,0,4,4,male_single,male,none,4,unknown/no_property,30,none,for free,1,3,1,1,1,0
+764,0,24,critical_account/other_credits_existing_not_at_this_bank,car_(new),2463,2,3,4,male_married/widowed,male,none,3,building_society_savings_agreement/life_insurance,27,none,own,2,2,1,1,1,1
+765,2,12,existing_credits_paid_back_duly_till_now,radio/television,1155,1,4,3,male_married/widowed,male,guarantor,3,real_estate,40,bank,own,2,1,1,0,1,1
+766,1,30,existing_credits_paid_back_duly_till_now,furniture/equipment,3108,1,1,2,male_divorced/separated,male,none,4,building_society_savings_agreement/life_insurance,31,none,own,1,1,1,0,1,0
+767,0,10,existing_credits_paid_back_duly_till_now,car_(used),2901,0,1,1,female_divorced/separated/married,female,none,4,real_estate,31,none,rent,1,2,1,0,1,1
+768,2,12,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,3617,1,4,1,male_single,male,none,4,car_or_other,28,none,rent,3,2,1,1,1,1
+769,0,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,1655,1,4,2,male_single,male,none,4,real_estate,63,none,own,2,1,1,1,1,1
+770,1,24,existing_credits_paid_back_duly_till_now,car_(used),2812,0,4,2,female_divorced/separated/married,female,none,4,real_estate,26,none,rent,1,2,1,0,1,1
+771,1,36,critical_account/other_credits_existing_not_at_this_bank,education,8065,1,2,3,female_divorced/separated/married,female,none,2,unknown/no_property,25,none,own,2,3,1,1,1,0
+772,0,21,critical_account/other_credits_existing_not_at_this_bank,car_(used),3275,1,4,1,male_single,male,none,4,car_or_other,36,none,own,1,3,1,1,1,1
+773,0,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,2223,2,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,52,bank,own,2,2,1,0,1,1
+774,3,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),1480,3,0,2,male_single,male,none,4,unknown/no_property,66,bank,for free,3,0,1,0,1,1
+775,1,24,existing_credits_paid_back_duly_till_now,car_(new),1371,0,2,4,female_divorced/separated/married,female,none,4,real_estate,25,none,rent,1,2,1,0,1,0
+776,0,36,critical_account/other_credits_existing_not_at_this_bank,car_(new),3535,1,3,4,male_single,male,none,4,car_or_other,37,none,own,2,2,1,1,1,1
+777,1,18,existing_credits_paid_back_duly_till_now,radio/television,3509,1,3,4,female_divorced/separated/married,female,guarantor,1,real_estate,25,none,own,1,2,1,0,1,1
+778,0,36,critical_account/other_credits_existing_not_at_this_bank,car_(used),5711,4,4,4,male_single,male,none,2,car_or_other,38,none,own,2,3,1,1,1,1
+779,2,18,existing_credits_paid_back_duly_till_now,repairs,3872,1,0,2,female_divorced/separated/married,female,none,4,car_or_other,67,none,own,1,2,1,1,1,1
+780,2,39,critical_account/other_credits_existing_not_at_this_bank,radio/television,4933,1,3,2,male_single,male,guarantor,2,real_estate,25,none,own,2,2,1,0,1,0
+781,0,24,critical_account/other_credits_existing_not_at_this_bank,car_(new),1940,4,4,4,male_single,male,none,4,real_estate,60,none,own,1,2,1,1,1,1
+782,2,12,no_credits_taken/all_credits_paid_back_duly,retraining,1410,1,2,2,male_single,male,none,2,real_estate,31,none,own,1,1,1,1,1,1
+783,2,12,existing_credits_paid_back_duly_till_now,car_(new),836,2,1,4,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,23,bank,own,1,1,1,0,1,0
+784,2,20,existing_credits_paid_back_duly_till_now,car_(used),6468,0,0,1,male_divorced/separated,male,none,4,real_estate,60,none,own,1,3,1,1,1,1
+785,2,18,existing_credits_paid_back_duly_till_now,business,1941,4,2,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,35,none,own,1,1,1,1,1,1
+786,0,22,existing_credits_paid_back_duly_till_now,radio/television,2675,3,4,3,male_single,male,none,4,car_or_other,40,none,own,1,2,1,0,1,1
+787,0,48,critical_account/other_credits_existing_not_at_this_bank,car_(used),2751,0,4,4,male_single,male,none,3,car_or_other,38,none,own,2,2,2,1,1,1
+788,2,48,delay_in_paying_off_in_the_past,education,6224,1,4,4,male_single,male,none,4,unknown/no_property,50,none,for free,1,2,1,0,1,0
+789,1,40,critical_account/other_credits_existing_not_at_this_bank,education,5998,1,2,4,male_single,male,none,3,unknown/no_property,27,bank,own,1,2,1,1,1,0
+790,2,21,existing_credits_paid_back_duly_till_now,business,1188,1,4,2,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,39,none,own,1,2,2,0,1,0
+791,0,24,existing_credits_paid_back_duly_till_now,car_(used),6313,0,4,3,male_single,male,none,4,car_or_other,41,none,own,1,3,2,1,1,1
+792,0,6,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1221,0,2,1,male_married/widowed,male,none,2,building_society_savings_agreement/life_insurance,27,none,own,2,2,1,0,1,1
+793,3,24,existing_credits_paid_back_duly_till_now,furniture/equipment,2892,1,4,3,male_divorced/separated,male,none,4,unknown/no_property,51,none,for free,1,2,1,0,1,1
+794,0,24,existing_credits_paid_back_duly_till_now,furniture/equipment,3062,3,4,4,male_single,male,none,3,unknown/no_property,32,none,rent,1,2,1,1,1,1
+795,0,9,existing_credits_paid_back_duly_till_now,furniture/equipment,2301,2,1,2,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,22,none,rent,1,2,1,0,1,1
+796,1,18,existing_credits_paid_back_duly_till_now,car_(used),7511,0,4,1,male_single,male,none,4,building_society_savings_agreement/life_insurance,51,none,for free,1,2,2,1,1,0
+797,0,12,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1258,1,1,2,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,22,none,rent,2,1,1,0,1,1
+798,0,24,delay_in_paying_off_in_the_past,car_(new),717,0,4,4,male_married/widowed,male,none,4,car_or_other,54,none,own,2,2,1,1,1,1
+799,2,9,existing_credits_paid_back_duly_till_now,car_(new),1549,0,1,4,male_single,male,none,2,real_estate,35,none,own,1,0,1,0,1,1
+800,0,24,critical_account/other_credits_existing_not_at_this_bank,education,1597,1,4,4,male_single,male,none,4,unknown/no_property,54,none,for free,2,2,2,0,1,1
+801,2,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,1795,1,4,3,female_divorced/separated/married,female,guarantor,4,real_estate,48,bank,rent,2,1,1,1,1,1
+802,1,20,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,4272,1,4,1,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,24,none,own,2,2,1,0,1,1
+803,0,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,976,0,4,4,male_single,male,none,4,car_or_other,35,none,own,2,2,1,0,1,1
+804,2,12,existing_credits_paid_back_duly_till_now,car_(new),7472,0,0,1,female_divorced/separated/married,female,none,2,real_estate,24,none,rent,1,0,1,0,1,1
+805,1,36,existing_credits_paid_back_duly_till_now,car_(new),9271,1,3,2,male_single,male,none,1,car_or_other,24,none,own,1,2,1,1,1,0
+806,2,6,existing_credits_paid_back_duly_till_now,radio/television,590,1,1,3,male_married/widowed,male,none,3,real_estate,26,none,own,1,1,1,0,0,1
+807,0,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,930,0,4,4,male_single,male,none,4,real_estate,65,none,own,4,2,1,0,1,1
+808,2,42,all_credits_at_this_bank_paid_back_duly,car_(used),9283,1,0,1,male_single,male,none,2,unknown/no_property,55,bank,for free,1,3,1,1,1,1
+809,2,15,no_credits_taken/all_credits_paid_back_duly,car_(new),1778,1,1,2,female_divorced/separated/married,female,none,1,real_estate,26,none,rent,2,0,1,0,1,0
+810,2,8,existing_credits_paid_back_duly_till_now,business,907,1,1,3,male_married/widowed,male,none,2,real_estate,26,none,own,1,2,1,1,1,1
+811,2,6,existing_credits_paid_back_duly_till_now,radio/television,484,1,3,3,male_married/widowed,male,guarantor,3,real_estate,28,bank,own,1,1,1,0,1,1
+812,1,36,critical_account/other_credits_existing_not_at_this_bank,car_(used),9629,1,3,4,male_single,male,none,4,car_or_other,24,none,own,2,2,1,1,1,0
+813,1,48,existing_credits_paid_back_duly_till_now,domestic_appliances,3051,1,2,3,male_single,male,none,4,car_or_other,54,none,own,1,2,1,0,1,0
+814,1,48,existing_credits_paid_back_duly_till_now,car_(new),3931,1,3,4,male_single,male,none,4,unknown/no_property,46,none,for free,1,2,2,0,1,0
+815,2,36,delay_in_paying_off_in_the_past,car_(new),7432,1,2,2,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,54,none,rent,1,2,1,0,1,1
+816,0,6,existing_credits_paid_back_duly_till_now,domestic_appliances,1338,3,2,1,male_divorced/separated,male,none,4,real_estate,62,none,own,1,2,1,0,1,1
+817,0,6,critical_account/other_credits_existing_not_at_this_bank,radio/television,1554,1,3,1,female_divorced/separated/married,female,none,2,car_or_other,24,none,rent,2,2,1,1,1,1
+818,1,36,existing_credits_paid_back_duly_till_now,others,15857,1,0,2,male_divorced/separated,male,co-applicant,3,car_or_other,43,none,own,1,3,1,0,1,1
+819,1,18,existing_credits_paid_back_duly_till_now,radio/television,1345,1,2,4,male_married/widowed,male,none,3,real_estate,26,bank,own,1,2,1,0,1,0
+820,0,12,existing_credits_paid_back_duly_till_now,car_(new),1101,1,2,3,male_married/widowed,male,none,2,real_estate,27,none,own,2,2,1,1,1,1
+821,3,12,existing_credits_paid_back_duly_till_now,radio/television,3016,1,2,3,male_married/widowed,male,none,1,car_or_other,24,none,own,1,2,1,0,1,1
+822,1,36,existing_credits_paid_back_duly_till_now,furniture/equipment,2712,1,4,2,male_single,male,none,2,building_society_savings_agreement/life_insurance,41,bank,own,1,2,2,0,1,0
+823,1,8,critical_account/other_credits_existing_not_at_this_bank,car_(new),731,1,4,4,male_single,male,none,4,real_estate,47,none,own,2,1,1,0,1,1
+824,0,18,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,3780,1,1,3,male_divorced/separated,male,none,2,car_or_other,35,none,own,2,3,1,1,1,1
+825,1,21,critical_account/other_credits_existing_not_at_this_bank,car_(new),1602,1,4,4,male_married/widowed,male,none,3,car_or_other,30,none,own,2,2,1,1,1,1
+826,1,18,critical_account/other_credits_existing_not_at_this_bank,car_(new),3966,1,4,1,female_divorced/separated/married,female,none,4,real_estate,33,bank,rent,3,2,1,1,1,0
+827,0,18,no_credits_taken/all_credits_paid_back_duly,business,4165,1,2,2,male_single,male,none,2,car_or_other,36,stores,own,2,2,2,0,1,0
+828,1,36,existing_credits_paid_back_duly_till_now,car_(used),8335,0,4,3,male_single,male,none,4,unknown/no_property,47,none,for free,1,2,1,0,1,0
+829,2,48,delay_in_paying_off_in_the_past,business,6681,0,2,4,male_single,male,none,4,unknown/no_property,38,none,for free,1,2,2,1,1,1
+830,0,24,delay_in_paying_off_in_the_past,business,2375,3,2,4,male_single,male,none,2,car_or_other,44,none,own,2,2,2,1,1,1
+831,1,18,existing_credits_paid_back_duly_till_now,car_(new),1216,1,1,4,female_divorced/separated/married,female,none,3,car_or_other,23,none,rent,1,2,1,1,1,0
+832,1,45,no_credits_taken/all_credits_paid_back_duly,business,11816,1,4,2,male_single,male,none,4,car_or_other,29,none,rent,2,2,1,0,1,0
+833,2,24,existing_credits_paid_back_duly_till_now,radio/television,5084,0,4,2,female_divorced/separated/married,female,none,4,car_or_other,42,none,own,1,2,1,1,1,1
+834,3,15,existing_credits_paid_back_duly_till_now,radio/television,2327,1,1,2,female_divorced/separated/married,female,none,3,real_estate,25,none,own,1,1,1,0,1,0
+835,1,12,no_credits_taken/all_credits_paid_back_duly,car_(new),1082,1,2,4,male_single,male,none,4,car_or_other,48,bank,own,2,2,1,0,1,0
+836,0,12,existing_credits_paid_back_duly_till_now,radio/television,886,0,2,4,female_divorced/separated/married,female,none,2,car_or_other,21,none,own,1,2,1,0,1,1
+837,0,4,existing_credits_paid_back_duly_till_now,furniture/equipment,601,1,1,1,female_divorced/separated/married,female,none,3,real_estate,23,none,rent,1,1,2,0,1,1
+838,1,24,critical_account/other_credits_existing_not_at_this_bank,car_(used),2957,1,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,63,none,own,2,2,1,1,1,1
+839,0,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,2611,1,4,4,male_married/widowed,male,co-applicant,3,real_estate,46,none,own,2,2,1,0,1,1
+840,1,36,existing_credits_paid_back_duly_till_now,furniture/equipment,5179,1,3,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,29,none,own,1,2,1,0,1,0
+841,0,21,delay_in_paying_off_in_the_past,car_(used),2993,1,2,3,male_single,male,none,2,real_estate,28,stores,own,2,1,1,0,1,1
+842,0,18,existing_credits_paid_back_duly_till_now,repairs,1943,1,1,4,female_divorced/separated/married,female,none,4,real_estate,23,none,own,1,2,1,0,1,0
+843,0,24,all_credits_at_this_bank_paid_back_duly,business,1559,1,3,4,male_single,male,none,4,car_or_other,50,bank,own,1,2,1,1,1,1
+844,0,18,existing_credits_paid_back_duly_till_now,furniture/equipment,3422,1,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,47,bank,own,3,2,2,1,1,1
+845,2,21,existing_credits_paid_back_duly_till_now,furniture/equipment,3976,0,3,2,male_single,male,none,3,car_or_other,35,none,own,1,2,1,1,1,1
+846,0,18,existing_credits_paid_back_duly_till_now,car_(new),6761,0,2,2,male_single,male,none,4,car_or_other,68,none,rent,2,2,1,0,1,0
+847,0,24,existing_credits_paid_back_duly_till_now,car_(new),1249,1,1,4,male_married/widowed,male,none,2,real_estate,28,none,own,1,2,1,0,1,1
+848,1,9,existing_credits_paid_back_duly_till_now,radio/television,1364,1,3,3,male_single,male,none,4,real_estate,59,none,own,1,2,1,0,1,1
+849,1,12,existing_credits_paid_back_duly_till_now,radio/television,709,1,4,4,male_single,male,none,4,real_estate,57,stores,own,1,1,1,0,1,0
+850,1,20,critical_account/other_credits_existing_not_at_this_bank,car_(new),2235,1,2,4,male_married/widowed,male,guarantor,2,building_society_savings_agreement/life_insurance,33,bank,rent,2,2,1,0,0,0
+851,0,24,critical_account/other_credits_existing_not_at_this_bank,car_(used),4042,0,3,3,male_single,male,none,4,building_society_savings_agreement/life_insurance,43,none,own,2,2,1,1,1,1
+852,0,15,critical_account/other_credits_existing_not_at_this_bank,radio/television,1471,1,2,4,male_single,male,none,4,unknown/no_property,35,none,for free,2,2,1,1,1,1
+853,1,18,all_credits_at_this_bank_paid_back_duly,car_(new),1442,1,3,4,male_single,male,none,4,unknown/no_property,32,none,for free,2,1,2,0,1,0
+854,0,36,delay_in_paying_off_in_the_past,car_(new),10875,1,4,2,male_single,male,none,2,car_or_other,45,none,own,2,2,2,1,1,1
+855,0,24,existing_credits_paid_back_duly_till_now,car_(new),1474,2,1,4,male_married/widowed,male,none,3,real_estate,33,none,own,1,2,1,1,1,1
+856,0,10,existing_credits_paid_back_duly_till_now,retraining,894,0,3,4,female_divorced/separated/married,female,none,3,building_society_savings_agreement/life_insurance,40,none,own,1,2,1,1,1,1
+857,0,15,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,3343,1,2,4,male_single,male,none,2,unknown/no_property,28,none,for free,1,2,1,1,1,1
+858,1,15,existing_credits_paid_back_duly_till_now,car_(new),3959,1,2,3,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,29,none,own,1,2,1,1,1,0
+859,0,9,existing_credits_paid_back_duly_till_now,car_(new),3577,2,2,1,male_single,male,guarantor,2,real_estate,26,none,rent,1,2,2,0,0,1
+860,0,24,critical_account/other_credits_existing_not_at_this_bank,car_(used),5804,4,2,4,male_single,male,none,2,real_estate,27,none,own,2,2,1,0,1,1
+861,0,18,delay_in_paying_off_in_the_past,business,2169,1,2,4,male_married/widowed,male,none,2,car_or_other,28,none,own,1,2,1,1,1,0
+862,1,24,existing_credits_paid_back_duly_till_now,radio/television,2439,1,1,4,female_divorced/separated/married,female,none,4,real_estate,35,none,own,1,2,1,1,1,0
+863,0,27,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,4526,4,1,4,male_single,male,none,2,real_estate,32,stores,own,2,1,2,1,1,1
+864,0,10,existing_credits_paid_back_duly_till_now,furniture/equipment,2210,1,2,2,male_single,male,none,2,real_estate,25,bank,rent,1,1,1,0,1,0
+865,0,15,existing_credits_paid_back_duly_till_now,furniture/equipment,2221,3,2,2,female_divorced/separated/married,female,none,4,car_or_other,20,none,rent,1,2,1,0,1,1
+866,1,18,existing_credits_paid_back_duly_till_now,radio/television,2389,1,1,4,female_divorced/separated/married,female,none,1,car_or_other,27,stores,own,1,2,1,0,1,1
+867,0,12,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,3331,1,4,2,male_single,male,none,4,building_society_savings_agreement/life_insurance,42,stores,own,1,2,1,0,1,1
+868,0,36,existing_credits_paid_back_duly_till_now,business,7409,0,4,3,male_single,male,none,2,building_society_savings_agreement/life_insurance,37,none,own,2,2,1,0,1,1
+869,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,652,1,4,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,24,none,rent,1,2,1,0,1,1
+870,0,36,delay_in_paying_off_in_the_past,furniture/equipment,7678,3,3,2,female_divorced/separated/married,female,none,4,car_or_other,40,none,own,2,2,1,1,1,1
+871,3,6,critical_account/other_credits_existing_not_at_this_bank,car_(new),1343,1,4,1,male_single,male,none,4,real_estate,46,none,own,2,2,2,0,0,1
+872,1,24,critical_account/other_credits_existing_not_at_this_bank,business,1382,2,3,4,male_single,male,none,1,real_estate,26,none,own,2,2,1,1,1,1
+873,0,15,existing_credits_paid_back_duly_till_now,domestic_appliances,874,0,1,4,female_divorced/separated/married,female,none,1,real_estate,24,none,own,1,2,1,0,1,1
+874,1,12,existing_credits_paid_back_duly_till_now,furniture/equipment,3590,1,2,2,male_single,male,co-applicant,2,building_society_savings_agreement/life_insurance,29,none,own,1,1,2,0,1,1
+875,2,11,critical_account/other_credits_existing_not_at_this_bank,car_(new),1322,4,2,4,female_divorced/separated/married,female,none,4,car_or_other,40,none,own,2,2,1,0,1,1
+876,1,18,all_credits_at_this_bank_paid_back_duly,radio/television,1940,1,1,3,male_single,male,co-applicant,4,unknown/no_property,36,bank,for free,1,3,1,1,1,1
+877,0,36,existing_credits_paid_back_duly_till_now,radio/television,3595,1,4,4,male_single,male,none,2,car_or_other,28,none,own,1,2,1,0,1,1
+878,1,9,existing_credits_paid_back_duly_till_now,car_(new),1422,1,1,3,male_single,male,none,2,unknown/no_property,27,none,for free,1,3,1,1,1,0
+879,0,30,critical_account/other_credits_existing_not_at_this_bank,radio/television,6742,0,3,2,male_single,male,none,3,building_society_savings_agreement/life_insurance,36,none,own,2,2,1,0,1,1
+880,0,24,existing_credits_paid_back_duly_till_now,car_(used),7814,1,3,3,male_single,male,none,3,car_or_other,38,none,own,1,3,1,1,1,1
+881,0,24,existing_credits_paid_back_duly_till_now,car_(used),9277,0,2,2,male_divorced/separated,male,none,4,unknown/no_property,48,none,for free,1,2,1,1,1,1
+882,2,30,critical_account/other_credits_existing_not_at_this_bank,car_(new),2181,0,4,4,male_single,male,none,4,real_estate,36,none,own,2,2,1,0,1,1
+883,0,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,1098,1,0,4,female_divorced/separated/married,female,none,4,car_or_other,65,none,own,2,0,1,0,1,1
+884,2,24,existing_credits_paid_back_duly_till_now,furniture/equipment,4057,1,3,3,male_divorced/separated,male,none,3,car_or_other,43,none,own,1,2,1,1,1,0
+885,1,12,existing_credits_paid_back_duly_till_now,education,795,1,1,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,53,none,own,1,2,1,0,1,0
+886,2,24,critical_account/other_credits_existing_not_at_this_bank,business,2825,0,3,4,male_single,male,none,3,unknown/no_property,34,none,own,2,2,2,1,1,1
+887,2,48,existing_credits_paid_back_duly_till_now,business,15672,1,2,2,male_single,male,none,2,car_or_other,23,none,own,1,2,1,1,1,0
+888,0,36,critical_account/other_credits_existing_not_at_this_bank,car_(new),6614,1,4,4,male_single,male,none,4,car_or_other,34,none,own,2,3,1,1,1,1
+889,0,28,all_credits_at_this_bank_paid_back_duly,car_(used),7824,0,1,3,male_single,male,guarantor,4,real_estate,40,bank,rent,2,2,2,1,1,1
+890,1,27,critical_account/other_credits_existing_not_at_this_bank,business,2442,1,4,4,male_single,male,none,4,car_or_other,43,stores,own,4,3,2,1,1,1
+891,0,15,critical_account/other_credits_existing_not_at_this_bank,radio/television,1829,1,4,4,male_single,male,none,4,car_or_other,46,none,own,2,2,1,1,1,1
+892,1,12,critical_account/other_credits_existing_not_at_this_bank,car_(new),2171,1,2,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,38,bank,own,2,1,1,0,0,1
+893,2,36,critical_account/other_credits_existing_not_at_this_bank,car_(used),5800,1,2,3,male_single,male,none,4,car_or_other,34,none,own,2,2,1,1,1,1
+894,0,18,critical_account/other_credits_existing_not_at_this_bank,radio/television,1169,0,2,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,29,none,own,2,2,1,1,1,1
+895,0,36,delay_in_paying_off_in_the_past,car_(used),8947,0,3,3,male_single,male,none,2,car_or_other,31,stores,own,1,3,2,1,1,1
+896,1,21,existing_credits_paid_back_duly_till_now,radio/television,2606,1,1,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,28,none,rent,1,3,1,1,1,1
+897,0,12,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1592,4,3,3,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,35,none,own,1,2,1,0,0,1
+898,0,15,existing_credits_paid_back_duly_till_now,furniture/equipment,2186,0,3,1,female_divorced/separated/married,female,none,4,real_estate,33,bank,rent,1,1,1,0,1,1
+899,1,18,existing_credits_paid_back_duly_till_now,furniture/equipment,4153,1,2,2,male_single,male,co-applicant,3,car_or_other,42,none,own,1,2,1,0,1,0
+900,1,16,critical_account/other_credits_existing_not_at_this_bank,car_(new),2625,1,4,2,male_single,male,guarantor,4,building_society_savings_agreement/life_insurance,43,bank,rent,1,2,1,1,1,0
+901,0,20,critical_account/other_credits_existing_not_at_this_bank,car_(new),3485,0,1,2,male_divorced/separated,male,none,4,real_estate,44,none,own,2,2,1,1,1,1
+902,0,36,critical_account/other_credits_existing_not_at_this_bank,car_(used),10477,0,4,2,male_single,male,none,4,unknown/no_property,42,none,for free,2,2,1,0,1,1
+903,0,15,existing_credits_paid_back_duly_till_now,radio/television,1386,0,2,4,male_married/widowed,male,none,2,real_estate,40,none,rent,1,2,1,1,1,1
+904,0,24,existing_credits_paid_back_duly_till_now,radio/television,1278,1,4,4,male_single,male,none,1,real_estate,36,none,own,1,3,1,1,1,1
+905,1,12,existing_credits_paid_back_duly_till_now,radio/television,1107,1,2,2,male_single,male,none,2,real_estate,20,none,rent,1,3,2,1,1,1
+906,1,21,existing_credits_paid_back_duly_till_now,car_(new),3763,0,3,2,male_single,male,co-applicant,2,real_estate,24,none,own,1,1,1,0,0,1
+907,2,36,existing_credits_paid_back_duly_till_now,education,3711,0,2,2,male_married/widowed,male,none,2,car_or_other,27,none,own,1,2,1,0,1,1
+908,0,15,delay_in_paying_off_in_the_past,car_(used),3594,1,1,1,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,46,none,own,2,1,1,0,1,1
+909,2,9,existing_credits_paid_back_duly_till_now,car_(new),3195,0,2,1,female_divorced/separated/married,female,none,2,real_estate,33,none,own,1,1,1,0,1,1
+910,0,36,delay_in_paying_off_in_the_past,radio/television,4454,1,2,4,female_divorced/separated/married,female,none,4,real_estate,34,none,own,2,2,1,0,1,1
+911,2,24,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,4736,1,1,2,female_divorced/separated/married,female,none,4,car_or_other,25,bank,own,1,1,1,0,1,0
+912,2,30,existing_credits_paid_back_duly_till_now,radio/television,2991,0,4,2,female_divorced/separated/married,female,none,4,car_or_other,25,none,own,1,2,1,0,1,1
+913,0,11,existing_credits_paid_back_duly_till_now,business,2142,4,4,1,male_divorced/separated,male,none,2,real_estate,28,none,own,1,2,1,1,1,1
+914,1,24,all_credits_at_this_bank_paid_back_duly,business,3161,1,2,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,31,none,rent,1,2,1,1,1,0
+915,2,48,no_credits_taken/all_credits_paid_back_duly,others,18424,1,2,1,female_divorced/separated/married,female,none,2,building_society_savings_agreement/life_insurance,32,bank,own,1,3,1,1,0,0
+916,0,10,existing_credits_paid_back_duly_till_now,car_(used),2848,2,2,1,male_single,male,co-applicant,2,real_estate,32,none,own,1,2,2,0,1,1
+917,1,6,existing_credits_paid_back_duly_till_now,car_(new),14896,1,4,1,male_single,male,none,4,unknown/no_property,68,bank,own,1,3,1,1,1,0
+918,1,24,existing_credits_paid_back_duly_till_now,furniture/equipment,2359,2,0,1,male_divorced/separated,male,none,1,building_society_savings_agreement/life_insurance,33,none,own,1,2,1,0,1,0
+919,1,24,existing_credits_paid_back_duly_till_now,furniture/equipment,3345,1,4,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,39,none,rent,1,3,1,1,1,0
+920,0,18,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1817,1,2,4,female_divorced/separated/married,female,none,2,unknown/no_property,28,none,own,2,2,1,0,1,1
+921,0,48,delay_in_paying_off_in_the_past,radio/television,12749,3,3,4,male_single,male,none,1,car_or_other,37,none,own,1,3,1,1,1,1
+922,1,9,existing_credits_paid_back_duly_till_now,radio/television,1366,1,1,3,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,22,none,rent,1,2,1,0,1,0
+923,2,12,existing_credits_paid_back_duly_till_now,car_(new),2002,1,3,3,male_single,male,none,4,building_society_savings_agreement/life_insurance,30,none,rent,1,2,2,1,1,1
+924,1,24,all_credits_at_this_bank_paid_back_duly,furniture/equipment,6872,1,1,2,male_divorced/separated,male,none,1,building_society_savings_agreement/life_insurance,55,bank,own,1,2,1,1,1,0
+925,1,12,all_credits_at_this_bank_paid_back_duly,car_(new),697,1,1,4,male_single,male,none,2,car_or_other,46,bank,own,2,2,1,1,1,0
+926,1,18,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1049,1,1,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,21,none,rent,1,2,1,0,1,1
+927,1,48,existing_credits_paid_back_duly_till_now,car_(used),10297,1,3,4,male_single,male,none,4,unknown/no_property,39,stores,for free,3,2,2,1,1,0
+928,0,30,existing_credits_paid_back_duly_till_now,radio/television,1867,0,4,4,male_single,male,none,4,car_or_other,58,none,own,1,2,1,1,1,1
+929,1,12,delay_in_paying_off_in_the_past,car_(new),1344,1,2,4,male_single,male,none,2,real_estate,43,none,own,2,1,2,0,1,1
+930,1,24,existing_credits_paid_back_duly_till_now,furniture/equipment,1747,1,1,4,male_single,male,co-applicant,1,building_society_savings_agreement/life_insurance,24,none,own,1,1,1,0,0,1
+931,2,9,existing_credits_paid_back_duly_till_now,radio/television,1670,1,1,4,female_divorced/separated/married,female,none,2,car_or_other,22,none,own,1,2,1,1,1,0
+932,0,9,critical_account/other_credits_existing_not_at_this_bank,car_(new),1224,1,2,3,male_single,male,none,1,real_estate,30,none,own,2,2,1,0,1,1
+933,0,12,critical_account/other_credits_existing_not_at_this_bank,radio/television,522,3,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,42,none,own,2,2,2,1,1,1
+934,1,12,existing_credits_paid_back_duly_till_now,radio/television,1498,1,2,4,female_divorced/separated/married,female,none,1,car_or_other,23,bank,own,1,2,1,0,1,1
+935,2,30,delay_in_paying_off_in_the_past,radio/television,1919,2,1,4,male_single,male,none,3,unknown/no_property,30,stores,own,2,3,1,0,1,0
+936,3,9,existing_credits_paid_back_duly_till_now,radio/television,745,1,2,3,female_divorced/separated/married,female,none,2,real_estate,28,none,own,1,1,1,0,1,0
+937,2,6,existing_credits_paid_back_duly_till_now,radio/television,2063,1,1,4,male_married/widowed,male,none,3,car_or_other,30,none,rent,1,3,1,1,1,1
+938,2,60,existing_credits_paid_back_duly_till_now,education,6288,1,2,4,male_single,male,none,4,unknown/no_property,42,none,for free,1,2,1,0,1,0
+939,0,24,critical_account/other_credits_existing_not_at_this_bank,car_(used),6842,0,2,2,male_single,male,none,4,building_society_savings_agreement/life_insurance,46,none,own,2,3,2,1,1,1
+940,0,12,existing_credits_paid_back_duly_till_now,car_(new),3527,0,1,2,male_single,male,none,3,building_society_savings_agreement/life_insurance,45,none,own,1,3,2,1,1,1
+941,0,10,existing_credits_paid_back_duly_till_now,car_(new),1546,1,2,3,male_single,male,none,2,real_estate,31,none,own,1,1,2,0,0,1
+942,0,24,existing_credits_paid_back_duly_till_now,furniture/equipment,929,0,3,4,male_single,male,none,2,car_or_other,31,stores,own,1,2,1,1,1,1
+943,0,4,critical_account/other_credits_existing_not_at_this_bank,car_(new),1455,1,3,2,male_single,male,none,1,real_estate,42,none,own,3,1,2,0,1,1
+944,1,15,existing_credits_paid_back_duly_till_now,furniture/equipment,1845,1,1,4,female_divorced/separated/married,female,guarantor,1,building_society_savings_agreement/life_insurance,46,none,rent,1,2,1,0,1,1
+945,2,48,no_credits_taken/all_credits_paid_back_duly,car_(new),8358,3,1,1,female_divorced/separated/married,female,none,1,car_or_other,30,none,own,2,2,1,0,1,1
+946,1,24,all_credits_at_this_bank_paid_back_duly,furniture/equipment,3349,3,1,4,male_single,male,none,4,unknown/no_property,30,none,for free,1,2,2,1,1,0
+947,0,12,existing_credits_paid_back_duly_till_now,car_(new),2859,0,0,4,male_single,male,none,4,unknown/no_property,38,none,own,1,3,1,1,1,1
+948,0,18,existing_credits_paid_back_duly_till_now,furniture/equipment,1533,1,1,4,male_married/widowed,male,co-applicant,1,building_society_savings_agreement/life_insurance,43,none,own,1,1,2,0,1,0
+949,0,24,existing_credits_paid_back_duly_till_now,radio/television,3621,2,4,2,male_single,male,none,4,car_or_other,31,none,own,2,2,1,0,1,0
+950,2,18,critical_account/other_credits_existing_not_at_this_bank,business,3590,1,0,3,male_married/widowed,male,none,3,car_or_other,40,none,own,3,0,2,1,1,1
+951,1,36,delay_in_paying_off_in_the_past,business,2145,1,3,2,male_single,male,none,1,car_or_other,24,none,own,2,2,1,1,1,0
+952,2,24,existing_credits_paid_back_duly_till_now,car_(used),4113,3,1,3,female_divorced/separated/married,female,none,4,car_or_other,28,none,rent,1,2,1,0,1,0
+953,0,36,existing_credits_paid_back_duly_till_now,furniture/equipment,10974,1,0,4,female_divorced/separated/married,female,none,2,car_or_other,26,none,own,2,3,1,1,1,0
+954,1,12,existing_credits_paid_back_duly_till_now,car_(new),1893,1,2,4,female_divorced/separated/married,female,guarantor,4,building_society_savings_agreement/life_insurance,29,none,own,1,2,1,1,1,1
+955,1,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,1231,4,4,4,female_divorced/separated/married,female,none,4,building_society_savings_agreement/life_insurance,57,none,rent,2,3,1,1,1,1
+956,3,30,critical_account/other_credits_existing_not_at_this_bank,radio/television,3656,0,4,4,male_single,male,none,4,building_society_savings_agreement/life_insurance,49,stores,own,2,1,1,0,1,1
+957,2,9,critical_account/other_credits_existing_not_at_this_bank,radio/television,1154,1,4,2,male_single,male,none,4,real_estate,37,none,own,3,1,1,0,1,1
+958,1,28,existing_credits_paid_back_duly_till_now,car_(new),4006,1,2,3,male_single,male,none,2,car_or_other,45,none,own,1,1,1,0,1,0
+959,2,24,existing_credits_paid_back_duly_till_now,furniture/equipment,3069,2,4,4,male_single,male,none,4,unknown/no_property,30,none,for free,1,2,1,0,1,1
+960,0,6,critical_account/other_credits_existing_not_at_this_bank,radio/television,1740,1,4,2,male_married/widowed,male,none,2,real_estate,30,none,rent,2,2,1,0,1,1
+961,2,21,delay_in_paying_off_in_the_past,car_(new),2353,1,2,1,male_divorced/separated,male,none,4,building_society_savings_agreement/life_insurance,47,none,own,2,2,1,0,1,1
+962,0,15,existing_credits_paid_back_duly_till_now,car_(new),3556,0,2,3,male_single,male,none,2,unknown/no_property,29,none,own,1,2,1,0,1,1
+963,0,24,existing_credits_paid_back_duly_till_now,radio/television,2397,3,4,3,male_single,male,none,2,car_or_other,35,bank,own,2,2,1,1,1,0
+964,2,6,existing_credits_paid_back_duly_till_now,repairs,454,1,1,3,male_married/widowed,male,none,1,building_society_savings_agreement/life_insurance,22,none,own,1,1,1,0,1,1
+965,2,30,existing_credits_paid_back_duly_till_now,radio/television,1715,0,2,4,female_divorced/separated/married,female,none,1,car_or_other,26,none,own,1,2,1,0,1,1
+966,2,27,critical_account/other_credits_existing_not_at_this_bank,radio/television,2520,3,2,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,23,none,own,2,1,1,0,1,0
+967,0,15,existing_credits_paid_back_duly_till_now,radio/television,3568,1,4,4,female_divorced/separated/married,female,none,2,car_or_other,54,bank,rent,1,3,1,1,1,1
+968,0,42,existing_credits_paid_back_duly_till_now,radio/television,7166,0,3,2,male_married/widowed,male,none,4,building_society_savings_agreement/life_insurance,29,none,rent,1,2,1,1,1,1
+969,1,11,critical_account/other_credits_existing_not_at_this_bank,car_(new),3939,1,2,1,male_single,male,none,2,real_estate,40,none,own,2,1,2,0,1,1
+970,2,15,existing_credits_paid_back_duly_till_now,repairs,1514,2,2,4,male_single,male,guarantor,2,real_estate,22,none,own,1,2,1,0,1,1
+971,0,24,existing_credits_paid_back_duly_till_now,car_(new),7393,1,2,1,male_single,male,none,4,building_society_savings_agreement/life_insurance,43,none,own,1,1,2,0,1,1
+972,1,24,all_credits_at_this_bank_paid_back_duly,car_(new),1193,1,0,1,female_divorced/separated/married,female,co-applicant,4,unknown/no_property,29,none,rent,2,0,1,0,1,0
+973,1,60,existing_credits_paid_back_duly_till_now,business,7297,1,4,4,male_single,male,co-applicant,4,unknown/no_property,36,none,rent,1,2,1,0,1,0
+974,0,30,critical_account/other_credits_existing_not_at_this_bank,radio/television,2831,1,2,4,female_divorced/separated/married,female,none,2,car_or_other,33,none,own,1,2,1,1,1,1
+975,3,24,existing_credits_paid_back_duly_till_now,radio/television,1258,3,2,3,female_divorced/separated/married,female,none,3,car_or_other,57,none,own,1,1,1,0,1,1
+976,2,6,existing_credits_paid_back_duly_till_now,radio/television,753,1,2,2,female_divorced/separated/married,female,guarantor,3,real_estate,64,none,own,1,2,1,0,1,1
+977,2,18,delay_in_paying_off_in_the_past,business,2427,0,4,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,42,none,own,2,2,1,0,1,1
+978,0,24,delay_in_paying_off_in_the_past,car_(new),2538,1,4,4,male_single,male,none,4,car_or_other,47,none,own,2,1,2,0,1,0
+979,2,15,all_credits_at_this_bank_paid_back_duly,car_(new),1264,2,2,2,male_married/widowed,male,none,2,building_society_savings_agreement/life_insurance,25,none,rent,1,2,1,0,1,0
+980,2,30,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,8386,1,3,2,male_single,male,none,2,building_society_savings_agreement/life_insurance,49,none,own,1,2,1,0,1,0
+981,0,48,existing_credits_paid_back_duly_till_now,business,4844,1,0,3,male_single,male,none,2,car_or_other,33,bank,rent,1,3,1,1,1,0
+982,3,21,existing_credits_paid_back_duly_till_now,car_(new),2923,2,2,1,female_divorced/separated/married,female,none,1,car_or_other,28,bank,own,1,3,1,1,1,1
+983,1,36,existing_credits_paid_back_duly_till_now,car_(used),8229,1,2,2,male_single,male,none,2,building_society_savings_agreement/life_insurance,26,none,own,1,2,2,0,1,0
+984,0,24,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,2028,1,3,2,male_single,male,none,2,building_society_savings_agreement/life_insurance,30,none,own,2,1,1,0,1,1
+985,1,15,critical_account/other_credits_existing_not_at_this_bank,furniture/equipment,1433,1,2,4,female_divorced/separated/married,female,none,3,building_society_savings_agreement/life_insurance,25,none,rent,2,2,1,0,1,1
+986,3,42,no_credits_taken/all_credits_paid_back_duly,business,6289,1,1,2,male_divorced/separated,male,none,1,building_society_savings_agreement/life_insurance,33,none,own,2,2,1,0,1,1
+987,0,13,existing_credits_paid_back_duly_till_now,radio/television,1409,2,0,2,female_divorced/separated/married,female,none,4,real_estate,64,none,own,1,2,1,0,1,1
+988,1,24,existing_credits_paid_back_duly_till_now,car_(used),6579,1,0,4,male_single,male,none,2,unknown/no_property,29,none,for free,1,3,1,1,1,1
+989,2,24,critical_account/other_credits_existing_not_at_this_bank,radio/television,1743,1,4,4,male_single,male,none,2,building_society_savings_agreement/life_insurance,48,none,own,2,1,1,0,1,1
+990,0,12,critical_account/other_credits_existing_not_at_this_bank,education,3565,0,1,2,male_single,male,none,1,building_society_savings_agreement/life_insurance,37,none,own,2,1,2,0,1,1
+991,0,15,all_credits_at_this_bank_paid_back_duly,radio/television,1569,2,4,4,male_single,male,none,4,car_or_other,34,bank,own,1,1,2,0,1,1
+992,1,18,existing_credits_paid_back_duly_till_now,radio/television,1936,0,3,2,male_married/widowed,male,none,4,car_or_other,23,none,rent,2,1,1,0,1,1
+993,1,36,existing_credits_paid_back_duly_till_now,furniture/equipment,3959,1,0,4,male_single,male,none,3,building_society_savings_agreement/life_insurance,30,none,own,1,3,1,1,1,1
+994,0,12,existing_credits_paid_back_duly_till_now,car_(new),2390,0,4,4,male_single,male,none,3,car_or_other,50,none,own,1,2,1,1,1,1
+995,0,12,existing_credits_paid_back_duly_till_now,furniture/equipment,1736,1,3,3,female_divorced/separated/married,female,none,4,real_estate,31,none,own,1,1,1,0,1,1
+996,1,30,existing_credits_paid_back_duly_till_now,car_(used),3857,1,2,4,male_divorced/separated,male,none,4,building_society_savings_agreement/life_insurance,40,none,own,1,3,1,1,1,1
+997,0,12,existing_credits_paid_back_duly_till_now,radio/television,804,1,4,4,male_single,male,none,4,car_or_other,38,none,own,1,2,1,0,1,1
+998,1,45,existing_credits_paid_back_duly_till_now,radio/television,1845,1,2,4,male_single,male,none,4,unknown/no_property,23,none,for free,1,2,1,1,1,0
+999,2,45,critical_account/other_credits_existing_not_at_this_bank,car_(used),4576,2,0,3,male_single,male,none,4,car_or_other,27,none,own,1,2,1,0,1,1

@@ -12,11 +12,17 @@ import gs from '../../config/_variables.scss'; // gs (=global style)
 
 class InputSpaceView extends Component {
     constructor(props) {
-        super(props);
-        this.state = {
-            value2: 2.5
-        };
-
+      super(props);
+      this.state = {
+          value2: 2.5
+      };
+      this.layout = {
+        svg: {
+          width: 200,
+          height: 200,
+          padding: 10
+        }
+      }
     }
 
     getChangeHandler(key) {
@@ -27,9 +33,8 @@ class InputSpaceView extends Component {
         const svgFeatureTable = new ReactFauxDOM.Element('svg');
 
         svgFeatureTable.setAttribute('width', '95%');
-        svgFeatureTable.setAttribute('height', '300px')
+        svgFeatureTable.setAttribute('height', '80%')
         svgFeatureTable.setAttribute('class', 'svg_input_space');
-        svgFeatureTable.style.setProperty('margin', '0 10px');
         svgFeatureTable.style.setProperty('background-color', '#f7f7f7');
         svgFeatureTable.style.setProperty('border', '1px solid #dfdfdf');
 
@@ -72,20 +77,18 @@ class InputSpaceView extends Component {
 
       const svg = new ReactFauxDOM.Element('svg');
 
-      svg.setAttribute('width', '95%');
-      svg.setAttribute('height', '250px')
+      svg.setAttribute('width', this.layout.svg.width);
+      svg.setAttribute('height', this.layout.svg.height)
       svg.setAttribute('class', 'svg_input_space');
-      svg.style.setProperty('margin', '0 10px');
-      //svg.style.setProperty('background-color', '#f7f7f7');
       svg.style.setProperty('border', '1px solid #dfdfdf');
 
       let xScale = d3.scaleLinear()
           .domain(d3.extent(instances, (d) => d.dim1))
-          .range([0, 220]);
+          .range([0, this.layout.svg.width - this.layout.svg.padding]);
 
       let yScale = d3.scaleLinear()
           .domain(d3.extent(instances, (d) => d.dim2))
-          .range([230, 0]);
+          .range([this.layout.svg.height - this.layout.svg.padding, 0]);
 
       let gCircles = d3.select(svg)
           .append('g')
@@ -119,7 +122,7 @@ class InputSpaceView extends Component {
       return (
         <div className={styles.InputSpaceView}>
           <div className={styles.inputSpaceViewTitleWrapper}>
-            <div className={styles.inputSpaceViewTitle + ' ' + index.title}>Input space</div>
+            <div className={styles.inputSpaceViewTitle + ' ' + index.subTitle}>Input space</div>
           </div>
           <div className={styles.IndividualPlotStatusView}>
               {svg.toReact()}

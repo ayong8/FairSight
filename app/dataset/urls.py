@@ -28,6 +28,11 @@ urlpatterns = [
         name='LR'
     ),
     url(
+        regex=r'^runACF/$',
+        view=views.RunACF.as_view(),
+        name='ACF'
+    ),
+    url(
         regex=r'^runMDS/$',
         view=views.RunMDS.as_view(),
         name='mds'

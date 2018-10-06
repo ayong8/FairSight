@@ -43,8 +43,7 @@ class RankingView extends Component {
 
       this.handleSelectedRankingInterval = this.handleSelectedRankingInterval.bind(this);
       this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
-      this.handleFromIntervalChange = this.handleFromIntervalChange.bind(this);
-      this.handleToIntervalChange = this.handleToIntervalChange.bind(this);
+      this.handleIntervalChange = this.handleIntervalChange.bind(this);
     }
 
     handleSelectedRankingInterval(interval) {
@@ -56,8 +55,9 @@ class RankingView extends Component {
       this.props.onSelectedTopk(topk);
     }
 
-    handleFromIntervalChange(intervalFrom) {}
-    handleToIntervalChange(intervalTo) {}
+    handleIntervalChange(intervalTo) {
+      this.props.onSelectedInterval(intervalTo);
+    }
 
     render() {
       if ((!this.props.topk || this.props.topk.length === 0) ||
@@ -218,8 +218,7 @@ class RankingView extends Component {
                 min={1}
                 max={this.props.n}
                 style={{ width: 40 }}
-                value={this.props.selectedRankingInterval.from}
-                onChange={this.handleFromIntervalChange}
+                value={1}
               />
               <span>&nbsp;-&nbsp;</span>
               <InputNumber
@@ -228,15 +227,24 @@ class RankingView extends Component {
                 max={this.props.n}
                 style={{ width: 40 }}
                 value={this.props.selectedRankingInterval.to}
-                onChange={this.handleToIntervalChange}
+                onChange={this.handleIntervalChange}
               />
             </div>
-            <WholeRankingChart
+            <Slider 
+              className={styles.intervalSlider}
+              step={1} 
+              min={1}
+              max={this.props.n}
+              value={this.props.selectedRankingInterval.to}
+              style={{ width: 450 }}
+              onChange={this.handleIntervalChange} 
+            />
+            {/* <WholeRankingChart
               className={styles.intervalFilter}
               data={this.props.data}
               width={700} height={30} margin={10}
               onSelectedRankingInterval={this.handleSelectedRankingInterval}
-            />
+            /> */}
           </div>
         </div>
       );

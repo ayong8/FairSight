@@ -1,85 +1,85 @@
-.GroupFairnessViewWrapper {
-  grid-area: gf;
+// .GroupFairnessViewWrapper {
+//   grid-area: gf;
 
-  // display: grid;
-  // grid-template-columns: 70% 30%;     // Group Fairness View / Utility View
-  // grid-template-rows: 10% 30% 60%;
+//   // display: grid;
+//   // grid-template-columns: 70% 30%;     // Group Fairness View / Utility View
+//   // grid-template-rows: 10% 30% 60%;
 
-  .GroupFairnessView {
-      grid-column: 1;
-      grid-row: 1 / 4;
+//   .GroupFairnessView {
+//       grid-column: 1;
+//       grid-row: 1 / 4;
 
-      .title {
+//       .title {
 
-      }
-      .subTitle {
-          display:flex;
-          //align-items: center;
-              /* justify-content: center; */
-          width: 80%;
-          height: 20px;
-          margin-left: 10px;
-          font-size: 1rem;
-          color: #2a4b5a;
-          /* font-weight: 500; */
-          //background-color: #a7ffe7;
-          //border: 1px solid #97dbc8;
-      }
+//       }
+//       .subTitle {
+//           display:flex;
+//           //align-items: center;
+//               /* justify-content: center; */
+//           width: 80%;
+//           height: 20px;
+//           margin-left: 10px;
+//           font-size: 1rem;
+//           color: #2a4b5a;
+//           /* font-weight: 500; */
+//           //background-color: #a7ffe7;
+//           //border: 1px solid #97dbc8;
+//       }
 
-      .statParityPlotsWrapper,
-      .conditionalParityPlotWrapper
-      {
-          display: grid;
-          grid-template-columns: 10% 90%;
-          grid-template-areas: 'sc tp';
+//       .statParityPlotsWrapper,
+//       .conditionalParityPlotWrapper
+//       {
+//           display: grid;
+//           grid-template-columns: 10% 90%;
+//           grid-template-areas: 'sc tp';
 
-          border-bottom: 1px solid lightgray;
-          padding: 5px;
-          margin: 5px;
+//           border-bottom: 1px solid lightgray;
+//           padding: 5px;
+//           margin: 5px;
 
-          .topKPlot {
-              grid-area: tp;
-              align-self: center;
-              justify-self: center;
+//           .topKPlot {
+//               grid-area: tp;
+//               align-self: center;
+//               justify-self: center;
 
-              display: flex;
-              align-items: center;
-              justify-content: center;
-          }
+//               display: flex;
+//               align-items: center;
+//               justify-content: center;
+//           }
 
-          .score {
-              grid-area: sc;
-              align-self: center;
-              justify-self: center;
+//           .score {
+//               grid-area: sc;
+//               align-self: center;
+//               justify-self: center;
 
-              font-size: 1.2rem;
-              font-weight: 600;
-              color: #2a4b5a;
-          }
+//               font-size: 1.2rem;
+//               font-weight: 600;
+//               color: #2a4b5a;
+//           }
           
-          .wholeDistribution {
-              grid-column: 3;
-              align-self: center;
-              display: flex;
-              align-items: center;
-              justify-content: center;
+//           .wholeDistribution {
+//               grid-column: 3;
+//               align-self: center;
+//               display: flex;
+//               align-items: center;
+//               justify-content: center;
   
-              margin: 3px 0px;
-          }
-      }
+//               margin: 3px 0px;
+//           }
+//       }
 
       
-      .conditionalParityPlot {
-          grid-column: 2 / 4;
-          grid-row: 2;
+//       .conditionalParityPlot {
+//           grid-column: 2 / 4;
+//           grid-row: 2;
 
-          // border: 1px solid #d5d5d5;
-          margin: 3px 0px;
-      }
-  }
+//           // border: 1px solid #d5d5d5;
+//           margin: 3px 0px;
+//       }
+//   }
 
-  .UtilityView {
-      grid-column: 2;
-      grid-row: 1 / 4;
-  }
-}
+//   .UtilityView {
+//       grid-column: 2;
+//       grid-row: 1 / 4;
+//   }
+// }

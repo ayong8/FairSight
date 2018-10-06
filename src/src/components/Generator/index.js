@@ -353,10 +353,10 @@ class Generator extends Component {
 
     let groupHistogramBar1, groupHistogramBar2;
 
-    groupHistogramBar1 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1_' + feature)
+    groupHistogramBar1 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1')
           .data(dataBinGroup1)
           .enter().append('g')
-          .attr('class', 'g_corr_plot_group1_' + feature)
+          .attr('class', 'g_corr_plot_group1')
           .attr('transform', function(d) {
             return 'translate(' + xScale(d.x0) + ',' + yScale(d.length) + ')'; 
           });
@@ -371,10 +371,10 @@ class Generator extends Component {
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);
 
-    groupHistogramBar2 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2_' + feature)
+    groupHistogramBar2 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2')
           .data(dataBinGroup2)
           .enter().append('g')
-          .attr('class', 'g_corr_plot_group2_' + feature)
+          .attr('class', 'g_corr_plot_group2')
           .attr('transform', function(d) {
             return 'translate(' + xScale(d.x0) + ',' + yScale(d.length) + ')'; 
           });
@@ -447,6 +447,9 @@ class Generator extends Component {
           <span className={styles.generatorTitle + ' ' + index.title}>Generator</span>
           <br />
         </div>
+        {/* // Dataset selector */}
+        <div className={styles.selectDataset}>Dataset</div>
+        <div className={styles.datasetDescription}>20 Features</div>
         {/* // Sensitive Attribute selector */}
         <div className={styles.selectSensitiveAttr}>Sensitive attribute</div>
         <Dropdown className={styles.sensitiveAttrDropdown} 

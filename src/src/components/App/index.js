@@ -2,16 +2,21 @@ import React, { Component } from "react";
 import { connect } from 'react-redux';
 import * as d3 from 'd3';
 import _ from 'lodash';
+
 import styles from "./styles.scss";
+import index from '../../index.css';
 import 'antd/dist/antd.css';
 
 import Menubar from 'components/Menubar';
 import Generator from 'components/Generator';
 import RankingsListView from 'components/RankingsListView';
 import InputSpaceView from 'components/InputSpaceView';
+import LegendView from 'components/LegendView';
+import CorrelationView from 'components/CorrelationView';
 import IndividualInspectionView from 'components/IndividualInspectionView';
 import RankingView from 'components/RankingView';
 import IndividualFairnessView from 'components/IndividualFairnessView';
+import TopkRankingView from 'components/TopkRankingView';
 import GroupFairnessView from 'components/GroupFairnessView';
 import UtilityView from 'components/UtilityView';
 import Footer from "components/Footer";
@@ -31,11 +36,13 @@ class App extends Component {
     this.inputScale;
     this.outputScale;
 
+    this.selectedInstances = [];
     this.pairwiseDiffs = [];
     this.selectedPairwiseDiffs = [];
     this.permutationDiffs = [];
     this.selectedPermutationDiffs = [];
     this.permutationDiffsFlattened = [];
+    this.selectedPermutationDiffsFlattend = [];
     this.rSquared;
 
     this.state = {
@@ -51,7 +58,7 @@ class App extends Component {
       selectedDataset: [],  // A subset of the dataset that include features, target, and idx
       inputCoords: [],
       weights: {},
-      selectedInstance: 1, // Index of a ranking selected among rankings in 'rankings'
+      mouseoveredInstance: 1, // Index of a ranking selected among rankings in 'rankings'
       selectedRankingInterval: {
         from: 0,
         to: 50
@@ -67,10 +74,10 @@ class App extends Component {
         },
         features: [
           { name: 'credit_amount', type: 'continuous', range: 'continuous' },
-          { name: 'installment_as_income_perc', type: 'continuous', range: 'continuous' },
-          { name: 'age', type: 'continuous', range: 'continuous' }
+          { name: 'installment_rate_in_percentage_of_disposable_income', type: 'continuous', range: 'continuous' },
+          { name: 'age_in_years', type: 'continuous', range: 'continuous' }
         ],
-        target: { name: 'default', type: 'categorical', range: [0, 1] },
+        target: { name: 'credit_risk', type: 'categorical', range: [0, 1] },
         method: { name: 'RankSVM' },
         sumDistortion: 0,
         instances: [],
@@ -83,13 +90,18 @@ class App extends Component {
         }
       },
       output: [],
+      selectedInstances: [],
       pairwiseInputDistances: [],
       permutationInputDistances: [],
+      pairwiseDiffs: [],
+      permutationDiffs: [],
+      permutationDiffsFlattened: [],
+      selectedPermutationDiffsFlattend: [],
       rankings: []
     };
 
     this.handleModelRunning = this.handleModelRunning.bind(this);
-    this.handleSelectedRankingInterval = this.handleSelectedRankingInterval.bind(this);
+    this.handleSelectedInterval = this.handleSelectedInterval.bind(this);
     this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
     this.handleRankingInstanceOptions = this.handleRankingInstanceOptions.bind(this);
     this.handleSensitiveAttr = this.handleSensitiveAttr.bind(this);
@@ -112,8 +124,11 @@ class App extends Component {
 
     this.getFetches(rankingInstance, method)
     .then((responses) => {
-      const { rankingInstance } = this.state,
-          { instances } = rankingInstance;
+      const { rankingInstance, dataset, methods, features, 
+              topk, n, selectedRankingInterval, mouseoveredInstance, rankings,
+              permutationDiffsFlattened } = this.state,
+            { instances } = rankingInstance,
+            { from, to } = selectedRankingInterval;
 
       let updatedInstances = [],
           inputs = [];
@@ -126,13 +141,28 @@ class App extends Component {
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       this.calculateNDM(this.permutationDiffs);
 
+      let sortedInstances = _.sortBy(updatedInstances, 'ranking'),
+          selectedRanking = rankings[rankingInstance.rankingId - 1];
+
+      this.selectedInstances = sortedInstances.slice(from, to);
+
+      // Subsetting permutation distortions for selected interval
+      this.selectedPermutationDiffsFlattend = _.filter(this.permutationDiffsFlattened, (d) => 
+              (d.ranking1 >= from) && (d.ranking1 <= to) &&
+              (d.ranking2 >= from) && (d.ranking2 <= to)
+            );
+
+      console.log('within componentDidMount(): ', this.selectedPermutationDiffsFlattend);
+
       this.setState((prevState) => ({
+        selectedInstances: this.selectedInstances,
         pairwiseDiffs: this.pairwiseDiffs,
         permutationDiffs: this.permutationDiffs,
         permutationDiffsFlattened: this.permutationDiffsFlattened,
+        selectedPermutationDiffsFlattend: this.selectedPermutationDiffsFlattend,
         rankingInstance: {
           ...prevState.rankingInstance,
-          instances: updatedInstances,
+          instances: sortedInstances,
           stat: {
             ...prevState.rankingInstance.stat,
             goodnessOfFairness: this.rSquared
@@ -290,11 +320,11 @@ class App extends Component {
   }
   
   getFetches(rankingInstance, method) {
-    if (method.name === 'SVM') {
+    if (method.name === 'RankSVM') {
       return Promise.all([this.getDataset(), 
         this.getFeatures(), this.runRankSVM(rankingInstance), 
         this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
-    } else if (method.name === 'RankSVM') {
+    } else if (method.name === 'SVM') {
       return Promise.all([this.getDataset(), 
         this.getFeatures(), this.runSVM(rankingInstance), 
         this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
@@ -363,8 +393,7 @@ class App extends Component {
     this.getFetches(rankingInstance, method)
     .then((responses) => {
       const { rankingInstance } = this.state,
-          { instances } = rankingInstance,
-          rankingId = rankingInstance.rankingId + 1;
+          { instances } = rankingInstance;
 
       let updatedInstances = [],
           inputs = [];
@@ -420,10 +449,10 @@ class App extends Component {
     });
   }
   
-  handleSelectedRankingInterval(interval) {
-    console.log('interval change: ', interval);
+  handleSelectedInterval(intervalTo) {
+    console.log('interval change: ', intervalTo);
     this.setState({
-      selectedRankingInterval: { from: interval.from, to: interval.to }
+      selectedRankingInterval: { from: 0, to: intervalTo }
     });
   }
 
@@ -515,6 +544,8 @@ class App extends Component {
       pairwiseDiffs.push({
         idx1: pairs[i][0].idx,
         idx2: pairs[i][1].idx,
+        ranking1: pairs[i][0].instance.ranking,
+        ranking2: pairs[i][1].instance.ranking,
         x1: pairs[i][0].instance,
         x2: pairs[i][1].instance,
         pair: pair,
@@ -559,6 +590,8 @@ class App extends Component {
           row.push({
             idx1: obj1.idx,
             idx2: obj2.idx,
+            ranking1: obj1.instance.ranking,
+            ranking2: obj2.instance.ranking,
             x1: obj1.instance,
             x2: obj2.instance,
             pair: pair,
@@ -700,12 +733,11 @@ class App extends Component {
       return <div />
     }
     // For the Ranking Inspector, only send down the selected ranking data
-    const topk = this.state.topk,
-          rankingInstance = this.state.rankingInstance,
-          rankings = this.state.rankings,
-          dataset = this.state.dataset,
-          selectedRankingId = this.state.selectedRanking,
-          selectedRanking = rankings[selectedRankingId];
+    const { rankingInstance, dataset, methods, features, 
+            topk, n, selectedRankingInterval, mouseoveredInstance, rankings,
+            selectedInstances, permutationDiffsFlattened, selectedPermutationDiffsFlattend } = this.state,
+          { instances } = rankingInstance,
+          { from, to } = selectedRankingInterval;
 
     console.log('state: ', this.state);
 
@@ -733,39 +765,54 @@ class App extends Component {
             topk={this.state.topk}
             selectedRankingInterval={this.state.selectedRankingInterval}
             data={this.state.rankingInstance}
-            onSelectedRankingInterval={this.handleSelectedRankingInterval}
+            onSelectedInterval={this.handleSelectedInterval}
             onSelectedTopk={this.handleSelectedTopk}  />
-        <InputSpaceView 
-            className={styles.InputSpaceView}
-            data={this.state.rankingInstance}
-            topk={this.state.topk}
-            inputCoords={this.state.inputCoords}
-            selectedInstance={this.state.selectedInstance}
-            selectedRankingInterval={this.state.selectedRankingInterval} 
-            onMouseoverInstance={this.handleMouseoverInstance} />
-        <IndividualInspectionView
-            className={styles.IndividualInspectionView}
-            data={this.state.rankingInstance}
-            topk={this.state.topk}
-            selectedInstance={this.state.selectedInstance}
-            selectedRankingInterval={this.state.selectedRankingInterval} />
-        <IndividualFairnessView 
-            data={this.state.rankingInstance}
-            n={this.state.n}
-            selectedInstance={this.state.selectedInstance}
-            selectedRankingInterval={this.state.selectedRankingInterval}
-            pairwiseInputDistances={this.state.pairwiseInputDistances}
-            permutationInputDistances={this.state.permutationInputDistances}
-            pairwiseDiffs={this.pairwiseDiffs}
-            permutationDiffs={this.permutationDiffs}
-            permutationDiffsFlattened={this.permutationDiffsFlattened}
-            confIntervalPoints={this.state.confIntervalPoints}
-            inputCoords={this.state.inputCoords}
-            onCalculateNDM={this.calculateNDM} />
-        <GroupFairnessView 
-            className={styles.GroupFairnessView}
-            data={this.state.rankingInstance} 
-            topk={this.state.topk}  />
+        <div className={styles.RankingInspector}>
+          <div className={styles.rankingInspectorTitle + ' ' + index.title}>Ranking Inspector</div>
+          <InputSpaceView 
+              className={styles.InputSpaceView}
+              data={this.state.rankingInstance}
+              topk={this.state.topk}
+              inputCoords={this.state.inputCoords}
+              selectedInstance={this.state.mouseoveredInstance}
+              selectedRankingInterval={this.state.selectedRankingInterval} 
+              onMouseoverInstance={this.handleMouseoverInstance} />
+          <LegendView 
+            className={styles.LegendView} />
+          <CorrelationView
+              className={styles.CorrelationView}
+              data={this.state.rankingInstance} />
+          <IndividualInspectionView
+              className={styles.IndividualInspectionView}
+              data={this.state.rankingInstance}
+              topk={this.state.topk}
+              selectedInstance={this.state.mouseoveredInstance}
+              selectedRankingInterval={this.state.selectedRankingInterval} />
+          <TopkRankingView 
+              className={styles.TopkRankingView}
+              data={this.state.rankingInstance}
+              topk={this.state.topk}
+              selectedRankingInterval={this.state.selectedRankingInterval} />
+          <IndividualFairnessView 
+              data={this.state.rankingInstance}
+              n={this.state.n}
+              selectedInstances={selectedInstances}
+              selectedInstance={this.state.mouseoveredInstance}
+              selectedRankingInterval={this.state.selectedRankingInterval}
+              pairwiseInputDistances={this.state.pairwiseInputDistances}
+              permutationInputDistances={this.state.permutationInputDistances}
+              pairwiseDiffs={this.pairwiseDiffs}
+              permutationDiffs={this.permutationDiffs}
+              permutationDiffsFlattened={this.permutationDiffsFlattened}
+              selectedPermutationDiffsFlattend={selectedPermutationDiffsFlattend}
+              confIntervalPoints={this.state.confIntervalPoints}
+              inputCoords={this.state.inputCoords}
+              onCalculateNDM={this.calculateNDM} />
+          {/* <GroupFairnessView 
+              className={styles.GroupFairnessView}
+              data={this.state.rankingInstance} 
+              topk={this.state.topk}  /> */}
+        </div>
         <Footer />
       </div>
     );

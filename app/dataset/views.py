@@ -14,7 +14,6 @@ from decorator import decorator
 
 from ..static.lib.rankSVM import RankSVM
 from ..static.lib.gower_distance import gower_distances
-#from ..static.lib.rankSVM2 import RankSVM
 from io import StringIO
 import csv
 import pandas as pd
@@ -28,6 +27,14 @@ from sklearn.linear_model import LogisticRegression
 from sklearn import preprocessing
 from sklearn import svm
 
+# For ACF
+from sklearn.model_selection import RepeatedStratifiedKFold
+from sklearn.metrics import roc_auc_score
+from sklearn.base import clone
+from themis_ml.postprocessing.reject_option_classification import SingleROClassifier
+from themis_ml.linear_model import LinearACFClassifier
+from themis_ml.metrics import mean_difference
+
 import numpy as np
 import statsmodels.api as sm
 from scipy import stats
@@ -35,7 +42,43 @@ import math
 
 import json, simplejson
 
-numerical_features = ['duration_in_month', 'credit_amount', 'present_res_since', 'age', 'credits_this_bank', 'people_under_maintenance', 'idx']
+numerical_features = ['duration_in_month', 'credit_amount',	'installment_rate_in_percentage_of_disposable_income',	
+                    'present_residence_since',	'age_in_years', 'number_of_existing_credits_at_this_bank',	
+                    'number_of_people_being_liable_to_provide_maintenance_for',	'status_of_existing_checking_account',	
+                    'savings_account/bonds', 'present_employment_since', 'job',	'telephone'];
+
+features_themis_ml = [
+    'sex',
+    'duration_in_month', 'credit_amount', 'installment_rate_in_percentage_of_disposable_income',
+    'present_residence_since', 'age_in_years', 'number_of_existing_credits_at_this_bank',
+    'number_of_people_being_liable_to_provide_maintenance_for', 'status_of_existing_checking_account',
+    'savings_account/bonds', 'present_employment_since', 'job', 'telephone', 'foreign_worker',
+    'credit_history_all_credits_at_this_bank_paid_back_duly',
+    'credit_history_critical_account/other_credits_existing_not_at_this_bank',
+    'credit_history_delay_in_paying_off_in_the_past', 'credit_history_existing_credits_paid_back_duly_till_now',
+    'credit_history_no_credits_taken/all_credits_paid_back_duly', 'purpose_business',
+    'purpose_car_(new)', 'purpose_car_(used)', 'purpose_domestic_appliances', 'purpose_education',
+    'purpose_furniture/equipment', 'purpose_others', 'purpose_radio/television',
+    'purpose_repairs', 'purpose_retraining', 'personal_status_and_sex_female_divorced/separated/married',
+    'personal_status_and_sex_male_divorced/separated', 'personal_status_and_sex_male_married/widowed',
+    'personal_status_and_sex_male_single', 'other_debtors/guarantors_co-applicant',
+    'other_debtors/guarantors_guarantor', 'other_debtors/guarantors_none',
+    'property_building_society_savings_agreement/life_insurance',
+    'property_car_or_other', 'property_real_estate', 'property_unknown/no_property',
+    'other_installment_plans_bank', 'other_installment_plans_none',
+    'other_installment_plans_stores', 'housing_for free', 'housing_own', 'housing_rent',
+]
+
+features_no_sex_themis_ml = [
+    f for f in features_themis_ml if f not in [
+        'sex',
+        'personal_status_and_sex_female_divorced/separated/married',
+        'personal_status_and_sex_male_divorced/separated',
+        'personal_status_and_sex_male_married/widowed',
+        'personal_status_and_sex_male_single']]
+
+METRICS_COLUMNS_THEMIS_ML = [
+    'mean_diff_sex', 'auc_sex']
 
 def open_dataset(file_path):
     entire_file_path = os.path.join(STATICFILES_DIRS[0], file_path)
@@ -63,15 +106,86 @@ def do_encoding_categorical_vars(whole_dataset_df):
 
     return dataset_df
 
+def run_experiment_iteration_themis_ml_ACF(
+        X, X_no_sex, y, s_sex, train, test):
+    '''Run the experiment on a particular set of train and test indices.'''
+    
+    # store our metrics here. This will be a list of lists, where the inner
+    # list is contains the following metadata:
+    # - 'name'
+    # - fairness metric with respect to sex
+    # - fairness metric with respect to foreign status
+    # - utility metric with respect to sex
+    # - utility metric with respect to foreign status
+    metrics = []
+
+    # define our model.
+    logistic_clf = LogisticRegression(penalty='l2', C=0.001, class_weight='balanced')
+    baseline_clf = logistic_clf
+    rpa_clf = logistic_clf
+    roc_clf = SingleROClassifier(estimator=logistic_clf)
+    acf_clf = LinearACFClassifier(
+        target_estimator=logistic_clf,
+        binary_residual_type='absolute')
+
+    # train baseline model
+    baseline_clf.fit(X[train], y[train])
+    baseline_preds = baseline_clf.predict(X[test])
+    baseline_auc = roc_auc_score(y[test], baseline_preds)
+    metrics.append([
+        'B',
+        mean_difference(baseline_preds, s_sex[test])[0],
+        baseline_auc
+    ])
+
+    # train 'remove protected attributes' model. Here we have to train two
+    # seperate ones for sex and foreign status.
+
+    # model trained with no explicitly sex-related variables
+    rpa_preds_no_sex = rpa_clf.fit(
+        X_no_sex[train], y[train]).predict(X_no_sex[test])
+    metrics.append([
+        'RPA',
+        mean_difference(rpa_preds_no_sex, s_sex[test])[0],
+        roc_auc_score(y[test], rpa_preds_no_sex)
+    ])
+
+    # train reject-option classification model.
+    roc_clf.fit(X[train], y[train])
+    roc_preds_sex = roc_clf.predict(X[test], s_sex[test])
+    metrics.append([
+        'ROC',
+        mean_difference(roc_preds_sex, s_sex[test])[0],
+        roc_auc_score(y[test], roc_preds_sex)
+    ])
+
+    # train additive counterfactually fair model.
+    acf_preds_sex = acf_clf.fit(
+        X[train], y[train], s_sex[train]).predict(X[test], s_sex[test])
+    metrics.append([
+        'ACF',
+        mean_difference(acf_preds_sex, s_sex[test])[0],
+        roc_auc_score(y[test], acf_preds_sex)
+    ])
+
+    probs = acf_clf.predict_proba(X, s_sex)
+    accuracy = roc_auc_score(y[test], acf_preds_sex)
+    probs_would_not_default = [ prob[0] for prob in probs ]
+
+    print('probs: ')
+    print(probs_would_not_default)
+    # convert metrics list of lists into dataframe
+    return { 'prob': probs_would_not_default, 'accuracy': accuracy }
+
 class LoadFile(APIView):
     def get(self, request, format=None):
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
 
         return Response(whole_dataset_df.to_json(orient='index'))
 
 class ExtractFeatures(APIView):
     def get(self, request, format=None):
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
         dataset_df = whole_dataset_df.copy()
         dataset_df = dataset_df.drop('idx', axis=1)
         feature_info_list = []
@@ -91,38 +205,37 @@ class ExtractFeatures(APIView):
         return Response(json.dumps(feature_info_list))
 
 class RunRankSVM(APIView):
-
     def get(self, request, format=None):
         pass
 
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
         
-        features = json_request['features']
-        target = json_request['target']
-        sensitive_attr = json_request['sensitiveAttr']
-        method = json_request['method']
+        features = [ feature['name'] for feature in json_request['features'] ]
+        target = json_request['target']['name']
+        sensitive_attr = json_request['sensitiveAttr']['name']
+        method = json_request['method']['name']
 
-        feature_names = [ feature['name'] for feature in features ]
-        target_name = target['name']
-        sensitive_attr_name = sensitive_attr['name']
+        # features = ['credit_amount', 'installment_rate_in_percentage_of_disposable_income', 'age_in_years']
+        # target = 'credit_risk'
+        # sensitive_attr = 'sex'
+        # method = 'RankSVM'
 
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
-        dataset_df = do_encoding_categorical_vars(whole_dataset_df)
-        dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
-        dataset_df = dataset_df.sort_values(by='idx', ascending=True)
+        raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
+        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
 
-        X = dataset_df[ feature_names ]
-        y = dataset_df[ target_name ]
-        idx_col = dataset_df['idx']
+        X = whole_dataset_df[features]
+        X_wo_s_attr = whole_dataset_df[features]
+        y = whole_dataset_df[target]
+        s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=False)
         rank_svm = RankSVM().fit(X_train, y_train)
         accuracy = rank_svm.score(X_test, y_test)
 
         output_df = X.copy()
-        output_df['idx'] = idx_col
-        output_df['group'] = dataset_df[ sensitive_attr_name ]
+        output_df['idx'] = whole_dataset_df['idx']
+        output_df['group'] = s
         output_df['target'] = y
 
         weighted_X_df = X.copy()
@@ -140,21 +253,24 @@ class RunRankSVM(APIView):
         output_df = output_df.sort_values(by='score', ascending=False)
         output_df['ranking'] = range(1, len(output_df) + 1)
 
+        print(output_df['group'])
+
         # Convert to dict and put all features into 'features' key
         instances_dict_list = list(output_df.T.to_dict().values())
         for output_item in instances_dict_list:  # Go over all items
             features_dict = {}
-            for feature_key in feature_names:
+            for feature_key in features:
                 features_dict[ feature_key ] = output_item[ feature_key ]
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
 
+        # !!!! json_request['rankingId']
         ranking_instance_dict = {
             'rankingId': json_request['rankingId'],
-            'features': features,
-            'target': target,
-            'sensitiveAttr': sensitive_attr,
-            'method': method,
+            'features': json_request['features'],
+            'target': json_request['target'],
+            'sensitiveAttr': json_request['sensitiveAttr'],
+            'method': json_request['method'],
             'stat': { 'accuracy': math.ceil(accuracy * 100) },
             'instances': instances_dict_list
         }
@@ -169,48 +285,33 @@ class RunSVM(APIView):
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
 
-        features = json_request['features']
-        target = json_request['target']
-        sensitive_attr = json_request['sensitiveAttr']
-        method = json_request['method']
+        features = [ feature['name'] for feature in json_request['features'] ]
+        target = json_request['target']['name']
+        sensitive_attr = json_request['sensitiveAttr']['name']
+        method = json_request['method']['name']
 
-        feature_names = [ feature['name'] for feature in features ]
-        target_name = target['name']
-        sensitive_attr_name = sensitive_attr['name']
+        raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
+        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
 
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
-        dataset_df = do_encoding_categorical_vars(whole_dataset_df)
-        dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
-        dataset_df = dataset_df.sort_values(by='idx', ascending=True)
-
-        X = dataset_df[ feature_names ]
-        y = dataset_df[ target_name ]
-        idx_col = dataset_df['idx']
+        X = whole_dataset_df[features]
+        X_wo_s_attr = whole_dataset_df[features]
+        y = whole_dataset_df[target]
+        s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
-        svm_fit = svm.SVC(kernel='linear', random_state=0, cache_size=7000).fit(X_train, y_train)
+        svm_fit = svm.SVC(kernel='linear', random_state=0, cache_size=7000, probability=True).fit(X_train, y_train)
         accuracy = svm_fit.score(X_test, y_test)
-        # pred_probs = svm_fit.predict_proba(X)
+        probs = svm_fit.predict_proba(X)
+        probs_would_not_default = [ prob[0] for prob in probs ]
 
         output_df = X.copy()
-        output_df['idx'] = idx_col
-        output_df['group'] = dataset_df[ sensitive_attr_name ]
+        output_df['idx'] = whole_dataset_df['idx']
+        output_df['group'] = s
         output_df['target'] = y
 
-        weighted_X_df = X.copy()
-        for idx, feature in enumerate(X.columns):
-            weighted_X_df[feature] = X[feature] * svm_fit.coef_[0, idx]
-        output_df['weighted_sum'] = weighted_X_df.sum(axis=1)
-
-        # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
-        weight_from_leader = 100 / output_df['weighted_sum'].max()
-        min_max_scaler = preprocessing.MinMaxScaler()
-        scaled_sum = min_max_scaler.fit_transform(output_df['weighted_sum'].values.reshape(-1, 1))
-        output_df['score'] = scaled_sum * 100
-        # output_df['score'] = [ prob[0]*100 for prob in pred_probs ]
-
         # Add rankings
-        output_df = output_df.sort_values(by='score', ascending=False)
+        output_df['prob'] = probs_would_not_default
+        output_df = output_df.sort_values(by='prob', ascending=False)
         output_df['ranking'] = range(1, len(output_df) + 1)
 
         # Convert to dict and put all features into 'features' key
@@ -224,10 +325,10 @@ class RunSVM(APIView):
 
         ranking_instance_dict = {
             'rankingId': json_request['rankingId'],
-            'features': features,
-            'target': target,
-            'sensitiveAttr': sensitive_attr,
-            'method': method,
+            'features': json_request['features'],
+            'target': json_request['target'],
+            'sensitiveAttr': json_request['sensitiveAttr'],
+            'method': json_request['method'],
             'stat': { 'accuracy': math.ceil(accuracy * 100) },
             'instances': instances_dict_list
         }
@@ -242,50 +343,33 @@ class RunLR(APIView):
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
 
-        features = json_request['features']
-        target = json_request['target']
-        sensitive_attr = json_request['sensitiveAttr']
-        method = json_request['method']
+        features = [ feature['name'] for feature in features ]
+        target = json_request['target']['name']
+        sensitive_attr = json_request['sensitiveAttr']['name']
+        method = json_request['method']['name']
 
-        feature_names = [ feature['name'] for feature in features ]
-        target_name = target['name']
-        sensitive_attr_name = sensitive_attr['name']
+        raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
+        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
 
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
-        dataset_df = do_encoding_categorical_vars(whole_dataset_df)
-        dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
-        dataset_df = dataset_df.sort_values(by='idx', ascending=True)
-
-        X = dataset_df[ feature_names ]
-        y = dataset_df[ target_name ]
-        idx_col = dataset_df['idx']
+        X = whole_dataset_df[features]
+        X_wo_s_attr = whole_dataset_df[features]
+        y = whole_dataset_df[target]
+        s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
         lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
         accuracy = lr_fit.score(X_test, y_test)
-        pred_probs = lr_fit.predict_proba(X)
-        print('probs of lr: ')
-        print(pred_probs)
+        probs = lr_fit.predict_proba(X)
+        probs_would_not_default = [ prob[0] for prob in probs ]
 
         output_df = X.copy()
-        output_df['idx'] = idx_col
-        output_df['group'] = dataset_df[ sensitive_attr_name ]
+        output_df['idx'] = whole_dataset_df['idx']
+        output_df['group'] = s
         output_df['target'] = y
 
-        weighted_X_df = X.copy()
-        for idx, feature in enumerate(X.columns):
-            weighted_X_df[feature] = X[feature] * lr_fit.coef_[0, idx]
-        output_df['weighted_sum'] = weighted_X_df.sum(axis=1)
-
-        # When we put the leader as 100, what's the weight, and what's the scores for the rest of them when being multiplied by the weight?
-        weight_from_leader = 100 / output_df['weighted_sum'].max()
-        min_max_scaler = preprocessing.MinMaxScaler()
-        scaled_sum = min_max_scaler.fit_transform(output_df['weighted_sum'].values.reshape(-1, 1))
-        output_df['score'] = scaled_sum * 100
-        # output_df['score'] = [ prob[0]*100 for prob in pred_probs ]
-
         # Add rankings
-        output_df = output_df.sort_values(by='score', ascending=False)
+        output_df['prob'] = probs_would_not_default
+        output_df = output_df.sort_values(by='prob', ascending=False)
         output_df['ranking'] = range(1, len(output_df) + 1)
 
         # Convert to dict and put all features into 'features' key
@@ -299,15 +383,86 @@ class RunLR(APIView):
 
         ranking_instance_dict = {
             'rankingId': json_request['rankingId'],
-            'features': features,
-            'target': target,
-            'sensitiveAttr': sensitive_attr,
-            'method': method,
+            'features': json_request['features'],
+            'target': json_request['target'],
+            'sensitiveAttr': json_request['sensitiveAttr'],
+            'method': json_request['method'],
             'stat': { 'accuracy': math.ceil(accuracy * 100) },
             'instances': instances_dict_list
         }
 
         return Response(json.dumps(ranking_instance_dict))
+
+# Run Additive Counterfactual Fairness (ACF) algorithm using themis-ml library
+class RunACF(APIView):
+    def get(self, request, format=None):
+        pass
+
+    def post(self, request, format=None):
+        json_request = json.loads(request.body.decode(encoding='UTF-8'))
+
+        features = json_request['features']
+        target = json_request['target']
+        sensitive_attr = json_request['sensitiveAttr']
+        method = json_request['method']['name']
+
+        # features = ['credit_amount', 'installment_rate_in_percentage_of_disposable_income', 'age_in_years']
+        # target = 'credit_risk'
+        # sensitive_attr = 'sex'
+        # method = 'ACF'
+
+        raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
+        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
+
+        X = whole_dataset_df[features]
+        X_wo_s_attr = whole_dataset_df[features]
+        y = whole_dataset_df[target]
+        s = whole_dataset_df[sensitive_attr] # male:0, female: 1
+
+        N_SPLITS = 5
+        N_REPEATS = 20
+        cv = RepeatedStratifiedKFold(n_splits=N_SPLITS, n_repeats=N_REPEATS, random_state=41)
+
+        probs_df = pd.DataFrame()
+        for i, (train_idx, test_idx) in enumerate(cv.split(X.values, y.values, groups=s.values)):
+            if i == 0:
+                result_dict = run_experiment_iteration_themis_ml_ACF(
+                    X.values, X_wo_s_attr.values, y.values, s.values, train_idx, test_idx)
+    
+        output_df = X.copy()
+        output_df['idx'] = whole_dataset_df['idx']
+        output_df['group'] = s
+        output_df['target'] = y
+
+        # Add rankings
+        output_df['prob'] = result_dict['prob']
+        output_df = output_df.sort_values(by='prob', ascending=False)
+        output_df['ranking'] = range(1, len(output_df) + 1)
+        accuracy = result_dict['accuracy']
+
+        # Convert to dict and put all features into 'features' key
+        instances_dict_list = list(output_df.T.to_dict().values())
+        for output_item in instances_dict_list:  # Go over all items
+            features_dict = {}
+            for feature_key in features:
+                features_dict[ feature_key ] = output_item[ feature_key ]
+                output_item.pop(feature_key, None)
+            output_item['features'] = features_dict
+
+        print(output_df['group'])
+
+        ranking_instance_dict = {
+            'rankingId': json_request['rankingId'],
+            'features': json_request['features'],
+            'target': json_request['target'],
+            'sensitiveAttr': json_request['sensitiveAttr'],
+            'method': json_request['method'],
+            'stat': { 'accuracy': math.ceil(accuracy * 100) },
+            'instances': instances_dict_list
+        }
+
+        return Response(json.dumps(ranking_instance_dict))
+                
 
 class RunLRA(APIView):
 
@@ -320,13 +475,13 @@ class RunLRA(APIView):
         features = json_request['features']
         target = json_request['target']
         sensitive_attr = json_request['sensitiveAttr']
-        method = json_request['method']
+        method = json_request['method']['name']
 
         feature_names = [ feature['name'] for feature in features ]
         target_name = target['name']
         sensitive_attr_name = sensitive_attr['name']
 
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
+        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
         dataset_df = do_encoding_categorical_vars(whole_dataset_df)
         dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
         dataset_df = dataset_df.sort_values(by='idx', ascending=True)
@@ -374,10 +529,10 @@ class RunLRA(APIView):
 
         ranking_instance_dict = {
             'rankingId': json_request['rankingId'],
-            'features': features,
-            'target': target,
-            'sensitiveAttr': sensitive_attr,
-            'method': method,
+            'features': json_request['features'],
+            'target': json_request['target'],
+            'sensitiveAttr': json_request['sensitiveAttr'],
+            'method': json_request['method'],
             'stat': { 'accuracy': math.ceil(accuracy * 100) },
             'instances': instances_dict_list
         }
@@ -396,22 +551,25 @@ class RunMDS(APIView):
 
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
-        feature_names = [ feature['name'] for feature in json_request['features'] ]
-        target_name = json_request['target']['name']
-        sensitive_attr_name = json_request['sensitiveAttr']['name']
+        features = [ feature['name'] for feature in json_request['features'] ]
+        target = json_request['target']['name']
+        sensitive_attr = json_request['sensitiveAttr']['name']
 
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
-        dataset_df = do_encoding_categorical_vars(whole_dataset_df)
-        dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
-        features = pd.DataFrame(dataset_df[feature_names])
+        raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
+        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
 
-        d = pairwise_distances(pd.DataFrame(features))
+        X = whole_dataset_df[features]
+        X_wo_s_attr = whole_dataset_df[features]
+        y = whole_dataset_df[target]
+        s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
-        df_mds_result = pd.DataFrame(MDS(n_components=2, metric=False, random_state=3).fit_transform(d), features.index)
-        df_mds_result['idx'] = dataset_df['idx']
-        df_mds_result['group'] = dataset_df['sex']
-        df_mds_result['default'] = dataset_df['default']
-        df_mds_result.columns = ['dim1', 'dim2', 'idx', 'group', 'default']
+        d = pairwise_distances(X)
+
+        df_mds_result = pd.DataFrame(MDS(n_components=2, metric=False, random_state=3).fit_transform(d), X.index)
+        df_mds_result['idx'] = whole_dataset_df['idx']
+        df_mds_result['group'] = s
+        df_mds_result['target'] = y
+        df_mds_result.columns = ['dim1', 'dim2', 'idx', 'group', 'target']
 
         return Response(df_mds_result.to_json(orient='index'))
 
@@ -422,29 +580,29 @@ class CalculatePairwiseInputDistance(APIView):
 
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
-        feature_names = [ feature['name'] for feature in json_request['features'] ]
-        target_name = json_request['target']['name']
-        sensitive_attr_name = json_request['sensitiveAttr']['name']
+        features = [ feature['name'] for feature in json_request['features'] ]
+        target = json_request['target']['name']
+        sensitive_attr = json_request['sensitiveAttr']['name']
 
-        whole_dataset_df = open_dataset('./data/german_credit_sample.csv')
-        dataset_df = do_encoding_categorical_vars(whole_dataset_df)
-        dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
-        dataset_gower_distance = pd.DataFrame(dataset_df[ feature_names ])
-        dataset_gower_distance = dataset_gower_distance.set_index(dataset_df['idx'])
+        raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
+        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
 
-        for feature in feature_names:
-            dataset_gower_distance[ feature ] = dataset_gower_distance[ feature ].astype(float)
+        X = whole_dataset_df[features]
+        # dataset_gower_distance = dataset_gower_distance.set_index(dataset_df['idx'])
+
+        for feature in features:
+            X[ feature ] = X[ feature ].astype(float)
         
         is_categorical_feature_list = []
-        for feature_name in feature_names:
-            if feature_name in numerical_features:
-                is_categorical_feature_list.append(0)
+        for feature in features:
+            if feature in numerical_features:
+                is_categorical_feature_list.append(False)
             else:
-                is_categorical_feature_list.append(1)
+                is_categorical_feature_list.append(True)
 
-        print(feature_names)
+        print(features)
         print(is_categorical_feature_list)
-        pairwise_distances = gower_distances(dataset_gower_distance, categorical_features=is_categorical_feature_list)
+        pairwise_distances = gower_distances(X, categorical_features=is_categorical_feature_list)
 
         # Convert 2d array to a list of pairwise dictionaries
         # Index starting from 1

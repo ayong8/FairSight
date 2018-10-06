@@ -1,235 +1,235 @@
-.RankingInspector {
-    grid-column: 2 / 5;
-    grid-row: 3 / 4;
+// .RankingInspector {
+//     grid-column: 2 / 5;
+//     grid-row: 3 / 4;
 
-    display: grid;
-    grid-template-columns: 25% 20% 60%;
-    grid-template-rows: 20% 35% 55%;
-    grid-template-areas: 
-        'g rk rk'
-        'g i id'
-        'g gf id';
+//     display: grid;
+//     grid-template-columns: 25% 20% 60%;
+//     grid-template-rows: 20% 35% 55%;
+//     grid-template-areas: 
+//         'g rk rk'
+//         'g i id'
+//         'g gf id';
 
-    margin: 0 5px;
+//     margin: 0 5px;
 
-    .InputSpaceView,
-    .IndividualFairnessView,
-    .GroupFairnessUtilityViewWrapper,
-    .RankingView,
-    .UtilityView {
-        margin: 10px;
-        background-color: white;
-        border-left: 1px solid lightgray;
-        border-bottom: 1px solid lightgray;
-    }
+//     .InputSpaceView,
+//     .IndividualFairnessView,
+//     .GroupFairnessUtilityViewWrapper,
+//     .RankingView,
+//     .UtilityView {
+//         margin: 10px;
+//         background-color: white;
+//         border-left: 1px solid lightgray;
+//         border-bottom: 1px solid lightgray;
+//     }
 
-    .step2 { 
-        color: #54aaff; 
-        font-size: 1.6rem;
-        margin-top: 8px;
-        margin-left: 5px; 
-    }
-    .step3 { 
-        color: #1c88f3; 
-        font-size: 1.6rem; 
-        margin-top: 8px;
-        margin-left: 5px;
-    }
+//     .step2 { 
+//         color: #54aaff; 
+//         font-size: 1.6rem;
+//         margin-top: 8px;
+//         margin-left: 5px; 
+//     }
+//     .step3 { 
+//         color: #1c88f3; 
+//         font-size: 1.6rem; 
+//         margin-top: 8px;
+//         margin-left: 5px;
+//     }
 
-    .Generator {
-        grid-area: g;
-    }
+//     .Generator {
+//         grid-area: g;
+//     }
 
-    .InputSpaceView {
-        grid-area: i;
+//     .InputSpaceView {
+//         grid-area: i;
 
-        .inputSpaceViewTitleWrapper {
-            display: flex;
+//         .inputSpaceViewTitleWrapper {
+//             display: flex;
 
-            .inputSpaceViewTitle {
-                padding: 0;
-            }
-        }
+//             .inputSpaceViewTitle {
+//                 padding: 0;
+//             }
+//         }
 
-        .FeatureTable {
-            margin: 0 10px;
-            border: 1px solid lightgray;
-        }
-        .FeatureTable > thead {
-            border-bottom: 1px solid lightgray;
-        }
-        .IndividualPlotStatusView {
-            display: flex;
-            width: 100%;
-            margin: 10px 10px;
+//         .FeatureTable {
+//             margin: 0 10px;
+//             border: 1px solid lightgray;
+//         }
+//         .FeatureTable > thead {
+//             border-bottom: 1px solid lightgray;
+//         }
+//         .IndividualPlotStatusView {
+//             display: flex;
+//             width: 100%;
+//             margin: 10px 10px;
 
-            .selectedInstanceInfo {
-                margin: 5px;
-            }
-        }
-    }
+//             .selectedInstanceInfo {
+//                 margin: 5px;
+//             }
+//         }
+//     }
 
-    .IndividualFairnessView {
-        grid-area: id;
+//     .IndividualFairnessView {
+//         grid-area: id;
 
-        display: grid;
-        grid-template-columns: 60% 45%;
-        grid-template-rows: 30px 350px 230px;
-        grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
-            't t'
-            'mt mt'
-            'dp dp';
+//         display: grid;
+//         grid-template-columns: 60% 45%;
+//         grid-template-rows: 30px 350px 230px;
+//         grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
+//             't t'
+//             'mt mt'
+//             'dp dp';
         
-        .individualFairnessViewTitleWrapper {
-            display: flex;
+//         .individualFairnessViewTitleWrapper {
+//             display: flex;
 
-            .individualFairnessViewTitle {
-                grid-area: t;
-                padding: 0;
-            }
-        }
-        .MatrixSelectedInstanceWrapper {
-            grid-area: mt;
-            padding-top: 10px;
-            display: flex;
+//             .individualFairnessViewTitle {
+//                 grid-area: t;
+//                 padding: 0;
+//             }
+//         }
+//         .MatrixSelectedInstanceWrapper {
+//             grid-area: mt;
+//             padding-top: 10px;
+//             display: flex;
 
-            .IndividualStatusView {
-                width: 25%;
+//             .IndividualStatusView {
+//                 width: 25%;
 
-                .IndividualStatus {
-                    height: 200px;
-                    padding: 5px;
-                    margin: 5px;
-                    background-color: #f7f7f7;
-                    border: 1px solid lightgray;
-                }
-            }
+//                 .IndividualStatus {
+//                     height: 200px;
+//                     padding: 5px;
+//                     margin: 5px;
+//                     background-color: #f7f7f7;
+//                     border: 1px solid lightgray;
+//                 }
+//             }
             
 
-            .MatrixView {
-            }
-        }
-        .Legend {
-            grid-area: lg;
-        }
-        .matrixDropdownWrapper {
-            background-color: #e5e5e5;
-            border: 1px solid lightgrey;
-            border-radius: 3px;
-            margin: 5px;    
-            padding: 5px;
+//             .MatrixView {
+//             }
+//         }
+//         .Legend {
+//             grid-area: lg;
+//         }
+//         .matrixDropdownWrapper {
+//             background-color: #e5e5e5;
+//             border: 1px solid lightgrey;
+//             border-radius: 3px;
+//             margin: 5px;    
+//             padding: 5px;
             
-            display: flex;
-            align-items: center;
+//             display: flex;
+//             align-items: center;
 
-            .sortMatrixXdropdown,
-            .sortMatrixYdropdown {
-                width: 25%;
-            }
-        }
-        .DistortionPlot {
-            grid-area: dp;
+//             .sortMatrixXdropdown,
+//             .sortMatrixYdropdown {
+//                 width: 25%;
+//             }
+//         }
+//         .DistortionPlot {
+//             grid-area: dp;
 
-            .IndividualFairnessViewBar {
-                margin-left: 10px;
-                padding: 5px;
-                background-color: #e5e5e5;
-                border: 1px solid lightgray;
+//             .IndividualFairnessViewBar {
+//                 margin-left: 10px;
+//                 padding: 5px;
+//                 background-color: #e5e5e5;
+//                 border: 1px solid lightgray;
                 
-                display: flex;
-                align-items: center;
-                // justify-content: flex-end;
-            }
-        }
-    }
+//                 display: flex;
+//                 align-items: center;
+//                 // justify-content: flex-end;
+//             }
+//         }
+//     }
 
-    .GroupFairnessUtilityViewWrapper {
-        grid-area: gf;
+//     .GroupFairnessUtilityViewWrapper {
+//         grid-area: gf;
 
-        // display: grid;
-        // grid-template-columns: 70% 30%;     // Group Fairness View / Utility View
-        // grid-template-rows: 10% 30% 60%;
+//         // display: grid;
+//         // grid-template-columns: 70% 30%;     // Group Fairness View / Utility View
+//         // grid-template-rows: 10% 30% 60%;
 
-        .GroupFairnessView {
-            grid-column: 1;
-            grid-row: 1 / 4;
+//         .GroupFairnessView {
+//             grid-column: 1;
+//             grid-row: 1 / 4;
 
-            .title {
+//             .title {
 
-            }
-            .subTitle {
-                display:flex;
-                //align-items: center;
-                    /* justify-content: center; */
-                width: 80%;
-                height: 20px;
-                margin-left: 10px;
-                font-size: 1rem;
-                color: #2a4b5a;
-                /* font-weight: 500; */
-                //background-color: #a7ffe7;
-                //border: 1px solid #97dbc8;
-            }
+//             }
+//             .subTitle {
+//                 display:flex;
+//                 //align-items: center;
+//                     /* justify-content: center; */
+//                 width: 80%;
+//                 height: 20px;
+//                 margin-left: 10px;
+//                 font-size: 1rem;
+//                 color: #2a4b5a;
+//                 /* font-weight: 500; */
+//                 //background-color: #a7ffe7;
+//                 //border: 1px solid #97dbc8;
+//             }
 
-            .statParityPlotsWrapper,
-            .conditionalParityPlotWrapper
-            {
-                display: grid;
-                grid-template-columns: 10% 90%;
-                grid-template-areas: 'sc tp';
+//             .statParityPlotsWrapper,
+//             .conditionalParityPlotWrapper
+//             {
+//                 display: grid;
+//                 grid-template-columns: 10% 90%;
+//                 grid-template-areas: 'sc tp';
 
-                border-bottom: 1px solid lightgray;
-                padding: 5px;
-                margin: 5px;
+//                 border-bottom: 1px solid lightgray;
+//                 padding: 5px;
+//                 margin: 5px;
 
-                .topKPlot {
-                    grid-area: tp;
-                    align-self: center;
-                    justify-self: center;
+//                 .topKPlot {
+//                     grid-area: tp;
+//                     align-self: center;
+//                     justify-self: center;
 
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                }
+//                     display: flex;
+//                     align-items: center;
+//                     justify-content: center;
+//                 }
 
-                .score {
-                    grid-area: sc;
-                    align-self: center;
-                    justify-self: center;
+//                 .score {
+//                     grid-area: sc;
+//                     align-self: center;
+//                     justify-self: center;
 
-                    font-size: 1.2rem;
-                    font-weight: 600;
-                    color: #2a4b5a;
-                }
+//                     font-size: 1.2rem;
+//                     font-weight: 600;
+//                     color: #2a4b5a;
+//                 }
                 
-                .wholeDistribution {
-                    grid-column: 3;
-                    align-self: center;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
+//                 .wholeDistribution {
+//                     grid-column: 3;
+//                     align-self: center;
+//                     display: flex;
+//                     align-items: center;
+//                     justify-content: center;
         
-                    margin: 3px 0px;
-                }
-            }
+//                     margin: 3px 0px;
+//                 }
+//             }
     
             
-            .conditionalParityPlot {
-                grid-column: 2 / 4;
-                grid-row: 2;
+//             .conditionalParityPlot {
+//                 grid-column: 2 / 4;
+//                 grid-row: 2;
     
-                // border: 1px solid #d5d5d5;
-                margin: 3px 0px;
-            }
-        }
+//                 // border: 1px solid #d5d5d5;
+//                 margin: 3px 0px;
+//             }
+//         }
 
-        .UtilityView {
-            grid-column: 2;
-            grid-row: 1 / 4;
-        }
-    }
+//         .UtilityView {
+//             grid-column: 2;
+//             grid-row: 1 / 4;
+//         }
+//     }
 
-    .summary {
-        margin: 10px;
-    }
-}
+//     .summary {
+//         margin: 10px;
+//     }
+// }

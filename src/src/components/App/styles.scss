@@ -19,25 +19,53 @@ body {
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
-  grid-template-rows: 20px 30px 80px 230px 300px 300px 250px 80px;
+  grid-template-rows: 20px 30px 80px 230px 850px 80px;
   grid-template-columns: 20% 20% 37.5% 20%;
   grid-template-areas:
     'mg mg mg mg'
     'm m m m'
     'g r r l'
     'g r r l'
-    'g i id l'
-    'g ii id l'
-    'g ii id l'
+    'g ri ri l'
     'f f f f';
 }
 
-.margin {
-  grid-column: 1 / 5;
-  grid-row: 1 / 2;
-  display: flex;
-  align-items: flex-end;
+.marginDiv { grid-area: mg; }
+.Menubar { grid-area: m; }
+.Generator { grid-area: g; }
+.RankingView { grid-area: r; }
+.RankingsListView { grid-area: l; }
+.Footer { grid-area: f; }
+
+.RankingInspector {
+  grid-area: ri;
+
+  display: grid;
+  row-gap: 10px;
+  column-gap: 10px;
+  grid-template-rows: 30px 250px 100px 300px 150px 150px;
+  grid-template-columns: 30% 40% 20% 10%;
+  grid-template-areas:
+    'rt rt rt rt'
+    'i ii mg12 tr'
+    'lg id id tr'
+    'cr id id tr'
+    'cr mg6 mg7 tr'
+    'cr mg9 mg10 tr';
 }
+
+.marginDiv1 { grid-area: mg1; }
+.marginDiv2 { grid-area: mg2; }
+.marginDiv3 { grid-area: mg3; }
+.marginDiv4 { grid-area: mg4; }
+.marginDiv5 { grid-area: mg5; }
+.marginDiv6 { grid-area: mg6; }
+.marginDiv7 { grid-area: mg7; }
+.marginDiv8 { grid-area: mg8; }
+.marginDiv9 { grid-area: mg9; }
+.marginDiv10 { grid-area: mg10; }
+.marginDiv10 { grid-area: mg11; }
+.marginDiv10 { grid-area: mg12; }
 
 .DatasetView,
 .InputSpaceView,
@@ -51,17 +79,22 @@ body {
     border-bottom: 1px solid lightgray;
 }
 
-.marginDiv { grid-area: mg; }
-.Menubar { grid-area: m; }
-.Generator { grid-area: g; }
-.RankingsListView { grid-area: l; }
+.rankingInspectorTitle { grid-area: rt; }
 .InputSpaceView { grid-area: i; }
+.LegendView { grid-area: lg; }
+.CorrelationView { grid-area: cr; }
+.TopkRankingView { grid-area: tr; }
 .IndividualInspectionView { grid-area: ii; }
 .IndividualFairnessView { grid-area: id; }
-.GroupFairnessView { grid-area: gf; }
-.RankingView { grid-area: r; }
+// .GroupFairnessView { grid-area: gf; }
 .UtilityView { grid-area: u; }
-.Footer { grid-area: f; }
+
+.margin {
+  grid-column: 1 / 5;
+  grid-row: 1 / 2;
+  display: flex;
+  align-items: flex-end;
+}
 
 // UI Components
 .step2 { 

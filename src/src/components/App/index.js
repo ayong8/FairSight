@@ -11,11 +11,9 @@ import Menubar from 'components/Menubar';
 import Generator from 'components/Generator';
 import RankingsListView from 'components/RankingsListView';
 import InputSpaceView from 'components/InputSpaceView';
-import LegendView from 'components/LegendView';
-import CorrelationView from 'components/CorrelationView';
 import IndividualInspectionView from 'components/IndividualInspectionView';
 import RankingView from 'components/RankingView';
-import IndividualFairnessView from 'components/IndividualFairnessView';
+import DistortionView from 'components/DistortionView';
 import TopkRankingView from 'components/TopkRankingView';
 import GroupFairnessView from 'components/GroupFairnessView';
 import UtilityView from 'components/UtilityView';
@@ -51,7 +49,8 @@ class App extends Component {
       methods: [
         {name: 'RankSVM'},
         {name: 'SVM'},
-        {name: 'Logistic Regression'}
+        {name: 'Logistic Regression'},
+        {name: 'Additive Counterfactual Fairness'}
       ],
       topk: 20,
       n: 40,
@@ -84,9 +83,12 @@ class App extends Component {
         stat: {
           accuracy: 0,
           goodnessOfFairness: 0,
+          groupSkew: 0,
           sp: 0,
+          cp: 0,
           tp: 0,
-          fp: 0
+          fp: 0,
+          ndcg: 0
         }
       },
       output: [],
@@ -106,13 +108,8 @@ class App extends Component {
     this.handleRankingInstanceOptions = this.handleRankingInstanceOptions.bind(this);
     this.handleSensitiveAttr = this.handleSensitiveAttr.bind(this);
     this.handleMouseoverInstance = this.handleMouseoverInstance.bind(this);
+    this.handleFilterRunning = this.handleFilterRunning.bind(this);
   }
-
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   if (this.state.color !== nextState.color) { return true; }
-
-  //   return false;
-  // }
 
   componentWillMount() {
   }
@@ -140,6 +137,8 @@ class App extends Component {
       this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       this.calculateNDM(this.permutationDiffs);
+      this.calculateGroupSkew(this.pairwiseDiffs);
+      this.calculateOutputMeasures();
 
       let sortedInstances = _.sortBy(updatedInstances, 'ranking'),
           selectedRanking = rankings[rankingInstance.rankingId - 1];
@@ -282,6 +281,24 @@ class App extends Component {
               }));
             });
   }
+
+  runACF(rankingInstance) {
+    return fetch('/dataset/runACF/', {
+            method: 'post',
+            body: JSON.stringify(rankingInstance)
+          })
+          .then( (response) => {
+            return response.json();
+          })   
+          .then( (response) => {
+              const rankingInstance = JSON.parse(response);
+              
+              this.setState(prevState => ({
+                rankingInstance: rankingInstance,
+                rankings: [ ...prevState.rankings, rankingInstance ]
+              }));
+            });
+  }
   
   calculatePairwiseInputDistance(rankingInstance) {
     return fetch('/dataset/calculatePairwiseInputDistance/', {
@@ -331,6 +348,10 @@ class App extends Component {
     } else if (method.name === 'Logistic Regression') {
       return Promise.all([this.getDataset(), 
         this.getFeatures(), this.runLR(rankingInstance), 
+        this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
+    } else if (method.name === 'Additive Counterfactual Fairness') {
+      return Promise.all([this.getDataset(), 
+        this.getFeatures(), this.runACF(rankingInstance), 
         this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
     }
   }
@@ -405,6 +426,8 @@ class App extends Component {
       this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       this.calculateNDM(this.permutationDiffs);
+      this.calculateGroupSkew(this.pairwiseDiffs);
+      this.calculateOutputMeasures();
 
       this.setState((prevState) => ({
         pairwiseDiffs: this.pairwiseDiffs,
@@ -448,7 +471,22 @@ class App extends Component {
       this.setFairInstancesFromConfidenceInterval(confIntervalPoints, this.pairwiseDiffs);
     });
   }
-  
+  handleFilterRunning() {
+    const { rankingInstance, permutationDiffsFlattened, selectedRankingInterval } = this.state,
+          { instances } = rankingInstance,
+          { from, to } = selectedRankingInterval;
+        
+    const selectedPermutationDiffsFlattend = _.filter(permutationDiffsFlattened, (d) => 
+            (d.ranking1 >= from) && (d.ranking1 <= to) &&
+            (d.ranking2 >= from) && (d.ranking2 <= to)
+          );
+
+    this.setState({
+      selectedPermutationDiffsFlattend: selectedPermutationDiffsFlattend,
+      selectedInstances: instances.slice(from, to)
+    });
+  }
+
   handleSelectedInterval(intervalTo) {
     console.log('interval change: ', intervalTo);
     this.setState({
@@ -531,16 +569,13 @@ class App extends Component {
     let pairwiseDiffs = [];
     for(let i=0; i<pairs.length-1; i++){
       let diffInput = pairwiseInputDistances[i].input_dist,
-          diffOutput = Math.abs(pairs[i][0].instance.ranking - pairs[i][1].instance.ranking),
-          pair = 0;
+          diffOutput = Math.abs(pairs[i][0].instance.ranking - pairs[i][1].instance.ranking);
 
-      if((pairs[i][0].group === 0) && (pairs[i][1].group === 0))
-        pair = 1;
-      else if((pairs[i][0].group === 1) && (pairs[i][1].group === 1))
-        pair = 2;
-      else if(pairs[i][0].group !== pairs[i][1].group)
-        pair = 3;
-
+      const pair = (pairs[i][0].group === 0) && (pairs[i][1].group === 0) ? 1        
+                 : (pairs[i][0].group === 1) && (pairs[i][1].group === 1) ? 2
+                 : (pairs[i][0].group !== pairs[i][1].group) ? 3
+                 : 0;
+        
       pairwiseDiffs.push({
         idx1: pairs[i][0].idx,
         idx2: pairs[i][1].idx,
@@ -625,6 +660,61 @@ class App extends Component {
               });
     console.log('after cal: ', updatedInstances);
     return updatedInstances;
+  }
+
+  calculateGroupSkew(pairwiseDiffs) {
+    const btnPairs = pairwiseDiffs
+            .filter((d) => d.pair === 3)
+            .map((d) => d.absDistortion),
+          btnPairsSum = btnPairs.reduce((sum, curr) => sum + curr);
+    const wtnPairs = pairwiseDiffs
+            .filter((d) => d.pair === 1 || d.pair === 2)
+            .map((d) => d.absDistortion),
+          wtnPairsSum = wtnPairs.reduce((sum, curr) => sum + curr);
+
+    const groupSkew = (btnPairsSum / btnPairs.length) / 
+                      (wtnPairsSum / wtnPairs.length);
+    console.log('GroupSkew: ', btnPairsSum, btnPairs.length, wtnPairsSum, wtnPairs.length, groupSkew);
+    this.setState((prevState) => ({
+      rankingInstance: {
+        ...prevState.rankingInstance,
+        stat: {
+          ...prevState.rankingInstance.stat,
+          groupSkew: Math.round(groupSkew * 1000) / 1000
+        }
+      }
+    }));
+  }
+
+  calculateOutputMeasures() {
+    const { rankingInstance } = this.state,
+          { instances } = rankingInstance;
+
+    const group1 = instances.filter((d) => d.group === 0),
+          group2 = instances.filter((d) => d.group === 1);
+
+    const groupRanking1 = group1.map((d) => d.ranking),
+          groupRanking2 = group2.map((d) => d.ranking);
+
+    const statisticalParity = (_.sum(group2.map((d) => 1 / d.ranking)) / group2.length) / 
+                              (_.sum(group1.map((d) => 1 / d.ranking)) / group1.length);
+    const conditionalParity = (_.sum(group2.filter((d) => d.target === 1).map((d) => 1 / d.ranking)) / group2.length) / 
+                              (_.sum(group1.filter((d) => d.target === 1).map((d) => 1 / d.ranking)) / group1.length);
+
+    this.setState((prevState) => ({
+      rankingInstance: {
+        ...prevState.rankingInstance,
+        stat: {
+          ...prevState.rankingInstance.stat,
+          sp: Math.round(statisticalParity * 100) / 100,
+          cp: Math.round(conditionalParity * 100) / 100
+        }
+      }
+    }));
+
+    console.log('statistical parity: ', group1.filter((d) => d.pred === 1).length / group2.filter((d) => d.pred === 1).length);
+    console.log('conditional parity: ', group1.filter((d) => d.pred === 1 && d.target === 0).length / group2.filter((d) => d.pred === 1 && d.target === 0).length);
+    console.log('ndcg: ', group1.reduce((sum, curr) => sum + 1/Math.log(Math.max(curr, 2)))/group1.length, group2.reduce((sum, curr) => sum + 1/Math.log(Math.max(curr, 2)))/group2.length);
   }
 
   setFairInstancesFromConfidenceInterval(confIntervalPoints, pairwiseDiffs) {
@@ -765,6 +855,7 @@ class App extends Component {
             topk={this.state.topk}
             selectedRankingInterval={this.state.selectedRankingInterval}
             data={this.state.rankingInstance}
+            onRunningFilter={this.handleFilterRunning}
             onSelectedInterval={this.handleSelectedInterval}
             onSelectedTopk={this.handleSelectedTopk}  />
         <div className={styles.RankingInspector}>
@@ -777,11 +868,6 @@ class App extends Component {
               selectedInstance={this.state.mouseoveredInstance}
               selectedRankingInterval={this.state.selectedRankingInterval} 
               onMouseoverInstance={this.handleMouseoverInstance} />
-          <LegendView 
-            className={styles.LegendView} />
-          <CorrelationView
-              className={styles.CorrelationView}
-              data={this.state.rankingInstance} />
           <IndividualInspectionView
               className={styles.IndividualInspectionView}
               data={this.state.rankingInstance}
@@ -793,21 +879,21 @@ class App extends Component {
               data={this.state.rankingInstance}
               topk={this.state.topk}
               selectedRankingInterval={this.state.selectedRankingInterval} />
-          <IndividualFairnessView 
+          <DistortionView 
               data={this.state.rankingInstance}
               n={this.state.n}
-              selectedInstances={selectedInstances}
+              selectedInstances={this.state.selectedInstances}
               selectedInstance={this.state.mouseoveredInstance}
-              selectedRankingInterval={this.state.selectedRankingInterval}
               pairwiseInputDistances={this.state.pairwiseInputDistances}
               permutationInputDistances={this.state.permutationInputDistances}
               pairwiseDiffs={this.pairwiseDiffs}
               permutationDiffs={this.permutationDiffs}
               permutationDiffsFlattened={this.permutationDiffsFlattened}
-              selectedPermutationDiffsFlattend={selectedPermutationDiffsFlattend}
+              selectedPermutationDiffsFlattend={this.state.selectedPermutationDiffsFlattend}
               confIntervalPoints={this.state.confIntervalPoints}
               inputCoords={this.state.inputCoords}
-              onCalculateNDM={this.calculateNDM} />
+              onCalculateNDM={this.calculateNDM}
+              onFilterRunning={this.handleFilterRunning} />
           {/* <GroupFairnessView 
               className={styles.GroupFairnessView}
               data={this.state.rankingInstance} 

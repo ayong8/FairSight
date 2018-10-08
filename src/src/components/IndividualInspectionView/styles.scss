@@ -1,11 +1,13 @@
 .IndividualInspectionView {
     grid-area: ii;
 
+    border-top: 1px solid #d9d9d9;
+
     .IndividualStatus {
         height: 200px;
         padding: 5px;
         margin: 5px;
         background-color: #f7f7f7;
-        border: 1px solid lightgray;
+        border: 1px solid #d9d9d9;
     }
 }

@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css?family=Titillium+Web:300,400,700");
+
 .Generator {
   grid-area: g;
 
@@ -30,6 +32,22 @@
   .generatorTitle > span {
     color: white !important;
     font-size: 1.4rem !important;
+  }
+
+  .generatorDatasetWrapper {
+    margin-bottom: 10px;
+  }
+
+  .generatorSubTitle {
+    font-weight: 600;
+    border-top: 1px solid white;
+    padding: 1px;
+    padding-top: 10px;
+    margin: 0 5px;
+  }
+
+  .generatorDescription {
+    padding: 5px;
   }
 
   .selectDataset,

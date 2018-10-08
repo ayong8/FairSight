@@ -75,3 +75,26 @@ body {
   padding: 0 10px !important;
   font-size: 1.2rem !important;
 }
+
+.ant-alert {
+  padding: 5px 10px !important;
+  width: 90% !important;
+  margin-left: 10px !important;
+  margin-bottom: 5px !important;
+}
+
+.ant-alert-message {
+  font-size: 1.1rem !important;
+}
+
+.ant-alert-description {
+  font-size: 1rem !important;
+  line-height: normal !important;
+}
+
+.ant-alert-icon {
+  position: absolute !important;
+  top: 10px !important;
+  left: 5px !important;
+  font-size: 12px !important;
+}

@@ -143,6 +143,12 @@ selectedRankingInstance: {
 
 ## Compute data
 
+1. Compute pairwise and permutation distortions for the whole data
+2. MatrixView only renders the top-k as default, and the zoomed area on demand
+    - RankingInspector/index.js는 전체 pairwise, permutation 계산
+    - individualFairnessView.js에서는 선택된 부분만 렌더링
+3. 
+
 pairwiseDiffs (in RankingInspector/index.js)
 - Input(this.props.inputCoords, this.props.output)
     + inputCoords: input data의 dim reduction 결과물
@@ -154,11 +160,18 @@ pairwiseDiffs (in RankingInspector/index.js)
     {
         idx1: d[0].idx,
         idx2: d[1].idx,
-        pair: Math.floor(Math.random() * 3) + 1,  // for now, pair is a random => (1: Woman and Woman, 2: Woman and Man, 3: Man and Man)
+        x1: ,
+        x2: ,
+        pair: Math.floor(Math.random() * 3) + 1, 
+        // (1: Woman and Woman, 2: Woman and Man, 3: Man and Man)
         diffInput: diffInput,
         diffOutput: diffOutput,
         scaledDiffInput: this.observedScale(diffInput),
-        scaledDiffOutput: this.observedScale(diffOutput)
+        scaledDiffOutput: this.observedScale(diffOutput),
+        distortion: scaledDiffOutput - scaledDiffInput,
+        absDistortion: ,
+        isFair: false,
+        isOutlier: false
     }
 ]
 

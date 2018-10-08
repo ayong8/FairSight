@@ -16,7 +16,11 @@
 .subTitle {
   color: #00346b;
   font-size: 1.2rem;
-  margin-bottom: 5px;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+.description {
+  font-family: 'Titillium Web'
 }
 
 .step1 i { color: #b5dafe; font-size: 1.6rem; }

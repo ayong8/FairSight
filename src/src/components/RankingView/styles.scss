@@ -3,13 +3,13 @@
 
   background-color: white;
   padding: 0 10px;
-  border-bottom: 1px solid #d7d7d7;
+  border-bottom: 1px solid gray;
 
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
   grid-template-columns: 50% 50%;
-  grid-template-rows: 10% 10% 20% 25% 25%;
+  grid-template-rows: 10% 13% 15% 21% 30%;
   grid-template-areas: 
     't t'
     'st ft'
@@ -19,10 +19,13 @@
 
   .rankingViewTitle {
       grid-area: t;
+
+    border-bottom: 1px solid gray;
+    padding-bottom: 10px;
   }
   .summaryViewTitle { 
     grid-area: st;
-    border-bottom: 1px solid #d7d7d7;
+    // border-bottom: 1px solid #d9d9d9;
   }
   .summaryView { 
     grid-area: s; 
@@ -38,36 +41,47 @@
     .groupFairness,
     .individualFairness {
       font-size: 2rem;
+      margin-bottom: 10px;
     }
   }
 
   .filterViewTitle { 
     grid-area: ft;
-    border-bottom: 1px solid #d7d7d7;
+    // border-bottom: 1px solid #d7d7d7;
   }
 
   .topkFilterView { 
     grid-area: tf;
 
-    .topkInput {
+    .topkInputWrapper {
       display: flex;
-      align-items: center;
+      justify-content: space-between;
+      padding: 0 5px;
     }
     .topkSlider {
-      align-self: center;
     }
   }
 
   .intervalFilterView { 
     grid-area: if; 
 
-    .intervalInput {
+    .intervalInputWrapper {
       display: flex;
-      align-items: center;
+      justify-content: space-between;
+      padding: 0 5px;
     }
 
     .intervalSlider {
       alignt-self: center;
     }
+  }
+
+  .runButtonWrapper {
+    display: grid;
+    -ms-flex-pack: right;
+    justify-content: right;
+    -ms-flex-align: center;
+    align-items: center;
+    padding: 0 10px;
   }
 }

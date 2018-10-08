@@ -2,9 +2,10 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import * as d3 from 'd3';
 import ReactFauxDOM from 'react-faux-dom';
-import { Alert, Button, FormGroup, FormText, Input, Label,
+import { Button } from 'reactstrap';
+import { FormGroup, FormText, Input, Label,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { TreeSelect, Slider, InputNumber, Icon, Table, Badge, Radio } from 'antd';
+import { Alert, TreeSelect, Slider, InputNumber, Icon, Table, Badge, Radio } from 'antd';
 
 import styles from './styles.scss';
 import index from '../../index.css';
@@ -183,20 +184,7 @@ class Generator extends Component {
         dist: 10,
         corr: _self.renderCorrPlotWithSensitiveAttr(featureName)
       };
-
-      // if (featureName === 'credit_amount')
-      //   return {
-      //     feature: featureName.replace(/_/g, ' '),
-      //     dist: 10,
-      //     corr: _self.renderCorrPlotWithSensitiveAttr(featureName)
-      //   };
-      // else
-      //   return {
-      //     feature: featureName.replace(/_/g, ' '),
-      //     dist: 10,
-      //     corr: 10
-      //   };
-      });
+    });
   }
 
   renderCorrPlotWithSensitiveAttr(feature) {
@@ -448,8 +436,14 @@ class Generator extends Component {
           <br />
         </div>
         {/* // Dataset selector */}
-        <div className={styles.selectDataset}>Dataset</div>
-        <div className={styles.datasetDescription}>20 Features</div>
+        <div className={styles.generatorDatasetWrapper}>
+          <div className={styles.generatorSubTitle}>Dataset</div>
+          <div className={styles.generatorDescription}>
+            <div>- 20 Features</div>
+            <div>- 1,000 instances</div>
+          </div>
+        </div>
+        <div className={styles.generatorSubTitle}>Feature</div>
         {/* // Sensitive Attribute selector */}
         <div className={styles.selectSensitiveAttr}>Sensitive attribute</div>
         <Dropdown className={styles.sensitiveAttrDropdown} 
@@ -466,6 +460,12 @@ class Generator extends Component {
         { typeof(this.props.rankingInstance.sensitiveAttr) === 'undefined' ? <div></div> : this.renderSelectProtectedGroup() }
         {/* // Feature selector */}
         <div className={styles.selectFeatures}>Features</div>
+        <Alert
+          message='  Fairness through unawareness'
+          description='Make sure not to select the sensitive attribute'
+          type='info'
+          showIcon
+        />
         <TreeSelect
           className={styles.featureSelector}
           showSearch
@@ -503,6 +503,7 @@ class Generator extends Component {
             {this.renderTargetSelections()}
           </DropdownMenu>
         </Dropdown>
+        <div className={styles.generatorSubTitle}>Fairness Scenario</div>
         {/* // Method selector */}
         <div className={styles.selectMethod}>Method</div>
         <Dropdown className={styles.methodDropdown}

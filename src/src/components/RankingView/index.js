@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
+import { Button } from 'reactstrap';
 import { Slider, Icon, InputNumber, Tag } from 'antd';
 import dc from 'dc';
 import crossfilter from 'crossfilter';
@@ -18,6 +19,8 @@ class RankingView extends Component {
       super(props);
     
       this.groupColorScale;
+      this.intervalTo;
+
       this.layout = {
           svgRanking: {
               width: 800,
@@ -44,6 +47,7 @@ class RankingView extends Component {
       this.handleSelectedRankingInterval = this.handleSelectedRankingInterval.bind(this);
       this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
       this.handleIntervalChange = this.handleIntervalChange.bind(this);
+      this.handleFilterRunning = this.handleFilterRunning.bind(this);
     }
 
     handleSelectedRankingInterval(interval) {
@@ -57,6 +61,10 @@ class RankingView extends Component {
 
     handleIntervalChange(intervalTo) {
       this.props.onSelectedInterval(intervalTo);
+    }
+
+    handleFilterRunning() {
+      this.props.onRunningFilter();
     }
 
     render() {
@@ -73,7 +81,7 @@ class RankingView extends Component {
             intervalTo = intervalIdx.to,
             data = this.props.data,
             { stat } = data,
-            { accuracy, goodnessOfFairness } = stat,
+            { accuracy, goodnessOfFairness, groupSkew, sp, cp } = stat,
             instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse(),
             topk = this.props.topk;
             
@@ -160,11 +168,15 @@ class RankingView extends Component {
             </div>
             <div className={styles.groupFairnessWrapper}>
               <div className={styles.groupFairnessTitle}>Statistical Parity</div>
-              <div className={styles.groupFairness}>96</div>
+              <div className={styles.groupFairness}>{sp}</div>
+              <div className={styles.groupFairnessTitle}>Conditional Parity</div>
+              <div className={styles.groupFairness}>{cp}</div>
             </div>
             <div className={styles.individualFairnessWrapper}>
               <div className={styles.individualFairnessTitle}>Goodness</div>
               <div className={styles.individualFairness}>{goodnessOfFairness}</div>
+              <div className={styles.individualFairnessTitle}>Group skew</div>
+              <div className={styles.individualFairness}>{groupSkew}</div>
             </div>
           </div>
           <div className={styles.filterViewTitle  + ' ' + index.subTitle}>
@@ -179,7 +191,7 @@ class RankingView extends Component {
             {svgTopkRankingView.toReact()}
           </div> */}
           <div className={styles.topkFilterView}>
-            <div className={styles.topkInput}>
+            <div className={styles.topkInputWrapper}>
               <div className={styles.topkFilterTitle}>Top-k</div>
               &nbsp;&nbsp;
               <InputNumber
@@ -192,7 +204,7 @@ class RankingView extends Component {
                 onChange={this.onTopkChange}
               />
             </div>
-            <div className={styles.topkSlider}>
+            <div className={styles.topkSliderWrapper}>
               <Slider 
                 className={styles.topkSlider}
                 step={1} 
@@ -237,8 +249,14 @@ class RankingView extends Component {
               max={this.props.n}
               value={this.props.selectedRankingInterval.to}
               style={{ width: 450 }}
-              onChange={this.handleIntervalChange} 
+              onChange={this.handleIntervalChange}
             />
+            <div className={styles.runButtonWrapper}>
+              <Button 
+                className={styles.buttonGenerateRanking} 
+                color='danger' 
+                onClick={this.handleFilterRunning}>RUN</Button>
+            </div>
             {/* <WholeRankingChart
               className={styles.intervalFilter}
               data={this.props.data}

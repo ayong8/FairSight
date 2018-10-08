@@ -58,7 +58,7 @@ class TopkRankingView extends Component {
           .attr('width', 20)
           .attr('height', (d) => 5)
           .style('fill', (d) => groupColorScale(d.group))
-          // .style('stroke', 'black')
+          .style('stroke', 'black')
           // .style('shape-rendering', 'crispEdge')
           // .style('stroke-width', 0.5);
 
@@ -117,7 +117,7 @@ class TopkRankingView extends Component {
       return (
         <div className={styles.TopkRankingView}>
           <div className={styles.rankingViewTitle + ' ' + index.subTitle}>
-            Top-k ranking: &nbsp;
+            Ranking &nbsp;
           </div>
           {svg.toReact()}
         </div>

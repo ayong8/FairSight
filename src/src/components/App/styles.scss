@@ -19,7 +19,7 @@ body {
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
-  grid-template-rows: 20px 30px 80px 230px 850px 80px;
+  grid-template-rows: 20px 30px 100px 230px 850px 80px;
   grid-template-columns: 20% 20% 37.5% 20%;
   grid-template-areas:
     'mg mg mg mg'
@@ -44,14 +44,14 @@ body {
   row-gap: 10px;
   column-gap: 10px;
   grid-template-rows: 30px 250px 100px 300px 150px 150px;
-  grid-template-columns: 30% 40% 20% 10%;
+  grid-template-columns: 20% 40% 20% 15%;
   grid-template-areas:
     'rt rt rt rt'
     'i ii mg12 tr'
-    'lg id id tr'
-    'cr id id tr'
-    'cr mg6 mg7 tr'
-    'cr mg9 mg10 tr';
+    'd d d tr'
+    'd d d tr'
+    'd d d tr'
+    'd d d tr';
 }
 
 .marginDiv1 { grid-area: mg1; }
@@ -81,11 +81,11 @@ body {
 
 .rankingInspectorTitle { grid-area: rt; }
 .InputSpaceView { grid-area: i; }
-.LegendView { grid-area: lg; }
-.CorrelationView { grid-area: cr; }
+// .LegendView { grid-area: lg; }
+// .CorrelationView { grid-area: cr; }
 .TopkRankingView { grid-area: tr; }
 .IndividualInspectionView { grid-area: ii; }
-.IndividualFairnessView { grid-area: id; }
+.DistortionView { grid-area: d; }
 // .GroupFairnessView { grid-area: gf; }
 .UtilityView { grid-area: u; }
 

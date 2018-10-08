@@ -42,6 +42,10 @@ import math
 
 import json, simplejson
 
+simple_file_path = './data/themis_ml_toy.csv'
+sample_file_path = './data/themis_ml_sample.csv'
+heavy_file_path = './data/themis_ml_sample.csv'
+
 numerical_features = ['duration_in_month', 'credit_amount',	'installment_rate_in_percentage_of_disposable_income',	
                     'present_residence_since',	'age_in_years', 'number_of_existing_credits_at_this_bank',	
                     'number_of_people_being_liable_to_provide_maintenance_for',	'status_of_existing_checking_account',	
@@ -170,7 +174,7 @@ def run_experiment_iteration_themis_ml_ACF(
 
     probs = acf_clf.predict_proba(X, s_sex)
     accuracy = roc_auc_score(y[test], acf_preds_sex)
-    probs_would_not_default = [ prob[0] for prob in probs ]
+    probs_would_not_default = [ prob[1] for prob in probs ]
 
     print('probs: ')
     print(probs_would_not_default)
@@ -179,13 +183,13 @@ def run_experiment_iteration_themis_ml_ACF(
 
 class LoadFile(APIView):
     def get(self, request, format=None):
-        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
+        whole_dataset_df = open_dataset(simple_file_path)
 
         return Response(whole_dataset_df.to_json(orient='index'))
 
 class ExtractFeatures(APIView):
     def get(self, request, format=None):
-        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
+        whole_dataset_df = open_dataset(simple_file_path)
         dataset_df = whole_dataset_df.copy()
         dataset_df = dataset_df.drop('idx', axis=1)
         feature_info_list = []
@@ -222,7 +226,7 @@ class RunRankSVM(APIView):
         # method = 'RankSVM'
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
+        whole_dataset_df = open_dataset(simple_file_path)
 
         X = whole_dataset_df[features]
         X_wo_s_attr = whole_dataset_df[features]
@@ -291,7 +295,7 @@ class RunSVM(APIView):
         method = json_request['method']['name']
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
+        whole_dataset_df = open_dataset(simple_file_path)
 
         X = whole_dataset_df[features]
         X_wo_s_attr = whole_dataset_df[features]
@@ -318,7 +322,7 @@ class RunSVM(APIView):
         instances_dict_list = list(output_df.T.to_dict().values())
         for output_item in instances_dict_list:  # Go over all items
             features_dict = {}
-            for feature_key in feature_names:
+            for feature_key in features:
                 features_dict[ feature_key ] = output_item[ feature_key ]
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
@@ -343,13 +347,13 @@ class RunLR(APIView):
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
 
-        features = [ feature['name'] for feature in features ]
+        features = [ feature['name'] for feature in json_request['features'] ]
         target = json_request['target']['name']
         sensitive_attr = json_request['sensitiveAttr']['name']
         method = json_request['method']['name']
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
+        whole_dataset_df = open_dataset(simple_file_path)
 
         X = whole_dataset_df[features]
         X_wo_s_attr = whole_dataset_df[features]
@@ -360,7 +364,7 @@ class RunLR(APIView):
         lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
         accuracy = lr_fit.score(X_test, y_test)
         probs = lr_fit.predict_proba(X)
-        probs_would_not_default = [ prob[0] for prob in probs ]
+        probs_would_not_default = [ prob[1] for prob in probs ]
 
         output_df = X.copy()
         output_df['idx'] = whole_dataset_df['idx']
@@ -376,7 +380,7 @@ class RunLR(APIView):
         instances_dict_list = list(output_df.T.to_dict().values())
         for output_item in instances_dict_list:  # Go over all items
             features_dict = {}
-            for feature_key in feature_names:
+            for feature_key in features:
                 features_dict[ feature_key ] = output_item[ feature_key ]
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
@@ -401,18 +405,13 @@ class RunACF(APIView):
     def post(self, request, format=None):
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
 
-        features = json_request['features']
-        target = json_request['target']
-        sensitive_attr = json_request['sensitiveAttr']
+        features = [ feature['name'] for feature in json_request['features'] ]
+        target = json_request['target']['name']
+        sensitive_attr = json_request['sensitiveAttr']['name']
         method = json_request['method']['name']
 
-        # features = ['credit_amount', 'installment_rate_in_percentage_of_disposable_income', 'age_in_years']
-        # target = 'credit_risk'
-        # sensitive_attr = 'sex'
-        # method = 'ACF'
-
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
+        whole_dataset_df = open_dataset(simple_file_path)
 
         X = whole_dataset_df[features]
         X_wo_s_attr = whole_dataset_df[features]
@@ -449,8 +448,6 @@ class RunACF(APIView):
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
 
-        print(output_df['group'])
-
         ranking_instance_dict = {
             'rankingId': json_request['rankingId'],
             'features': json_request['features'],
@@ -481,7 +478,7 @@ class RunLRA(APIView):
         target_name = target['name']
         sensitive_attr_name = sensitive_attr['name']
 
-        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
+        whole_dataset_df = open_dataset(simple_file_path)
         dataset_df = do_encoding_categorical_vars(whole_dataset_df)
         dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
         dataset_df = dataset_df.sort_values(by='idx', ascending=True)
@@ -556,7 +553,7 @@ class RunMDS(APIView):
         sensitive_attr = json_request['sensitiveAttr']['name']
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
+        whole_dataset_df = open_dataset(simple_file_path)
 
         X = whole_dataset_df[features]
         X_wo_s_attr = whole_dataset_df[features]
@@ -585,7 +582,7 @@ class CalculatePairwiseInputDistance(APIView):
         sensitive_attr = json_request['sensitiveAttr']['name']
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset('./data/themis_ml_sample.csv')
+        whole_dataset_df = open_dataset(simple_file_path)
 
         X = whole_dataset_df[features]
         # dataset_gower_distance = dataset_gower_distance.set_index(dataset_df['idx'])

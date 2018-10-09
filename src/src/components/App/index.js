@@ -166,7 +166,8 @@ class App extends Component {
             ...prevState.rankingInstance.stat,
             goodnessOfFairness: this.rSquared
           }
-        }
+        },
+        rankings: [...prevState.rankings, rankingInstance]
       }));
 
       inputs = _.map(this.pairwiseDiffs, (d) => {
@@ -240,8 +241,7 @@ class App extends Component {
               const rankingInstance = JSON.parse(response);
               
               this.setState(prevState => ({
-                rankingInstance: rankingInstance,
-                rankings: [ ...prevState.rankings, rankingInstance ]
+                rankingInstance: rankingInstance
               }));
             });
   }
@@ -258,8 +258,7 @@ class App extends Component {
               const rankingInstance = JSON.parse(response);
               
               this.setState(prevState => ({
-                rankingInstance: rankingInstance,
-                rankings: [ ...prevState.rankings, rankingInstance ]
+                rankingInstance: rankingInstance
               }));
             });
   }
@@ -276,8 +275,7 @@ class App extends Component {
               const rankingInstance = JSON.parse(response);
               
               this.setState(prevState => ({
-                rankingInstance: rankingInstance,
-                rankings: [ ...prevState.rankings, rankingInstance ]
+                rankingInstance: rankingInstance
               }));
             });
   }
@@ -294,8 +292,7 @@ class App extends Component {
               const rankingInstance = JSON.parse(response);
               
               this.setState(prevState => ({
-                rankingInstance: rankingInstance,
-                rankings: [ ...prevState.rankings, rankingInstance ]
+                rankingInstance: rankingInstance
               }));
             });
   }
@@ -413,7 +410,7 @@ class App extends Component {
     // data file loading here
     this.getFetches(rankingInstance, method)
     .then((responses) => {
-      const { rankingInstance } = this.state,
+      const { rankingInstance, rankings } = this.state,
           { instances } = rankingInstance;
 
       let updatedInstances = [],
@@ -441,7 +438,8 @@ class App extends Component {
             ...prevState.rankingInstance.stat,
             goodnessOfFairness: this.rSquared
           }
-        }
+        },
+        rankings: [...prevState.rankings, rankingInstance]
       }));
 
       inputs = _.map(this.pairwiseDiffs, (d) => {
@@ -712,6 +710,11 @@ class App extends Component {
       }
     }));
 
+    return { 
+      sp: Math.round(statisticalParity * 100) / 100, 
+      cp: Math.round(conditionalParity * 100) / 100
+    }
+
     console.log('statistical parity: ', group1.filter((d) => d.pred === 1).length / group2.filter((d) => d.pred === 1).length);
     console.log('conditional parity: ', group1.filter((d) => d.pred === 1 && d.target === 0).length / group2.filter((d) => d.pred === 1 && d.target === 0).length);
     console.log('ndcg: ', group1.reduce((sum, curr) => sum + 1/Math.log(Math.max(curr, 2)))/group1.length, group2.reduce((sum, curr) => sum + 1/Math.log(Math.max(curr, 2)))/group2.length);
@@ -881,6 +884,7 @@ class App extends Component {
               selectedRankingInterval={this.state.selectedRankingInterval} />
           <DistortionView 
               data={this.state.rankingInstance}
+              topk={this.state.topk}
               n={this.state.n}
               selectedInstances={this.state.selectedInstances}
               selectedInstance={this.state.mouseoveredInstance}

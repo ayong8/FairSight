@@ -23,7 +23,11 @@ class Generator extends Component {
       targetDropdownOpen: false,
       dataset: {},
       ranking: {},
-      topkInput: 0
+      topkInput: 0,
+      fq: {
+        isFairness: true,
+
+      }
     };
 
     this.layout = {
@@ -402,6 +406,70 @@ class Generator extends Component {
     });
   }
 
+  renderFairnessQuestion1() {
+    return (
+      <div className={styles.fairnessQuestion1}>
+        <Radio.Group 
+          //className={styles.protectedGroupRadioButton} 
+          //onChange={this.handleClickProtectedGroup} 
+          defaultValue={'With fairness'} 
+          buttonStyle='solid' 
+          size='small'>
+          <Radio.Button value={'With fairness'}>{'With fairness'}</Radio.Button>
+          <Radio.Button value={'Without fairness'}>{'Without fairness'}</Radio.Button>
+        </Radio.Group>
+      </div>
+    );
+  }
+
+  renderFairnessQuestion2() {
+    return (
+      <div className={styles.fairnessQuestion2}>
+        <Radio.Group 
+          //className={styles.protectedGroupRadioButton} 
+          //onChange={this.handleClickProtectedGroup} 
+          defaultValue={'Group fairness'} 
+          buttonStyle='solid' 
+          size='small'>
+          <Radio.Button value={'Group fairness'}>{'Group fairness'}</Radio.Button>
+          <Radio.Button value={'Individual fairness'}>{'Individual fairness'}</Radio.Button>
+        </Radio.Group>
+      </div>
+    );
+  }
+
+  renderFairnessQuestion3() {
+    return (
+      <div className={styles.fairnessQuestion3}>
+        <Radio.Group 
+          //className={styles.protectedGroupRadioButton} 
+          //onChange={this.handleClickProtectedGroup} 
+          defaultValue={'Yes'} 
+          buttonStyle='solid' 
+          size='small'>
+          <Radio.Button value={'Yes'}>{'Yes'}</Radio.Button>
+          <Radio.Button value={'No'}>{'No'}</Radio.Button>
+        </Radio.Group>
+      </div>
+    );
+  }
+
+  renderFairnessQuestion4() {
+    return (
+      <div className={styles.fairnessQuestion4}>
+        <Radio.Group 
+          //className={styles.protectedGroupRadioButton} 
+          //onChange={this.handleClickProtectedGroup} 
+          defaultValue={'Yes'} 
+          buttonStyle='solid' 
+          size='small'>
+          <Radio.Button value={'Yes'}>{'Yes'}</Radio.Button>
+          <Radio.Button value={'No'}>{'No'}</Radio.Button>
+        </Radio.Group>
+      </div>
+    );
+  }
+
   render() {
     const { rankingInstance } = this.props,
           { features, sensitiveAttr, target, method } = rankingInstance;
@@ -503,9 +571,18 @@ class Generator extends Component {
             {this.renderTargetSelections()}
           </DropdownMenu>
         </Dropdown>
-        <div className={styles.generatorSubTitle}>Fairness Scenario</div>
         {/* // Method selector */}
-        <div className={styles.selectMethod}>Method</div>
+        <div className={styles.generatorSubTitle}>Fairness Scenario</div>
+        {/* // Protected Group selector */}
+        <div className={styles.fairnessQuestion}>Aim to achieve fairness?</div>
+        {this.renderFairnessQuestion1()}
+        <div className={styles.fairnessQuestion}>Which fairness matters?</div>
+        {this.renderFairnessQuestion2()}
+        <div className={styles.fairnessQuestion}>Possible to change input?</div>
+        {this.renderFairnessQuestion3()}
+        <div className={styles.fairnessQuestion}>Perfect group fairness via output change?</div>
+        {this.renderFairnessQuestion4()}
+        <div className={styles.selectMethod}>Recommended Method</div>
         <Dropdown className={styles.methodDropdown}
                   isOpen={this.state.methodDropdownOpen} 
                   toggle={this.toggleMethodDropdown}>

@@ -3,13 +3,13 @@
 
   background-color: white;
   padding: 0 10px;
-  border-bottom: 1px solid gray;
+  border-bottom: 1.5px solid lightgray;
 
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
   grid-template-columns: 50% 50%;
-  grid-template-rows: 10% 13% 15% 21% 30%;
+  grid-template-rows: 10% 8% 15% 21% 30%;
   grid-template-areas: 
     't t'
     'st ft'
@@ -20,11 +20,12 @@
   .rankingViewTitle {
       grid-area: t;
 
-    border-bottom: 1px solid gray;
+    border-bottom: 1.5px solid lightgray;
     padding-bottom: 10px;
   }
   .summaryViewTitle { 
     grid-area: st;
+    margin-top: 0;
     // border-bottom: 1px solid #d9d9d9;
   }
   .summaryView { 
@@ -47,6 +48,7 @@
 
   .filterViewTitle { 
     grid-area: ft;
+    margin-top: 0;
     // border-bottom: 1px solid #d7d7d7;
   }
 

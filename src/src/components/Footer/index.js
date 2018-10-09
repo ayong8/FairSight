@@ -5,7 +5,7 @@ const Footer = (props, context) => (
   <footer className={styles.Footer}>
     <div className={styles.column}>
       <nav className={styles.nav}>
-        <ul className={styles.list}>
+        {/* <ul className={styles.list}>
           <li className={styles.listItem}>About Us</li>
           <li className={styles.listItem}>Support</li>
           <li className={styles.listItem}>Blog</li>
@@ -16,11 +16,11 @@ const Footer = (props, context) => (
           <li className={styles.listItem}>Terms</li>
           <li className={styles.listItem}>Directory</li>
           <li className={styles.listItem}>Language</li>
-        </ul>
+        </ul> */}
       </nav>
     </div>
     <div className={styles.column}>
-      <span className={styles.copyright}>© 2017 app</span>
+      <span className={styles.copyright}>© PICSO LAB</span>
     </div>
   </footer>
 );

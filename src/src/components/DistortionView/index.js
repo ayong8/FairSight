@@ -110,10 +110,10 @@ class IndividualFairnessView extends Component {
           },
           distortionSumPlotUpper: {
             width: 300,
-            height: 30
+            height: 50
           },
           distortionSumPlotRight: {
-            width: 30,
+            width: 50,
             height: 300
           },
           histoMatrix: {
@@ -154,10 +154,10 @@ class IndividualFairnessView extends Component {
       const _self = this;
 
       _self.setState({
-        sortMatrixXBy: 'sumDistortion',
-        sortMatrixYBy: 'sumDistortion',
-        sortMatrixXdropdownValue: 'sumDistortion',
-        sortMatrixYdropdownValue: 'sumDistortion'
+        sortMatrixXBy: 'ranking',
+        sortMatrixYBy: 'ranking',
+        sortMatrixXdropdownValue: 'ranking',
+        sortMatrixYdropdownValue: 'ranking'
       });
     }
 
@@ -190,19 +190,19 @@ class IndividualFairnessView extends Component {
             { data } = this.props,
             { selectedInstances, selectedPermutationDiffsFlattend } = this.props;
 
-      const sortedX = [...selectedInstances].sort((a, b) => 
-                (sortMatrixXBy === 'sumDistortion') ?
-                d3.ascending(a.sumDistortion, b.sumDistortion) :
-                d3.ascending(a.features[sortMatrixXBy], b.features[sortMatrixXBy])
-            );
+      const sortedX = _.sortBy(selectedInstances, 
+                (sortMatrixXBy === 'sumDistortion') ? sortMatrixXBy 
+                : (sortMatrixXBy === 'ranking') ? sortMatrixXBy 
+                : 'features.'+ sortMatrixXBy
+              );
       
       _self.xMatrixScale.domain(
           _.map(sortedX, (d) => d.ranking));
       _self.xAttributeScale.domain(
           d3.extent(selectedInstances, (d) => 
-            (sortMatrixXBy === 'sumDistortion') ? 
-              d.sumDistortion : 
-              d.features[sortMatrixXBy]
+            (sortMatrixXBy === 'sumDistortion') ? d.sumDistortion
+            : (sortMatrixXBy === 'ranking') ? d.ranking
+            : d.features[sortMatrixXBy]
           ));
 
       this.setState({ 
@@ -226,11 +226,11 @@ class IndividualFairnessView extends Component {
           .transition()
           .duration(750)
           .attr('x', (d) => _self.xMatrixScale(d.ranking))
-          .attr('fill', (d) => {
-              return (sortMatrixXBy === 'sumDistortion') ? 
-                _self.xAttributeScale(d.sumDistortion) : 
-                _self.xAttributeScale(d.features[sortMatrixXBy])
-          });
+          .attr('fill', (d) => 
+            (sortMatrixXBy === 'sumDistortion') ? _self.xAttributeScale(d.sumDistortion)
+            : (sortMatrixXBy === 'ranking') ? _self.xAttributeScale(d.ranking)
+            : _self.xAttributeScale(d.features[sortMatrixXBy])
+          );
 
       d3.selectAll('.pair_rect_bottom')
           .data(selectedInstances)
@@ -262,20 +262,19 @@ class IndividualFairnessView extends Component {
             { selectedInstances, selectedPermutationDiffsFlattend } = this.props;
 
       const sortedY = _.sortBy(selectedInstances, 
-              (sortMatrixYBy === 'sumDistortion') ? 
-                sortMatrixYBy : 
-                'features.'+ sortMatrixYBy
+              (sortMatrixYBy === 'sumDistortion') ? sortMatrixYBy 
+              : (sortMatrixYBy === 'ranking') ? sortMatrixYBy 
+              : 'features.'+ sortMatrixYBy
             );
       
       _self.yMatrixScale.domain(
-          _.map(sortedY, (d) => d.ranking ));
+          _.map(sortedY, (d) => d.ranking));
       _self.yAttributeScale.domain(
-          d3.extent(_.map(selectedInstances, (d) => 
-            (sortMatrixYBy === 'sumDistortion') ? 
-              d.sumDistortion : 
-              d.features[sortMatrixYBy]
-          ))
-        );
+            d3.extent(selectedInstances, (d) => 
+              (sortMatrixYBy === 'sumDistortion') ? d.sumDistortion
+              : (sortMatrixYBy === 'ranking') ? d.ranking
+              : d.features[sortMatrixYBy]
+          ));
 
       this.setState({ 
         sortMatrixYBy: e.target.value,
@@ -298,9 +297,9 @@ class IndividualFairnessView extends Component {
           .duration(750)
           .attr('y', (d) => _self.yMatrixScale(d.ranking))
           .attr('fill', (d) => 
-            (sortMatrixYBy === 'sumDistortion') ? 
-              _self.yAttributeScale(d.sumDistortion) : 
-              _self.yAttributeScale(d.features[sortMatrixYBy])
+            (sortMatrixYBy === 'sumDistortion') ? _self.yAttributeScale(d.sumDistortion)
+            : (sortMatrixYBy === 'ranking') ? _self.yAttributeScale(d.ranking)
+            : _self.yAttributeScale(d.features[sortMatrixYBy])
           );
 
       d3.selectAll('.pair_rect_left')
@@ -455,7 +454,8 @@ class IndividualFairnessView extends Component {
           .range([0, _self.layout.svgMatrix.matrixPlot.width]);
       _self.yMatrixScale = d3.scaleBand()
           .domain(_.map(dataSelectedY, (d) => d.ranking))  // For now, it's just an index of items(from observed)
-          .range([_self.layout.svgMatrix.matrixPlot.height, 0]);
+          .range([_self.layout.svgMatrix.matrixPlot.height + _self.layout.svgMatrix.distortionSumPlotUpper.height, 
+                  _self.layout.svgMatrix.distortionSumPlotUpper.height]);
       _self.cellWidth = _self.xMatrixScale.bandwidth();
       _self.cellHeight = _self.yMatrixScale.bandwidth();
       _self.distortionScale = d3.scaleLinear()
@@ -486,7 +486,8 @@ class IndividualFairnessView extends Component {
           .range([0, _self.layout.svgMatrix.histoMatrix.width]);
       _self.yHistoMatrixScale = d3.scaleBand()
           .domain(d3.range(nBinPerAxis))  // For now, it's just an index of items(from observed)
-          .range([0, _self.layout.svgMatrix.histoMatrix.height]);
+          .range([_self.layout.svgMatrix.distortionSumPlotUpper.height, 
+                  _self.layout.svgMatrix.histoMatrix.height + _self.layout.svgMatrix.distortionSumPlotUpper.height]);
       _self.cellHistoWidth = _self.xHistoMatrixScale.bandwidth();
       _self.cellHistoHeight = _self.yHistoMatrixScale.bandwidth();
       _self.sumAbsDistortionScale = d3.scaleLinear()
@@ -498,8 +499,8 @@ class IndividualFairnessView extends Component {
       const sortMatrixXBy = 'ranking',
             sortMatrixYBy = 'ranking';
 
-      let sortedSelectedX = [...dataSelectedX].sort((a, b) => d3.ascending(a.sumDistortion, b.sumDistortion)),
-          sortedSelectedY = [...dataSelectedY].sort((a, b) => d3.ascending(a.sumDistortion, b.sumDistortion));
+      let sortedSelectedX = [...dataSelectedX].sort((a, b) => d3.ascending(a.ranking, b.ranking)),
+          sortedSelectedY = [...dataSelectedY].sort((a, b) => d3.ascending(a.ranking, b.ranking));
 
       _self.xMatrixScale
           .domain(_.map(sortedSelectedX, (d) => d.ranking));
@@ -534,7 +535,7 @@ class IndividualFairnessView extends Component {
             gAttrPlotBottom = d3.select(_self.svgMatrix).append('g')
                 .attr('class', 'g_attr_plot_y')
                 .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',' + 
-                                                  _self.layout.svgMatrix.matrixPlot.height + ')'),
+                                                  (_self.layout.svgMatrix.matrixPlot.height + _self.layout.svgMatrix.distortionSumPlotUpper.height) + ')'),
             gHistoMatrix = d3.select(_self.svgMatrix).append('g')
                 .attr('class', 'g_histo_matrix')
                 .attr('transform', 'translate(' + (_self.layout.svgMatrix.attrPlotLeft.width + _self.layout.svgMatrix.matrixPlot.width + 20) + ',0)'),
@@ -550,21 +551,35 @@ class IndividualFairnessView extends Component {
       if (sortMatrixXBy === 'ranking') {
         const topkLineX = gMatrix.append('line')
                 .attr('x1', _self.xMatrixScale(topk))
-                .attr('y1', _self.xMatrixScale(1))
+                .attr('y1', _self.yMatrixScale(1))
                 .attr('x2', _self.xMatrixScale(topk))
-                .attr('y2', _self.xMatrixScale(to))
+                .attr('y2', _self.yMatrixScale(to))
                 .style('stroke', 'red')
                 .style('stroke-width', 1);
       }
       if (sortMatrixYBy === 'ranking') {
         const topkLineY = gMatrix.append('line')
                 .attr('x1', _self.xMatrixScale(1))
-                .attr('y1', _self.xMatrixScale(topk))
+                .attr('y1', _self.yMatrixScale(topk))
                 .attr('x2', _self.xMatrixScale(to))
-                .attr('y2', _self.xMatrixScale(topk))
+                .attr('y2', _self.yMatrixScale(topk))
                 .style('stroke', 'red')
                 .style('stroke-width', 1);
       }
+
+      // Axis X1, X2 name
+      const axisX1 = gMatrix.append('text')
+              .attr('x', this.layout.svgMatrix.matrixPlot.width + 10)
+              .attr('y', this.layout.svgMatrix.matrixPlot.height + 15)
+              .text('X1')
+              .style('font-size', '11px')
+              .style('fill', '#d9d9d9'),
+            axisX2 = gMatrix.append('text')
+              .attr('x', 0)
+              .attr('y', 0)
+              .text('X2')
+              .style('font-size', '11px')
+              .style('fill', '#d9d9d9');
 
       // For Matrix plot
       gCells.append('rect')
@@ -621,12 +636,12 @@ class IndividualFairnessView extends Component {
           .attr('width', 10)
           .attr('height', _self.yMatrixScale.bandwidth() - 1)
           .attr('fill', (d) => 
-            (sortMatrixYBy === 'sumDistortion') ? 
-              _self.yAttributeScale(d.sumDistortion) : 
-              _self.yAttributeScale(d.features[sortMatrixYBy])
+            (sortMatrixYBy === 'sumDistortion') ? _self.yAttributeScale(d.sumDistortion) 
+            : (sortMatrixYBy === 'ranking') ? _self.yAttributeScale(d.ranking) 
+            : _self.yAttributeScale(d.features[sortMatrixYBy])
           )
           .attr('stroke', 'black')
-          .attr('stroke-width', 0.2);
+          .attr('stroke-width', 0.4);
 
       // Attribute plot bottom
       gAttrPlotBottom.selectAll('.attr_rect_bottom')
@@ -637,13 +652,13 @@ class IndividualFairnessView extends Component {
           .attr('y', (d) => 5)
           .attr('width', _self.xMatrixScale.bandwidth() - 1)
           .attr('height', 10)
-          .attr('fill', (d) => {
-            return (sortMatrixYBy === 'sumDistortion') ? 
-              _self.xAttributeScale(d.sumDistortion) : 
-              _self.xAttributeScale(d.features[sortMatrixYBy])
-          })
+          .attr('fill', (d) => 
+            (sortMatrixXBy === 'sumDistortion') ? _self.xAttributeScale(d.sumDistortion) 
+            : (sortMatrixXBy === 'ranking') ? _self.xAttributeScale(d.ranking) 
+            : _self.xAttributeScale(d.features[sortMatrixXBy])
+          )
           .attr('stroke', 'black')
-          .attr('stroke-width', 0.2);
+          .attr('stroke-width', 0.4);
 
       // For histo matrix
       gHistoCells.append('rect')
@@ -747,7 +762,7 @@ class IndividualFairnessView extends Component {
 
       const gPlot = d3.select(_self.svg).append('g')
               .attr('class', 'g_plot')
-              .attr('transform', 'translate(120, 0)'),
+              .attr('transform', 'translate(0, 0)'),
             gViolinPlot = gPlot.append('g')
               .attr('class', 'g_violin_plot')
               .attr('transform', 'translate(' + (this.layout.plot.width + 30) + ',' + '0)'),
@@ -1070,105 +1085,6 @@ class IndividualFairnessView extends Component {
             .attr('y2', _self.yGroupSkewScale(0))
             .style('stroke', 'black')
             .style('stroke-width', 3);
-
-      const gLegend = d3.select(_self.svg).append('g')
-          .attr('class', 'g_legend')
-          .attr('transform', 'translate(0, 0)');
-
-      // legend border
-      gLegend.append('rect')
-          .attr('class', 'legend')
-          .attr('x', 3)
-          .attr('y', 3)
-          .attr('width', 110)
-          .attr('height', 70)
-          .style('fill', 'none')
-          .style('shape-rendering','crispEdges')
-          .style('stroke', '#2a4b5b')
-          .style('stroke-width', 1.0)
-          .style('opacity', 0.5);
-      // Pair (node)
-      gLegend.append('text')
-          .attr('x', 5)
-          .attr('y', 15)
-          .text('Pairwise distortion')
-          .style('font-size', '11px');
-
-      // Woman-Man pair
-      gLegend.append('circle')
-          .attr('class', 'legend_rect')
-          .attr('cx', 10)
-          .attr('cy', 30)
-          .attr('r', 4)
-          .style('fill', _self.pairColorScale(3))
-          .style('stroke', d3.rgb(_self.pairColorScale(3)).darker());
-      gLegend.append('text')
-          .attr('x', 30)
-          .attr('y', 33)
-          .text('Woman-Man')
-          .style('font-size', '11px');
-      // Man-Man pair
-      gLegend.append('circle')
-          .attr('class', 'legend_rect')
-          .attr('cx', 10)
-          .attr('cy', 45)
-          .attr('r', 4)
-          .style('fill', _self.pairColorScale(1))
-          .style('stroke', d3.rgb(_self.pairColorScale(1)).darker());
-      gLegend.append('text')
-          .attr('x', 30)
-          .attr('y', 48)
-          .text('Man-Man')
-          .style('font-size', '11px');  
-
-      // Woman-Woman pair
-      gLegend.append('circle')
-          .attr('class', 'legend_rect')
-          .attr('cx', 10)
-          .attr('cy', 60)
-          .attr('r', 4)
-          .style('fill', _self.pairColorScale(2))
-          .style('stroke', d3.rgb(_self.pairColorScale(2)).darker())
-          .on('mouseover', (d) => {
-              // Interact with svgPlot
-              const svgPlot = d3.select('.svg_legend');
-
-              svgPlot.selectAll('circle.coords_circle_group2')
-                .style('stroke', 'black')
-                .style('stroke-width', 2);
-
-              svgPlot.selectAll('.coords_rect')
-                .style('opacity', 0.2);
-
-              svgPlot.select('.g_plot')
-                .append('line')
-                .attr('class', 'group_fitting_line')
-                .attr('x1', 0)
-                .attr('y1', 200)
-                .attr('x2', 540)
-                .attr('y2', 180)
-                .style('stroke', _self.pairColorScale(2))
-                .style('stroke-width', 3);
-          })
-          .on('mouseout', (d) => {
-              // Interact with svgPlot
-              const svgPlot = d3.select('.svg_legend');
-
-              svgPlot.selectAll('circle.coords_circle_group2')
-                .style('stroke', d3.rgb(_self.pairColorScale(2)).darker())
-                .style('stroke-width', 1);
-
-              svgPlot.selectAll('.coords_rect')
-                .style('opacity', 1);
-
-              svgPlot.select('.group_fitting_line').remove();
-          });
-
-      gLegend.append('text')
-          .attr('x', 30)
-          .attr('y', 63)
-          .text('Woman-Woman')
-          .style('font-size', '11px');
     }
 
     handleSelectGroupCheckbox(checked) {
@@ -1289,16 +1205,11 @@ class IndividualFairnessView extends Component {
               {this.svgMatrix.toReact()}
             </div>
           </div>
-          <div className={styles.DistortionPlot}> 
-            <div className={index.subTitle}>Pairwise Distortions</div>
-            <div className={styles.distortionViewBar}>
-              <span>Select groups: &nbsp;</span>
-              <CheckboxGroup options={groupOptions} defaultValue={['Women', 'Men', 'Between']} onChange={this.handleSelectGroupCheckbox} />
-              <span>&nbsp;&nbsp;&nbsp;&nbsp;</span>
-              <CheckboxGroup options={outlierAndFairOptions} defaultValue={[]} onChange={this.handleSelectOutlierAndFairCheckbox} />
+          <div className={styles.DistortionAnalysisView}>
+            <div className={styles.subTitle}>Distortion analysis</div>
+            <div className={styles.DistortionPlot}>
+              {this.svg.toReact()}
             </div>
-            <div className={styles.summary}>Group skew: 1.09</div>
-            {this.svg.toReact()}
           </div>
         </div>
       );

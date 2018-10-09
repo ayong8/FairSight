@@ -16,7 +16,7 @@ class TopkRankingView extends Component {
       this.layout = {
           svg: {
             width: 80,
-            height: 400,
+            height: 500,
             margin: 10
           }
       };
@@ -33,21 +33,21 @@ class TopkRankingView extends Component {
       // Set up the layout
       const svg = new ReactFauxDOM.Element('svg');
 
-      svg.setAttribute('width', _self.layout.svg.width);
+      svg.setAttribute('width', '100%');
       svg.setAttribute('height', _self.layout.svg.height);
       svg.setAttribute('class', 'svg_top_ranking');
 
-      const rectHeight = 6;
+      const rectInterval = 7;
       const rankingScale = d3.scaleBand()
               .domain(_.map(topkInstances, (d) => d.ranking))
-              .range([0, rectHeight * to]),
+              .range([0, rectInterval * to]),
             groupColorScale = d3.scaleOrdinal()
               .range([gs.groupColor1, gs.groupColor2])
               .domain([0, 1]);
 
       const gTopkRanking = d3.select(svg).append('g')
               .attr('class', 'g_top_k_ranking')
-              .attr('transform', 'translate(' + (_self.layout.svg.margin + 40) + ',' + '0)');
+              .attr('transform', 'translate(' + (130) + ',' + '0)');
 
       gTopkRanking.selectAll('.rect_topk')
           .data(topkInstances)
@@ -55,12 +55,12 @@ class TopkRankingView extends Component {
           .attr('class', (d) => 'rect_topk rect_topk_' + d.ranking)
           .attr('x', (d) => 0)
           .attr('y', (d) => rankingScale(d.ranking))
-          .attr('width', 20)
-          .attr('height', (d) => 5)
+          .attr('width', 30)
+          .attr('height', (d) => rectInterval - 2)
           .style('fill', (d) => groupColorScale(d.group))
           .style('stroke', 'black')
-          // .style('shape-rendering', 'crispEdge')
-          // .style('stroke-width', 0.5);
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.5);
 
       // const xTopkRankingScale = d3.scaleBand()
       //         .domain(_.map(dataTopk, (d) => d.ranking))

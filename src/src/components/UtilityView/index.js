@@ -73,47 +73,47 @@ class UtilityView extends Component {
           .attr('class', 'yAxis')
           .attr('transform', 'translate('+ this.layout.marginLeft + ',0)');
 
-      statParityLine = d3.line()
-          .x((d) => xTopKScale(d.topK))
-          .y((d) => yLogScoreScale(d.statParity));
+    //   statParityLine = d3.line()
+    //       .x((d) => xTopKScale(d.topK))
+    //       .y((d) => yLogScoreScale(d.statParity));
 
-      statParityPath = gPlot.append('path')
-          .datum(sampleData)
-          .style('fill', 'none')
-          .style('stroke', d3.rgb('lightblue').darker())
-          .style('stroke-width', 1)
-          .attr('d', statParityLine);
+    //   statParityPath = gPlot.append('path')
+    //       .datum(sampleData)
+    //       .style('fill', 'none')
+    //       .style('stroke', d3.rgb('lightblue').darker())
+    //       .style('stroke-width', 1)
+    //       .attr('d', statParityLine);
 
-      statParityDots = gPlot.selectAll('.statParitydot')
-          .data(sampleData)
-          .enter().append('circle')
-          .attr('class', 'statParitydot')
-          .attr('cx', (d) => xTopKScale(d.topK))
-          .attr('cy', (d) => yLogScoreScale(d.statParity))
-          .attr('r', 2)
-          .style('fill', 'lightblue')
-          .style('stroke', d3.rgb('lightblue').darker());
+    //   statParityDots = gPlot.selectAll('.statParitydot')
+    //       .data(sampleData)
+    //       .enter().append('circle')
+    //       .attr('class', 'statParitydot')
+    //       .attr('cx', (d) => xTopKScale(d.topK))
+    //       .attr('cy', (d) => yLogScoreScale(d.statParity))
+    //       .attr('r', 2)
+    //       .style('fill', 'lightblue')
+    //       .style('stroke', d3.rgb('lightblue').darker());
 
-      conditionalParityLine = d3.line()
-          .x((d) => xTopKScale(d.topK))
-          .y((d) => yLogScoreScale(d.conditionalParity));
+    //   conditionalParityLine = d3.line()
+    //       .x((d) => xTopKScale(d.topK))
+    //       .y((d) => yLogScoreScale(d.conditionalParity));
 
-      conditionalParityPath = gPlot.append('path')
-          .datum(sampleData)
-          .style('fill', 'none')
-          .style('stroke', d3.rgb('mediumpurple').darker())
-          .style('stroke-width', 1)
-          .attr('d', conditionalParityLine);
+    //   conditionalParityPath = gPlot.append('path')
+    //       .datum(sampleData)
+    //       .style('fill', 'none')
+    //       .style('stroke', d3.rgb('mediumpurple').darker())
+    //       .style('stroke-width', 1)
+    //       .attr('d', conditionalParityLine);
 
-      conditionalParityDots = gPlot.selectAll('.conditionalParitydot')
-          .data(sampleData)
-          .enter().append('circle')
-          .attr('class', 'conditionalParitydot')
-          .attr('cx', (d) => xTopKScale(d.topK))
-          .attr('cy', (d) => yLogScoreScale(d.conditionalParity))
-          .attr('r', 2)
-          .style('fill', 'mediumpurple')
-          .style('stroke', d3.rgb('mediumpurple').darker());
+    //   conditionalParityDots = gPlot.selectAll('.conditionalParitydot')
+    //       .data(sampleData)
+    //       .enter().append('circle')
+    //       .attr('class', 'conditionalParitydot')
+    //       .attr('cx', (d) => xTopKScale(d.topK))
+    //       .attr('cy', (d) => yLogScoreScale(d.conditionalParity))
+    //       .attr('r', 2)
+    //       .style('fill', 'mediumpurple')
+    //       .style('stroke', d3.rgb('mediumpurple').darker());
 
       return (
         <div className={styles.UtilityView}>

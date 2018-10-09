@@ -3,13 +3,12 @@
 
   display: grid;
   grid-template-columns: 30% 70%;
-  grid-template-rows: 30px 150px 100px 250px 250px;
+  grid-template-rows: 30px 160px 250px 250px;
   grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
       't t'
       'lg mt'
       'cr mt'
-      'cr mg1'
-      'cr mg2';
+      'cr da';
 
   border-top: 1px solid #d9d9d9;
 
@@ -17,6 +16,7 @@
   .LegendView { grid-area: lg; }
   .marginView1 { grid-area: mg1; }
   .marginView2 { grid-area: mg2; }
+  .DistortionAnalysisView { grid-area: da; }
 
   .subTitle {
     border-top: 1px solid #d9d9d9;

@@ -14,7 +14,7 @@ class LegendView extends Component {
     this.layout = {
       svg: {
         width: 210,
-        height: 140,
+        height: 160,
         padding: 10
       },
       fontSize: 12,
@@ -41,17 +41,17 @@ class LegendView extends Component {
         .range(['white', gs.groupColor1, gs.groupColor2, gs.betweenGroupColor, gs.withinGroupColor]);   
 
     // legend border
-    gLegend.append('rect')
-        .attr('class', 'legend')
-        .attr('x', 0)
-        .attr('y', 0)
-        .attr('width', this.layout.svg.width - this.layout.svg.padding)
-        .attr('height', this.layout.svg.height)
-        .style('fill', '#f7f7f7')
-        .style('shape-rendering','crispEdges')
-        .style('stroke', '#d9d9d9')
-        .style('stroke-width', 1.0)
-        .style('opacity', 0.5);
+    // gLegend.append('rect')
+    //     .attr('class', 'legend')
+    //     .attr('x', 0)
+    //     .attr('y', 0)
+    //     .attr('width', this.layout.svg.width - this.layout.svg.padding)
+    //     .attr('height', this.layout.svg.height)
+    //     .style('fill', '#f7f7f7')
+    //     .style('shape-rendering','crispEdges')
+    //     .style('stroke', '#d9d9d9')
+    //     .style('stroke-width', 1.0)
+    //     .style('opacity', 0.5);
 
     // Pair (node)
     gLegend.append('text')
@@ -74,7 +74,7 @@ class LegendView extends Component {
         .attr('y', 33)
         .text('Man')
         .style('font-size', this.layout.fontSize)
-        .style('fill', this.layout.borderColor);
+        .style('fill', this.layout.fontColor);
     // Woman
     gLegend.append('circle')
         .attr('class', 'legend_rect')
@@ -119,7 +119,7 @@ class LegendView extends Component {
         .attr('y', 75)
         .attr('width', 8)
         .attr('height', 8)
-        .style('fill', 'lightpurple')
+        .style('fill', 'lavender')
         .style('stroke', this.layout.borderColor);
 
     gLegend.append('rect')
@@ -128,7 +128,7 @@ class LegendView extends Component {
         .attr('y', 75)
         .attr('width', 8)
         .attr('height', 8)
-        .style('fill', 'lavender')
+        .style('fill', 'indigo')
         .style('stroke', this.layout.borderColor);
 
     gLegend.append('text')
@@ -140,20 +140,20 @@ class LegendView extends Component {
     // within-group pair colors
     gLegend.append('text')
         .attr('x', 10)
-        .attr('y', 97)
+        .attr('y', 100)
         .text('Within-group pairs')
         .style('font-size', this.layout.fontSize);
 
     gLegend.append('text')
         .attr('x', 15)
-        .attr('y', 82)
+        .attr('y', 115)
         .text('low')
         .style('font-size', this.layout.fontSize);
 
     gLegend.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 40)
-        .attr('y', 103)
+        .attr('y', 108)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', 'white')
@@ -162,7 +162,7 @@ class LegendView extends Component {
     gLegend.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 52)
-        .attr('y', 103)
+        .attr('y', 108)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', 'lightpink')
@@ -171,7 +171,7 @@ class LegendView extends Component {
     gLegend.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 65)
-        .attr('y', 103)
+        .attr('y', 108)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', 'hotpink')
@@ -179,7 +179,53 @@ class LegendView extends Component {
 
     gLegend.append('text')
         .attr('x', 80)
-        .attr('y', 110)
+        .attr('y', 115)
+        .text('high')
+        .style('font-size', this.layout.fontSize);
+
+    // Between-group pairs
+    gLegend.append('text')
+        .attr('x', 10)
+        .attr('y', 130)
+        .text('Between-group pairs')
+        .style('font-size', this.layout.fontSize);
+
+    gLegend.append('text')
+        .attr('x', 15)
+        .attr('y', 147)
+        .text('low')
+        .style('font-size', this.layout.fontSize);
+
+    gLegend.append('rect')
+        .attr('class', 'legend_rect')
+        .attr('x', 40)
+        .attr('y', 139)
+        .attr('width', 8)
+        .attr('height', 8)
+        .style('fill', 'white')
+        .style('stroke', this.layout.borderColor);
+
+    gLegend.append('rect')
+        .attr('class', 'legend_rect')
+        .attr('x', 52)
+        .attr('y', 139)
+        .attr('width', 8)
+        .attr('height', 8)
+        .style('fill', '#d4ffd4')
+        .style('stroke', this.layout.borderColor);
+
+    gLegend.append('rect')
+        .attr('class', 'legend_rect')
+        .attr('x', 65)
+        .attr('y', 139)
+        .attr('width', 8)
+        .attr('height', 8)
+        .style('fill', 'lightgreen')
+        .style('stroke', this.layout.borderColor);
+
+    gLegend.append('text')
+        .attr('x', 80)
+        .attr('y', 147)
         .text('high')
         .style('font-size', this.layout.fontSize);
 

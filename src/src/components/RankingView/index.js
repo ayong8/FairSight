@@ -222,25 +222,26 @@ class RankingView extends Component {
               rankingInstance={this.props.data}
               topk={this.props.topk} />
           <div className={styles.intervalFilterView}>            
-            <div className={styles.intervalInput}>
+            <div className={styles.intervalInputWrapper}>
               <div className={styles.intervalFilterTitle}>Interval</div>
-              &nbsp;&nbsp;
-              <InputNumber
-                size='small'
-                min={1}
-                max={this.props.n}
-                style={{ width: 40 }}
-                value={1}
-              />
-              <span>&nbsp;-&nbsp;</span>
-              <InputNumber
-                size='small'
-                min={1}
-                max={this.props.n}
-                style={{ width: 40 }}
-                value={this.props.selectedRankingInterval.to}
-                onChange={this.handleIntervalChange}
-              />
+              <div>
+                <InputNumber
+                  size='small'
+                  min={1}
+                  max={this.props.n}
+                  style={{ width: 40 }}
+                  value={1}
+                />
+                <span>&nbsp;-&nbsp;</span>
+                <InputNumber
+                  size='small'
+                  min={1}
+                  max={this.props.n}
+                  style={{ width: 40 }}
+                  value={this.props.selectedRankingInterval.to}
+                  onChange={this.handleIntervalChange}
+                />
+              </div>
             </div>
             <Slider 
               className={styles.intervalSlider}

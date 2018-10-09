@@ -43,7 +43,7 @@
     border-top: 1px solid white;
     padding: 1px;
     padding-top: 10px;
-    margin: 0 5px;
+    margin: 15px 5px;
   }
 
   .generatorDescription {
@@ -169,6 +169,10 @@
     .secondTitle2 {
         margin-top: 10px;
     }
+  }
+
+  .fairnessQuestion {
+    padding: 5px 10px;
   }
 
   /*** 4. Method & Top-k Selector ***/

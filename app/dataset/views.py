@@ -183,13 +183,13 @@ def run_experiment_iteration_themis_ml_ACF(
 
 class LoadFile(APIView):
     def get(self, request, format=None):
-        whole_dataset_df = open_dataset(simple_file_path)
+        whole_dataset_df = open_dataset(sample_file_path)
 
         return Response(whole_dataset_df.to_json(orient='index'))
 
 class ExtractFeatures(APIView):
     def get(self, request, format=None):
-        whole_dataset_df = open_dataset(simple_file_path)
+        whole_dataset_df = open_dataset(sample_file_path)
         dataset_df = whole_dataset_df.copy()
         dataset_df = dataset_df.drop('idx', axis=1)
         feature_info_list = []
@@ -226,7 +226,7 @@ class RunRankSVM(APIView):
         # method = 'RankSVM'
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset(simple_file_path)
+        whole_dataset_df = open_dataset(sample_file_path)
 
         X = whole_dataset_df[features]
         X_wo_s_attr = whole_dataset_df[features]
@@ -295,7 +295,7 @@ class RunSVM(APIView):
         method = json_request['method']['name']
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset(simple_file_path)
+        whole_dataset_df = open_dataset(sample_file_path)
 
         X = whole_dataset_df[features]
         X_wo_s_attr = whole_dataset_df[features]
@@ -353,7 +353,7 @@ class RunLR(APIView):
         method = json_request['method']['name']
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset(simple_file_path)
+        whole_dataset_df = open_dataset(sample_file_path)
 
         X = whole_dataset_df[features]
         X_wo_s_attr = whole_dataset_df[features]
@@ -411,7 +411,7 @@ class RunACF(APIView):
         method = json_request['method']['name']
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset(simple_file_path)
+        whole_dataset_df = open_dataset(sample_file_path)
 
         X = whole_dataset_df[features]
         X_wo_s_attr = whole_dataset_df[features]
@@ -478,7 +478,7 @@ class RunLRA(APIView):
         target_name = target['name']
         sensitive_attr_name = sensitive_attr['name']
 
-        whole_dataset_df = open_dataset(simple_file_path)
+        whole_dataset_df = open_dataset(sample_file_path)
         dataset_df = do_encoding_categorical_vars(whole_dataset_df)
         dataset_df = get_selected_dataset(dataset_df, feature_names, target_name, sensitive_attr_name)
         dataset_df = dataset_df.sort_values(by='idx', ascending=True)
@@ -553,7 +553,7 @@ class RunMDS(APIView):
         sensitive_attr = json_request['sensitiveAttr']['name']
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset(simple_file_path)
+        whole_dataset_df = open_dataset(sample_file_path)
 
         X = whole_dataset_df[features]
         X_wo_s_attr = whole_dataset_df[features]
@@ -582,7 +582,7 @@ class CalculatePairwiseInputDistance(APIView):
         sensitive_attr = json_request['sensitiveAttr']['name']
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset(simple_file_path)
+        whole_dataset_df = open_dataset(sample_file_path)
 
         X = whole_dataset_df[features]
         # dataset_gower_distance = dataset_gower_distance.set_index(dataset_df['idx'])

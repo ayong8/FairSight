@@ -11,7 +11,7 @@ body {
 
 .App {
   width: 97.5%;
-  height: 1000px;
+  height: 1500px;
   margin: 0 auto;
   margin-top: 50px;
   margin-bottom: -10px;
@@ -19,7 +19,7 @@ body {
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
-  grid-template-rows: 20px 30px 100px 230px 850px 80px;
+  grid-template-rows: 20px 30px 100px 230px 1050px 80px;
   grid-template-columns: 20% 20% 37.5% 20%;
   grid-template-areas:
     'mg mg mg mg'
@@ -44,7 +44,7 @@ body {
   row-gap: 10px;
   column-gap: 10px;
   grid-template-rows: 30px 250px 100px 300px 150px 150px;
-  grid-template-columns: 20% 40% 20% 15%;
+  grid-template-columns: 20% 40% 20% 17%;
   grid-template-areas:
     'rt rt rt rt'
     'i ii mg12 tr'

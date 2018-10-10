@@ -58,6 +58,7 @@ class RankingInspector extends Component {
   }
 
   render() {
+    console.log('RankingInspector rendered');
     if (!this.props.rankingInstance || this.props.rankingInstance.length === 0)
         {
       return <div />

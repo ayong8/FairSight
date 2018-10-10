@@ -619,6 +619,9 @@ class CalculatePairwiseInputDistance(APIView):
                         'idx2': j+1,
                         'input_dist': np.asscalar(pairwise_distances[i][j])
                     })
+        
+        # Rank input distance and save it
+        # pairwise_distances_list
 
         json_combined = simplejson.dumps({
                 'pairwiseDistances': pairwise_distances_list, 

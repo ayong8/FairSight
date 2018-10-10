@@ -1106,6 +1106,7 @@ class IndividualFairnessView extends Component {
     }
   
     render() {
+      console.log('DistortionView rendered');
       if ((!this.props.data || this.props.data.length === 0) || 
           (!this.props.pairwiseDiffs || this.props.pairwiseDiffs.length === 0) ||
           (!this.props.permutationDiffs || this.props.permutationDiffs.length === 0) ||

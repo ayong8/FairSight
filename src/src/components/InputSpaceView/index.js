@@ -25,6 +25,18 @@ class InputSpaceView extends Component {
       }
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+      const dataPropsChange = this.props.data !== nextProps.data;      
+      const topkPropsChange = this.props.topk !== nextProps.topk;
+      const inputCoordsPropsChange = this.props.inputCoords !== nextProps.inputCoords;
+      const selectedInstancePropsChange = this.props.selectedInstance !== nextProps.selectedInstance;
+      const selectedRankingIntervalPropsChange = this.props.selectedRankingInterval !== nextProps.selectedRankingInterval;
+  
+      return dataPropsChange || topkPropsChange || 
+             inputCoordsPropsChange || selectedInstancePropsChange ||
+             selectedRankingIntervalPropsChange;
+    }
+
     getChangeHandler(key) {
         return (value) => this.setState({ [key]: value });
     }

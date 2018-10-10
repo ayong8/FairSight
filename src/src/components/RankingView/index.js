@@ -20,7 +20,6 @@ class RankingView extends Component {
     
       this.groupColorScale;
       this.intervalTo;
-
       this.layout = {
           svgRanking: {
               width: 800,
@@ -44,115 +43,125 @@ class RankingView extends Component {
           }
       };
 
-      this.handleSelectedRankingInterval = this.handleSelectedRankingInterval.bind(this);
+      this.state = {
+        topk: 30,
+        selectedRankingInterval: {
+          from: 0,
+          to: 50
+        }
+      }
+
       this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
       this.handleIntervalChange = this.handleIntervalChange.bind(this);
       this.handleFilterRunning = this.handleFilterRunning.bind(this);
     }
 
-    handleSelectedRankingInterval(interval) {
-      console.log(interval);
-      this.props.onSelectedRankingInterval(interval);
-    }
-
     handleSelectedTopk(topk) {
-      this.props.onSelectedTopk(topk);
+      this.setState({
+        topk: topk
+      });
     }
 
     handleIntervalChange(intervalTo) {
-      this.props.onSelectedInterval(intervalTo);
+      this.setState({
+        selectedRankingInterval: {
+          from: 0,
+          to: intervalTo
+        }
+      });
     }
 
     handleFilterRunning() {
+      const { topk, selectedRankingInterval } = this.state,
+            { from, to } = selectedRankingInterval;
+
+      this.props.onSelectedTopk(topk); // Send up the state 'topk' to state
+      this.props.onSelectedRankingInterval(to);
       this.props.onRunningFilter();
     }
 
     render() {
-      if ((!this.props.topk || this.props.topk.length === 0) ||
-          (!this.props.selectedRankingInterval || this.props.selectedRankingInterval.length === 0) ||
-          (!this.props.data || this.props.data.length === 0)) {
+      console.log('RankingView rendered');
+      if ((!this.props.data || this.props.data.length === 0)) {
         return <div />
       }
 
       const _self = this;
 
-      const intervalIdx = this.props.selectedRankingInterval,
-            intervalFrom = intervalIdx.from,
-            intervalTo = intervalIdx.to,
-            data = this.props.data,
+      const { data } = this.props,
             { stat } = data,
             { accuracy, goodnessOfFairness, groupSkew, sp, cp } = stat,
             instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse(),
             topk = this.props.topk;
             
       
-      // Split the data into Topk and the rest
-      const dataTopk = instances.slice(0, topk),
-            dataSelectedInterval = instances.slice(intervalFrom, intervalTo + 1);
+      // // Split the data into Topk and the rest
+      // const dataTopk = instances.slice(0, topk),
+      //       dataSelectedInterval = instances.slice(intervalFrom, intervalTo + 1);
       
-      // Set up the layout
-      const svgTopkRankingView = new ReactFauxDOM.Element('svg'),
-            svgSelectedIntervalView = new ReactFauxDOM.Element('svg');
+      // // Set up the layout
+      // const svgTopkRankingView = new ReactFauxDOM.Element('svg'),
+      //       svgSelectedIntervalView = new ReactFauxDOM.Element('svg');
 
-      svgTopkRankingView.setAttribute('width', _self.layout.topkRankingView.width);
-      svgTopkRankingView.setAttribute('height', _self.layout.topkRankingView.height);
-      svgTopkRankingView.setAttribute('class', 'svg_top_ranking');
+      // svgTopkRankingView.setAttribute('width', _self.layout.topkRankingView.width);
+      // svgTopkRankingView.setAttribute('height', _self.layout.topkRankingView.height);
+      // svgTopkRankingView.setAttribute('class', 'svg_top_ranking');
 
-      svgSelectedIntervalView.setAttribute('width', _self.layout.selectedIntervalView.width);
-      svgSelectedIntervalView.setAttribute('height', _self.layout.selectedIntervalView.height);
-      svgSelectedIntervalView.setAttribute('class', 'svg_selected_interval');
+      // svgSelectedIntervalView.setAttribute('width', _self.layout.selectedIntervalView.width);
+      // svgSelectedIntervalView.setAttribute('height', _self.layout.selectedIntervalView.height);
+      // svgSelectedIntervalView.setAttribute('class', 'svg_selected_interval');
 
-      const xTopkRankingScale = d3.scaleBand()
-              .domain(_.map(dataTopk, (d) => d.ranking))
-              .range([0, (_self.layout.topkRankingView.bw + 2) * topk]),
-            yTopkScoreScale = d3.scaleLinear()
-              .domain(d3.extent(dataTopk, (d) => d.score))
-              .range([_self.layout.topkRankingView.height - _self.layout.topkRankingView.margin, 10]),
-            xSelectedIntervalScale = d3.scaleBand()
-              .domain(_.map(dataSelectedInterval, (d) => d.ranking))
-              .range([0, _self.layout.topkRankingView.bw * (intervalTo - intervalFrom + 1)]),
-            ySelectedIntervalScoreScale = d3.scaleLinear()
-              .domain(d3.extent(data, (d) => d.score))
-              .range([0, _self.layout.selectedIntervalView.height]),
-            groupColorScale = d3.scaleOrdinal()
-              .range([gs.groupColor1, gs.groupColor2])
-              .domain([1, 2]);
+      // const xTopkRankingScale = d3.scaleBand()
+      //         .domain(_.map(dataTopk, (d) => d.ranking))
+      //         .range([0, (_self.layout.topkRankingView.bw + 2) * topk]),
+      //       yTopkScoreScale = d3.scaleLinear()
+      //         .domain(d3.extent(dataTopk, (d) => d.score))
+      //         .range([_self.layout.topkRankingView.height - _self.layout.topkRankingView.margin, 10]),
+      //       xSelectedIntervalScale = d3.scaleBand()
+      //         .domain(_.map(dataSelectedInterval, (d) => d.ranking))
+      //         .range([0, _self.layout.topkRankingView.bw * (intervalTo - intervalFrom + 1)]),
+      //       ySelectedIntervalScoreScale = d3.scaleLinear()
+      //         .domain(d3.extent(data, (d) => d.score))
+      //         .range([0, _self.layout.selectedIntervalView.height]),
+      //       groupColorScale = d3.scaleOrdinal()
+      //         .range([gs.groupColor1, gs.groupColor2])
+      //         .domain([1, 2]);
 
-      const xTopkAxisSetting = d3.axisBottom(xTopkRankingScale).tickSize(0).ticks(3),
-            yTopkAxisSetting = d3.axisLeft(yTopkScoreScale).tickSize(0).ticks(3);
+      // const xTopkAxisSetting = d3.axisBottom(xTopkRankingScale).tickSize(0).ticks(3),
+      //       yTopkAxisSetting = d3.axisLeft(yTopkScoreScale).tickSize(0).ticks(3);
 
-      const gTopkRanking = d3.select(svgTopkRankingView).append('g')
-              .attr('class', 'g_top_k_ranking')
-              .attr('transform', 'translate(' + _self.layout.topkRankingView.margin + ',' + '0)'),
-            gSelectedInterval = d3.select(svgSelectedIntervalView).append('g')
-              .attr('class', 'g_selected_interval')
-              .attr('transform', 'translate(' + _self.layout.selectedIntervalView.margin + ',' + '0)'),
-            gTopkXAxis = d3.select(svgTopkRankingView).append('g')
-              .attr('class', 'topk_x_axis')
-              .attr('transform', 'translate(' + + _self.layout.topkRankingView.margin + ',' + (_self.layout.topkRankingView.height - _self.layout.topkRankingView.margin) + ')'),
-            gTopkYAxis = d3.select(svgTopkRankingView).append('g')
-              .attr('class', 'topk_y_axis')
-              .attr('transform', 'translate(' + _self.layout.topkRankingView.margin + ',0)');
+      // const gTopkRanking = d3.select(svgTopkRankingView).append('g')
+      //         .attr('class', 'g_top_k_ranking')
+      //         .attr('transform', 'translate(' + _self.layout.topkRankingView.margin + ',' + '0)'),
+      //       gSelectedInterval = d3.select(svgSelectedIntervalView).append('g')
+      //         .attr('class', 'g_selected_interval')
+      //         .attr('transform', 'translate(' + _self.layout.selectedIntervalView.margin + ',' + '0)'),
+      //       gTopkXAxis = d3.select(svgTopkRankingView).append('g')
+      //         .attr('class', 'topk_x_axis')
+      //         .attr('transform', 'translate(' + + _self.layout.topkRankingView.margin + ',' + (_self.layout.topkRankingView.height - _self.layout.topkRankingView.margin) + ')'),
+      //       gTopkYAxis = d3.select(svgTopkRankingView).append('g')
+      //         .attr('class', 'topk_y_axis')
+      //         .attr('transform', 'translate(' + _self.layout.topkRankingView.margin + ',0)');
 
-      gTopkRanking.selectAll('.rect_topk')
-          .data(dataTopk)
-          .enter().append('rect')
-          .attr('class', (d) => 'rect_topk rect_topk_' + d.ranking)
-          .attr('x', (d) => xTopkRankingScale(d.ranking))
-          .attr('y', (d) => yTopkScoreScale(d.score))
-          .attr('width', _self.layout.topkRankingView.bw)
-          .attr('height', (d) => _self.layout.topkRankingView.height - _self.layout.topkRankingView.margin - yTopkScoreScale(d.score))
-          .style('fill', (d) => groupColorScale(d.group))
-          .style('stroke', 'black')
-          .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.5);
+      // gTopkRanking.selectAll('.rect_topk')
+      //     .data(dataTopk)
+      //     .enter().append('rect')
+      //     .attr('class', (d) => 'rect_topk rect_topk_' + d.ranking)
+      //     .attr('x', (d) => xTopkRankingScale(d.ranking))
+      //     .attr('y', (d) => yTopkScoreScale(d.score))
+      //     .attr('width', _self.layout.topkRankingView.bw)
+      //     .attr('height', (d) => _self.layout.topkRankingView.height - _self.layout.topkRankingView.margin - yTopkScoreScale(d.score))
+      //     .style('fill', (d) => groupColorScale(d.group))
+      //     .style('stroke', 'black')
+      //     .style('shape-rendering', 'crispEdge')
+      //     .style('stroke-width', 0.5);
 
-      const xAxisTopk = gTopkXAxis
-              .call(xTopkAxisSetting)
-              .selectAll('text')
-              .attr('class', 'x_topk_label')
-              .style('font-size', '9px')
-              .style('text-anchor','middle');
+      // const xAxisTopk = gTopkXAxis
+      //         .call(xTopkAxisSetting)
+      //         .selectAll('text')
+      //         .attr('class', 'x_topk_label')
+      //         .style('font-size', '9px')
+      //         .style('text-anchor','middle');
 
       return (
         <div className={styles.RankingView}>
@@ -183,13 +192,6 @@ class RankingView extends Component {
             <Icon type="filter" theme="outlined" />
             &nbsp;Filter
           </div>
-          {/* <div className={styles.topkRankingView}>
-            {svgTopkRankingView.toReact()}
-          </div>
-          <div className={styles.selectedRankingViewTitle + ' ' + index.subTitle}>Selected ranking</div>
-          <div className={styles.selectedRankingView}>
-            {svgTopkRankingView.toReact()}
-          </div> */}
           <div className={styles.topkFilterView}>
             <div className={styles.topkInputWrapper}>
               <div className={styles.topkFilterTitle}>Top-k</div>
@@ -200,8 +202,8 @@ class RankingView extends Component {
                 min={1}
                 max={this.props.n}
                 style={{ width: 40 }}
-                value={this.props.topk}
-                onChange={this.onTopkChange}
+                value={this.state.topk}
+                onChange={this.handleSelectedTopk}
               />
             </div>
             <div className={styles.topkSliderWrapper}>
@@ -210,7 +212,7 @@ class RankingView extends Component {
                 step={1} 
                 min={1}
                 max={this.props.n}
-                value={this.props.topk}
+                value={this.state.topk}
                 style={{ width: 450 }}
                 onChange={this.handleSelectedTopk} 
               />
@@ -238,7 +240,7 @@ class RankingView extends Component {
                   min={1}
                   max={this.props.n}
                   style={{ width: 40 }}
-                  value={this.props.selectedRankingInterval.to}
+                  value={this.state.selectedRankingInterval.to}
                   onChange={this.handleIntervalChange}
                 />
               </div>
@@ -248,7 +250,7 @@ class RankingView extends Component {
               step={1} 
               min={1}
               max={this.props.n}
-              value={this.props.selectedRankingInterval.to}
+              value={this.state.selectedRankingInterval.to}
               style={{ width: 450 }}
               onChange={this.handleIntervalChange}
             />
@@ -258,12 +260,6 @@ class RankingView extends Component {
                 color='danger' 
                 onClick={this.handleFilterRunning}>RUN</Button>
             </div>
-            {/* <WholeRankingChart
-              className={styles.intervalFilter}
-              data={this.props.data}
-              width={700} height={30} margin={10}
-              onSelectedRankingInterval={this.handleSelectedRankingInterval}
-            /> */}
           </div>
         </div>
       );

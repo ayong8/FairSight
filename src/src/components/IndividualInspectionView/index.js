@@ -40,6 +40,7 @@ class IndividualInspectionView extends Component {
     }
 
     render() {
+      console.log('IndividualInspectionView rendered');
       const { data, selectedInstance } = this.props,
             { instances } = data,
             selectedInstanceIdx = selectedInstance;

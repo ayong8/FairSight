@@ -51,6 +51,15 @@ class Generator extends Component {
     this.handleClickGroup = this.handleClickGroup.bind(this);
   }
 
+  shouldComponentUpdate(nextProps, nextState) {
+    const methodsPropsChange = this.props.methods !== nextProps.methods;
+    const rankingInstancePropsChange = this.props.rankingInstance !== nextProps.rankingInstance;
+    const topkPropsChange = this.props.topk !== nextProps.topk;
+    const nPropsChange = this.props.n !== nextProps.n;
+
+    return methodsPropsChange || rankingInstancePropsChange || topkPropsChange || nPropsChange;
+  }
+
   toggleSensitiveAttrDropdown() {
     this.setState({
       sensitiveAttrDropdownOpen: !this.state.sensitiveAttrDropdownOpen
@@ -471,6 +480,7 @@ class Generator extends Component {
   }
 
   render() {
+    console.log('Generater rendered');
     const { rankingInstance } = this.props,
           { features, sensitiveAttr, target, method } = rankingInstance;
 
@@ -489,7 +499,6 @@ class Generator extends Component {
     // rowSelection object indicates the need for row selection
     const rowSelection = {
       onChange: (selectedRowKeys, selectedRows) => {
-        console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
       },
       getCheckboxProps: record => ({
         disabled: record.name === 'Disabled User', // Column configuration not to be checked

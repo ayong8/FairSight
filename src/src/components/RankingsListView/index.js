@@ -75,6 +75,7 @@ class RankingsListView extends Component {
   }
 
   render() {
+    console.log('RankingListView rendered');
     if ((!this.props.rankings || this.props.rankings.length === 0)) {
         return <div />
       }

@@ -86,18 +86,15 @@ class WholeRankingChart extends React.Component {
 
     if (brush.end) {
       const { x, y } = getCoordsFromEvent(this.svg, event);
-      console.log('selected interval from brush: ', this.invertedDomain)
       onBrushEnd(constrainToRegion({ region, x, y }));
       return;
     }
-    console.log('selected interval from brush: ', this.invertedDomain)
     this.props.onSelectedRankingInterval({ from: this.invertedDomain[0], to: this.invertedDomain[1] });
     onBrushReset(event);
   }
 
   render() {
     const _self = this;
-    console.log('props in wholerankingchart: ', this.props);
 
     const { data, width, height, brush, margin } = this.props;
     const { xScale, yScale } = this;

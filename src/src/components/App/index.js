@@ -151,8 +151,6 @@ class App extends Component {
               (d.ranking2 >= from) && (d.ranking2 <= to)
             );
 
-      console.log('within componentDidMount(): ', this.selectedPermutationDiffsFlattend);
-
       this.setState((prevState) => ({
         selectedInstances: this.selectedInstances,
         pairwiseDiffs: this.pairwiseDiffs,
@@ -229,7 +227,6 @@ class App extends Component {
   
   // Response: All features, and values multiplied by weight
   runRankSVM(rankingInstance) {
-    console.log('in runRankSVM: ', rankingInstance);
     return fetch('/dataset/runRankSVM/', {
             method: 'post',
             body: JSON.stringify(rankingInstance)
@@ -486,14 +483,12 @@ class App extends Component {
   }
 
   handleSelectedInterval(intervalTo) {
-    console.log('interval change: ', intervalTo);
     this.setState({
       selectedRankingInterval: { from: 0, to: intervalTo }
     });
   }
 
   handleSelectedTopk(topk) {
-    console.log('topk in App.js: ', topk);
     this.setState({
       topk: topk
     });
@@ -647,7 +642,6 @@ class App extends Component {
   }
 
   calculateSumDistortion(instances, permutationDiffs) {
-    console.log('before cal: ', instances);
     const updatedInstances = _.map(instances, (d, i) => {
                 d.sumDistortion = permutationDiffs
                     .filter((e) => e.idx1 === instances[i].idx)
@@ -656,7 +650,6 @@ class App extends Component {
 
                 return d;
               });
-    console.log('after cal: ', updatedInstances);
     return updatedInstances;
   }
 
@@ -672,7 +665,6 @@ class App extends Component {
 
     const groupSkew = (btnPairsSum / btnPairs.length) / 
                       (wtnPairsSum / wtnPairs.length);
-    console.log('GroupSkew: ', btnPairsSum, btnPairs.length, wtnPairsSum, wtnPairs.length, groupSkew);
     this.setState((prevState) => ({
       rankingInstance: {
         ...prevState.rankingInstance,
@@ -714,10 +706,6 @@ class App extends Component {
       sp: Math.round(statisticalParity * 100) / 100, 
       cp: Math.round(conditionalParity * 100) / 100
     }
-
-    console.log('statistical parity: ', group1.filter((d) => d.pred === 1).length / group2.filter((d) => d.pred === 1).length);
-    console.log('conditional parity: ', group1.filter((d) => d.pred === 1 && d.target === 0).length / group2.filter((d) => d.pred === 1 && d.target === 0).length);
-    console.log('ndcg: ', group1.reduce((sum, curr) => sum + 1/Math.log(Math.max(curr, 2)))/group1.length, group2.reduce((sum, curr) => sum + 1/Math.log(Math.max(curr, 2)))/group2.length);
   }
 
   setFairInstancesFromConfidenceInterval(confIntervalPoints, pairwiseDiffs) {
@@ -832,8 +820,6 @@ class App extends Component {
           { instances } = rankingInstance,
           { from, to } = selectedRankingInterval;
 
-    console.log('state: ', this.state);
-
     return (
       <div className={styles.App}>
         <div className={styles.marginDiv}></div>
@@ -848,15 +834,12 @@ class App extends Component {
             methods={this.state.methods}
             features={this.state.features}
             rankingInstance={this.state.rankingInstance}
-            topk={this.state.topk}
             n={this.state.n}
             onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}
             onRunningModel={this.handleModelRunning}
             onSelectProtectedGroup={this.handleSensitiveAttr} />
         <RankingView 
             n={this.state.n}
-            topk={this.state.topk}
-            selectedRankingInterval={this.state.selectedRankingInterval}
             data={this.state.rankingInstance}
             onRunningFilter={this.handleFilterRunning}
             onSelectedInterval={this.handleSelectedInterval}

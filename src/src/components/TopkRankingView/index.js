@@ -23,6 +23,7 @@ class TopkRankingView extends Component {
     }
 
     render() {
+      console.log('TopkRankingView rendered');
       const _self = this;
 
       const { data, topk, selectedRankingInterval } = this.props,

@@ -160,6 +160,8 @@ pairwiseDiffs (in RankingInspector/index.js)
     {
         idx1: d[0].idx,
         idx2: d[1].idx,
+        ranking1: ,
+        ranking2: ,
         x1: ,
         x2: ,
         pair: Math.floor(Math.random() * 3) + 1, 

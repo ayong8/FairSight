@@ -64,7 +64,7 @@ class RankingsListView extends Component {
 
       return ( <tr key={idx}>
                 <td>{'R' + rankingId}</td>
-                <td><Tag color="geekblue">{method.name}</Tag></td>
+                <td></td>
                 <td>{stat.accuracy}</td>
                 <td>{stat.goodnessOfFairness}</td>
                 <td>{stat.groupSkew}</td>

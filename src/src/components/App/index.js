@@ -554,7 +554,7 @@ class App extends Component {
     const _self = this;
     const { pairwiseInputDistances } = this.state,
           instances = _self.combineInputsAndOutputs(),
-          pairs = pairwise(instances);
+          pairs = pairwise(_.sortBy(instances, 'idx'));
 
     _self.setScalesFromDataPairs(pairwiseInputDistances, pairs);
 
@@ -563,7 +563,7 @@ class App extends Component {
     for(let i=0; i<pairs.length-1; i++){
       let diffInput = pairwiseInputDistances[i].input_dist,
           diffOutput = Math.abs(pairs[i][0].instance.ranking - pairs[i][1].instance.ranking);
-
+      
       const pair = (pairs[i][0].group === 0) && (pairs[i][1].group === 0) ? 1        
                  : (pairs[i][0].group === 1) && (pairs[i][1].group === 1) ? 2
                  : (pairs[i][0].group !== pairs[i][1].group) ? 3
@@ -588,6 +588,10 @@ class App extends Component {
       });
     }
 
+    const sorted = _.sortBy(pairwiseDiffs, 'diffInput');
+    const diffInput = sorted.map((d) => d.diffInput),
+          diffOutput = sorted.map((d) => d.diffOutput);
+
     this.pairwiseDiffs = pairwiseDiffs;
   }
 
@@ -595,7 +599,7 @@ class App extends Component {
   calculatePermutationDiffs() {
     const _self = this;
 
-    const instances = _self.combineInputsAndOutputs(),
+    const instances = _.sortBy(_self.combineInputsAndOutputs(), 'idx'),
           permutationInputDistances = _self.state.permutationInputDistances;
 
     let permutationDiffs = [], 
@@ -734,20 +738,22 @@ class App extends Component {
   }
 
   calculateRSquared(pairwiseDiffs) {
-    let SSE_arr = [], SST_arr = [],
-        SSE, SST, rSquared,
+    let SSR_arr = [], SST_arr = [],
+        SSR, SST, rSquared,
         n = pairwiseDiffs.length,
-        meanY = _.sum(_.map(pairwiseDiffs, (d) => d.distortion)) / n;
+        meanY = _.sum(_.map(pairwiseDiffs, (d) => d.scaledDiffOutput)) / n;
     
     _.each(pairwiseDiffs, (d) => {
-      SSE_arr.push(Math.pow(d.distortion - 0, 2));
-      SST_arr.push(Math.pow(meanY - d.distortion, 2));
+      SSR_arr.push(Math.pow(meanY - d.scaledDiffInput, 2));
+      SST_arr.push(Math.pow(meanY - d.scaledDiffOutput, 2));
     });
 
-    SSE = _.sum(SSE_arr);
+    SSR = _.sum(SSR_arr);
     SST = _.sum(SST_arr);
+
+    console.log(SSR, SST)
     
-    this.rSquared = Math.round((1 - (SSE / SST)) * 100) / 100;
+    this.rSquared = Math.round((SSR / SST) * 100) / 100;
   }
 
   calculateNDM(selectedPermutationDiffs) {  // Noise Dissimilarity Measure for feature matrix

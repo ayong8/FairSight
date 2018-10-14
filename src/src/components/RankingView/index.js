@@ -76,7 +76,7 @@ class RankingView extends Component {
             { from, to } = selectedRankingInterval;
 
       this.props.onSelectedTopk(topk); // Send up the state 'topk' to state
-      this.props.onSelectedRankingInterval(to);
+      this.props.onSelectedInterval(to);
       this.props.onRunningFilter();
     }
 

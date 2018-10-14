@@ -56,8 +56,12 @@ class Generator extends Component {
     const rankingInstancePropsChange = this.props.rankingInstance !== nextProps.rankingInstance;
     const topkPropsChange = this.props.topk !== nextProps.topk;
     const nPropsChange = this.props.n !== nextProps.n;
+    const sensitiveAttrDropdownOpenChange = this.state.sensitiveAttrDropdownOpen !== nextState.sensitiveAttrDropdownOpen;
+    const targetDropdownOpenChange = this.state.targetDropdownOpen !== nextState.targetDropdownOpen;
+    const methodDropdownOpenChange = this.state.methodDropdownOpen !== nextState.methodDropdownOpen;
 
-    return methodsPropsChange || rankingInstancePropsChange || topkPropsChange || nPropsChange;
+    return methodsPropsChange || rankingInstancePropsChange || topkPropsChange || nPropsChange ||
+           sensitiveAttrDropdownOpenChange || targetDropdownOpenChange || methodDropdownOpenChange;
   }
 
   toggleSensitiveAttrDropdown() {

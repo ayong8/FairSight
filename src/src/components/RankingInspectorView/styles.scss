@@ -1,40 +1,56 @@
-.DistortionView {
+.RankingInspectorView {
   grid-area: d;
 
   display: grid;
-  grid-template-columns: 30% 70%;
-  grid-template-rows: 30px 160px 250px 250px;
+  grid-template-columns: 30% 50% 20%;
+  grid-template-rows: 120px 250px 250px;
   grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
-      't t'
-      'lg mt'
-      'cr mt'
-      'cr da';
+      'sp sp sp'
+      'sp sp sp'
+      'ii da da';
 
   border-top: 1px solid #d9d9d9;
 
-  .CorrelationView { grid-area: cr; }
-  .LegendView { grid-area: lg; }
+  .SpaceView { grid-area: sp; }
   .marginView1 { grid-area: mg1; }
   .marginView2 { grid-area: mg2; }
   .DistortionAnalysisView { grid-area: da; }
+  .IndividualInspectionView { grid-area: ii; }
 
   .subTitle {
     border-top: 1px solid #d9d9d9;
     padding: 10px 0;
   }
   
-  .distortionViewTitleWrapper {
+  .rankingInspectorViewTitleWrapper {
     display: flex;
 
-    .distortionViewTitle {
+    .rankingInspectorViewTitle {
         grid-area: t;
         padding: 0;
     }
   }
+
+  .SpaceView {
+    display: grid;
+    grid-template-columns: 30% 50% 20%;
+    grid-template-rows: 250px 120px;
+    grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
+      'i mt tr'
+      'lg mt tr';
+    background-color: #e8e7e7;
+    border: 1px solid #c9c9c9;
+    padding: 10px;
+  }
+
+  .LegendView { grid-area: lg; }
+  .TopkRankingView { grid-area: tr; }
+
   .MatrixWrapper {
     grid-area: mt;
     padding-top: 10px;
     display: flex;
+    background-color: #e8e7e7;
 
     .IndividualStatusView {
       width: 25%;
@@ -47,18 +63,12 @@
           border: 1px solid lightgray;
       }
     }
-
-    .MatrixView {
-    }
-  }
-  .Legend {
-      grid-area: lg;
   }
   
   .DistortionPlot {
     grid-area: dp;
 
-    .distortionViewBar {
+    .rankingInspectorViewBar {
       margin-left: 10px;
       padding: 5px;
       background-color: #e5e5e5;

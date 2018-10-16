@@ -26,10 +26,9 @@ class TopkRankingView extends Component {
       console.log('TopkRankingView rendered');
       const _self = this;
 
-      const { data, topk, selectedRankingInterval } = this.props,
+      const { data, topk, selectedInstances } = this.props,
             { instances } = data,
-            { from, to } = selectedRankingInterval,
-            topkInstances = instances.slice(from, to);
+            to = selectedInstances.length;
       
       // Set up the layout
       const svg = new ReactFauxDOM.Element('svg');
@@ -40,7 +39,7 @@ class TopkRankingView extends Component {
 
       const rectInterval = 7;
       const rankingScale = d3.scaleBand()
-              .domain(_.map(topkInstances, (d) => d.ranking))
+              .domain(_.map(selectedInstances, (d) => d.ranking))
               .range([0, rectInterval * to]),
             groupColorScale = d3.scaleOrdinal()
               .range([gs.groupColor1, gs.groupColor2])
@@ -51,7 +50,7 @@ class TopkRankingView extends Component {
               .attr('transform', 'translate(' + (130) + ',' + '0)');
 
       gTopkRanking.selectAll('.rect_topk')
-          .data(topkInstances)
+          .data(selectedInstances)
           .enter().append('rect')
           .attr('class', (d) => 'rect_topk rect_topk_' + d.ranking)
           .attr('x', (d) => 0)
@@ -118,7 +117,7 @@ class TopkRankingView extends Component {
       return (
         <div className={styles.TopkRankingView}>
           <div className={styles.rankingViewTitle + ' ' + index.subTitle}>
-            Ranking &nbsp;
+            Output space &nbsp;
           </div>
           {svg.toReact()}
         </div>

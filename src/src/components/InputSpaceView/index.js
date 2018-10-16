@@ -30,11 +30,11 @@ class InputSpaceView extends Component {
       const topkPropsChange = this.props.topk !== nextProps.topk;
       const inputCoordsPropsChange = this.props.inputCoords !== nextProps.inputCoords;
       const selectedInstancePropsChange = this.props.selectedInstance !== nextProps.selectedInstance;
-      const selectedRankingIntervalPropsChange = this.props.selectedRankingInterval !== nextProps.selectedRankingInterval;
+      const selectedInstancesPropsChange = this.props.selectedInstances !== nextProps.selectedInstances;
   
       return dataPropsChange || topkPropsChange || 
              inputCoordsPropsChange || selectedInstancePropsChange ||
-             selectedRankingIntervalPropsChange;
+             selectedInstancesPropsChange;
     }
 
     getChangeHandler(key) {
@@ -123,13 +123,13 @@ class InputSpaceView extends Component {
           .style('stroke', 'black')
           .style('opacity', 0.7)
           .on('mouseover', (d) => {
-              _self.props.onMouseoverInstance(d.idx);
+              // _self.props.onMouseoverInstance(d.idx);
           });
 
       // Handle mouseover action
-      circles
-          .filter((d) => d.idx === this.props.selectedRankingInterval)
-          .style('stroke-width', 2);
+      // circles
+      //     .filter((d) => d.idx === this.props.selectedRankingInterval)
+      //     .style('stroke-width', 2);
 
       return (
         <div className={styles.InputSpaceView}>

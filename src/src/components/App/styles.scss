@@ -47,11 +47,11 @@ body {
   grid-template-columns: 20% 40% 20% 17%;
   grid-template-areas:
     'rt rt rt rt'
-    'i ii mg12 tr'
-    'd d d tr'
-    'd d d tr'
-    'd d d tr'
-    'd d d tr';
+    'd d d d'
+    'd d d d'
+    'd d d d'
+    'd d d d'
+    'd d d d';
 }
 
 .marginDiv1 { grid-area: mg1; }
@@ -85,7 +85,7 @@ body {
 // .CorrelationView { grid-area: cr; }
 .TopkRankingView { grid-area: tr; }
 .IndividualInspectionView { grid-area: ii; }
-.DistortionView { grid-area: d; }
+.RankingInspectorView { grid-area: d; }
 // .GroupFairnessView { grid-area: gf; }
 .UtilityView { grid-area: u; }
 

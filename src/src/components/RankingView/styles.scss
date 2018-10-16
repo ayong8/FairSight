@@ -30,7 +30,10 @@
   }
   .summaryView { 
     grid-area: s; 
-    display: flex;
+
+    .summaryStat {
+      display: flex;
+    }
 
     .accuracyWrapper,
     .groupFairnessWrapper,

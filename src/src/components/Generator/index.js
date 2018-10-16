@@ -158,8 +158,14 @@ class Generator extends Component {
 
   renderSensitiveAttrSelections() {
     const { features } = this.props;
+    const sensitiveAttrs = [
+      { name: 'sex', type: 'categorical', range: ['Men', 'Women'] },
+      { name: 'age_in_years', type: 'continuous', range: 'continuous' },
+      { name: 'age>25', type: 'categorical', range: ['age_over_25', 'age_less_25'] },
+      { name: 'age>35', type: 'categorical', range: ['age_over_35', 'age_less_35'] }
+    ];
 
-    return features.map((feature, idx) => 
+    return sensitiveAttrs.map((feature, idx) => 
         (<DropdownItem 
           key={idx}
           value={feature.name}
@@ -200,6 +206,24 @@ class Generator extends Component {
         feature: featureName.replace(/_/g, ' '),
         dist: 10,
         corr: _self.renderCorrPlotWithSensitiveAttr(featureName)
+      };
+    });
+  }
+
+  renderMethodSelectionsForTable() {
+    const _self = this;
+    const { methods } = this.props;
+
+    return methods.map((method) => {
+      const { name, spec } = method,
+            { Q1, Q2, Q3, Q4 } = spec;
+
+      return {
+        method: name,
+        Q1: Q1,
+        Q2: Q2,
+        Q3: Q3,
+        Q4: Q4
       };
     });
   }
@@ -428,8 +452,8 @@ class Generator extends Component {
           defaultValue={'With fairness'} 
           buttonStyle='solid' 
           size='small'>
-          <Radio.Button value={'With fairness'}>{'With fairness'}</Radio.Button>
-          <Radio.Button value={'Without fairness'}>{'Without fairness'}</Radio.Button>
+          <Radio.Button value={'Fairness'}>{'Fairness(F)'}</Radio.Button>
+          <Radio.Button value={'Accuracy'}>{'Accuracy(A)'}</Radio.Button>
         </Radio.Group>
       </div>
     );
@@ -446,6 +470,7 @@ class Generator extends Component {
           size='small'>
           <Radio.Button value={'Group fairness'}>{'Group fairness'}</Radio.Button>
           <Radio.Button value={'Individual fairness'}>{'Individual fairness'}</Radio.Button>
+          <Radio.Button value={'Both'}>{'Both'}</Radio.Button>
         </Radio.Group>
       </div>
     );
@@ -485,27 +510,44 @@ class Generator extends Component {
 
   render() {
     console.log('Generater rendered');
-    const { rankingInstance } = this.props,
+    const { rankingInstance, methods } = this.props,
           { features, sensitiveAttr, target, method } = rankingInstance;
 
+    // For feature selection 
     const featureNames = features.map((feature) => feature.name),
           targetName = target.name,
           sensitiveAttrName = sensitiveAttr.name,
           methodName = method.name;
 
-    const columns = [
+    const featureSelectionColumns = [
       { title: 'Feature', dataIndex: 'feature', key: 1, width: 100 },
       { title: 'Dist', dataIndex: 'dist', key: 2 },
       { title: 'Corr', dataIndex: 'corr', key: 3 }
     ];
     const dataFeatureTable = this.renderFeatureSelectionsForTable();
-
-    // rowSelection object indicates the need for row selection
-    const rowSelection = {
+    const featureSelectionRows = {
       onChange: (selectedRowKeys, selectedRows) => {
       },
       getCheckboxProps: record => ({
-        disabled: record.name === 'Disabled User', // Column configuration not to be checked
+        disabled: record.name === 'Disabled User',
+        name: record.name,
+      }),
+    };
+
+    // For method selection
+    const methodSelectionColumns = [
+      { title: 'Method', dataIndex: 'method', key: 1, width: 80},
+      { title: 'Q1', dataIndex: 'Q1', key: 2 },
+      { title: 'Q2', dataIndex: 'Q2', key: 3 },
+      { title: 'Q3', dataIndex: 'Q3', key: 4 },
+      { title: 'Q4', dataIndex: 'Q4', key: 5 }
+    ];
+    const dataMethodTable = this.renderMethodSelectionsForTable();
+    const methodSelectionRows = {
+      onChange: (selectedRowKeys, selectedRows) => {
+      },
+      getCheckboxProps: record => ({
+        disabled: record.name === 'Disabled User',
         name: record.name,
       }),
     };
@@ -561,8 +603,8 @@ class Generator extends Component {
           {this.renderFeatureSelections()}
         </TreeSelect>
         <Table 
-          rowSelection={rowSelection}
-          columns={columns} 
+          rowSelection={featureSelectionRows}
+          columns={featureSelectionColumns} 
           dataSource={dataFeatureTable} 
           scroll={{ y: 200 }}
           pagination={false}
@@ -587,13 +629,13 @@ class Generator extends Component {
         {/* // Method selector */}
         <div className={styles.generatorSubTitle}>Fairness Scenario</div>
         {/* // Protected Group selector */}
-        <div className={styles.fairnessQuestion}>Aim to achieve fairness?</div>
+        <div className={styles.fairnessQuestion}>Q1. Goal: What do you optimize?</div>
         {this.renderFairnessQuestion1()}
-        <div className={styles.fairnessQuestion}>Which fairness matters?</div>
+        <div className={styles.fairnessQuestion}>Q2. Fairness: Which fairness matters?</div>
         {this.renderFairnessQuestion2()}
-        <div className={styles.fairnessQuestion}>Possible to change input?</div>
+        <div className={styles.fairnessQuestion}>Q3-1. Fairness method: Possible to change input?</div>
         {this.renderFairnessQuestion3()}
-        <div className={styles.fairnessQuestion}>Perfect group fairness via output change?</div>
+        <div className={styles.fairnessQuestion}>Q3-1. Fairness method: Aim to achieve the perfect fair outcome?</div>
         {this.renderFairnessQuestion4()}
         <div className={styles.selectMethod}>Recommended Method</div>
         <Dropdown className={styles.methodDropdown}
@@ -606,6 +648,18 @@ class Generator extends Component {
             {this.renderMethods()}
           </DropdownMenu>
         </Dropdown>
+        <Table 
+          rowSelection={methodSelectionRows}
+          columns={methodSelectionColumns} 
+          dataSource={dataMethodTable} 
+          scroll={{ y: 150 }}
+          pagination={false}
+          onRow={(record) => {
+            return {
+              onSelect: this.handleSelectFeatures
+            };
+          }}
+        />
         <div className={styles.runButtonWrapper}>
           <Button className={styles.buttonGenerateRanking} color='danger' onClick={this.handleClickRun}>RUN</Button>
         </div>

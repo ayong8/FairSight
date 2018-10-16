@@ -81,6 +81,11 @@ features_no_sex_themis_ml = [
         'personal_status_and_sex_male_married/widowed',
         'personal_status_and_sex_male_single']]
 
+category_ranges = {
+    'age>25': ['age_over_25', 'age_less_25'],
+    'age>35': ['age_over_25', 'age_less_25']
+}
+
 METRICS_COLUMNS_THEMIS_ML = [
     'mean_diff_sex', 'auc_sex']
 

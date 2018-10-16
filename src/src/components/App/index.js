@@ -13,7 +13,7 @@ import RankingsListView from 'components/RankingsListView';
 import InputSpaceView from 'components/InputSpaceView';
 import IndividualInspectionView from 'components/IndividualInspectionView';
 import RankingView from 'components/RankingView';
-import DistortionView from 'components/DistortionView';
+import RankingInspectorView from 'components/RankingInspectorView';
 import TopkRankingView from 'components/TopkRankingView';
 import GroupFairnessView from 'components/GroupFairnessView';
 import UtilityView from 'components/UtilityView';
@@ -47,10 +47,16 @@ class App extends Component {
       dataset: [],
       features: [],
       methods: [
-        {name: 'RankSVM'},
-        {name: 'SVM'},
-        {name: 'Logistic Regression'},
-        {name: 'Additive Counterfactual Fairness'}
+        {name: 'RankSVM', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
+        {name: 'SVM', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
+        {name: 'Logistic Regression', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
+        {name: 'Additive Counterfactual Fairness', spec: { Q1: 'F', Q2: 'B', Q3: 'Yes', Q4: 'No' }}
+      ],
+      sensitiveAttrs: [
+        { name: 'sex', type: 'categorical', range: ['Men', 'Women'], protectedGroup: 'Men', nonProtectedGroup: 'Women'  },
+        { name: 'age_in_years', type: 'continuous', range: 'continuous' },
+        { name: 'age>25', type: 'categorical', range: ['age_over_25', 'age_less_25'], protectedGroup: 'age_less_25', nonProtectedGroup: 'age_over_25' },
+        { name: 'age>35', type: 'categorical', range: ['age_over_35', 'age_less_35'], protectedGroup: 'age_less_35', nonProtectedGroup: 'age_over_35' }
       ],
       topk: 20,
       n: 40,
@@ -107,7 +113,6 @@ class App extends Component {
     this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
     this.handleRankingInstanceOptions = this.handleRankingInstanceOptions.bind(this);
     this.handleSensitiveAttr = this.handleSensitiveAttr.bind(this);
-    this.handleMouseoverInstance = this.handleMouseoverInstance.bind(this);
     this.handleFilterRunning = this.handleFilterRunning.bind(this);
   }
 
@@ -351,7 +356,7 @@ class App extends Component {
   }
 
   handleRankingInstanceOptions(optionObj) {  // optionObj e.g., { sensitiveAttr: 'sex' }
-    const { features, methods } = this.state;
+    const { features, methods, sensitiveAttrs } = this.state;
     
     this.setState(prevState => {
       const stateProperty = Object.keys(optionObj)[0];
@@ -379,6 +384,20 @@ class App extends Component {
           rankingInstance: {
             ...prevState.rankingInstance,
             features: featureObjs
+          }
+        };
+      }
+
+      else if (stateProperty === 'sensitiveAttr'){
+        const sensitiveAttr = Object.values(optionObj)[0],
+              featureObj = sensitiveAttrs.filter((d) => d.name === sensitiveAttr)[0]; // Go through all features and Select the feature object
+
+        return {
+          rankingInstance: {
+            ...prevState.rankingInstance,
+            sensitiveAttr: {
+              ...featureObj
+            }
           }
         };
       }
@@ -494,11 +513,11 @@ class App extends Component {
     });
   }
 
-  handleMouseoverInstance(idx) {
-    this.setState({
-      selectedInstance: idx
-    });
-  }
+  // handleMouseoverInstance(idx) {
+  //   this.setState({
+  //     selectedInstance: idx
+  //   });
+  // }
 
   handleSensitiveAttr(groupsObj) {
     this.setState(prevState => ({
@@ -847,31 +866,14 @@ class App extends Component {
         <RankingView 
             n={this.state.n}
             data={this.state.rankingInstance}
+            pairwiseDiffs={this.pairwiseDiffs}
+            confIntervalPoints={this.state.confIntervalPoints}
             onRunningFilter={this.handleFilterRunning}
             onSelectedInterval={this.handleSelectedInterval}
             onSelectedTopk={this.handleSelectedTopk}  />
         <div className={styles.RankingInspector}>
           <div className={styles.rankingInspectorTitle + ' ' + index.title}>Ranking Inspector</div>
-          <InputSpaceView 
-              className={styles.InputSpaceView}
-              data={this.state.rankingInstance}
-              topk={this.state.topk}
-              inputCoords={this.state.inputCoords}
-              selectedInstance={this.state.mouseoveredInstance}
-              selectedRankingInterval={this.state.selectedRankingInterval} 
-              onMouseoverInstance={this.handleMouseoverInstance} />
-          <IndividualInspectionView
-              className={styles.IndividualInspectionView}
-              data={this.state.rankingInstance}
-              topk={this.state.topk}
-              selectedInstance={this.state.mouseoveredInstance}
-              selectedRankingInterval={this.state.selectedRankingInterval} />
-          <TopkRankingView 
-              className={styles.TopkRankingView}
-              data={this.state.rankingInstance}
-              topk={this.state.topk}
-              selectedRankingInterval={this.state.selectedRankingInterval} />
-          <DistortionView 
+          <RankingInspectorView 
               data={this.state.rankingInstance}
               topk={this.state.topk}
               n={this.state.n}
@@ -879,11 +881,9 @@ class App extends Component {
               selectedInstance={this.state.mouseoveredInstance}
               pairwiseInputDistances={this.state.pairwiseInputDistances}
               permutationInputDistances={this.state.permutationInputDistances}
-              pairwiseDiffs={this.pairwiseDiffs}
               permutationDiffs={this.permutationDiffs}
               permutationDiffsFlattened={this.permutationDiffsFlattened}
               selectedPermutationDiffsFlattend={this.state.selectedPermutationDiffsFlattend}
-              confIntervalPoints={this.state.confIntervalPoints}
               inputCoords={this.state.inputCoords}
               onCalculateNDM={this.calculateNDM}
               onFilterRunning={this.handleFilterRunning} />

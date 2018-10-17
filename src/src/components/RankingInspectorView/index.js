@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { Checkbox, Icon, Table } from 'antd';
+import { Checkbox, Icon, Table, Tabs } from 'antd';
 
 import LegendView from 'components/RankingInspectorView/LegendView';
 import IndividualInspectionView from 'components/IndividualInspectionView';
@@ -400,7 +400,6 @@ class RankingInspectorView extends Component {
       _self.svgMatrix.setAttribute('0 0 200 200');
       _self.svgMatrix.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       _self.svgMatrix.setAttribute('class', 'svg_matrix');
-      _self.svgMatrix.style.setProperty('margin', '10px 5%');
 
       const { data, topk, selectedInstance, selectedInstances,
               selectedPermutationDiffsFlattend, permutationDiffs, permutationDiffsFlattened } = this.props,
@@ -689,6 +688,46 @@ class RankingInspectorView extends Component {
         };
       });
     }
+
+    renderIndividualFairnessView(){
+      return (
+        <div className={styles.IndividualFairnessView}>
+          <div className={styles.SpaceView}>
+            <LegendView 
+              className={styles.LegendView} 
+            />
+            <TopkRankingView 
+                className={styles.TopkRankingView}
+                data={this.props.data}
+                topk={this.props.topk}
+                selectedInstances={this.props.selectedInstances} />
+            <InputSpaceView 
+                className={styles.InputSpaceView}
+                data={this.props.data}
+                topk={this.props.topk}
+                inputCoords={this.props.inputCoords}
+                selectedInstance={this.props.selectedInstance}
+                selectedInstances={this.state.selectedInstances} 
+                // onMouseoverInstance={this.handleMouseoverInstance} 
+            />
+            <div className={styles.MatrixWrapper}>
+              <div className={styles.MatrixView}>
+                {this.svgMatrix.toReact()}
+              </div>
+            </div>
+          </div>
+          <div className={styles.InspectionComponentsView}>
+            <IndividualInspectionView
+                className={styles.IndividualInspectionView}
+                data={this.props.data}
+                topk={this.props.topk}
+                selectedInstance={this.props.selectedInstance}
+                selectedRankingInterval={this.props.selectedRankingInterval} 
+            />
+          </div>
+        </div>
+      );
+    }
   
     render() {
       console.log('RankingInspectorView rendered');
@@ -699,6 +738,7 @@ class RankingInspectorView extends Component {
         return <div />
       }
       const _self = this;
+      const TabPane = Tabs.TabPane;
          
       _self.renderMatrix();
 
@@ -724,45 +764,10 @@ class RankingInspectorView extends Component {
       
       return (
         <div className={styles.RankingInspectorView}>
-          <div className={styles.rankingInspectorViewTitleWrapper}>
-            <div className={index.subTitle + ' ' + styles.rankingInspectorViewTitle}>Distortions</div>
-          </div>
-          <div className={styles.SpaceView}>
-            <LegendView 
-              className={styles.LegendView} 
-            />
-            <TopkRankingView 
-                className={styles.TopkRankingView}
-                data={this.props.data}
-                topk={this.props.topk}
-                selectedInstances={this.props.selectedInstances} />
-            <InputSpaceView 
-                className={styles.InputSpaceView}
-                data={this.props.data}
-                topk={this.props.topk}
-                inputCoords={this.props.inputCoords}
-                selectedInstance={this.props.selectedInstance}
-                selectedInstances={this.state.selectedInstances} 
-                // onMouseoverInstance={this.handleMouseoverInstance} 
-            />
-            <div className={styles.MatrixWrapper}>
-              <div className={styles.MatrixView}>
-                {this.svgMatrix.toReact()}
-              </div>
-            </div>
-          </div>
-          <IndividualInspectionView
-              className={styles.IndividualInspectionView}
-              data={this.props.data}
-              topk={this.props.topk}
-              selectedInstance={this.props.selectedInstance}
-              selectedRankingInterval={this.props.selectedRankingInterval} />
-          <div className={styles.DistortionAnalysisView}>
-            <div className={styles.subTitle}>Distortion analysis</div>
-            <div className={styles.DistortionPlot}>
-              
-            </div>
-          </div>
+          <Tabs type="card">
+            <TabPane tab="Individual Fairness" key="1">{this.renderIndividualFairnessView()}</TabPane>
+            <TabPane tab="Group Fairness" key="2">{this.renderIndividualFairnessView()}</TabPane>
+          </Tabs>
         </div>
       );
     }

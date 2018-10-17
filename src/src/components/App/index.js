@@ -241,6 +241,7 @@ class App extends Component {
           })   
           .then( (response) => {
               const rankingInstance = JSON.parse(response);
+              console.log(rankingInstance.instances.map((d) => d.idx));
               
               this.setState(prevState => ({
                 rankingInstance: rankingInstance
@@ -258,6 +259,7 @@ class App extends Component {
           })   
           .then( (response) => {
               const rankingInstance = JSON.parse(response);
+              console.log(rankingInstance.instances.map((d) => d.idx));
               
               this.setState(prevState => ({
                 rankingInstance: rankingInstance
@@ -887,10 +889,6 @@ class App extends Component {
               inputCoords={this.state.inputCoords}
               onCalculateNDM={this.calculateNDM}
               onFilterRunning={this.handleFilterRunning} />
-          {/* <GroupFairnessView 
-              className={styles.GroupFairnessView}
-              data={this.state.rankingInstance} 
-              topk={this.state.topk}  /> */}
         </div>
         <Footer />
       </div>

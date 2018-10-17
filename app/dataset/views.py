@@ -365,7 +365,7 @@ class RunLR(APIView):
         y = whole_dataset_df[target]
         s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
-        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42)
         lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
         accuracy = lr_fit.score(X_test, y_test)
         probs = lr_fit.predict_proba(X)
@@ -634,6 +634,11 @@ class CalculatePairwiseInputDistance(APIView):
             })
 
         return Response(json_combined)
+
+class TestCorrelationBtnSensitiveAndFeatures(APIView):
+    
+    def get(self, request, format=None):
+        pass
 
 # Get the confidence interval of slope to measure the fair area
 class CalculateConfidenceInterval(APIView):

@@ -110,7 +110,6 @@ class RankingView extends Component {
       _self.svgPlot.setAttribute('0 0 200 200');
       _self.svgPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       _self.svgPlot.setAttribute('transform', 'translate(0,10)');
-      _self.svgPlot.style.setProperty('margin', '0 10px');
 
       let { data, pairwiseDiffs, confIntervalPoints, selectedRankingInterval } = _self.props,
           selectedInstanceIdx = _self.props.selectedRankingInterval;
@@ -154,8 +153,8 @@ class RankingView extends Component {
             absAvgWithinGroupPair = absSumWithinGroupPair / dataWithinGroupPair.length,
             absAvgBetweenGroupPair = absSumBetweenGroupPair / dataBetweenGroupPair.length,
             groupSkewAvgs = [
-              absAvgWithinGroupPair1, 
-              absAvgWithinGroupPair2, 
+              // absAvgWithinGroupPair1, 
+              // absAvgWithinGroupPair2, 
               absAvgWithinGroupPair,
               absAvgBetweenGroupPair
             ];
@@ -168,20 +167,20 @@ class RankingView extends Component {
             .domain([-1, 1])
             .range([_self.layout.plot.height - _self.layout.plot.padding, _self.layout.plot.padding]);
       _self.xGroupSkewScale = d3.scaleBand()
-            .domain([0, 1, 2, 3, 4, 5])
+            .domain([0, 1, 2, 3])
             .range([0, _self.layout.groupSkew.width]);
       _self.yGroupSkewScale = d3.scaleLinear()  // Max value among sum of pairs
             .domain([ 0, Math.max(avgWithinGroupPair1, avgWithinGroupPair2, avgWithinGroupPair, avgBetweenGroupPair) ])
-            .range([_self.layout.plot.height - 10, 0]);
+            .range([_self.layout.plot.height, _self.layout.plot.height / 2]);
 
       const gPlot = d3.select(_self.svgPlot).append('g')
               .attr('class', 'g_plot')
               .attr('transform', 'translate(0, 0)'),
-            gViolinPlot = gPlot.append('g')
-              .attr('class', 'g_violin_plot')
-              .attr('transform', 'translate(' + (this.layout.plot.width + 30) + ',' + '0)'),
+            // gViolinPlot = gPlot.append('g')
+            //   .attr('class', 'g_violin_plot')
+            //   .attr('transform', 'translate(' + (this.layout.plot.width + 30) + ',' + '0)'),
             gGroupSkew = gPlot.append('g')
-              .attr('transform', 'translate(' + (this.layout.plot.width + 110 + 30) + ',' + '0)');
+              .attr('transform', 'translate(' + (this.layout.plot.width + 30) + ',' + '0)');
 
       const xAxisSetting = d3.axisTop(_self.xObservedScale).tickSize(0).ticks(0),
             yAxisSetting = d3.axisRight(_self.yDistortionScale).tickSize(0).ticks(0),
@@ -196,24 +195,24 @@ class RankingView extends Component {
               .call(yAxisSetting)
               .attr('class', 'indi_y_axis')
               .attr('transform', 'translate(0,0)'),
-            yAxisGroupSkew = gGroupSkew.append('g')
-              .call(yAxisSetting)
-              .attr('class', 'group_skew_y_axis')
-              .attr('transform', 'translate(60,0)'),
+            // yAxisGroupSkew = gGroupSkew.append('g')
+            //   .call(yAxisSetting)
+            //   .attr('class', 'group_skew_y_axis')
+            //   .attr('transform', 'translate(60,0)'),
             xAxisLine = xAxis.select('path')
               .style('stroke-width', 3),
             yAxisLine = yAxis.select('path')
-              .style('stroke-width', 3),
-            xAxisViolinPlotLine = gViolinPlot.append('line')
-              .attr('x1', -20)
-              .attr('y1', _self.yDistortionScale(0))
-              .attr('x2', 100)
-              .attr('y2', _self.yDistortionScale(0))
-              .style('stroke-dasharray', '3,3')
-              .style('stroke', 'lightgray')
-              .style('stroke-width', 3),
-            yAxisGroupSkewLine = yAxisGroupSkew.select('path')
               .style('stroke-width', 3);
+            // xAxisViolinPlotLine = gViolinPlot.append('line')
+            //   .attr('x1', -20)
+            //   .attr('y1', _self.yDistortionScale(0))
+            //   .attr('x2', 100)
+            //   .attr('y2', _self.yDistortionScale(0))
+            //   .style('stroke-dasharray', '3,3')
+            //   .style('stroke', 'lightgray')
+            //   .style('stroke-width', 3),
+            // yAxisGroupSkewLine = yAxisGroupSkew.select('path')
+            //   .style('stroke-width', 3);
 
       _self.pairColorScale = d3.scaleThreshold()
             .domain([1, 2, 3, 4])  // pair is one or two or three
@@ -407,24 +406,24 @@ class RankingView extends Component {
               .y(d => _self.yDistortionScale(d.x0))
               .curve(d3.curveCatmullRom);
 
-      gViolinPlot.selectAll('.g_violin')
-          .data([ histoChartWithinGroupPair1, histoChartWithinGroupPair2, histoChartBetweenGroupPair ])
-          .enter().append('g')
-          .attr('class', 'g_violin')
-          .attr('transform', (d, i) => `translate(${i * 40}, 0)`)
-          .append('path')
-          .style('stroke','black')
-          .style('stroke-width', 2)
-          .style('fill', (d, i) => _self.pairColorScale(i + 1)) // i == 0 => pair == 1 => pair1
-          .style('fill-opacity', 0.8)
-          .attr('d', (d, i) => {
-            if (i+1 === 1)
-              return areaWithinGroupPair1(d);
-            else if (i+1 === 2)
-              return areaWithinGroupPair2(d);
-            else if (i+1 === 3)
-              return areaBetweenGroupPair(d);
-          });
+      // gViolinPlot.selectAll('.g_violin')
+      //     .data([ histoChartWithinGroupPair1, histoChartWithinGroupPair2, histoChartBetweenGroupPair ])
+      //     .enter().append('g')
+      //     .attr('class', 'g_violin')
+      //     .attr('transform', (d, i) => `translate(${i * 40}, 0)`)
+      //     .append('path')
+      //     .style('stroke','black')
+      //     .style('stroke-width', 2)
+      //     .style('fill', (d, i) => _self.pairColorScale(i + 1)) // i == 0 => pair == 1 => pair1
+      //     .style('fill-opacity', 0.8)
+      //     .attr('d', (d, i) => {
+      //       if (i+1 === 1)
+      //         return areaWithinGroupPair1(d);
+      //       else if (i+1 === 2)
+      //         return areaWithinGroupPair2(d);
+      //       else if (i+1 === 3)
+      //         return areaBetweenGroupPair(d);
+      //     });
 
       // Group Skew plot
       // i => 1: groupPairs1, 2: groupPairs2, 3: withinPairs, 4: betweenPairs
@@ -443,26 +442,25 @@ class RankingView extends Component {
               ? _self.yGroupSkewScale(d) + 1
               : _self.yGroupSkewScale(0)
           )
-          .attr('width', 1)
+          .attr('width', 5)
           .attr('height', (d) => 
               Math.abs(_self.yGroupSkewScale(d) - _self.yGroupSkewScale(0))
           )
-          .style('fill', 'none')
-          .style('stroke', (d, i) => _self.pairColorScale(i + 1))
-          .style('stroke-width', 1)
-          .style('stroke-dasharray', '5,5');
+          .style('fill', (d, i) => _self.pairColorScale(i + 3))
+          .style('stroke', 'black')
+          .style('stroke-width', 1);
 
-      gGroupSkew
-          .selectAll('.groupSkewCircle')
-          .data(groupSkewAvgs)
-          .enter().append('circle')
-          .attr('class', 'groupSkewCircle')
-          .attr('cx', (d, i) => _self.xGroupSkewScale(i + 1) + 1.5)
-          .attr('cy', (d, i) => _self.yGroupSkewScale(d))
-          .attr('r', 4)
-          .style('fill', (d, i) => _self.pairColorScale(i + 1))
-          .style('stroke', (d, i) => d3.rgb(_self.pairColorScale(i + 1)).darker())
-          .style('stroke-opacity', 0.8);
+      // gGroupSkew
+      //     .selectAll('.groupSkewCircle')
+      //     .data(groupSkewAvgs)
+      //     .enter().append('circle')
+      //     .attr('class', 'groupSkewCircle')
+      //     .attr('cx', (d, i) => _self.xGroupSkewScale(i + 1) + 1.5)
+      //     .attr('cy', (d, i) => _self.yGroupSkewScale(d))
+      //     .attr('r', 4)
+      //     .style('fill', (d, i) => _self.pairColorScale(i + 1))
+      //     .style('stroke', (d, i) => d3.rgb(_self.pairColorScale(i + 1)).darker())
+      //     .style('stroke-opacity', 0.8);
 
       const groupSkewLine = gGroupSkew
             .append('line')

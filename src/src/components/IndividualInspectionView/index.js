@@ -54,7 +54,6 @@ class IndividualInspectionView extends Component {
 
       return (
         <div className={styles.IndividualInspectionView}>
-          <div className={index.subTitle}>Selected Instance</div>
           <div className={styles.IndividualStatus}>
             <div className={styles.infoWrapper}>
               <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', marginBottom: 10}}/>
@@ -68,6 +67,7 @@ class IndividualInspectionView extends Component {
                 dataSource={ typeof(selectedInstance) === 'undefined' ? this.renderEmptyTable() : this.renderFeatureTable() } 
                 scroll={{ y: 150 }}
                 pagination={false}
+                bordered
               />
             </div>
           </div>

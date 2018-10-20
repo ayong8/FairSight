@@ -365,7 +365,7 @@ class RunLR(APIView):
         y = whole_dataset_df[target]
         s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
-        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42)
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=True)
         lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
         accuracy = lr_fit.score(X_test, y_test)
         probs = lr_fit.predict_proba(X)
@@ -425,7 +425,7 @@ class RunACF(APIView):
 
         N_SPLITS = 5
         N_REPEATS = 20
-        cv = RepeatedStratifiedKFold(n_splits=N_SPLITS, n_repeats=N_REPEATS, random_state=41)
+        cv = RepeatedStratifiedKFold(n_splits=N_SPLITS, n_repeats=N_REPEATS, random_state=41, shuffle=True)
 
         probs_df = pd.DataFrame()
         for i, (train_idx, test_idx) in enumerate(cv.split(X.values, y.values, groups=s.values)):

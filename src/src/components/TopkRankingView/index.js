@@ -16,7 +16,7 @@ class TopkRankingView extends Component {
       this.layout = {
           svg: {
             width: 80,
-            height: 500,
+            height: 350,
             margin: 10
           }
       };
@@ -36,6 +36,8 @@ class TopkRankingView extends Component {
       svg.setAttribute('width', '100%');
       svg.setAttribute('height', _self.layout.svg.height);
       svg.setAttribute('class', 'svg_top_ranking');
+      svg.style.setProperty('border', '1px solid #d9d9d9');
+      svg.style.setProperty('backgroundColor', '#fbfbfb');
 
       const rectInterval = 7;
       const rankingScale = d3.scaleBand()
@@ -47,7 +49,7 @@ class TopkRankingView extends Component {
 
       const gTopkRanking = d3.select(svg).append('g')
               .attr('class', 'g_top_k_ranking')
-              .attr('transform', 'translate(' + (130) + ',' + '0)');
+              .attr('transform', 'translate(' + (130) + ',' + '10)');
 
       gTopkRanking.selectAll('.rect_topk')
           .data(selectedInstances)

@@ -145,11 +145,11 @@ class Generator extends Component {
         <div className={styles.selectProtectedGroup}>
           <div className={styles.group1}>
             <Badge onClick={this.handleClickGroup} status='default' />
-            {nonProtectedGroup}
+            {protectedGroup}
           </div>
           <div className={styles.group2}>
             <Badge status='error' />
-            {protectedGroup}
+            {nonProtectedGroup}
           </div>
         </div>
       </div>

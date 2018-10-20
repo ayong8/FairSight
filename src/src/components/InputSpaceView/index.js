@@ -18,8 +18,8 @@ class InputSpaceView extends Component {
       };
       this.layout = {
         svg: {
-          width: 200,
-          height: 200,
+          width: 250,
+          height: 250,
           padding: 10
         }
       }
@@ -47,7 +47,6 @@ class InputSpaceView extends Component {
         svgFeatureTable.setAttribute('width', '95%');
         svgFeatureTable.setAttribute('height', '80%')
         svgFeatureTable.setAttribute('class', 'svg_input_space');
-        svgFeatureTable.style.setProperty('background-color', '#f7f7f7');
         svgFeatureTable.style.setProperty('border', '1px solid #dfdfdf');
 
         d3.select(svgFeatureTable)
@@ -93,6 +92,7 @@ class InputSpaceView extends Component {
       svg.setAttribute('height', this.layout.svg.height)
       svg.setAttribute('class', 'svg_input_space');
       svg.style.setProperty('border', '1px solid #d9d9d9');
+      svg.style.setProperty('backgroundColor', '#fbfbfb');
 
       let xScale = d3.scaleLinear()
           .domain(d3.extent(instances, (d) => d.dim1))

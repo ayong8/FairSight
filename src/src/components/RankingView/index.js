@@ -58,7 +58,7 @@ class RankingView extends Component {
             padding: 10
           },
           groupSkew: {
-            width: 55,
+            width: 70,
             height: 250
           }
       };
@@ -155,8 +155,8 @@ class RankingView extends Component {
             groupSkewAvgs = [
               // absAvgWithinGroupPair1, 
               // absAvgWithinGroupPair2, 
-              absAvgWithinGroupPair,
-              absAvgBetweenGroupPair
+              absAvgBetweenGroupPair,
+              absAvgWithinGroupPair
             ];
 
       // Coordinate scales
@@ -180,7 +180,7 @@ class RankingView extends Component {
             //   .attr('class', 'g_violin_plot')
             //   .attr('transform', 'translate(' + (this.layout.plot.width + 30) + ',' + '0)'),
             gGroupSkew = gPlot.append('g')
-              .attr('transform', 'translate(' + (this.layout.plot.width + 30) + ',' + '0)');
+              .attr('transform', 'translate(' + (this.layout.plot.width + 30) + ',' + '-25)');
 
       const xAxisSetting = d3.axisTop(_self.xObservedScale).tickSize(0).ticks(0),
             yAxisSetting = d3.axisRight(_self.yDistortionScale).tickSize(0).ticks(0),
@@ -439,10 +439,10 @@ class RankingView extends Component {
           .attr('x', (d, i) => _self.xGroupSkewScale(i + 1))
           .attr('y', (d) => 
             d > 0
-              ? _self.yGroupSkewScale(d) + 1
+              ? _self.yGroupSkewScale(d)
               : _self.yGroupSkewScale(0)
           )
-          .attr('width', 5)
+          .attr('width', 10)
           .attr('height', (d) => 
               Math.abs(_self.yGroupSkewScale(d) - _self.yGroupSkewScale(0))
           )
@@ -469,7 +469,19 @@ class RankingView extends Component {
             .attr('x2', 60)
             .attr('y2', _self.yGroupSkewScale(0))
             .style('stroke', 'black')
-            .style('stroke-width', 3);
+            .style('stroke-width', 2);
+
+      const btnGroupSkewText = gGroupSkew
+            .append('text')
+            .attr('x', 5)
+            .attr('y', 165)
+            .text('BTN');
+
+      const wtnGroupSkewText = gGroupSkew
+            .append('text')
+            .attr('x', 35)
+            .attr('y', 165)
+            .text('WTN');
     }
 
     render() {

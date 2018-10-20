@@ -1,6 +1,10 @@
 .RankingInspectorView {
   grid-area: d;
 
+  background-color: #fbfbfb;
+  border: 1px solid #f1f0f0;
+  padding: 10px;
+
   .subTitle {
     border-top: 1px solid #d9d9d9;
     padding: 10px 0;
@@ -18,12 +22,12 @@
   .SpaceView {
     display: grid;
     grid-template-columns: 30% 50% 20%;
-    grid-template-rows: 250px 120px;
+    grid-template-rows: 300px 100px;
     grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
       'i mt tr'
       'lg mt tr';
-    background-color: #e8e7e7;
-    border: 1px solid #c9c9c9;
+    background-color: #f5f4f4;
+    border: 1px solid #e2e2e2;
     padding: 10px;
   }
 
@@ -37,7 +41,6 @@
     grid-area: mt;
     padding-top: 10px;
     display: flex;
-    background-color: #e8e7e7;
 
     .IndividualStatusView {
       width: 25%;

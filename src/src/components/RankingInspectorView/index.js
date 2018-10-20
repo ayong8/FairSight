@@ -60,6 +60,7 @@ class RankingInspectorView extends Component {
       this.dataBinFlattened = [];
 
       this.state = {
+        mode: 'individualFairness',
         selectedIntervalForMatrix: {
           from: 1,
           to: 50
@@ -87,7 +88,7 @@ class RankingInspectorView extends Component {
         width: 650,
         height: 300,
         svgMatrix: {
-          width: 500,
+          width: 450,
           height: 400,
           margin: 10,
           matrixPlot: {
@@ -104,15 +105,15 @@ class RankingInspectorView extends Component {
           },
           distortionSumPlotUpper: {
             width: 300,
-            height: 50
+            height: 40
           },
           distortionSumPlotRight: {
-            width: 50,
+            width: 40,
             height: 300
           },
           histoMatrix: {
-            width: 100,
-            height: 100
+            width: 70,
+            height: 70
           }
         },
         svgPlot: {
@@ -122,6 +123,7 @@ class RankingInspectorView extends Component {
         }
       };
 
+      this.changeFairnessMode = this.changeFairnessMode.bind(this);
       this.toggleMatrixX = this.toggleMatrixX.bind(this);
       this.toggleMatrixY = this.toggleMatrixY.bind(this);
       this.toggleMatrixColor = this.toggleMatrixColor.bind(this);
@@ -149,6 +151,13 @@ class RankingInspectorView extends Component {
 
     componentWillUpdate() {
       // this.updateMatrix();
+    }
+
+    changeFairnessMode(activeKey) { 
+      // activeKey: 'individualFairness' or 'groupFairness'
+      this.setState({
+        mode: activeKey
+      });
     }
 
     toggleMatrixX() {
@@ -401,6 +410,7 @@ class RankingInspectorView extends Component {
       _self.svgMatrix.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       _self.svgMatrix.setAttribute('class', 'svg_matrix');
 
+      const { mode } = this.state;
       const { data, topk, selectedInstance, selectedInstances,
               selectedPermutationDiffsFlattend, permutationDiffs, permutationDiffsFlattened } = this.props,
             { instances } = data,
@@ -439,8 +449,7 @@ class RankingInspectorView extends Component {
           .range([0, _self.layout.svgMatrix.matrixPlot.width]);
       _self.yMatrixScale = d3.scaleBand()
           .domain(_.map(dataSelectedY, (d) => d.ranking))  // For now, it's just an index of items(from observed)
-          .range([_self.layout.svgMatrix.matrixPlot.height + _self.layout.svgMatrix.distortionSumPlotUpper.height, 
-                  _self.layout.svgMatrix.distortionSumPlotUpper.height]);
+          .range([_self.layout.svgMatrix.matrixPlot.height, 0]);
       _self.cellWidth = _self.xMatrixScale.bandwidth();
       _self.cellHeight = _self.yMatrixScale.bandwidth();
       _self.distortionScale = d3.scaleLinear()
@@ -451,19 +460,22 @@ class RankingInspectorView extends Component {
           .range(['white', 'indigo']);
       _self.absDistortionBtnPairsScale = d3.scaleLinear()
           .domain(d3.extent(permutationDiffsFlattened, (d) => d.absDistortion))
-          .range(['white', gs.betweenGroupColor]);
+          .range(['white', 'mediumspringgreen']);
       _self.absDistortionWtnPairsScale = d3.scaleLinear()
           .domain(d3.extent(permutationDiffsFlattened, (d) => d.absDistortion))
-          .range(['white', gs.withinGroupColor]);
+          .range(['white', 'deeppink']);
       _self.sumDistortionScale = d3.scaleLinear()
           .domain(d3.extent(instances, (d) => d.sumDistortion))
           .range([5, _self.layout.svgMatrix.distortionSumPlotRight.width - 10]);
+      _self.sumDistortionColorScale = d3.scaleLinear()
+          .domain(d3.extent(instances, (d) => d.sumDistortion))
+          .range(['#fbfbfb', '#5c34ff']);
       _self.xAttributeScale = d3.scaleLinear()
           .domain(d3.extent(dataX, (d) => d.features[Object.keys(d.features)[0]]))
-          .range(['white', '#5598b7']);
+          .range(['white', '#003569']);
       _self.yAttributeScale = d3.scaleLinear()
           .domain(d3.extent(dataY, (d) => d.features[Object.keys(d.features)[0]]))
-          .range(['white', '#5598b7']);
+          .range(['white', '#003569']);
 
       // For sum heatmap matrix
       _self.xHistoMatrixScale = d3.scaleBand()
@@ -506,7 +518,7 @@ class RankingInspectorView extends Component {
 
       const gMatrix = d3.select(_self.svgMatrix).append('g')
                 .attr('class', 'g_matrix')
-                .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',0)'),
+                .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',' + _self.layout.svgMatrix.distortionSumPlotUpper.height + ')'),
             gCells = gMatrix.selectAll('.g_cell')
                 .data(selectedPermutationDiffsFlattend)
                 .enter().append('g')
@@ -516,11 +528,14 @@ class RankingInspectorView extends Component {
                 }),
             gAttrPlotLeft = d3.select(_self.svgMatrix).append('g')
                 .attr('class', 'g_attr_plot_x')
-                .attr('transform', 'translate(0,0)'),
+                .attr('transform', 'translate(0' + ','  + _self.layout.svgMatrix.distortionSumPlotUpper.height + ')'),
             gAttrPlotBottom = d3.select(_self.svgMatrix).append('g')
                 .attr('class', 'g_attr_plot_y')
                 .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',' + 
                                                   (_self.layout.svgMatrix.matrixPlot.height + _self.layout.svgMatrix.distortionSumPlotUpper.height) + ')'),
+            gDistortionPlotTop = d3.select(_self.svgMatrix).append('g')
+                .attr('class', 'g_distortion_plot_x')
+                .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',0)'),                                                
             gHistoMatrix = d3.select(_self.svgMatrix).append('g')
                 .attr('class', 'g_histo_matrix')
                 .attr('transform', 'translate(' + (_self.layout.svgMatrix.attrPlotLeft.width + _self.layout.svgMatrix.matrixPlot.width + 20) + ',0)'),
@@ -574,6 +589,8 @@ class RankingInspectorView extends Component {
           .attr('width', _self.cellWidth)
           .attr('height', _self.cellHeight)
           .style('fill', (d) => {
+            const pair = d.pair,
+                  absDistortion = d.absDistortion;
             const distortion = d.distortion,
                   distortionMin = _self.distortionScale.domain()[0],
                   distortionMax = _self.distortionScale.domain()[1],
@@ -589,7 +606,9 @@ class RankingInspectorView extends Component {
               fillColor = 'red';
             }
             
-            return _self.absDistortionScale(d.absDistortion);
+            return (mode === 'individualFairness') ? _self.absDistortionScale(absDistortion)
+                  : (mode === 'groupFairness' && pair === 3) ? _self.absDistortionBtnPairsScale(absDistortion)
+                  : _self.absDistortionWtnPairsScale(absDistortion);
           })
           .style('stroke', (d) => {
             const distortion = d.distortion,
@@ -642,6 +661,19 @@ class RankingInspectorView extends Component {
             : (sortMatrixXBy === 'ranking') ? _self.xAttributeScale(d.ranking) 
             : _self.xAttributeScale(d.features[sortMatrixXBy])
           )
+          .attr('stroke', 'black')
+          .attr('stroke-width', 0.4);
+
+      // Distortion plot top
+      gDistortionPlotTop.selectAll('.distortion_rect_top')
+          .data(sortedSelectedX)
+          .enter().append('rect')
+          .attr('class', 'distortion_rect_top')
+          .attr('x', (d) => _self.xMatrixScale(d.ranking))
+          .attr('y', (d) => 35 - _self.sumDistortionScale(d.sumDistortion))
+          .attr('width', _self.xMatrixScale.bandwidth() - 1)
+          .attr('height', (d) => _self.sumDistortionScale(d.sumDistortion))
+          .attr('fill', (d) => _self.sumDistortionColorScale(d.sumDistortion))
           .attr('stroke', 'black')
           .attr('stroke-width', 0.4);
 
@@ -728,6 +760,45 @@ class RankingInspectorView extends Component {
         </div>
       );
     }
+
+    renderGroupFairnessView(){
+      return (
+        <div className={styles.IndividualFairnessView}>
+          <div className={styles.SpaceView}>
+            <LegendView 
+              className={styles.LegendView} 
+            />
+            <TopkRankingView 
+                className={styles.TopkRankingView}
+                data={this.props.data}
+                topk={this.props.topk}
+                selectedInstances={this.props.selectedInstances} />
+            <InputSpaceView 
+                className={styles.InputSpaceView}
+                data={this.props.data}
+                topk={this.props.topk}
+                inputCoords={this.props.inputCoords}
+                selectedInstance={this.props.selectedInstance}
+                selectedInstances={this.state.selectedInstances} 
+            />
+            <div className={styles.MatrixWrapper}>
+              <div className={styles.MatrixView}>
+                {this.svgMatrix.toReact()}
+              </div>
+            </div>
+          </div>
+          <div className={styles.InspectionComponentsView}>
+            <IndividualInspectionView
+                className={styles.IndividualInspectionView}
+                data={this.props.data}
+                topk={this.props.topk}
+                selectedInstance={this.props.selectedInstance}
+                selectedRankingInterval={this.props.selectedRankingInterval} 
+            />
+          </div>
+        </div>
+      );
+    }
   
     render() {
       console.log('RankingInspectorView rendered');
@@ -764,9 +835,9 @@ class RankingInspectorView extends Component {
       
       return (
         <div className={styles.RankingInspectorView}>
-          <Tabs type="card">
-            <TabPane tab="Individual Fairness" key="1">{this.renderIndividualFairnessView()}</TabPane>
-            <TabPane tab="Group Fairness" key="2">{this.renderIndividualFairnessView()}</TabPane>
+          <Tabs onChange={this.changeFairnessMode} type="card">
+            <TabPane tab="Individual Fairness" key="individualFairness">{this.renderIndividualFairnessView()}</TabPane>
+            <TabPane tab="Group Fairness" key="groupFairness">{this.renderGroupFairnessView()}</TabPane>
           </Tabs>
         </div>
       );

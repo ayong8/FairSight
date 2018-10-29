@@ -19,7 +19,8 @@ class LegendView extends Component {
       },
       fontSize: 12,
       fontColor: '#5b5b5b',
-      borderColor: '#5b5b5b'
+      borderColor: '#5b5b5b',
+      individualColor: '#b4d9fe'
     }
   }
 
@@ -68,47 +69,33 @@ class LegendView extends Component {
         .attr('cx', 20)
         .attr('cy', 30)
         .attr('r', 4)
-        .style('fill', gs.groupColor1)
+        .style('fill', this.layout.individualColor)
         .style('stroke', 'gray');
     gLegendIndividualFairness.append('text')
         .attr('x', 30)
         .attr('y', 33)
-        .text('Man')
+        .text('Feature')
         .style('font-size', this.layout.fontSize)
         .style('fill', this.layout.fontColor);
-    // Woman
-    gLegendIndividualFairness.append('circle')
-        .attr('class', 'legend_rect')
-        .attr('cx', 20)
-        .attr('cy', 45)
-        .attr('r', 4)
-        .style('fill', gs.groupColor2)
-        .style('stroke', 'lightgray');
-    gLegendIndividualFairness.append('text')
-        .attr('x', 30)
-        .attr('y', 48)
-        .text('Woman')
-        .style('font-size', this.layout.fontSize)
-        .style('color', '#5b5b5b');
 
     // Pairs
     gLegendIndividualFairness.append('text')
         .attr('x', 5)
-        .attr('y', 65)
+        .attr('y', 48)
         .text('Pairs (Absolute distortion)')
         .style('font-size', this.layout.fontSize);
 
     // Pair color scales
     gLegendIndividualFairness.append('text')
         .attr('x', 10)
-        .attr('y', 82)
+        .attr('y', 65)
         .text('low')
         .style('font-size', this.layout.fontSize);
 
     gLegendIndividualFairness.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 35)
-        .attr('y', 75)
+        .attr('y', 58)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', 'white')
@@ -117,7 +104,7 @@ class LegendView extends Component {
     gLegendIndividualFairness.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 47)
-        .attr('y', 75)
+        .attr('y', 58)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', 'lavender')
@@ -126,7 +113,7 @@ class LegendView extends Component {
     gLegendIndividualFairness.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 59)
-        .attr('y', 75)
+        .attr('y', 58)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', 'indigo')
@@ -134,99 +121,7 @@ class LegendView extends Component {
 
     gLegendIndividualFairness.append('text')
         .attr('x', 75)
-        .attr('y', 82)
-        .text('high')
-        .style('font-size', this.layout.fontSize);
-
-    // within-group pair colors
-    gLegendIndividualFairness.append('text')
-        .attr('x', 10)
-        .attr('y', 100)
-        .text('Within-group pairs')
-        .style('font-size', this.layout.fontSize);
-
-    gLegendIndividualFairness.append('text')
-        .attr('x', 15)
-        .attr('y', 115)
-        .text('low')
-        .style('font-size', this.layout.fontSize);
-
-    gLegendIndividualFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 40)
-        .attr('y', 108)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', 'white')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendIndividualFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 52)
-        .attr('y', 108)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', 'lightpink')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendIndividualFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 65)
-        .attr('y', 108)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', 'hotpink')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendIndividualFairness.append('text')
-        .attr('x', 80)
-        .attr('y', 115)
-        .text('high')
-        .style('font-size', this.layout.fontSize);
-
-    // Between-group pairs
-    gLegendIndividualFairness.append('text')
-        .attr('x', 10)
-        .attr('y', 130)
-        .text('Between-group pairs')
-        .style('font-size', this.layout.fontSize);
-
-    gLegendIndividualFairness.append('text')
-        .attr('x', 15)
-        .attr('y', 147)
-        .text('low')
-        .style('font-size', this.layout.fontSize);
-
-    gLegendIndividualFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 40)
-        .attr('y', 139)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', 'white')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendIndividualFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 52)
-        .attr('y', 139)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', '#d4ffd4')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendIndividualFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 65)
-        .attr('y', 139)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', 'lightgreen')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendIndividualFairness.append('text')
-        .attr('x', 80)
-        .attr('y', 147)
+        .attr('y', 65)
         .text('high')
         .style('font-size', this.layout.fontSize);
 
@@ -291,70 +186,23 @@ class LegendView extends Component {
         .style('font-size', this.layout.fontSize)
         .style('color', '#5b5b5b');
 
-    // Pairs
-    gLegendGroupFairness.append('text')
-        .attr('x', 5)
-        .attr('y', 65)
-        .text('Pairs (Absolute distortion)')
-        .style('font-size', this.layout.fontSize);
-
-    // Pair color scales
-    gLegendGroupFairness.append('text')
-        .attr('x', 10)
-        .attr('y', 82)
-        .text('low')
-        .style('font-size', this.layout.fontSize);
-
-    gLegendGroupFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 35)
-        .attr('y', 75)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', 'white')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendGroupFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 47)
-        .attr('y', 75)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', 'lavender')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendGroupFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 59)
-        .attr('y', 75)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', 'indigo')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendGroupFairness.append('text')
-        .attr('x', 75)
-        .attr('y', 82)
-        .text('high')
-        .style('font-size', this.layout.fontSize);
-
     // within-group pair colors
     gLegendGroupFairness.append('text')
         .attr('x', 10)
-        .attr('y', 100)
+        .attr('y', 82)
         .text('Within-group pairs')
         .style('font-size', this.layout.fontSize);
 
     gLegendGroupFairness.append('text')
         .attr('x', 15)
-        .attr('y', 115)
+        .attr('y', 98)
         .text('low')
         .style('font-size', this.layout.fontSize);
 
     gLegendGroupFairness.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 40)
-        .attr('y', 108)
+        .attr('y', 91)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', 'white')
@@ -363,7 +211,7 @@ class LegendView extends Component {
     gLegendGroupFairness.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 52)
-        .attr('y', 108)
+        .attr('y', 91)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', 'lightpink')
@@ -372,7 +220,7 @@ class LegendView extends Component {
     gLegendGroupFairness.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 65)
-        .attr('y', 108)
+        .attr('y', 91)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', 'hotpink')
@@ -380,27 +228,27 @@ class LegendView extends Component {
 
     gLegendGroupFairness.append('text')
         .attr('x', 80)
-        .attr('y', 115)
+        .attr('y', 98)
         .text('high')
         .style('font-size', this.layout.fontSize);
 
     // Between-group pairs
     gLegendGroupFairness.append('text')
         .attr('x', 10)
-        .attr('y', 130)
+        .attr('y', 113)
         .text('Between-group pairs')
         .style('font-size', this.layout.fontSize);
 
     gLegendGroupFairness.append('text')
         .attr('x', 15)
-        .attr('y', 147)
+        .attr('y', 130)
         .text('low')
         .style('font-size', this.layout.fontSize);
 
     gLegendGroupFairness.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 40)
-        .attr('y', 139)
+        .attr('y', 122)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', 'white')
@@ -409,7 +257,7 @@ class LegendView extends Component {
     gLegendGroupFairness.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 52)
-        .attr('y', 139)
+        .attr('y', 122)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', '#d4ffd4')
@@ -418,7 +266,7 @@ class LegendView extends Component {
     gLegendGroupFairness.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 65)
-        .attr('y', 139)
+        .attr('y', 122)
         .attr('width', 8)
         .attr('height', 8)
         .style('fill', 'lightgreen')
@@ -426,13 +274,13 @@ class LegendView extends Component {
 
     gLegendGroupFairness.append('text')
         .attr('x', 80)
-        .attr('y', 147)
+        .attr('y', 130)
         .text('high')
         .style('font-size', this.layout.fontSize);
 
     return (
       <div className={styles.LegendView}>
-        {mode === 'groupFairness' ? svgGroupFairness.toReact() : svgIndividualFairness.toReact()}
+        {mode === 'GF' ? svgGroupFairness.toReact() : svgIndividualFairness.toReact()}
       </div>
     );
   }

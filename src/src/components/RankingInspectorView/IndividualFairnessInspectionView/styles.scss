@@ -1,0 +1,23 @@
+.IndividualFairnessInspectionView {
+    height: 500px;
+    display: flex;
+
+    .outlierAnalysis {
+        width: 33%;
+        margin: 10px;
+        padding: 10px;
+        background-color: #f0f0f0;
+    }
+    .criticalRegionAnalysis {
+        width: 33%;
+        margin: 10px;
+        padding: 10px;
+        background-color: #f0f0f0;
+    }
+    .counterfactualAnalysis {
+        width: 33%;
+        margin: 10px;
+        padding: 10px;
+        background-color: #f0f0f0;
+    }
+}

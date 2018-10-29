@@ -26,7 +26,7 @@ class TopkRankingView extends Component {
       console.log('TopkRankingView rendered');
       const _self = this;
 
-      const { data, topk, selectedInstances } = this.props,
+      const { mode, data, topk, selectedInstances } = this.props,
             { instances } = data,
             to = selectedInstances.length;
       
@@ -59,7 +59,7 @@ class TopkRankingView extends Component {
           .attr('y', (d) => rankingScale(d.ranking))
           .attr('width', 30)
           .attr('height', (d) => rectInterval - 2)
-          .style('fill', (d) => groupColorScale(d.group))
+          .style('fill', (d) => (mode === 'GF') ? groupColorScale(d.group) : '#b4d9fe')
           .style('stroke', 'black')
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);

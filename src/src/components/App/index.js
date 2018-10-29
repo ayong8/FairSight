@@ -46,6 +46,10 @@ class App extends Component {
     this.state = {
       dataset: [],
       features: [],
+      numericalFeatures: ['duration_in_month', 'credit_amount',	'installment_rate_in_percentage_of_disposable_income',	
+                    'present_residence_since',	'age_in_years', 'number_of_existing_credits_at_this_bank',	
+                    'number_of_people_being_liable_to_provide_maintenance_for',	'status_of_existing_checking_account',	
+                    'savings_account/bonds', 'present_employment_since', 'job',	'telephone'],
       methods: [
         {name: 'RankSVM', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
         {name: 'SVM', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
@@ -83,7 +87,7 @@ class App extends Component {
           { name: 'age_in_years', type: 'continuous', range: 'continuous' }
         ],
         target: { name: 'credit_risk', type: 'categorical', range: [0, 1] },
-        method: { name: 'RankSVM' },
+        method: { name: 'Logistic Regression' },
         sumDistortion: 0,
         instances: [],
         stat: {
@@ -141,9 +145,12 @@ class App extends Component {
       this.calculateRSquared(this.pairwiseDiffs);
       this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
+      updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
       this.calculateGroupSkew(this.pairwiseDiffs);
       this.calculateOutputMeasures();
+
+      console.log('isOutlier: ', instances);
 
       let sortedInstances = _.sortBy(updatedInstances, 'ranking'),
           selectedRanking = rankings[rankingInstance.rankingId - 1];
@@ -250,6 +257,7 @@ class App extends Component {
   }
 
   runLR(rankingInstance) {
+    console.log('in runLR: ', rankingInstance.instances.map((d) => d.idx));
     return fetch('/dataset/runLR/', {
             method: 'post',
             body: JSON.stringify(rankingInstance)
@@ -259,7 +267,6 @@ class App extends Component {
           })   
           .then( (response) => {
               const rankingInstance = JSON.parse(response);
-              console.log(rankingInstance.instances.map((d) => d.idx));
               
               this.setState(prevState => ({
                 rankingInstance: rankingInstance
@@ -268,6 +275,7 @@ class App extends Component {
   }
 
   runSVM(rankingInstance) {
+    console.log('in runSVM: ', rankingInstance.instances.map((d) => d.idx));
     return fetch('/dataset/runSVM/', {
             method: 'post',
             body: JSON.stringify(rankingInstance)
@@ -440,6 +448,7 @@ class App extends Component {
       this.calculateRSquared(this.pairwiseDiffs);
       this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
+      updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
       this.calculateGroupSkew(this.pairwiseDiffs);
       this.calculateOutputMeasures();
@@ -487,6 +496,7 @@ class App extends Component {
       this.setFairInstancesFromConfidenceInterval(confIntervalPoints, this.pairwiseDiffs);
     });
   }
+
   handleFilterRunning() {
     const { rankingInstance, permutationDiffsFlattened, selectedRankingInterval } = this.state,
           { instances } = rankingInstance,
@@ -746,6 +756,26 @@ class App extends Component {
     this.pairwiseDiffs = pairwiseDiffs;
   }
 
+  calculateOutlierInstances(instances) {
+    const sumDistortions = instances.map((d) => d.sumDistortion);
+    const mean = sumDistortions.reduce((acc, curr) => acc + curr) / sumDistortions.length,
+          variance = sumDistortions
+            .map((sumDistortion) => Math.pow(sumDistortion - mean, 2))
+            .reduce((acc, curr) => acc + curr) / sumDistortions.length,
+          std = Math.sqrt(variance);
+
+    return instances.map((d) => {
+      const threshold = mean + 1.95*std;
+      if (d.sumDistortion >= threshold) {
+        d.isOutlier = true;
+      } else {
+        d.isOutlier = false;
+      }
+
+      return d;
+    });
+  }
+
   calculatePredictionIntervalandOutliers(pairwiseDiffs) {
     const distortions = _.map(pairwiseDiffs, (d) => {
           const distortion = d.distortion,
@@ -847,6 +877,8 @@ class App extends Component {
           { instances } = rankingInstance,
           { from, to } = selectedRankingInterval;
 
+    console.log(dataset);
+
     return (
       <div className={styles.App}>
         <div className={styles.marginDiv}></div>
@@ -860,6 +892,7 @@ class App extends Component {
             dataset={this.state.dataset}
             methods={this.state.methods}
             features={this.state.features}
+            numericalFeatures={this.state.numericalFeatures}
             rankingInstance={this.state.rankingInstance}
             n={this.state.n}
             onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}

@@ -82,8 +82,9 @@ class InputSpaceView extends Component {
         return <div />
       }
 
-      const _self = this,
-            wholeInstances = _.toArray(this.props.inputCoords),
+      const _self = this;
+      const { mode, inputCoords} = this.props;
+      const wholeInstances = _.toArray(inputCoords),
             instances = wholeInstances.slice(0, 100);
 
       const svg = new ReactFauxDOM.Element('svg');
@@ -115,10 +116,14 @@ class InputSpaceView extends Component {
           .attr('cy', (d) => yScale(d.dim2))
           .attr('r', 3)
           .style('fill', (d) => {
-              let group = d.group;
-              return group === 0
-                  ? gs.groupColor1
-                  : gs.groupColor2;
+              if (mode === 'GF') {
+                let group = d.group;
+                return group === 0
+                    ? gs.groupColor1
+                    : gs.groupColor2;
+              } else if (mode === 'IF') {
+                return '#b4d9fe';
+              }
           })
           .style('stroke', 'black')
           .style('opacity', 0.7)

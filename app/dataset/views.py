@@ -425,7 +425,7 @@ class RunACF(APIView):
 
         N_SPLITS = 5
         N_REPEATS = 20
-        cv = RepeatedStratifiedKFold(n_splits=N_SPLITS, n_repeats=N_REPEATS, random_state=41, shuffle=True)
+        cv = RepeatedStratifiedKFold(n_splits=N_SPLITS, n_repeats=N_REPEATS, random_state=41)
 
         probs_df = pd.DataFrame()
         for i, (train_idx, test_idx) in enumerate(cv.split(X.values, y.values, groups=s.values)):

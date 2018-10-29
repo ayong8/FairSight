@@ -6,6 +6,7 @@ import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap
 import { Checkbox, Icon, Table, Tabs } from 'antd';
 
 import LegendView from 'components/RankingInspectorView/LegendView';
+import IndividualFairnessInspectionView from 'components/RankingInspectorView/IndividualFairnessInspectionView';
 import IndividualInspectionView from 'components/IndividualInspectionView';
 import TopkRankingView from 'components/TopkRankingView';
 import InputSpaceView from 'components/InputSpaceView';
@@ -730,17 +731,18 @@ class RankingInspectorView extends Component {
             />
             <TopkRankingView 
                 className={styles.TopkRankingView}
+                mode={'IF'}
                 data={this.props.data}
                 topk={this.props.topk}
                 selectedInstances={this.props.selectedInstances} />
             <InputSpaceView 
                 className={styles.InputSpaceView}
+                mode={'IF'}
                 data={this.props.data}
                 topk={this.props.topk}
                 inputCoords={this.props.inputCoords}
                 selectedInstance={this.props.selectedInstance}
-                selectedInstances={this.state.selectedInstances} 
-                // onMouseoverInstance={this.handleMouseoverInstance} 
+                selectedInstances={this.props.selectedInstances}
             />
             <div className={styles.MatrixWrapper}>
               <div className={styles.MatrixView}>
@@ -756,6 +758,13 @@ class RankingInspectorView extends Component {
                 selectedInstance={this.props.selectedInstance}
                 selectedRankingInterval={this.props.selectedRankingInterval} 
             />
+            <IndividualFairnessInspectionView
+                className={styles.IndividualFairnessInspectionView}
+                data={this.props.data}
+                topk={this.props.topk}
+                selectedInstance={this.props.selectedInstance}
+                selectedInstances={this.props.selectedInstances}
+            />
           </div>
         </div>
       );
@@ -770,11 +779,13 @@ class RankingInspectorView extends Component {
             />
             <TopkRankingView 
                 className={styles.TopkRankingView}
+                mode={'GF'}
                 data={this.props.data}
                 topk={this.props.topk}
                 selectedInstances={this.props.selectedInstances} />
             <InputSpaceView 
                 className={styles.InputSpaceView}
+                mode={'GF'}
                 data={this.props.data}
                 topk={this.props.topk}
                 inputCoords={this.props.inputCoords}

@@ -99,6 +99,11 @@ body {
   font-size: 12px !important;
 }
 
-.g_x_distortion_axis line { stroke: gray }
-.g_x_distortion_axis path { stroke: gray }
-.g_x_distortion_axis text { fill: gray }
+
+.g_x_distortion_axis line { stroke: gray; }
+.g_x_distortion_axis path { stroke: gray; }
+.g_x_distortion_axis text { fill: gray; }
+
+.g_cr_plot_axis line { stroke: gray; }
+.g_cr_plot_axis path { stroke: gray; }
+.g_cr_plot_axis text { fill: gray; }

@@ -18,7 +18,7 @@ class IndividualFairnessInspectionView extends Component {
       outlier: {
         svg: {
           width: 300,
-          height: 100
+          height: 150
         },
         histogram: {
           width: 250,
@@ -90,7 +90,7 @@ class IndividualFairnessInspectionView extends Component {
           xAxis = d3.select(_self.svgOutlier)
                 .append('g')
                 .attr('class', 'g_x_distortion_axis')
-                .attr('transform', 'translate(0,' + (_self.layout.outlier.histogram.height - _self.layout.outlier.histogram.marginBottom) + ')')
+                .attr('transform', 'translate(0,' + (_self.layout.outlier.histogram.height - _self.layout.outlier.histogram.marginBottom + _self.layout.outlier.histogram.margin) + ')')
                 .call(d3.axisBottom(xDistortionScale).tickValues(d3.range(0, max, 5))),
           r = xDistortionScale.bandwidth() / 2;
 
@@ -100,7 +100,7 @@ class IndividualFairnessInspectionView extends Component {
             .enter().append('g')
             .attr('class', 'g_outlier_histogram')
             .attr('transform', function(d) {
-              return 'translate(' + xDistortionScale(d.x0) + ',0)'; 
+              return 'translate(' + xDistortionScale(d.x0) + ',' + _self.layout.outlier.histogram.margin + ')'; 
             })
             .each(function(d, i) {
               d3.select(this)
@@ -112,7 +112,9 @@ class IndividualFairnessInspectionView extends Component {
                 .attr('cy', (e, i) => _self.layout.outlier.histogram.height - _self.layout.outlier.histogram.marginBottom -
                                       r - (i*xDistortionScale.bandwidth()+0.5))
                 .attr('r', r)
-                .style('fill', (e) => e.isTopk ? 'black' : 'gray');
+                .style('fill', (e) => e.isTopk ? 'black' : 'gray')
+                .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : 'none'))
+                .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
             });
 
     const selectedFeatures = features.map((d) => d.name),
@@ -163,12 +165,17 @@ class IndividualFairnessInspectionView extends Component {
 
     const xDistortionScale = d3.scaleLinear()
             .domain(d3.extent(sumDistortions))
-            .range([this.layout.cr.plot.margin, this.layout.cr.plot.width - this.layout.cr.plot.margin]),
-          xAxis = d3.select(_self.svgCR)
+            .range([this.layout.cr.plot.margin * 2, this.layout.cr.plot.width - this.layout.cr.plot.margin]),
+          xAxis1 = d3.select(_self.svgCR)
                 .append('g')
                 .attr('class', 'g_cr_plot_axis')
                 .attr('transform', 'translate(0,' + (_self.layout.cr.plot.height - _self.layout.cr.plot.marginBottom) + ')')
-                .call(d3.axisBottom(xDistortionScale).tickValues(d3.range(0, d3.max(sumDistortions), 5)));
+                .call(d3.axisBottom(xDistortionScale).tickSize(1).tickValues(d3.range(0, d3.max(sumDistortions), 5))),
+          xAxis2 = d3.select(_self.svgCR)
+                .append('g')
+                .attr('class', 'g_cr_plot_axis')
+                .attr('transform', 'translate(0,' + (_self.layout.cr.plot.height - _self.layout.cr.plot.marginBottom * 2) + ')')
+                .call(d3.axisTop(xDistortionScale).tickSize(1).tickValues(d3.range(0, d3.max(sumDistortions), 5)));
 
     const topkCircles = d3.select(_self.svgCR)
             .selectAll('.topk_instances')
@@ -176,18 +183,20 @@ class IndividualFairnessInspectionView extends Component {
             .enter().append('circle')
             .attr('class', 'topk_instances')
             .attr('cx', (d) => xDistortionScale(d.sumDistortion))
-            .attr('cy', 80)
+            .attr('cy', (_self.layout.cr.plot.height - _self.layout.cr.plot.marginBottom))
             .attr('r', 5)
-            .style('fill', 'red'),
+            .style('fill', 'red')
+            .style('opacity', 0.5),
           nonTopkCircles = d3.select(_self.svgCR)
             .selectAll('.non_topk_instances')
             .data(marginalNonTopkInstances)
             .enter().append('circle')
             .attr('class', 'non_topk_instances')
             .attr('cx', (d) => xDistortionScale(d.sumDistortion))
-            .attr('cy', 80)
+            .attr('cy', (_self.layout.cr.plot.height - _self.layout.cr.plot.marginBottom * 2))
             .attr('r', 5)
-            .style('fill', 'blue');
+            .style('fill', 'blue')
+            .style('opacity', 0.5);
 
     return (
       <div>

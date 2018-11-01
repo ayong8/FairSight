@@ -86,7 +86,7 @@ class App extends Component {
           { name: 'installment_rate_in_percentage_of_disposable_income', type: 'continuous', range: 'continuous' },
           { name: 'age_in_years', type: 'continuous', range: 'continuous' }
         ],
-        target: { name: 'credit_risk', type: 'categorical', range: [0, 1] },
+        target: { name: 'credit_risk', type: 'categorical', range: [0, 1], value: ['No', 'Yes'] },
         method: { name: 'Logistic Regression' },
         sumDistortion: 0,
         instances: [],

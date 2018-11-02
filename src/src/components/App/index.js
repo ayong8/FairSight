@@ -82,6 +82,7 @@ class App extends Component {
           nonProtectedGroup: 'Female' 
         },
         features: [
+          { name: 'foreign_worker', type: 'categorical', range: [0,1], value: ['No', 'Yes'] },
           { name: 'credit_amount', type: 'continuous', range: 'continuous' },
           { name: 'installment_rate_in_percentage_of_disposable_income', type: 'continuous', range: 'continuous' },
           { name: 'age_in_years', type: 'continuous', range: 'continuous' }

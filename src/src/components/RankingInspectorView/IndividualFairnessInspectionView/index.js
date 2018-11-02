@@ -22,9 +22,29 @@ class IndividualFairnessInspectionView extends Component {
         },
         histogram: {
           width: 250,
-          height: 100,
+          height: 120,
           margin: 25,
           marginBottom: 30
+        },
+        feature: {
+          width: 350,
+          height: 100,
+          margin: 25,
+          marginBottom: 50,
+          widthForInstances: 80,
+          heightForInstances: 100,
+          widthForOutliers: 80,
+          heightForOutliers: 100,
+          widthForMedian: 150,
+          heightForMedian: 100,
+          svg: {
+            width: 300,
+            height: 100
+          },
+          plot: {
+            width: 250,
+            height: 80
+          }
         }
       },
       cr: {
@@ -94,8 +114,7 @@ class IndividualFairnessInspectionView extends Component {
                 .call(d3.axisBottom(xDistortionScale).tickValues(d3.range(0, max, 5))),
           r = xDistortionScale.bandwidth() / 2;
 
-    let distortionHistogram;
-    distortionHistogram = d3.select(_self.svgOutlier).selectAll('.g_outlier_histogram')
+    const distortionHistogram = d3.select(_self.svgOutlier).selectAll('.g_outlier_histogram')
             .data(dataBin)
             .enter().append('g')
             .attr('class', 'g_outlier_histogram')
@@ -119,17 +138,21 @@ class IndividualFairnessInspectionView extends Component {
 
     const selectedFeatures = features.map((d) => d.name),
           feature1 = selectedFeatures[0],
-          featuré2 = selectedFeatures[1];
+          featuré2 = selectedFeatures[1],
+          featureDivs = [];
 
-    _self.svgFeatureForOutlier = new ReactFauxDOM.Element('svg');
-  
-    _self.svgFeatureForOutlier.setAttribute('width', _self.layout.outlier.svg.width);
-    _self.svgFeatureForOutlier.setAttribute('height', _self.layout.outlier.svg.height);
-    _self.svgFeatureForOutlier.setAttribute('0 0 200 200');
-    _self.svgFeatureForOutlier.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    _self.svgFeatureForOutlier.setAttribute('class', 'svg_feature_for_outlier');
+    features.forEach((feature) => {
+      let svgFeature, featureDiv;
+      const type = 'categorical';
 
-    
+      if (type === 'categorical') {
+        featureDiv = _self.renderCategoricalFeatureForOutlier(feature);
+      } else if (type === 'continuous') {
+        featureDiv = _self.renderContinuousFeatureForOutlier(feature);
+      }
+
+      featureDivs.push(featureDiv);
+    });
     
 
     return (
@@ -137,9 +160,169 @@ class IndividualFairnessInspectionView extends Component {
         <div className={styles.outlierTitle + ' ' + index.subTitle}>Outlier Analysis</div>
         {this.svgOutlier.toReact()}
         <div className={styles.featureForOutlier}>
-          <div className={styles.titleForFeature}>{selectedFeatures[0]}</div>
-          {this.svgFeatureForOutlier.toReact()}
+          {/* <div className={styles.titleForFeature}>{selectedFeatures[0]}</div> */}
+          {featureDivs}
         </div>
+      </div>
+    );
+  }
+
+  renderCategoricalFeatureForOutlier(feature) {
+    const _self = this;
+
+    const { data, topk, selectedInstances } = this.props;
+    const { instances } = data,
+          topkInstances = instances.filter((d) => d.ranking <= topk),
+          outliers = instances.filter((d) => d.isOutlier);
+
+    const { name, range, value } = feature,
+          avgInstances = 0.3,
+          avgOutliers = 0.5;
+
+    const svgFeature = new ReactFauxDOM.Element('svg');
+
+    svgFeature.setAttribute('width', _self.layout.outlier.feature.svg.width);
+    svgFeature.setAttribute('height', _self.layout.outlier.feature.svg.height);
+    svgFeature.setAttribute('0 0 200 200');
+    svgFeature.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svgFeature.setAttribute('class', 'svg_feature_for_outlier');
+
+    const featureBinForInstances = d3.histogram()
+            .domain([0, 1])
+            .thresholds([0, 1])
+            .value((d) => d.features[name])
+            (instances),
+          featureBinForOutliers = d3.histogram()
+            .domain([0, 1])
+            .thresholds([0, 1])
+            .value((d) => d.features[name])
+            (outliers);
+
+    const xFeatureScaleForInstances = d3.scaleBand()
+            .domain(featureBinForInstances.map((d) => d.x0))
+            .range([0, this.layout.outlier.feature.widthForInstances]),
+          xMedianScale = d3.scaleLinear()
+            .domain([0, 1])
+            .range([0, _self.layout.outlier.feature.widthForMedian]),
+          xFeatureScaleForOutliers = d3.scaleBand()
+            .domain(featureBinForOutliers.map((d) => d.x0))
+            .range([0, this.layout.outlier.feature.widthForOutliers]);
+
+    const xAxisForInstances = d3.select(svgFeature)
+            .append('g')
+            .attr('class', 'g_x_feature_axis_instances')
+            .attr('transform', 'translate(0,' + (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + 
+                                                 _self.layout.outlier.feature.margin) + ')')
+            .call(d3.axisBottom(xFeatureScaleForInstances).tickSize(0).tickFormat((d) => d === 0 ? 'No' : 'Yes')),
+          xAxisForMedian = d3.select(svgFeature)
+            .append('g')
+              .attr('class', 'g_x_median_axis')
+            .attr('transform', 'translate(' + _self.layout.outlier.feature.widthForInstances + ',' + (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + 
+                                                                                                      _self.layout.outlier.feature.margin) + ')')
+            .call(d3.axisBottom(xMedianScale).ticks(1)),
+          xAxisForOutliers = d3.select(svgFeature)
+            .append('g')
+            .attr('class', 'g_x_feature_axis_outliers')
+            .attr('transform', 'translate(' + (_self.layout.outlier.feature.widthForInstances + _self.layout.outlier.feature.widthForMedian) + ',' + 
+                                              (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + _self.layout.outlier.feature.margin) + ')')
+            .call(d3.axisBottom(xFeatureScaleForOutliers).tickSize(0).tickFormat((d) => d === 0 ? 'No' : 'Yes'));
+    const r = 5;
+
+    const featureHistogramForInstances = d3.select(svgFeature)
+            .selectAll('.g_feature_histogram_for_instances_' + name)
+            .data(featureBinForInstances)
+            .enter().append('g')
+            .attr('class', '.g_feature_histogram_for_instances_' + name)
+            .attr('transform', function(d) {
+              return 'translate(' + _self.layout.outlier.feature.margin + ',' + _self.layout.outlier.feature.margin + ')'; 
+            })
+            .each(function(d, i) {
+              d3.select(this)
+                .selectAll('.circle_histogram')
+                .data(_.sortBy(d, 'ranking'))
+                .enter().append('circle')
+                .attr('class', 'circle_histogram')
+                .attr('cx', r)
+                .attr('cy', (e, i) => _self.layout.outlier.histogram.height - _self.layout.outlier.histogram.marginBottom -
+                                      r - (i*r + 0.5))
+                .attr('r', r)
+                .style('fill', (e) => e.isTopk ? 'black' : 'gray')
+                .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : 'none'))
+                .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
+            });
+    
+    const gFeatureMedianPlot = d3.select(svgFeature)
+            .append('g')
+            .attr('class', '.g_feature_median_plot_' + name)
+            .attr('transform', function(d) {
+              return 'translate(' + _self.layout.outlier.feature.widthForInstances + ',' + (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + 
+                                                                                            _self.layout.outlier.feature.margin) + ')';
+            });
+
+    gFeatureMedianPlot
+            .selectAll('.mark_for_avg')
+            .data([ avgInstances, avgOutliers ])
+            .enter().append('circle')
+            .attr('class', 'mark_for_avg')
+            .attr('cx', (d) => xMedianScale(d))
+            .attr('cy', (d) => 0)
+            .attr('r', 2)
+            .attr('fill', 'black');
+
+    const featureHistogramForOutliers = d3.select(svgFeature)
+            .selectAll('.g_feature_histogram_for_outliers_' + name)
+            .data(featureBinForOutliers)
+            .enter().append('g')
+            .attr('class', '.g_feature_histogram_for_outliers_' + name)
+            .attr('transform', function(d) {
+              return 'translate(' + (_self.layout.outlier.feature.margin + _self.layout.outlier.feature.widthForInstances) + ',' + 
+                                     _self.layout.outlier.feature.margin + ')'; 
+            })
+            .each(function(d, i) {
+              d3.select(this)
+                .selectAll('.circle_histogram')
+                .data(_.sortBy(d, 'ranking'))
+                .enter().append('circle')
+                .attr('class', 'circle_histogram')
+                .attr('cx', r)
+                .attr('cy', (e, i) => _self.layout.outlier.histogram.height - _self.layout.outlier.histogram.marginBottom -
+                                      r - (i*r + 0.5))
+                .attr('r', r)
+                .style('fill', (e) => e.isTopk ? 'black' : 'gray')
+                .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : 'none'))
+                .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
+            });
+
+    return (
+      <div>
+        <div>{name}</div>
+        {svgFeature.toReact()}
+      </div>
+    );
+  }
+
+  renderContinuousFeatureForOutlier(feature) {
+    const _self = this;
+
+    const { data, topk, selectedInstances } = this.props;
+    const { instances } = data,
+          topkInstances = instances.filter((d) => d.ranking <= topk),
+          outliers = instances.filter((d) => d.isOutlier);
+
+    const { name, range, value } = feature;
+
+    const svgFeature = new ReactFauxDOM.Element('svg');
+
+    svgFeature.setAttribute('width', _self.layout.outlier.feature.svg.width);
+    svgFeature.setAttribute('height', _self.layout.outlier.feature.svg.height);
+    svgFeature.setAttribute('0 0 200 200');
+    svgFeature.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svgFeature.setAttribute('class', 'svg_feature_for_outlier');
+
+    return (
+      <div>
+        <div>name</div>
+        {svgFeature.toReact()}
       </div>
     );
   }

@@ -79,7 +79,8 @@ class RankingInspectorView extends Component {
         sortMatrixXdropdownValue: 'features',
         sortMatrixYdropdownValue: 'features',
         colorMatrixDropdownValue: 'Pairwise distortion',
-        featureCorrSelections: [ { feature_set: '1 and 2', corr: 0.6 }, { feature_set: '1 and 2', corr: 0.6 } ]
+        featureCorrSelections: [ { feature_set: '1 and 2', corr: 0.6 }, { feature_set: '1 and 2', corr: 0.6 } ],
+        perturbationResults: []
       };
 
       this.svg;
@@ -141,12 +142,37 @@ class RankingInspectorView extends Component {
 
     componentDidMount() {
       const _self = this;
+      const { data } = this.props,
+            { method, features } = data;
+
+      const perturbationResults = [];
+
+      features.forEach((feature) => {
+        const request = { ...data, 'perturbedFeature': feature.name, 'isForPerturbation': true } // 1 is True in python
+        const urlForMethod = (method.name === 'Logistic Regression') ? 'runLR' 
+                              : (method.name === 'SVM') ? 'runSVM'
+                              : 'RunSVM'
+        fetch('/dataset/' + urlForMethod + '/', {
+          method: 'post',
+          body: JSON.stringify(request)
+        })
+        .then( (response) => {
+          return response.json();
+        })   
+        .then( (response) => {
+          const rankingInstance = JSON.parse(response);
+          console.log(rankingInstance.instances.map((d) => d.ranking));
+          console.log(rankingInstance.instances.map((d) => d.previousRanking));
+          perturbationResults.push(rankingInstance);
+        });
+      });
 
       _self.setState({
         sortMatrixXBy: 'ranking',
         sortMatrixYBy: 'ranking',
         sortMatrixXdropdownValue: 'ranking',
-        sortMatrixYdropdownValue: 'ranking'
+        sortMatrixYdropdownValue: 'ranking',
+        perturbationResults: perturbationResults
       });
     }
 
@@ -764,6 +790,7 @@ class RankingInspectorView extends Component {
                 topk={this.props.topk}
                 selectedInstance={this.props.selectedInstance}
                 selectedInstances={this.props.selectedInstances}
+                perturbationResults={this.state.perturbationResults}
             />
           </div>
         </div>
@@ -804,7 +831,7 @@ class RankingInspectorView extends Component {
                 data={this.props.data}
                 topk={this.props.topk}
                 selectedInstance={this.props.selectedInstance}
-                selectedRankingInterval={this.props.selectedRankingInterval} 
+                selectedRankingInterval={this.props.selectedRankingInterval}
             />
           </div>
         </div>
@@ -814,6 +841,7 @@ class RankingInspectorView extends Component {
     render() {
       console.log('RankingInspectorView rendered');
       if ((!this.props.data || this.props.data.length === 0) || 
+          (!this.props.data.features || this.props.data.features.length === 0) || 
           (!this.props.permutationDiffs || this.props.permutationDiffs.length === 0) ||
           (!this.props.permutationDiffsFlattened || this.props.permutationDiffsFlattened.length === 0)
          ) {

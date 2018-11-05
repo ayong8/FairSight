@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from rest_framework.request import Request
 from . import models
 from django.http import HttpResponse
@@ -26,6 +26,8 @@ from sklearn.preprocessing import Imputer
 from sklearn.linear_model import LogisticRegression
 from sklearn import preprocessing
 from sklearn import svm
+
+import pickle, random
 
 # For ACF
 from sklearn.model_selection import RepeatedStratifiedKFold
@@ -92,6 +94,7 @@ METRICS_COLUMNS_THEMIS_ML = [
 def open_dataset(file_path):
     entire_file_path = os.path.join(STATICFILES_DIRS[0], file_path)
     whole_dataset_df = pd.read_csv(open(entire_file_path, 'rU'))
+    whole_dataset_df.set_index('idx')
 
     return whole_dataset_df
 
@@ -114,6 +117,17 @@ def do_encoding_categorical_vars(whole_dataset_df):
             dataset_df[feature] = dataset_df[feature].cat.codes
 
     return dataset_df
+
+def save_trained_model(ranking_instance, model):
+    filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId']) + '.pkl'
+    pickle.dump(model, open(filename, 'wb'))
+
+def load_trained_model(ranking_instance):
+    print('rankingIddd: ', ranking_instance['rankingId'])
+    filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId']) + '.pkl'
+    model = pickle.load(open(filename, 'rb'))
+
+    return model
 
 def run_experiment_iteration_themis_ml_ACF(
         X, X_no_sex, y, s_sex, train, test):
@@ -184,7 +198,22 @@ def run_experiment_iteration_themis_ml_ACF(
     print('probs: ')
     print(probs_would_not_default)
     # convert metrics list of lists into dataframe
-    return { 'prob': probs_would_not_default, 'accuracy': accuracy }
+    return { 'prob': probs_would_not_default, 'accuracy': accuracy, 'acf_fit': acf_clf }
+
+def perturb_feature(ranking_instance):
+    perturbed_feature = ranking_instance['perturbedFeature']
+    perturbed_feature_info = [ feature for feature in ranking_instance['features'] if feature['name'] == perturbed_feature ][0]
+    instances = ranking_instance['instances']
+
+    # print('perturbed_feature: ', perturbed_feature)
+    # print('instancessss: ', [ instance['features'][perturbed_feature] for instance in instances ])
+    # Shuffle the values (permutation)
+    permuted_feature_values = random.sample([ instance['features'][perturbed_feature] for instance in instances ], len(instances))
+
+    for idx, instance in enumerate(instances):
+        instance['features'][perturbed_feature] = permuted_feature_values[idx]
+
+    return pd.DataFrame([ instance['features'] for instance in instances ])
 
 class LoadFile(APIView):
     def get(self, request, format=None):
@@ -207,7 +236,11 @@ class ExtractFeatures(APIView):
                 dataset_df[feature] = dataset_df[feature].cat.codes
                 feature_info = { 'name': feature, 'type': 'categorical', 'range': list(categories) }
             else:
-                feature_info = { 'name': feature, 'type': 'continuous', 'range': 'continuous' }
+                min_value = float(np.amin(dataset_df[feature]))
+                max_value = float(np.amax(dataset_df[feature]))
+                mean_value = float(np.mean(dataset_df[feature]))
+                std_value = float(math.sqrt(np.mean(dataset_df[feature])))
+                feature_info = { 'name': feature, 'type': 'continuous', 'mean': mean_value, 'std': std_value, 'range': [min_value, max_value] }
             
             feature_info_list.append(feature_info)
 
@@ -262,8 +295,6 @@ class RunRankSVM(APIView):
         output_df = output_df.sort_values(by='score', ascending=False)
         output_df['ranking'] = range(1, len(output_df) + 1)
 
-        print(output_df['group'])
-
         # Convert to dict and put all features into 'features' key
         instances_dict_list = list(output_df.T.to_dict().values())
         for output_item in instances_dict_list:  # Go over all items
@@ -284,6 +315,8 @@ class RunRankSVM(APIView):
             'instances': instances_dict_list
         }
 
+        save_trained_model(ranking_instance_dict, rank_svm)
+
         return Response(json.dumps(ranking_instance_dict))
 
 class RunSVM(APIView):
@@ -292,6 +325,7 @@ class RunSVM(APIView):
         pass
 
     def post(self, request, format=None):
+        print('here in runsvm')
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
 
         features = [ feature['name'] for feature in json_request['features'] ]
@@ -342,6 +376,8 @@ class RunSVM(APIView):
             'instances': instances_dict_list
         }
 
+        save_trained_model(ranking_instance_dict, svm_fit)
+
         return Response(json.dumps(ranking_instance_dict))
 
 class RunLR(APIView):
@@ -350,23 +386,35 @@ class RunLR(APIView):
         pass
 
     def post(self, request, format=None):
-        json_request = json.loads(request.body.decode(encoding='UTF-8'))
+        print('coming into runlrrrr')
+        ranking_instance = json.loads(request.body.decode(encoding='UTF-8'))
 
-        features = [ feature['name'] for feature in json_request['features'] ]
-        target = json_request['target']['name']
-        sensitive_attr = json_request['sensitiveAttr']['name']
-        method = json_request['method']['name']
+        features = [ feature['name'] for feature in ranking_instance['features'] ]
+        target = ranking_instance['target']['name']
+        sensitive_attr = ranking_instance['sensitiveAttr']['name']
+        method = ranking_instance['method']['name']
+        is_for_perturbation = ranking_instance['isForPerturbation']
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
         whole_dataset_df = open_dataset(sample_file_path)
 
-        X = whole_dataset_df[features]
+        print('is_for_perturbationnn: ', is_for_perturbation)
+
+        if is_for_perturbation == False:
+            X = whole_dataset_df[features]
+        elif is_for_perturbation == True:
+            X = perturb_feature(ranking_instance)
+        print('XXX: ', X)
         X_wo_s_attr = whole_dataset_df[features]
         y = whole_dataset_df[target]
         s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=True)
-        lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
+        if is_for_perturbation == False:
+            lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
+        elif is_for_perturbation == True:
+            lr_fit = load_trained_model(ranking_instance)
+        
         accuracy = lr_fit.score(X_test, y_test)
         probs = lr_fit.predict_proba(X)
         probs_would_not_default = [ prob[1] for prob in probs ]
@@ -375,6 +423,12 @@ class RunLR(APIView):
         output_df['idx'] = whole_dataset_df['idx']
         output_df['group'] = s
         output_df['target'] = y
+        if is_for_perturbation == True:
+            previous_ranking_df = pd.DataFrame({'previousRanking': [ instance['ranking'] for instance in ranking_instance['instances'] ], \
+                                                'idx': [ instance['idx'] for instance in ranking_instance['instances'] ]})
+            previous_ranking_df.set_index('idx')
+            print('previous rankinggg: ', previous_ranking_df)
+            output_df = pd.concat([output_df, previous_ranking_df], axis=1)
 
         # Add rankings
         output_df['prob'] = probs_would_not_default
@@ -389,16 +443,19 @@ class RunLR(APIView):
                 features_dict[ feature_key ] = output_item[ feature_key ]
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
+        
+        print(instances_dict_list)
 
         ranking_instance_dict = {
-            'rankingId': json_request['rankingId'],
-            'features': json_request['features'],
-            'target': json_request['target'],
-            'sensitiveAttr': json_request['sensitiveAttr'],
-            'method': json_request['method'],
+            'rankingId': ranking_instance['rankingId'],
+            'features': ranking_instance['features'],
+            'target': ranking_instance['target'],
+            'sensitiveAttr': ranking_instance['sensitiveAttr'],
+            'method': ranking_instance['method'],
             'stat': { 'accuracy': math.ceil(accuracy * 100) },
             'instances': instances_dict_list
         }
+        save_trained_model(ranking_instance_dict, lr_fit)
 
         return Response(json.dumps(ranking_instance_dict))
 
@@ -439,6 +496,7 @@ class RunACF(APIView):
         output_df['target'] = y
 
         # Add rankings
+        acf_fit = result_dict['acf_fit']
         output_df['prob'] = result_dict['prob']
         output_df = output_df.sort_values(by='prob', ascending=False)
         output_df['ranking'] = range(1, len(output_df) + 1)
@@ -462,6 +520,8 @@ class RunACF(APIView):
             'stat': { 'accuracy': math.ceil(accuracy * 100) },
             'instances': instances_dict_list
         }
+
+        save_trained_model(ranking_instance_dict, acf_fit)
 
         return Response(json.dumps(ranking_instance_dict))
                 

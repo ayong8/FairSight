@@ -107,3 +107,15 @@ body {
 .g_cr_plot_axis line { stroke: gray; }
 .g_cr_plot_axis path { stroke: gray; }
 .g_cr_plot_axis text { fill: gray; }
+
+.g_x_feature_axis_instances line { stroke: gray; }
+.g_x_feature_axis_instances path { stroke: gray; }
+.g_x_feature_axis_instances text { fill: gray; }
+
+.g_x_median_axis line { stroke: gray; }
+.g_x_median_axis path { stroke: gray; }
+.g_x_median_axis text { fill: gray; }
+
+.g_x_feature_axis_outliers line { stroke: gray; }
+.g_x_feature_axis_outliers path { stroke: gray; }
+.g_x_feature_axis_outliers text { fill: gray; }

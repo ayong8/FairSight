@@ -7,12 +7,22 @@ import styles from "./styles.scss";
 import index from "../../../index.css";
 import gs from "../../../config/_variables.scss"; // gs (=global style)
 
+function median(array) {
+  array.sort(function(a, b) {
+    return a - b;
+  });
+  var mid = array.length / 2;
+  return mid % 1 ? array[mid - 0.5] : (array[mid - 1] + array[mid]) / 2;
+}
+
 class IndividualFairnessInspectionView extends Component {
   constructor(props) {
     super(props);
 
     this.svgOutlier;
-    this.svgFeatureForOutlier
+    this.svgFeatureForOutlier;
+    this.svgCR;
+    this.svgCCOverview;
 
     this.layout = {
       outlier: {
@@ -35,7 +45,7 @@ class IndividualFairnessInspectionView extends Component {
           heightForInstances: 100,
           widthForOutliers: 80,
           heightForOutliers: 100,
-          widthForMedian: 150,
+          widthForMedian: 120,
           heightForMedian: 100,
           svg: {
             width: 300,
@@ -47,16 +57,40 @@ class IndividualFairnessInspectionView extends Component {
           }
         }
       },
-      cr: {
+      cc: {
+        overview: {
+          svg: {
+            width: 300,
+            height: 100
+          }
+        },
+        crPlot: {
+          width: 300,
+          height: 100
+        },
         svg: {
           width: 300,
           height: 100
         },
-        plot: {
-          width: 200,
+        feature: {
+          width: 450,
           height: 100,
-          margin: 25,
-          marginBottom: 30
+          svg: {
+            width: 300,
+            height: 100
+          }
+        },
+        cr: {
+          svg: {
+            width: 250,
+            height: 100
+          },
+          plot: {
+            width: 200,
+            height: 100,
+            margin: 25,
+            marginBottom: 30
+          }
         }
       }
     }
@@ -136,10 +170,7 @@ class IndividualFairnessInspectionView extends Component {
                 .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
             });
 
-    const selectedFeatures = features.map((d) => d.name),
-          feature1 = selectedFeatures[0],
-          featuré2 = selectedFeatures[1],
-          featureDivs = [];
+    const featureDivs = [];
 
     features.forEach((feature) => {
       let svgFeature, featureDiv;
@@ -160,7 +191,6 @@ class IndividualFairnessInspectionView extends Component {
         <div className={styles.outlierTitle + ' ' + index.subTitle}>Outlier Analysis</div>
         {this.svgOutlier.toReact()}
         <div className={styles.featureForOutlier}>
-          {/* <div className={styles.titleForFeature}>{selectedFeatures[0]}</div> */}
           {featureDivs}
         </div>
       </div>
@@ -176,13 +206,270 @@ class IndividualFairnessInspectionView extends Component {
           outliers = instances.filter((d) => d.isOutlier);
 
     const { name, range, value } = feature,
-          avgInstances = 0.3,
-          avgOutliers = 0.5;
+          medianInstances = median(instances.map((d) => d.features[name])),
+          medianOutliers = median(outliers.map((d) => d.features[name]));
 
     const svgFeature = new ReactFauxDOM.Element('svg');
 
     svgFeature.setAttribute('width', _self.layout.outlier.feature.svg.width);
     svgFeature.setAttribute('height', _self.layout.outlier.feature.svg.height);
+    svgFeature.setAttribute('0 0 200 200');
+    svgFeature.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svgFeature.setAttribute('class', 'svg_feature_for_outlier');
+    svgFeature.style.setProperty('background-color', 'white');
+    svgFeature.style.setProperty('border', '1px solid #dddbdb');
+
+    const featureBinForInstances = d3.histogram()
+            .domain([0, 1])
+            .thresholds([0, 1])
+            .value((d) => d.features[name])
+            (instances),
+          featureBinForOutliers = d3.histogram()
+            .domain([0, 1])
+            .thresholds([0, 1])
+            .value((d) => d.features[name])
+            (outliers);
+
+    const xFeatureScaleForInstances = d3.scaleBand()
+            .domain(featureBinForInstances.map((d) => d.x0))
+            .range([0, this.layout.outlier.feature.widthForInstances]),
+          xMedianScale = d3.scaleLinear()
+            .domain([0, 1])
+            .range([0, _self.layout.outlier.feature.widthForMedian]),
+          xFeatureScaleForOutliers = d3.scaleBand()
+            .domain(featureBinForOutliers.map((d) => d.x0))
+            .range([0, this.layout.outlier.feature.widthForOutliers]);
+
+    const xAxisForInstances = d3.select(svgFeature)
+            .append('g')
+            .attr('class', 'g_x_feature_axis_instances')
+            .attr('transform', 'translate(0,' + (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + 
+                                                 _self.layout.outlier.feature.margin) + ')')
+            .call(d3.axisBottom(xFeatureScaleForInstances).tickSize(0).tickFormat((d) => d === 0 ? 'No' : 'Yes')),
+          xAxisForMedian = d3.select(svgFeature)
+            .append('g')
+              .attr('class', 'g_x_median_axis')
+            .attr('transform', 'translate(' + _self.layout.outlier.feature.widthForInstances + ',' + (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + 
+                                                                                                      _self.layout.outlier.feature.margin) + ')')
+            .call(d3.axisBottom(xMedianScale).ticks(1)),
+          xAxisForOutliers = d3.select(svgFeature)
+            .append('g')
+            .attr('class', 'g_x_feature_axis_outliers')
+            .attr('transform', 'translate(' + (_self.layout.outlier.feature.widthForInstances + _self.layout.outlier.feature.widthForMedian) + ',' + 
+                                              (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + _self.layout.outlier.feature.margin) + ')')
+            .call(d3.axisBottom(xFeatureScaleForOutliers).tickSize(0).tickFormat((d) => d === 0 ? 'No' : 'Yes'));
+    const r = 3;
+
+    const featureHistogramForInstances = d3.select(svgFeature)
+            .selectAll('.g_feature_histogram_for_instances_' + name)
+            .data(featureBinForInstances)
+            .enter().append('g')
+            .attr('class', '.g_feature_histogram_for_instances_' + name)
+            .attr('transform', function(d) {
+              return 'translate(' + _self.layout.outlier.feature.margin + ',0)'; 
+            })
+            .each(function(d, i) {
+              d3.select(this)
+                .selectAll('.circle_histogram')
+                .data(_.sortBy(d, 'ranking'))
+                .enter().append('circle')
+                .attr('class', 'circle_histogram')
+                .attr('cx', (e) => xFeatureScaleForInstances(e.features[name]) - r)
+                .attr('cy', (e, i) => _self.layout.outlier.feature.height - _self.layout.outlier.feature.marginBottom +
+                                      _self.layout.outlier.feature.margin - r - (i*(2*r) + 0.5))
+                .attr('r', r)
+                .style('fill', (e) => e.isTopk ? 'black' : 'gray')
+                .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : 'none'))
+                .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
+            });
+    
+    const gFeatureMedianPlot = d3.select(svgFeature)
+            .append('g')
+            .attr('class', '.g_feature_median_plot_' + name)
+            .attr('transform', function(d) {
+              return 'translate(' + _self.layout.outlier.feature.widthForInstances + ',' + (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + 
+                                                                                            _self.layout.outlier.feature.margin) + ')';
+            });
+
+    gFeatureMedianPlot
+            .selectAll('.mark_for_avg')
+            .data([ medianInstances, medianOutliers ])
+            .enter().append('circle')
+            .attr('class', 'mark_for_avg')
+            .attr('cx', (d) => xMedianScale(d))
+            .attr('cy', (d) => 0)
+            .attr('r', 2)
+            .attr('fill', 'black');
+
+    const featureHistogramForOutliers = d3.select(svgFeature)
+            .selectAll('.g_feature_histogram_for_outliers_' + name)
+            .data(featureBinForOutliers)
+            .enter().append('g')
+            .attr('class', '.g_feature_histogram_for_outliers_' + name)
+            .attr('transform', function(d) {
+              return 'translate(' + (_self.layout.outlier.feature.margin + _self.layout.outlier.feature.widthForInstances) + ',' + 
+                                     _self.layout.outlier.feature.margin + ')'; 
+            })
+            .each(function(d, i) {
+              d3.select(this)
+                .selectAll('.circle_histogram')
+                .data(_.sortBy(d, 'ranking'))
+                .enter().append('circle')
+                .attr('class', 'circle_histogram')
+                .attr('cx', r)
+                .attr('cy', (e, i) => _self.layout.outlier.histogram.height - _self.layout.outlier.histogram.marginBottom -
+                                      r - (i*r + 0.5))
+                .attr('r', r)
+                .style('fill', (e) => e.isTopk ? 'black' : 'gray')
+                .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : 'none'))
+                .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
+            });
+
+    return (
+      <div>
+        <div>{name}</div>
+        {svgFeature.toReact()}
+      </div>
+    );
+  }
+
+  renderContinuousFeatureForOutlier(feature) {
+    const _self = this;
+
+    const { data, topk, selectedInstances } = this.props;
+    const { instances } = data,
+          topkInstances = instances.filter((d) => d.ranking <= topk),
+          outliers = instances.filter((d) => d.isOutlier);
+
+    const { name, range, value } = feature;
+
+    const svgFeature = new ReactFauxDOM.Element('svg');
+
+    svgFeature.setAttribute('width', _self.layout.outlier.feature.svg.width);
+    svgFeature.setAttribute('height', _self.layout.outlier.feature.svg.height);
+    svgFeature.setAttribute('0 0 200 200');
+    svgFeature.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svgFeature.setAttribute('class', 'svg_feature_for_outlier');
+
+    return (
+      <div>
+        <div>name</div>
+        {svgFeature.toReact()}
+      </div>
+    );
+  }
+
+  renderCounterfactualsAndCriticalRegions() {
+    const _self = this;
+
+    const { data, topk } = this.props;
+    const { features, instances } = data;
+
+    _self.svgCCOverview = new ReactFauxDOM.Element('svg');
+    _self.svgCCOverview.setAttribute('width', _self.layout.cc.overview.svg.width);
+    _self.svgCCOverview.setAttribute('height', _self.layout.cc.overview.svg.height);
+    _self.svgCCOverview.setAttribute('0 0 200 200');
+    _self.svgCCOverview.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    _self.svgCCOverview.setAttribute('class', 'svg_cc_overview');
+    _self.svgCCOverview.style.setProperty('border', '1px solid #dfdfdf');
+    _self.svgCCOverview.style.setProperty('background-color', 'white');
+
+    const featureDivs = [];
+    features.forEach((feature) => {
+      const featureDiv = _self.renderFeatureImpact(feature)
+      featureDivs.push();
+    });
+    
+
+    return (
+      <div>
+        <div className={styles.ccTitle + ' ' + index.subTitle}>Counterfactuals & Critical Regions</div>
+          {this.svgCCOverview.toReact()}
+          {this.renderCRDistortionPlot()}
+        <div className={styles.featureImpactsList}>
+          {featureDivs}
+        </div>
+      </div>
+    );
+  }
+
+  renderCRDistortionPlot() {
+    const _self = this;
+
+    const { data, topk } = this.props;
+    const { instances } = data,
+          sumDistortions = instances.map((d) => d.sumDistortion);
+
+    const margin = 10,
+          marginalTopkInstances = instances.slice(topk - margin, topk),
+          marginalNonTopkInstances = instances.slice(topk, topk + margin);
+
+    _self.svgCR = new ReactFauxDOM.Element('svg');
+
+    _self.svgCR.setAttribute('width', _self.layout.cc.cr.svg.width);
+    _self.svgCR.setAttribute('height', _self.layout.cc.cr.svg.height);
+    _self.svgCR.setAttribute('0 0 200 200');
+    _self.svgCR.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    _self.svgCR.setAttribute('class', 'svg_cr');
+
+    const xDistortionScale = d3.scaleLinear()
+            .domain(d3.extent(sumDistortions))
+            .range([this.layout.cc.cr.plot.margin * 2, this.layout.cc.cr.plot.width - this.layout.cc.cr.plot.margin]),
+          xAxis1 = d3.select(_self.svgCR)
+                .append('g')
+                .attr('class', 'g_cr_plot_axis')
+                .attr('transform', 'translate(0,' + (_self.layout.cc.cr.plot.height - _self.layout.cc.cr.plot.marginBottom) + ')')
+                .call(d3.axisBottom(xDistortionScale).tickSize(1).tickValues(d3.range(0, d3.max(sumDistortions), 5))),
+          xAxis2 = d3.select(_self.svgCR)
+                .append('g')
+                .attr('class', 'g_cr_plot_axis')
+                .attr('transform', 'translate(0,' + (_self.layout.cc.cr.plot.height - _self.layout.cc.cr.plot.marginBottom * 2) + ')')
+                .call(d3.axisTop(xDistortionScale).tickSize(1).tickValues(d3.range(0, d3.max(sumDistortions), 5)));
+
+    const topkCircles = d3.select(_self.svgCR)
+            .selectAll('.topk_instances')
+            .data(marginalTopkInstances)
+            .enter().append('circle')
+            .attr('class', 'topk_instances')
+            .attr('cx', (d) => xDistortionScale(d.sumDistortion))
+            .attr('cy', (_self.layout.cc.cr.plot.height - _self.layout.cc.cr.plot.marginBottom))
+            .attr('r', 5)
+            .style('fill', 'red')
+            .style('opacity', 0.5),
+          nonTopkCircles = d3.select(_self.svgCR)
+            .selectAll('.non_topk_instances')
+            .data(marginalNonTopkInstances)
+            .enter().append('circle')
+            .attr('class', 'non_topk_instances')
+            .attr('cx', (d) => xDistortionScale(d.sumDistortion))
+            .attr('cy', (_self.layout.cc.cr.plot.height - _self.layout.cc.cr.plot.marginBottom * 2))
+            .attr('r', 5)
+            .style('fill', 'blue')
+            .style('opacity', 0.5);
+
+    return (
+      <div>
+        {this.svgCR.toReact()}
+      </div>
+    );
+  }
+
+  renderFeatureImpact(feature) {
+    const _self = this;
+
+    const { data, topk, selectedInstances } = this.props;
+    const { instances } = data,
+          topkInstances = instances.filter((d) => d.ranking <= topk),
+          outliers = instances.filter((d) => d.isOutlier);
+
+    const { name, range, value } = feature,
+          medianInstances = 0.3,
+          medianOutliers = 0.5;
+
+    const svgFeature = new ReactFauxDOM.Element('svg');
+
+    svgFeature.setAttribute('width', _self.layout.cc.feature.svg.width);
+    svgFeature.setAttribute('height', _self.layout.cc.feature.svg.height);
     svgFeature.setAttribute('0 0 200 200');
     svgFeature.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     svgFeature.setAttribute('class', 'svg_feature_for_outlier');
@@ -261,7 +548,7 @@ class IndividualFairnessInspectionView extends Component {
 
     gFeatureMedianPlot
             .selectAll('.mark_for_avg')
-            .data([ avgInstances, avgOutliers ])
+            .data([ medianInstances, medianOutliers ])
             .enter().append('circle')
             .attr('class', 'mark_for_avg')
             .attr('cx', (d) => xMedianScale(d))
@@ -294,99 +581,9 @@ class IndividualFairnessInspectionView extends Component {
             });
 
     return (
-      <div>
+      <div className={styles.featureImpact}>
         <div>{name}</div>
         {svgFeature.toReact()}
-      </div>
-    );
-  }
-
-  renderContinuousFeatureForOutlier(feature) {
-    const _self = this;
-
-    const { data, topk, selectedInstances } = this.props;
-    const { instances } = data,
-          topkInstances = instances.filter((d) => d.ranking <= topk),
-          outliers = instances.filter((d) => d.isOutlier);
-
-    const { name, range, value } = feature;
-
-    const svgFeature = new ReactFauxDOM.Element('svg');
-
-    svgFeature.setAttribute('width', _self.layout.outlier.feature.svg.width);
-    svgFeature.setAttribute('height', _self.layout.outlier.feature.svg.height);
-    svgFeature.setAttribute('0 0 200 200');
-    svgFeature.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    svgFeature.setAttribute('class', 'svg_feature_for_outlier');
-
-    return (
-      <div>
-        <div>name</div>
-        {svgFeature.toReact()}
-      </div>
-    );
-  }
-
-  renderCriticalRegionAnalysis() {
-    const _self = this;
-
-    const { data, topk } = this.props;
-    const { instances } = data,
-          sumDistortions = instances.map((d) => d.sumDistortion);
-
-    const margin = 10,
-          marginalTopkInstances = instances.slice(topk - margin, topk),
-          marginalNonTopkInstances = instances.slice(topk, topk + margin);
-
-    _self.svgCR = new ReactFauxDOM.Element('svg');
-
-    _self.svgCR.setAttribute('width', _self.layout.cr.svg.width);
-    _self.svgCR.setAttribute('height', _self.layout.cr.svg.height);
-    _self.svgCR.setAttribute('0 0 200 200');
-    _self.svgCR.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    _self.svgCR.setAttribute('class', 'svg_cr');
-
-    const xDistortionScale = d3.scaleLinear()
-            .domain(d3.extent(sumDistortions))
-            .range([this.layout.cr.plot.margin * 2, this.layout.cr.plot.width - this.layout.cr.plot.margin]),
-          xAxis1 = d3.select(_self.svgCR)
-                .append('g')
-                .attr('class', 'g_cr_plot_axis')
-                .attr('transform', 'translate(0,' + (_self.layout.cr.plot.height - _self.layout.cr.plot.marginBottom) + ')')
-                .call(d3.axisBottom(xDistortionScale).tickSize(1).tickValues(d3.range(0, d3.max(sumDistortions), 5))),
-          xAxis2 = d3.select(_self.svgCR)
-                .append('g')
-                .attr('class', 'g_cr_plot_axis')
-                .attr('transform', 'translate(0,' + (_self.layout.cr.plot.height - _self.layout.cr.plot.marginBottom * 2) + ')')
-                .call(d3.axisTop(xDistortionScale).tickSize(1).tickValues(d3.range(0, d3.max(sumDistortions), 5)));
-
-    const topkCircles = d3.select(_self.svgCR)
-            .selectAll('.topk_instances')
-            .data(marginalTopkInstances)
-            .enter().append('circle')
-            .attr('class', 'topk_instances')
-            .attr('cx', (d) => xDistortionScale(d.sumDistortion))
-            .attr('cy', (_self.layout.cr.plot.height - _self.layout.cr.plot.marginBottom))
-            .attr('r', 5)
-            .style('fill', 'red')
-            .style('opacity', 0.5),
-          nonTopkCircles = d3.select(_self.svgCR)
-            .selectAll('.non_topk_instances')
-            .data(marginalNonTopkInstances)
-            .enter().append('circle')
-            .attr('class', 'non_topk_instances')
-            .attr('cx', (d) => xDistortionScale(d.sumDistortion))
-            .attr('cy', (_self.layout.cr.plot.height - _self.layout.cr.plot.marginBottom * 2))
-            .attr('r', 5)
-            .style('fill', 'blue')
-            .style('opacity', 0.5);
-
-    return (
-      <div>
-        <div className={styles.outlierTitle + ' ' + index.subTitle}>Critical Region Analysis</div>
-        {this.svgCR.toReact()}
-        <div className={styles.featureForOutlier}>
-        </div>
       </div>
     );
   }
@@ -395,8 +592,7 @@ class IndividualFairnessInspectionView extends Component {
     return (
       <div className={styles.IndividualFairnessInspectionView}>
         <div className={styles.outlierAnalysis}>{this.renderOutlierAnalysis()}</div>
-        <div className={styles.criticalRegionAnalysis}>{this.renderCriticalRegionAnalysis()}</div>
-        <div className={styles.counterfactualAnalysis}></div>
+        <div className={styles.ccAnalysis}>{this.renderCounterfactualsAndCriticalRegions()}</div>
       </div>
     );
   }

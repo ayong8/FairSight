@@ -100,7 +100,8 @@ class App extends Component {
           tp: 0,
           fp: 0,
           ndcg: 0
-        }
+        },
+        isForPerturbation: false  // False in python
       },
       output: [],
       selectedInstances: [],
@@ -126,8 +127,11 @@ class App extends Component {
 
   componentDidMount() {
     const _self = this;
-    const { rankingInstance } = this.state,
+    const { dataset, rankingInstance } = this.state,
           { method } = rankingInstance;
+
+    // Store feature information
+    dataset
 
     this.getFetches(rankingInstance, method)
     .then((responses) => {
@@ -225,16 +229,28 @@ class App extends Component {
   }
   
   getFeatures() {
+    const { features, rankingInstance } = this.state,
+          initialFeatures = rankingInstance.features.map((d) => d.name);
+
     return fetch('/dataset/extractFeatures')
         .then( (response) => {
           return response.json() 
         })
         .then( (response) => {
           const features = _.values(JSON.parse(response));
-
-          this.setState({
-            features: features
+          const initialFeatureObjects = [];
+          
+          initialFeatures.forEach((initialFeature) => {
+            initialFeatureObjects.push(features.filter((d) => d.name === initialFeature)[0]);
           });
+
+          this.setState(prevState => ({
+            features: features,
+            rankingInstance: {
+              ...prevState.rankingInstance,
+              features: initialFeatureObjects
+            }
+          }));
         });
   }
   

@@ -7,9 +7,9 @@ import { Checkbox, Icon, Table, Tabs } from 'antd';
 
 import LegendView from 'components/RankingInspectorView/LegendView';
 import IndividualFairnessInspectionView from 'components/RankingInspectorView/IndividualFairnessInspectionView';
-import IndividualInspectionView from 'components/IndividualInspectionView';
-import TopkRankingView from 'components/TopkRankingView';
-import InputSpaceView from 'components/InputSpaceView';
+import IndividualInspectionView from 'components/RankingInspectorView/IndividualInspectionView';
+import TopkRankingView from 'components/RankingInspectorView/TopkRankingView';
+import InputSpaceView from 'components/RankingInspectorView/InputSpaceView';
 
 import styles from './styles.scss';
 import index from '../../index.css';
@@ -164,6 +164,12 @@ class RankingInspectorView extends Component {
           console.log(rankingInstance.instances.map((d) => d.ranking));
           console.log(rankingInstance.instances.map((d) => d.previousRanking));
           perturbationResults.push(rankingInstance);
+
+          _self.setState({
+            perturbationResults: perturbationResults
+          });
+
+          console.log('setstateee: ', perturbationResults);
         });
       });
 
@@ -171,8 +177,7 @@ class RankingInspectorView extends Component {
         sortMatrixXBy: 'ranking',
         sortMatrixYBy: 'ranking',
         sortMatrixXdropdownValue: 'ranking',
-        sortMatrixYdropdownValue: 'ranking',
-        perturbationResults: perturbationResults
+        sortMatrixYdropdownValue: 'ranking'
       });
     }
 

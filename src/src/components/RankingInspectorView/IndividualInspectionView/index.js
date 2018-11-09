@@ -5,15 +5,14 @@ import ReactFauxDOM from 'react-faux-dom';
 import { Table, Icon } from 'antd';
 
 import styles from './styles.scss';
-import index from '../../index.css';
-import gs from '../../config/_variables.scss'; // gs (=global style)
+import index from '../../../index.css';
+import gs from '../../../config/_variables.scss'; // gs (=global style)
 
 class IndividualInspectionView extends Component {
     constructor(props) {
         super(props);
         this.state = {
         };
-
     }
 
     renderFeatureTable() {

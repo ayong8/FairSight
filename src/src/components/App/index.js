@@ -10,13 +10,8 @@ import 'antd/dist/antd.css';
 import Menubar from 'components/Menubar';
 import Generator from 'components/Generator';
 import RankingsListView from 'components/RankingsListView';
-import InputSpaceView from 'components/InputSpaceView';
-import IndividualInspectionView from 'components/IndividualInspectionView';
 import RankingView from 'components/RankingView';
 import RankingInspectorView from 'components/RankingInspectorView';
-import TopkRankingView from 'components/TopkRankingView';
-import GroupFairnessView from 'components/GroupFairnessView';
-import UtilityView from 'components/UtilityView';
 import Footer from "components/Footer";
 
 function pairwise(list) {

@@ -7,8 +7,8 @@ import { Slider, Button, Tag } from "@blueprintjs/core";
 import { Icon } from 'antd';
 
 import styles from './styles.scss';
-import index from '../../index.css';
-import gs from '../../config/_variables.scss'; // gs (=global style)
+import index from '../../../index.css';
+import gs from '../../../config/_variables.scss'; // gs (=global style)
 
 class InputSpaceView extends Component {
     constructor(props) {

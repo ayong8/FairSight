@@ -120,12 +120,16 @@ def do_encoding_categorical_vars(whole_dataset_df):
 
 def save_trained_model(ranking_instance, model):
     filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId']) + '.pkl'
-    pickle.dump(model, open(filename, 'wb'))
+    with open(filename, 'wb') as f:
+        pickle.dump(model, f)
 
 def load_trained_model(ranking_instance):
     print('rankingIddd: ', ranking_instance['rankingId'])
     filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId']) + '.pkl'
-    model = pickle.load(open(filename, 'rb'))
+    print('filenameee: ', filename)
+    with open(filename, 'rb') as f:
+        model = pickle.load(f)
+        print('modelll: ', model)
 
     return model
 
@@ -423,14 +427,19 @@ class RunLR(APIView):
         output_df['idx'] = whole_dataset_df['idx']
         output_df['group'] = s
         output_df['target'] = y
+
         if is_for_perturbation == True:
-            previous_ranking_df = pd.DataFrame({'previousRanking': [ instance['ranking'] for instance in ranking_instance['instances'] ], \
-                                                'idx': [ instance['idx'] for instance in ranking_instance['instances'] ]})
+            instances_df = pd.DataFrame(ranking_instance['instances']).sort_values(by='idx', ascending=True)
+            instances = ranking_instance['instances']
+            print('idx in the output_dfff: ', output_df['idx'])
+            print('idx in the previous rankingggg: ', instances_df['idx'])
+            previous_ranking_df = pd.DataFrame({'previousRanking': instances_df['ranking'], \
+                                                'idx': instances_df['idx']})
             previous_ranking_df.set_index('idx')
-            print('previous rankinggg: ', previous_ranking_df)
-            output_df = pd.concat([output_df, previous_ranking_df], axis=1)
+            output_df = pd.merge(output_df, previous_ranking_df, on=['idx'])
 
         # Add rankings
+        print('output_dfffffff: ', output_df)
         output_df['prob'] = probs_would_not_default
         output_df = output_df.sort_values(by='prob', ascending=False)
         output_df['ranking'] = range(1, len(output_df) + 1)
@@ -443,21 +452,13 @@ class RunLR(APIView):
                 features_dict[ feature_key ] = output_item[ feature_key ]
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
-        
-        print(instances_dict_list)
 
-        ranking_instance_dict = {
-            'rankingId': ranking_instance['rankingId'],
-            'features': ranking_instance['features'],
-            'target': ranking_instance['target'],
-            'sensitiveAttr': ranking_instance['sensitiveAttr'],
-            'method': ranking_instance['method'],
-            'stat': { 'accuracy': math.ceil(accuracy * 100) },
-            'instances': instances_dict_list
-        }
-        save_trained_model(ranking_instance_dict, lr_fit)
+        ranking_instance['stat']['accuracy'] = math.ceil(accuracy * 100)
+        ranking_instance['instances'] = instances_dict_list
 
-        return Response(json.dumps(ranking_instance_dict))
+        save_trained_model(ranking_instance, lr_fit)
+
+        return Response(json.dumps(ranking_instance))
 
 # Run Additive Counterfactual Fairness (ACF) algorithm using themis-ml library
 class RunACF(APIView):

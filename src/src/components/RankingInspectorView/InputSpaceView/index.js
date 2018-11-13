@@ -122,7 +122,7 @@ class InputSpaceView extends Component {
                     ? gs.groupColor1
                     : gs.groupColor2;
               } else if (mode === 'IF') {
-                return '#b4d9fe';
+                return '#2196f3';
               }
           })
           .style('stroke', 'black')

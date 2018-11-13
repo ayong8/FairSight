@@ -22,8 +22,9 @@
   .SpaceView {
     display: grid;
     grid-template-columns: 30% 50% 20%;
-    grid-template-rows: 300px 100px;
+    grid-template-rows: 50px 300px 100px;
     grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
+      't t is'
       'i mt tr'
       'lg mt tr';
     background-color: #f5f4f4;
@@ -31,6 +32,8 @@
     padding: 10px;
   }
 
+  .spaceViewTitle { grid-area: t; }
+  .intervalSelector { grid-area: is; }
   .LegendView { grid-area: lg; }
   .TopkRankingView { grid-area: tr; }
 

@@ -119,3 +119,7 @@ body {
 .g_x_feature_axis_outliers line { stroke: gray; }
 .g_x_feature_axis_outliers path { stroke: gray; }
 .g_x_feature_axis_outliers text { fill: gray; }
+
+.g_x_counterfactual_axis line { stroke: gray; }
+.g_x_counterfactual_axis path { stroke: gray; }
+.g_x_counterfactual_axis text { fill: gray; }

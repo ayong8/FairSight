@@ -57,7 +57,7 @@ class App extends Component {
         { name: 'age>25', type: 'categorical', range: ['age_over_25', 'age_less_25'], protectedGroup: 'age_less_25', nonProtectedGroup: 'age_over_25' },
         { name: 'age>35', type: 'categorical', range: ['age_over_35', 'age_less_35'], protectedGroup: 'age_less_35', nonProtectedGroup: 'age_over_35' }
       ],
-      topk: 20,
+      topk: 30,
       n: 40,
       selectedDataset: [],  // A subset of the dataset that include features, target, and idx
       inputCoords: [],
@@ -80,13 +80,26 @@ class App extends Component {
           { name: 'foreign_worker', type: 'categorical', range: [0,1], value: ['No', 'Yes'] },
           { name: 'credit_amount', type: 'continuous', range: 'continuous' },
           { name: 'installment_rate_in_percentage_of_disposable_income', type: 'continuous', range: 'continuous' },
-          { name: 'age_in_years', type: 'continuous', range: 'continuous' }
+          { name: 'age_in_years', type: 'continuous', range: 'continuous'},
+          { name: 'telephone', type: 'categorical', range: [0,1]},
+          { name: 'savings_account_bonds', type: 'continuous', range: 'continuous'},
+          { name: 'job', type: 'continuous', range: 'continuous'}
         ],
         target: { name: 'credit_risk', type: 'categorical', range: [0, 1], value: ['No', 'Yes'] },
         method: { name: 'Logistic Regression' },
         sumDistortion: 0,
         instances: [],
         stat: {
+          accuracy: 0,
+          goodnessOfFairness: 0,
+          groupSkew: 0,
+          sp: 0,
+          cp: 0,
+          tp: 0,
+          fp: 0,
+          ndcg: 0
+        },
+        statForPerturbation: {
           accuracy: 0,
           goodnessOfFairness: 0,
           groupSkew: 0,
@@ -123,7 +136,7 @@ class App extends Component {
   componentDidMount() {
     const _self = this;
     const { dataset, rankingInstance } = this.state,
-          { method } = rankingInstance;
+          { method, isForPerturbation } = rankingInstance;
 
     // Store feature information
     dataset
@@ -148,7 +161,7 @@ class App extends Component {
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
       this.calculateGroupSkew(this.pairwiseDiffs);
-      this.calculateOutputMeasures();
+      this.calculateOutputMeasures(isForPerturbation);
 
       console.log('isOutlier: ', instances);
 
@@ -443,7 +456,7 @@ class App extends Component {
 
   handleModelRunning(){
     const { rankingInstance } = this.state,
-          { method } = rankingInstance;
+          { method, isForPerturbation } = rankingInstance;
 
     // data file loading here
     this.getFetches(rankingInstance, method)
@@ -463,7 +476,7 @@ class App extends Component {
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
       this.calculateGroupSkew(this.pairwiseDiffs);
-      this.calculateOutputMeasures();
+      this.calculateOutputMeasures(isForPerturbation);
 
       this.setState((prevState) => ({
         pairwiseDiffs: this.pairwiseDiffs,
@@ -723,7 +736,7 @@ class App extends Component {
     }));
   }
 
-  calculateOutputMeasures() {
+  calculateOutputMeasures(isForPerturbation) {
     const { rankingInstance } = this.state,
           { instances } = rankingInstance;
 
@@ -733,10 +746,10 @@ class App extends Component {
     const groupRanking1 = group1.map((d) => d.ranking),
           groupRanking2 = group2.map((d) => d.ranking);
 
-    const statisticalParity = (_.sum(group2.map((d) => 1 / d.ranking)) / group2.length) / 
-                              (_.sum(group1.map((d) => 1 / d.ranking)) / group1.length);
-    const conditionalParity = (_.sum(group2.filter((d) => d.target === 1).map((d) => 1 / d.ranking)) / group2.length) / 
-                              (_.sum(group1.filter((d) => d.target === 1).map((d) => 1 / d.ranking)) / group1.length);
+    const statisticalParity = (_.sum(group2.map((d) => 1 / d.ranking).filter((d) => d.isTopk)) / group2.length) / 
+                              (_.sum(group1.map((d) => 1 / d.ranking).filter((d) => d.isTopk)) / group1.length);
+    const conditionalParity = (_.sum(group2.filter((d) => d.isTopk && d.target === 1).map((d) => 1 / d.ranking)) / group2.length) / 
+                              (_.sum(group1.filter((d) => d.isTopk && d.target === 1).map((d) => 1 / d.ranking)) / group1.length);
 
     this.setState((prevState) => ({
       rankingInstance: {
@@ -889,7 +902,7 @@ class App extends Component {
           { instances } = rankingInstance,
           { from, to } = selectedRankingInterval;
 
-    console.log(dataset);
+    console.log('featuresss: ', features);
 
     return (
       <div className={styles.App}>

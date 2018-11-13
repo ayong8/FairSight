@@ -9,8 +9,17 @@
         background-color: #f0f0f0;
         overflow-y: scroll;
     }
-    .featureForOutlier {
+    .featureListForOutlier {
         overflow-y: scroll;
+    }
+    .featureForOutlier {
+        margin-bottom: 20px;
+    }
+    .perturbedMeasure {
+        margin: 5px 0;
+        color: #023d74;
+        font-size: 0.9rem;
+        font-weight: 600;
     }
     .ccAnalysis { // Counterfactuals and Critical Region
         width: 66%;
@@ -21,8 +30,6 @@
     }
     .featureImpactsList {
         width: 100%;
-        margin: 5px;
-        padding: 10px;
     }
     .ccForFeature {
         width: 100%;

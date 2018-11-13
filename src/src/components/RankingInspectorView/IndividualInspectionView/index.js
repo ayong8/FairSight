@@ -25,7 +25,7 @@ class IndividualInspectionView extends Component {
   
       return Object.keys(mouseoveredInstance.features).map((feature, idx) => {
         return {
-          feature: feature,
+          feature: feature.replace(/_/g, ' '),
           value: mouseoveredInstance.features[feature]
         };
       });
@@ -53,6 +53,7 @@ class IndividualInspectionView extends Component {
 
       return (
         <div className={styles.IndividualInspectionView}>
+          <div>Selected Individual</div>
           <div className={styles.IndividualStatus}>
             <div className={styles.infoWrapper}>
               <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', marginBottom: 10}}/>

@@ -19,6 +19,22 @@
   margin-top: 10px;
   margin-bottom: 15px;
 }
+
+.subTitle2 {
+  color: #00346b;
+  font-size: 1.0rem;
+  font-weight: 500;
+  margin-top: 10px;
+  margin-bottom: 15px;
+}
+
+.featureTitle {
+  margin: 5px 0;
+  color: #2196f3;
+  font-size: 1.0rem;
+  text-transform: uppercase;
+}
+
 .description {
   font-family: 'Titillium Web'
 }

@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { Checkbox, Icon, Table, Tabs } from 'antd';
+import { Checkbox, Icon, Table, Tabs, Slider, InputNumber } from 'antd';
 
 import LegendView from 'components/RankingInspectorView/LegendView';
 import IndividualFairnessInspectionView from 'components/RankingInspectorView/IndividualFairnessInspectionView';
@@ -161,15 +161,17 @@ class RankingInspectorView extends Component {
         })   
         .then( (response) => {
           const rankingInstance = JSON.parse(response);
-          console.log(rankingInstance.instances.map((d) => d.ranking));
-          console.log(rankingInstance.instances.map((d) => d.previousRanking));
+
+          // Calculate and update measures
+          const { sp, cp } = _self.calculateOutputMeasuresForPerturbation();
+          rankingInstance.statForPerturbation.sp = sp;
+          rankingInstance.statForPerturbation.cp = cp;
+          
           perturbationResults.push(rankingInstance);
 
           _self.setState({
             perturbationResults: perturbationResults
           });
-
-          console.log('setstateee: ', perturbationResults);
         });
       });
 
@@ -185,12 +187,82 @@ class RankingInspectorView extends Component {
       // this.updateMatrix();
     }
 
+    componentDidUpdate(prevProps, prevState) {
+      if (prevProps.data !== this.props.data){
+        const _self = this;
+
+        const { data } = this.props,
+              { method, features } = data;
+      
+        const perturbationResults = [];
+
+        features.forEach((feature) => {
+          const request = { ...data, 'perturbedFeature': feature.name, 'isForPerturbation': true } // 1 is True in python
+          const urlForMethod = (method.name === 'Logistic Regression') ? 'runLR' 
+                                : (method.name === 'SVM') ? 'runSVM'
+                                : 'RunSVM'
+          fetch('/dataset/' + urlForMethod + '/', {
+            method: 'post',
+            body: JSON.stringify(request)
+          })
+          .then( (response) => {
+            return response.json();
+          })   
+          .then( (response) => {
+            const rankingInstance = JSON.parse(response);
+            
+            // Calculate and update measures
+            const { sp, cp } = _self.calculateOutputMeasuresForPerturbation();
+            rankingInstance.statForPerturbation.sp = sp;
+            rankingInstance.statForPerturbation.cp = cp;
+
+            perturbationResults.push(rankingInstance);
+
+            _self.setState({
+              perturbationResults: perturbationResults
+            });
+          });
+        });
+
+        _self.setState({
+          sortMatrixXBy: 'ranking',
+          sortMatrixYBy: 'ranking',
+          sortMatrixXdropdownValue: 'ranking',
+          sortMatrixYdropdownValue: 'ranking'
+        });
+      }
+    }
+
     changeFairnessMode(activeKey) { 
       // activeKey: 'individualFairness' or 'groupFairness'
       this.setState({
         mode: activeKey
       });
     }
+
+    calculateOutputMeasuresForPerturbation() {
+      const _self = this;
+
+      const { data } = this.props,
+            { instances } = data;
+
+      const group1 = instances.filter((d) => d.group === 0),
+            group2 = instances.filter((d) => d.group === 1);
+
+      const groupRanking1 = group1.map((d) => d.ranking),
+            groupRanking2 = group2.map((d) => d.ranking);
+
+      const statisticalParity = (_.sum(group2.map((d) => 1 / d.ranking)) / group2.length) / 
+                                (_.sum(group1.map((d) => 1 / d.ranking)) / group1.length);
+      const conditionalParity = (_.sum(group2.filter((d) => d.target === 1).map((d) => 1 / d.ranking)) / group2.length) / 
+                                (_.sum(group1.filter((d) => d.target === 1).map((d) => 1 / d.ranking)) / group1.length);
+
+      return {
+        sp: Math.round(statisticalParity * 100) / 100,
+        cp: Math.round(conditionalParity * 100) / 100
+      }
+    }
+
 
     toggleMatrixX() {
       this.setState({
@@ -757,6 +829,33 @@ class RankingInspectorView extends Component {
       return (
         <div className={styles.IndividualFairnessView}>
           <div className={styles.SpaceView}>
+            <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Selected Instances</div>
+            <div className={styles.intervalSlider}>
+              <InputNumber
+                size='small'
+                min={1}
+                max={this.props.n}
+                style={{ width: 40 }}
+                value={1}
+              />
+              <span>&nbsp;-&nbsp;</span>
+              <InputNumber
+                size='small'
+                min={1}
+                max={this.props.n}
+                style={{ width: 40 }}
+                value={30} // this.state.selectedRankingInterval.to
+                // onChange={this.handleIntervalChange}
+              />
+              <Slider 
+                step={1} 
+                min={1}
+                max={100} // this.props.n
+                value={30} // this.state.selectedRankingInterval.to
+                style={{ width: 150 }}
+                // onChange={} // this.handleIntervalChange
+              />
+            </div>
             <LegendView 
               className={styles.LegendView} 
             />
@@ -862,21 +961,6 @@ class RankingInspectorView extends Component {
         { title: 'Correlation', dataIndex: 'correlation', key: 2 }
       ];
 
-      const CheckboxGroup = Checkbox.Group,
-            groupOptions = [
-            { label: 'Men', value: 'Men' },
-            { label: 'Women', value: 'Women' },
-            { label: 'Between', value: 'Between' }
-          ],
-            outlierAndFairOptions = [
-              { label: 'Outliers', value: 'Outliers' },
-              { label: 'Fair pairs', value: 'Fair pairs' }
-          ],
-            colorOptions = [
-              { label: 'Signed', value: 'Signed' },
-              { label: 'Absolute', value: 'Absolute' }
-          ];
-      
       return (
         <div className={styles.RankingInspectorView}>
           <Tabs onChange={this.changeFairnessMode} type="card">

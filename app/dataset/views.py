@@ -45,10 +45,10 @@ import math
 import json, simplejson
 
 simple_file_path = './data/themis_ml_toy.csv'
-sample_file_path = './data/themis_ml_sample.csv'
+sample_file_path = './data/themis_ml_sample_temp.csv'
 heavy_file_path = './data/themis_ml_sample.csv'
 
-numerical_features = ['duration_in_month', 'credit_amount',	'installment_rate_in_percentage_of_disposable_income',	
+numerical_features = ['age_in_years', 'duration_in_month', 'credit_amount',	'installment_rate_in_percentage_of_disposable_income',	
                     'present_residence_since',	'age_in_years', 'number_of_existing_credits_at_this_bank',	
                     'number_of_people_being_liable_to_provide_maintenance_for',	'status_of_existing_checking_account',	
                     'savings_account/bonds', 'present_employment_since', 'job',	'telephone'];
@@ -390,7 +390,6 @@ class RunLR(APIView):
         pass
 
     def post(self, request, format=None):
-        print('coming into runlrrrr')
         ranking_instance = json.loads(request.body.decode(encoding='UTF-8'))
 
         features = [ feature['name'] for feature in ranking_instance['features'] ]
@@ -402,13 +401,11 @@ class RunLR(APIView):
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
         whole_dataset_df = open_dataset(sample_file_path)
 
-        print('is_for_perturbationnn: ', is_for_perturbation)
-
         if is_for_perturbation == False:
             X = whole_dataset_df[features]
         elif is_for_perturbation == True:
             X = perturb_feature(ranking_instance)
-        print('XXX: ', X)
+
         X_wo_s_attr = whole_dataset_df[features]
         y = whole_dataset_df[target]
         s = whole_dataset_df[sensitive_attr] # male:0, female: 1
@@ -416,10 +413,11 @@ class RunLR(APIView):
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=True)
         if is_for_perturbation == False:
             lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
+            accuracy = lr_fit.score(X_test, y_test)
         elif is_for_perturbation == True:
             lr_fit = load_trained_model(ranking_instance)
-        
-        accuracy = lr_fit.score(X_test, y_test)
+            accuracy_after_perturbation = lr_fit.score(X_test, y_test)
+
         probs = lr_fit.predict_proba(X)
         probs_would_not_default = [ prob[1] for prob in probs ]
 
@@ -431,15 +429,12 @@ class RunLR(APIView):
         if is_for_perturbation == True:
             instances_df = pd.DataFrame(ranking_instance['instances']).sort_values(by='idx', ascending=True)
             instances = ranking_instance['instances']
-            print('idx in the output_dfff: ', output_df['idx'])
-            print('idx in the previous rankingggg: ', instances_df['idx'])
             previous_ranking_df = pd.DataFrame({'previousRanking': instances_df['ranking'], \
                                                 'idx': instances_df['idx']})
             previous_ranking_df.set_index('idx')
             output_df = pd.merge(output_df, previous_ranking_df, on=['idx'])
 
         # Add rankings
-        print('output_dfffffff: ', output_df)
         output_df['prob'] = probs_would_not_default
         output_df = output_df.sort_values(by='prob', ascending=False)
         output_df['ranking'] = range(1, len(output_df) + 1)
@@ -453,7 +448,10 @@ class RunLR(APIView):
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
 
-        ranking_instance['stat']['accuracy'] = math.ceil(accuracy * 100)
+        if is_for_perturbation == True:
+            ranking_instance['statForPerturbation']['accuracy'] = math.ceil(accuracy_after_perturbation * 100)    
+        else:
+            ranking_instance['stat']['accuracy'] = math.ceil(accuracy * 100)
         ranking_instance['instances'] = instances_dict_list
 
         save_trained_model(ranking_instance, lr_fit)

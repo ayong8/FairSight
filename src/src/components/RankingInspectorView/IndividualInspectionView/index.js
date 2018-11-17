@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
-import { Table, Icon } from 'antd';
+import { Table, Icon, Badge } from 'antd';
 
 import styles from './styles.scss';
 import index from '../../../index.css';
@@ -47,25 +47,25 @@ class IndividualInspectionView extends Component {
       const mouseoveredInstance = instances.filter((d) => d.idx === selectedInstance)[0];
   
       const columns = [
-        { title: 'Feature', dataIndex: 'feature', width: 160 },
-        { title: 'Value', dataIndex: 'value'}
+        { title: 'Feature', dataIndex: 'feature', width: '70%' },
+        { title: 'Value', dataIndex: 'value', width: '30%'}
       ];
 
       return (
         <div className={styles.IndividualInspectionView}>
-          <div>Selected Individual</div>
+          <div className={index.subTitle}>Selected Individual</div>
           <div className={styles.IndividualStatus}>
-            <div className={styles.infoWrapper}>
-              <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', marginBottom: 10}}/>
-              <div>Index: 1</div>
-              <div>Group</div>
-              <div>Man</div>
+            {/* <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', marginBottom: 10}}/> */}
+            <div>
+              <Badge status="success"/>
+              <span className={index.instnaceIdTitle}>Instance ID:</span>
+              1
             </div>
             <div className={styles.selectedRankingIntervalInfo}>
               <Table
                 columns={columns} 
                 dataSource={ typeof(selectedInstance) === 'undefined' ? this.renderEmptyTable() : this.renderFeatureTable() } 
-                scroll={{ y: 150 }}
+                scroll={{ y: 120 }}
                 pagination={false}
                 bordered
               />

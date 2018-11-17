@@ -69,7 +69,7 @@ class LegendView extends Component {
         .attr('cx', 20)
         .attr('cy', 30)
         .attr('r', 4)
-        .style('fill', this.layout.individualColor)
+        .style('fill', gs.instanceColor)
         .style('stroke', 'gray');
     gLegendIndividualFairness.append('text')
         .attr('x', 30)

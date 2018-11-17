@@ -9,29 +9,36 @@
   row-gap: 10px;
   column-gap: 10px;
   grid-template-columns: 50% 50%;
-  grid-template-rows: 10% 8% 15% 21% 30%;
+  grid-template-rows: 25% 10% 8% 15% 21% 30%;
   grid-template-areas: 
+    'wrp wrp'
     't t'
-    'st ft'
-    's tf'
-    's u'
-    's if';
+    'wrst tst'
+    'wrs tss'
+    'wrs tf'
+    'wrs if';
 
   .rankingViewTitle {
-      grid-area: t;
+    grid-area: t;
 
     border-bottom: 1.5px solid lightgray;
     padding-bottom: 10px;
   }
-  .summaryViewTitle { 
-    grid-area: st;
+
+  .wholeRankingPlot {
+    grid-area: wrp;
+  }
+
+  .wholeRankingSummaryTitle { 
+    grid-area: wrst;
     margin-top: 0;
     // border-bottom: 1px solid #d9d9d9;
   }
-  .summaryView { 
-    grid-area: s; 
 
-    .summaryStat {
+  .wholeRankingSummary { 
+    grid-area: wrs; 
+
+    .wholeRankingSummaryStat {
       display: flex;
     }
 
@@ -49,10 +56,28 @@
     }
   }
 
-  .filterViewTitle { 
-    grid-area: ft;
+  .topkSummaryTitle { 
+    grid-area: tst;
     margin-top: 0;
     // border-bottom: 1px solid #d7d7d7;
+  }
+
+  .topkSummaryStat {
+    grid-area: tss;
+    display: flex;
+  }
+
+  .accuracyWrapper,
+  .groupFairnessWrapper,
+  .individualFairnessWrapper {
+    width: 30%;
+  }
+
+  .accuracy,
+  .groupFairness,
+  .individualFairness {
+    font-size: 2rem;
+    margin-bottom: 10px;
   }
 
   .topkFilterView { 

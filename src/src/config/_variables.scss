@@ -8,8 +8,14 @@
 
     groupColor1: $group-color1;
     groupColor2: $group-color2;
+    instanceColor: $instance-color;
     topkColor: $topk-color;
     nonTopkColor: $non-topk-color;
+    topkTrueColor: $topk-true-color;
+    topkFalseColor: $topk-false-color;
+    nonTopkTrueColor: $non-topk-true-color;
+    nonTopkFalseColor: $non-topk-false-color;
+    outlierColor: $outlier-color;
     betweenGroupColor: $between-group-color;
     withinGroupColor: $within-group-color;
 }

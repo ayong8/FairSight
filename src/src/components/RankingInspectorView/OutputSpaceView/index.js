@@ -8,7 +8,7 @@ import styles from './styles.scss';
 import index from '../../../index.css';
 import gs from '../../../config/_variables.scss'; // gs (=global style)
 
-class TopkRankingView extends Component {
+class OutputSpaceView extends Component {
     constructor(props) {
       super(props);
     
@@ -23,7 +23,7 @@ class TopkRankingView extends Component {
     }
 
     render() {
-      console.log('TopkRankingView rendered');
+      console.log('OutputSpaceView rendered');
       const _self = this;
 
       const { mode, data, topk, selectedInstances } = this.props,
@@ -59,13 +59,14 @@ class TopkRankingView extends Component {
           .attr('y', (d) => rankingScale(d.ranking))
           .attr('width', 30)
           .attr('height', (d) => rectInterval - 2)
-          .style('fill', (d) => (mode === 'GF') ? groupColorScale(d.group) : '#2196f3')
+          .style('fill', (d) => (mode === 'GF') ? groupColorScale(d.group) : 
+                                (mode === 'IF' && d.topk) ? gs.topkColor : gs.nonTopkColor)
           .style('stroke', 'black')
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);
 
       return (
-        <div className={styles.TopkRankingView}>
+        <div className={styles.OutputSpaceView}>
           <div className={styles.rankingViewTitle + ' ' + index.subTitle}>
             Output space &nbsp;
           </div>
@@ -75,4 +76,4 @@ class TopkRankingView extends Component {
     }
   }
 
-  export default TopkRankingView;
+  export default OutputSpaceView;

@@ -8,7 +8,7 @@ import { Checkbox, Icon, Table, Tabs, Slider, InputNumber } from 'antd';
 import LegendView from 'components/RankingInspectorView/LegendView';
 import IndividualFairnessInspectionView from 'components/RankingInspectorView/IndividualFairnessInspectionView';
 import IndividualInspectionView from 'components/RankingInspectorView/IndividualInspectionView';
-import TopkRankingView from 'components/RankingInspectorView/TopkRankingView';
+import OutputSpaceView from 'components/RankingInspectorView/OutputSpaceView';
 import InputSpaceView from 'components/RankingInspectorView/InputSpaceView';
 
 import styles from './styles.scss';
@@ -859,8 +859,8 @@ class RankingInspectorView extends Component {
             <LegendView 
               className={styles.LegendView} 
             />
-            <TopkRankingView 
-                className={styles.TopkRankingView}
+            <OutputSpaceView 
+                className={styles.OutputSpaceView}
                 mode={'IF'}
                 data={this.props.data}
                 topk={this.props.topk}
@@ -908,8 +908,8 @@ class RankingInspectorView extends Component {
             <LegendView 
               className={styles.LegendView} 
             />
-            <TopkRankingView 
-                className={styles.TopkRankingView}
+            <OutputSpaceView 
+                className={styles.OutputSpaceView}
                 mode={'GF'}
                 data={this.props.data}
                 topk={this.props.topk}

@@ -35,6 +35,13 @@
   text-transform: uppercase;
 }
 
+.instnaceIdTitle {
+  margin: 5px 0;
+  color: #2196f3;
+  font-size: 1.0rem;
+  text-transform: uppercase;
+}
+
 .description {
   font-family: 'Titillium Web'
 }

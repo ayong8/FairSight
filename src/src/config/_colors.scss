@@ -4,7 +4,13 @@ $dark-grey: #999;
 
 $group-color1: lightgray; // For non-protected group
 $group-color2: #ff7043;    // For protected group
-$topk-color: blue;
-$non-topk-color: skyblue;
+$topk-color: mediumblue;
+$non-topk-color: deepskyblue;
+$topk-true-color: mediumblue;
+$topk-false-color: burlywood;
+$non-topk-true-color: deepskyblue;
+$non-topk-false-color: wheat;
+$instance-color: deepskyblue; // Same as non-topk-color
+$outlier-color: red;
 $between-group-color: lightgreen;
 $within-group-color: pink;

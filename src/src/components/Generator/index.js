@@ -20,6 +20,50 @@ class Generator extends Component {
     super(props);
 
     this.state = {
+      rankingInstance: {
+        rankingId: 1,
+        sensitiveAttr: { 
+          name: 'sex', 
+          type: 'categorical', 
+          range: ['Male', 'Female'],
+          protectedGroup: 'Male',
+          nonProtectedGroup: 'Female' 
+        },
+        features: [
+          { name: 'foreign_worker', type: 'categorical', range: [0,1], value: ['No', 'Yes'] },
+          { name: 'credit_amount', type: 'continuous', range: 'continuous' },
+          { name: 'installment_rate_in_percentage_of_disposable_income', type: 'continuous', range: 'continuous' },
+          { name: 'age_in_years', type: 'continuous', range: 'continuous'},
+          { name: 'telephone', type: 'categorical', range: [0,1]},
+          { name: 'savings_account_bonds', type: 'continuous', range: 'continuous'},
+          { name: 'job', type: 'continuous', range: 'continuous'}
+        ],
+        target: { name: 'credit_risk', type: 'categorical', range: [0, 1], value: ['No', 'Yes'] },
+        method: { name: 'Logistic Regression' },
+        sumDistortion: 0,
+        instances: [],
+        stat: {
+          accuracy: 0,
+          goodnessOfFairness: 0,
+          groupSkew: 0,
+          sp: 0,
+          cp: 0,
+          tp: 0,
+          fp: 0,
+          ndcg: 0
+        },
+        statForPerturbation: {
+          accuracy: 0,
+          goodnessOfFairness: 0,
+          groupSkew: 0,
+          sp: 0,
+          cp: 0,
+          tp: 0,
+          fp: 0,
+          ndcg: 0
+        },
+        isForPerturbation: false  // False in python
+      },
       sensitiveAttrDropdownOpen: false,
       methodDropdownOpen: false,
       targetDropdownOpen: false,
@@ -27,8 +71,7 @@ class Generator extends Component {
       ranking: {},
       topkInput: 0,
       fq: {
-        isFairness: true,
-
+        isFairness: true
       }
     };
 

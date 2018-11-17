@@ -28,15 +28,27 @@ class RankingView extends Component {
       this.yGroupSkewScale;
       this.pairColorScale;
       this.layout = {
-          svgRanking: {
-              width: 800,
-              height: 80
+          wholeRankingPlot: {
+            width: 900,
+            height: 300,
+            margin: 30,
+            svg: {
+              width: 900,
+              height: 120
+            },
+            plot: {
+              width: 750,
+              height: 90,
+              margin: 30,
+              marginTop: 30,
+              marginBtn: 10
+            }
           },
           svgPlot: {
             width: 750, // 90% of whole layout
             height: 150 // 100% of whole layout
           },
-          topkRankingView: {
+          outputSpaceView: {
             width: 450,
             height: 60,
             margin: 10,
@@ -47,10 +59,6 @@ class RankingView extends Component {
             height: 40,
             margin: 10,
             bw: 7 // bar width
-          },
-          wholeRankingChart: {
-            width: 700,
-            height: 30
           },
           plot: {
             width: 350,
@@ -450,18 +458,6 @@ class RankingView extends Component {
           .style('stroke', 'black')
           .style('stroke-width', 1);
 
-      // gGroupSkew
-      //     .selectAll('.groupSkewCircle')
-      //     .data(groupSkewAvgs)
-      //     .enter().append('circle')
-      //     .attr('class', 'groupSkewCircle')
-      //     .attr('cx', (d, i) => _self.xGroupSkewScale(i + 1) + 1.5)
-      //     .attr('cy', (d, i) => _self.yGroupSkewScale(d))
-      //     .attr('r', 4)
-      //     .style('fill', (d, i) => _self.pairColorScale(i + 1))
-      //     .style('stroke', (d, i) => d3.rgb(_self.pairColorScale(i + 1)).darker())
-      //     .style('stroke-opacity', 0.8);
-
       const groupSkewLine = gGroupSkew
             .append('line')
             .attr('x1', 0)
@@ -483,6 +479,146 @@ class RankingView extends Component {
             .attr('y', 165)
             .text('WTN');
     }
+    renderWholeRankingPlot() {
+      const _self = this;
+
+      const { data, n } = this.props;
+      const { topk, selectedRankingInterval } = this.state;
+      const { to } = selectedRankingInterval;
+      const { instances } = data,
+            topkInstances = instances.filter((d) => d.ranking <= topk),
+            selectedNonTopkInstances = instances.filter((d) => d.ranking > topk && d.ranking <= to),
+            nonTopkInstances = instances.filter((d) => d.ranking > to);
+
+      const svg = new ReactFauxDOM.Element('svg');
+
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', _self.layout.wholeRankingPlot.svg.height);
+      svg.setAttribute('0 0 200 200');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      svg.setAttribute('class', 'svg_whole_ranking');
+      svg.style.setProperty('background-color', 'whitesmoke');
+      svg.style.setProperty('border', '1px solid #dedede');
+  
+      const rectInterval = 10,
+            rectWidth = 8,
+            rectHeight = 30,
+            topkPlotWidth = rectInterval * topk, // topk and non-topk plot have the same length
+            selectedNonTopkPlotWidth = rectInterval * (to - topk + 1);
+  
+      const topkRankingScale = d3.scaleBand()
+              .domain(d3.range(1, topk+1))
+              .range([0, topkPlotWidth]),
+            selectedNonTopkRankingScale = d3.scaleBand()
+              .domain(d3.range(topk+1, to))
+              .range([0, selectedNonTopkPlotWidth]),
+            nonTopkRankingScale = d3.scaleBand()
+              .domain(d3.range(to+1, n+1))
+              .range([0, topkPlotWidth]),
+            groupColorScale = d3.scaleOrdinal()
+              .range([gs.groupColor1, gs.groupColor2])
+              .domain([0, 1]);
+  
+      const xTopkAxis = d3.select(svg)
+              .append('g')
+              .attr('class', 'g_x_whole_ranking_topk_axis')
+              .attr('transform', 'translate(' + _self.layout.wholeRankingPlot.plot.margin + ',' + (_self.layout.wholeRankingPlot.plot.marginTop + rectHeight + 10) + ')')
+              .call(d3.axisBottom(topkRankingScale).tickValues(d3.range(1, topk, 5))),
+            xSelectedNonTopkAxis = d3.select(svg)
+              .append('g')
+              .attr('class', 'g_x_whole_ranking_selected_non_topk_axis')
+              .attr('transform', 'translate(' + (_self.layout.wholeRankingPlot.plot.margin + topkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn) + ',' + (_self.layout.wholeRankingPlot.plot.marginTop + rectHeight + 10) + ')')
+              .call(d3.axisBottom(selectedNonTopkRankingScale).tickValues(d3.range(topk+1, to, 5))),
+            xNonTopkAxis = d3.select(svg)
+              .append('g')
+              .attr('class', 'g_x_whole_ranking_non_topk_axis')
+              .attr('transform', 'translate(' + (_self.layout.wholeRankingPlot.plot.margin + topkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn + selectedNonTopkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn) + ',' + (_self.layout.wholeRankingPlot.plot.marginTop + rectHeight + 10) + ')')
+              .call(d3.axisBottom(nonTopkRankingScale).tickValues(d3.range(topk+1, n, 10)));
+  
+      const gTopkRanking = d3.select(svg).append('g')
+              .attr('class', 'g_topk_whole_ranking')
+              .attr('transform', 'translate(' + _self.layout.wholeRankingPlot.plot.margin + ',' + _self.layout.wholeRankingPlot.plot.marginTop + ')'),
+            gSelectedNonTopkRanking = d3.select(svg).append('g')
+              .attr('class', 'g_selected_non_topk_whole_ranking')
+              .attr('transform', 'translate(' + (_self.layout.wholeRankingPlot.plot.margin + topkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn) + ',' + _self.layout.wholeRankingPlot.plot.marginTop + ')'),
+            gNonTopkRanking = d3.select(svg).append('g')
+              .attr('class', 'g_non_topk_whole_ranking')
+              .attr('transform', 'translate(' + (_self.layout.wholeRankingPlot.plot.margin + topkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn + selectedNonTopkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn) + ',' + _self.layout.wholeRankingPlot.plot.marginTop + ')');
+  
+      const topkRect = gTopkRanking.selectAll('.rect_whole_ranking_topk')
+              .data(topkInstances)
+              .enter().append('rect')
+              .attr('class', (d) => 'rect_whole_ranking_topk_cf rect_whole_ranking_topk_' + d.ranking)
+              .attr('x', (d) => topkRankingScale(d.ranking))
+              .attr('y', (d) => 0)
+              .attr('width', rectWidth)
+              .attr('height', rectHeight)
+              .style('fill', (d) => d.target ? gs.topkTrueColor : gs.topkFalseColor)
+              // .style('stroke', 'black')
+              // .style('shape-rendering', 'crispEdge')
+              // .style('stroke-width', 0.5);
+
+      const topkGroupRect = gTopkRanking.selectAll('.topk_group_rect')
+              .data(topkInstances)
+              .enter().append('rect')
+              .attr('class', 'topk_group_rect')
+              .attr('x', (d) => topkRankingScale(d.ranking))
+              .attr('y', (d) => rectHeight * (6/7))
+              .attr('width', rectWidth)
+              .attr('height', rectHeight / 7)
+              .style('fill', (d) => groupColorScale(d.group))
+              // .style('stroke', 'black')
+              // .style('shape-rendering', 'crispEdge')
+              // .style('stroke-width', 0.5);
+
+      gSelectedNonTopkRanking.selectAll('.rect_whole_ranking_selected_non_topk')
+          .data(selectedNonTopkInstances)
+          .enter().append('rect')
+          .attr('class', (d) => 'rect_whole_ranking_selected_non_topk rect_whole_ranking_selected_non_topk_' + d.ranking)
+          .attr('x', (d) => selectedNonTopkRankingScale(d.ranking))
+          .attr('y', (d) => 0)
+          .attr('width', rectWidth)
+          .attr('height', rectHeight)
+          .style('fill', (d) => d.target ? gs.nonTopkTrueColor : gs.nonTopkFalseColor)
+          .style('stroke', 'black')
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.5);
+
+      gNonTopkRanking.selectAll('.rect_whole_ranking_non_topk')
+          .data(nonTopkInstances)
+          .enter().append('rect')
+          .attr('class', (d) => 'rect_non_topk_cf rect_non_topk_cf_' + d.ranking)
+          .attr('x', (d, i) => rectWidth * Math.floor(i / 5))
+          .attr('y', (d, i) => (rectHeight / 5) * (i % 5))
+          .attr('width', rectWidth)
+          .attr('height', rectHeight / 5)
+          .style('fill', (d) => d.target ? gs.nonTopkTrueColor : gs.nonTopkFalseColor)
+          .style('stroke', 'black')
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.5)
+          .style('opacity', 0.5);
+  
+      // Only render instances within previous topk rankings
+      gNonTopkRanking.selectAll('.rect_whole_ranking_non_topk')
+          .data(nonTopkInstances)
+          .enter().append('rect')
+          .attr('class', (d) => 'rect_non_topk_cf rect_non_topk_cf_' + d.ranking)
+          .attr('x', (d, i) => rectWidth * Math.floor(i / 5))
+          .attr('y', (d, i) => (rectHeight / 5) * (i % 5))
+          .attr('width', rectWidth)
+          .attr('height', rectHeight / 5)
+          .style('fill', (d) => d.target ? gs.nonTopkTrueColor : gs.nonTopkFalseColor)
+          .style('stroke', 'black')
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.5)
+          .style('opacity', 0.5);
+  
+      return (
+        <div className={styles.wholeRankingPlot}>
+          {svg.toReact()}
+        </div>
+      );
+    }
 
     render() {
       console.log('RankingView rendered');
@@ -494,7 +630,7 @@ class RankingView extends Component {
 
       this.renderPlot();
 
-      const { data } = this.props,
+      const { data, n } = this.props,
             { stat } = data,
             { accuracy, goodnessOfFairness, groupSkew, sp, cp } = stat,
             instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse(),
@@ -506,9 +642,12 @@ class RankingView extends Component {
             Current ranking: &nbsp;
             <Tag color="#108ee9">{'R' + data.rankingId}</Tag>
           </div>
-          <div className={styles.summaryViewTitle + ' ' + index.subTitle}>Whole Ranking Summary</div>
-          <div className={styles.summaryView}>
-            <div className={styles.summaryStat}>
+          <div className={styles.wholeRankingPlot}>
+            {this.renderWholeRankingPlot()}
+          </div>
+          <div className={styles.wholeRankingSummaryTitle + ' ' + index.subTitle}>Whole Ranking Summary</div>
+          <div className={styles.wholeRankingSummary}>
+            <div className={styles.wholeRankingSummaryStat}>
               <div className={styles.accuracyWrapper}>
                 <div className={styles.accuracyTitle}>Accuracy</div>
                 <div className={styles.accuracy}>{accuracy + '%'}</div>
@@ -522,14 +661,28 @@ class RankingView extends Component {
                 <div className={styles.individualFairness}>{groupSkew}</div>
               </div>
             </div>
-            <div className={styles.summaryPlot}>
+            <div className={styles.wholeRankingsummaryPlot}>
               <div className={styles.summaryPlotTitle}>Goodness and Group Skew Plot</div>
               {this.svgPlot.toReact()}
             </div>
           </div>
-          <div className={styles.filterViewTitle  + ' ' + index.subTitle}>
+          <div className={styles.topkSummaryTitle  + ' ' + index.subTitle}>
             <Icon type="filter" theme="outlined" />
-            &nbsp;Filter
+            &nbsp;Top-k Summary
+          </div>
+          <div className={styles.topkSummaryStat}>
+            <div className={styles.accuracyWrapper}>
+              <div className={styles.accuracyTitle}>Accuracy</div>
+              <div className={styles.accuracy}>{accuracy + '%'}</div>
+            </div>
+            <div className={styles.individualFairnessWrapper}>
+              <div className={styles.individualFairnessTitle}>Goodness</div>
+              <div className={styles.individualFairness}>{goodnessOfFairness}</div>
+            </div>
+            <div className={styles.groupFairnessWrapper}>
+              <div className={styles.individualFairnessTitle}>Group skew</div>
+              <div className={styles.individualFairness}>{groupSkew}</div>
+            </div>
           </div>
           <div className={styles.topkFilterView}>
             <div className={styles.topkInputWrapper}>
@@ -544,6 +697,7 @@ class RankingView extends Component {
                 value={this.state.topk}
                 onChange={this.handleSelectedTopk}
               />
+              &nbsp;&nbsp;/&nbsp;&nbsp;{n}
             </div>
             <div className={styles.topkSliderWrapper}>
               <Slider 

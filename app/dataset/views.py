@@ -119,19 +119,34 @@ def do_encoding_categorical_vars(whole_dataset_df):
     return dataset_df
 
 def save_trained_model(ranking_instance, model):
-    filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId']) + '.pkl'
-    with open(filename, 'wb') as f:
-        pickle.dump(model, f)
+    for file_num in range(1, 15):
+        filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId'])
+        filename = filename + '_' + str(file_num) + '.pkl'
+        with open(filename, 'wb') as f:
+            pickle.dump(model, f)
+        
 
 def load_trained_model(ranking_instance):
-    print('rankingIddd: ', ranking_instance['rankingId'])
-    filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId']) + '.pkl'
-    print('filenameee: ', filename)
-    with open(filename, 'rb') as f:
-        model = pickle.load(f)
-        print('modelll: ', model)
+    for file_num in range(1, 15):
+        filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId'])
+        filename = filename + '_' + str(file_num) + '.pkl'
+        
+        if os.path.exists(filename):
+            try:
+                print('openn: ', filename)
+                f = open(filename, 'rb')
+                unpickler = pickle.Unpickler(f)
+                model = unpickler.load()
+                f.close()
+                if os.path.exists(filename):    # Since it's asynchronous
+                    try:
+                        os.remove(filename)
+                    except FileNotFoundError as e:
+                        pass
 
-    return model
+                return model
+            except FileNotFoundError as e:
+                continue
 
 def run_experiment_iteration_themis_ml_ACF(
         X, X_no_sex, y, s_sex, train, test):

@@ -47,6 +47,11 @@ class OutputSpaceView extends Component {
               .range([gs.groupColor1, gs.groupColor2])
               .domain([0, 1]);
 
+      const gAxis = d3.select(svg).append('g')
+            .attr('class', 'g_y_ranking_axis')
+            .attr('transform', 'translate(' + 100 + ',' + 10 + ')')
+            .call(d3.axisLeft(rankingScale).tickValues(d3.range(1, topk, 5)));
+
       const gTopkRanking = d3.select(svg).append('g')
               .attr('class', 'g_top_k_ranking')
               .attr('transform', 'translate(' + (130) + ',' + '10)');

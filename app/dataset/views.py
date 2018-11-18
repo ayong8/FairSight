@@ -45,43 +45,13 @@ import math
 import json, simplejson
 
 simple_file_path = './data/themis_ml_toy.csv'
-sample_file_path = './data/themis_ml_sample_temp.csv'
-heavy_file_path = './data/themis_ml_sample.csv'
+sample_file_path = './data/german_data_sample.csv'
+heavy_file_path = './data/german_data.csv'
 
-numerical_features = ['age_in_years', 'duration_in_month', 'credit_amount',	'installment_rate_in_percentage_of_disposable_income',	
-                    'present_residence_since',	'age_in_years', 'number_of_existing_credits_at_this_bank',	
-                    'number_of_people_being_liable_to_provide_maintenance_for',	'status_of_existing_checking_account',	
-                    'savings_account/bonds', 'present_employment_since', 'job',	'telephone'];
-
-features_themis_ml = [
-    'sex',
-    'duration_in_month', 'credit_amount', 'installment_rate_in_percentage_of_disposable_income',
-    'present_residence_since', 'age_in_years', 'number_of_existing_credits_at_this_bank',
-    'number_of_people_being_liable_to_provide_maintenance_for', 'status_of_existing_checking_account',
-    'savings_account/bonds', 'present_employment_since', 'job', 'telephone', 'foreign_worker',
-    'credit_history_all_credits_at_this_bank_paid_back_duly',
-    'credit_history_critical_account/other_credits_existing_not_at_this_bank',
-    'credit_history_delay_in_paying_off_in_the_past', 'credit_history_existing_credits_paid_back_duly_till_now',
-    'credit_history_no_credits_taken/all_credits_paid_back_duly', 'purpose_business',
-    'purpose_car_(new)', 'purpose_car_(used)', 'purpose_domestic_appliances', 'purpose_education',
-    'purpose_furniture/equipment', 'purpose_others', 'purpose_radio/television',
-    'purpose_repairs', 'purpose_retraining', 'personal_status_and_sex_female_divorced/separated/married',
-    'personal_status_and_sex_male_divorced/separated', 'personal_status_and_sex_male_married/widowed',
-    'personal_status_and_sex_male_single', 'other_debtors/guarantors_co-applicant',
-    'other_debtors/guarantors_guarantor', 'other_debtors/guarantors_none',
-    'property_building_society_savings_agreement/life_insurance',
-    'property_car_or_other', 'property_real_estate', 'property_unknown/no_property',
-    'other_installment_plans_bank', 'other_installment_plans_none',
-    'other_installment_plans_stores', 'housing_for free', 'housing_own', 'housing_rent',
-]
-
-features_no_sex_themis_ml = [
-    f for f in features_themis_ml if f not in [
-        'sex',
-        'personal_status_and_sex_female_divorced/separated/married',
-        'personal_status_and_sex_male_divorced/separated',
-        'personal_status_and_sex_male_married/widowed',
-        'personal_status_and_sex_male_single']]
+numerical_features = ['age_in_years', 'duration_in_month', 'credit_amount',	'savings', 'installment_as_income_perc',
+                    'present_residence_since',	'number_of_existing_credits_at_this_bank',	'marriage',
+                    'other_debtors', 'status_of_existing_checking_account',	'property',
+                    'other_installment_plans', 'housing']
 
 category_ranges = {
     'age>25': ['age_over_25', 'age_less_25'],

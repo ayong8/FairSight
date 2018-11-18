@@ -829,33 +829,36 @@ class RankingInspectorView extends Component {
       return (
         <div className={styles.IndividualFairnessView}>
           <div className={styles.SpaceView}>
-            <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Selected Instances</div>
-            <div className={styles.intervalSlider}>
-              <InputNumber
-                size='small'
-                min={1}
-                max={this.props.n}
-                style={{ width: 40 }}
-                value={1}
-              />
-              <span>&nbsp;-&nbsp;</span>
-              <InputNumber
-                size='small'
-                min={1}
-                max={this.props.n}
-                style={{ width: 40 }}
-                value={30} // this.state.selectedRankingInterval.to
-                // onChange={this.handleIntervalChange}
-              />
-              <Slider 
-                step={1} 
-                min={1}
-                max={100} // this.props.n
-                value={30} // this.state.selectedRankingInterval.to
-                style={{ width: 150 }}
-                // onChange={} // this.handleIntervalChange
-              />
+            <div className={styles.spaceViewTitleWrapper}>
+              <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Selected Ranking Interval</div>
+              <div className={styles.intervalSlider}>
+                <InputNumber
+                  size='small'
+                  min={1}
+                  max={this.props.n}
+                  style={{ width: 40 }}
+                  value={1}
+                />
+                <span>&nbsp;-&nbsp;</span>
+                <InputNumber
+                  size='small'
+                  min={1}
+                  max={this.props.n}
+                  style={{ width: 40 }}
+                  value={30} // this.state.selectedRankingInterval.to
+                  // onChange={this.handleIntervalChange}
+                />
+                <Slider 
+                  step={1} 
+                  min={1}
+                  max={100} // this.props.n
+                  value={30} // this.state.selectedRankingInterval.to
+                  style={{ width: 150 }}
+                  // onChange={} // this.handleIntervalChange
+                />
+              </div>
             </div>
+            <div className={styles.spaceViewMap}>Input space</div>
             <LegendView 
               className={styles.LegendView} 
             />

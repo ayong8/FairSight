@@ -41,10 +41,10 @@ class App extends Component {
     this.state = {
       dataset: [],
       features: [],
-      numericalFeatures: ['duration_in_month', 'credit_amount',	'installment_rate_in_percentage_of_disposable_income',	
-                    'present_residence_since',	'age_in_years', 'number_of_existing_credits_at_this_bank',	
-                    'number_of_people_being_liable_to_provide_maintenance_for',	'status_of_existing_checking_account',	
-                    'savings_account/bonds', 'present_employment_since', 'job',	'telephone'],
+      numericalFeatures: ['age_in_years', 'duration_in_month', 'credit_amount',	'savings', 'installment_as_income_perc',
+                    'present_residence_since',	'number_of_existing_credits_at_this_bank',	'marriage',
+                    'other_debtors', 'status_of_existing_checking_account',	'property',
+                    'other_installment_plans', 'housing'],
       methods: [
         {name: 'RankSVM', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
         {name: 'SVM', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
@@ -79,11 +79,9 @@ class App extends Component {
         features: [
           { name: 'foreign_worker', type: 'categorical', range: [0,1], value: ['No', 'Yes'] },
           { name: 'credit_amount', type: 'continuous', range: 'continuous' },
-          { name: 'installment_rate_in_percentage_of_disposable_income', type: 'continuous', range: 'continuous' },
           { name: 'age_in_years', type: 'continuous', range: 'continuous'},
           { name: 'telephone', type: 'categorical', range: [0,1]},
-          { name: 'savings_account_bonds', type: 'continuous', range: 'continuous'},
-          { name: 'job', type: 'continuous', range: 'continuous'}
+          { name: 'savings', type: 'continuous', range: 'continuous'}
         ],
         target: { name: 'credit_risk', type: 'categorical', range: [0, 1], value: ['No', 'Yes'] },
         method: { name: 'Logistic Regression' },

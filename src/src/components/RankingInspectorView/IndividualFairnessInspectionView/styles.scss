@@ -1,6 +1,9 @@
 .IndividualFairnessInspectionView {
     height: 500px;
-    display: flex;
+
+    .fairnessInspectionWrapper {
+        display: flex;
+    }
 
     .outlierAnalysis {
         width: 33%;

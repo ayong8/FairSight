@@ -80,7 +80,8 @@ class RankingInspectorView extends Component {
         sortMatrixYdropdownValue: 'features',
         colorMatrixDropdownValue: 'Pairwise distortion',
         featureCorrSelections: [ { feature_set: '1 and 2', corr: 0.6 }, { feature_set: '1 and 2', corr: 0.6 } ],
-        perturbationResults: []
+        perturbationResults: [],
+        corrBtnOutliersAndWholeInstances: {}
       };
 
       this.svg;
@@ -143,10 +144,41 @@ class RankingInspectorView extends Component {
     componentDidMount() {
       const _self = this;
       const { data } = this.props,
-            { method, features } = data;
+            { method, features, instances, sensitiveAttr } = data,
+            featureNames = features.map((d) => d.name),
+            sensitiveAttrName = sensitiveAttr.name;
+
+      const outliers = instances.filter((d) => d.isOutlier),
+            wholeInstances = instances;
+
+      const featureValuesForOutliers = outliers.map((d) => d.features),
+            featureValuesForWholeInstances = wholeInstances.map((d) => d.features)
 
       const perturbationResults = [];
+      const corrTestRequest = {
+        wholeFeatures: featureNames,
+        groupInstances1: featureValuesForOutliers,
+        groupInstances2: featureValuesForWholeInstances
+      }
 
+      // Calculate the correlation between outliers and whole instances
+      fetch('/dataset/calculateAndersonDarlingTest/', {
+        method: 'post',
+        body: JSON.stringify(corrTestRequest)
+      })
+      .then((response) => {
+        return response.json();
+      })   
+      .then((response) => {
+        // { FEATURE-NAME: TEST-RESULT, ... }
+        const corrTestResult = JSON.parse(response);
+        console.log('corrTestResult for outliersss: ', corrTestResult)
+        _self.setState({
+          corrBtnOutliersAndWholeInstances: corrTestResult
+        });
+      });
+
+      // Perturb features
       features.forEach((feature) => {
         const request = { ...data, 'perturbedFeature': feature.name, 'isForPerturbation': true } // 1 is True in python
         const urlForMethod = (method.name === 'Logistic Regression') ? 'runLR' 
@@ -193,7 +225,8 @@ class RankingInspectorView extends Component {
 
         const { data } = this.props,
               { method, features } = data;
-      
+        
+        // Perturb features
         const perturbationResults = [];
 
         features.forEach((feature) => {
@@ -825,12 +858,36 @@ class RankingInspectorView extends Component {
       });
     }
 
+    renderSpaceOverview() {
+      const _self = this;
+
+      const svg = new ReactFauxDOM.Element('svg');
+  
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', _self.layout.svgMatrix.height);
+      svg.setAttribute('0 0 200 200');
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+      svg.setAttribute('class', 'svg_matrix');
+
+      const { mode } = this.state;
+      const { data, topk, selectedInstance, selectedInstances,
+              selectedPermutationDiffsFlattend, permutationDiffs, permutationDiffsFlattened } = this.props,
+            { instances } = data,
+            to = selectedInstances.length,
+            distortionMin = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[0],
+            distortionMax = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[1];
+
+      return (
+        <div>{svg.toReact()}</div>
+      );
+    }
+
     renderIndividualFairnessView(){
       return (
         <div className={styles.IndividualFairnessView}>
           <div className={styles.SpaceView}>
             <div className={styles.spaceViewTitleWrapper}>
-              <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Selected Ranking Interval</div>
+              <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Global Inspector</div>
               <div className={styles.intervalSlider}>
                 <InputNumber
                   size='small'
@@ -858,7 +915,7 @@ class RankingInspectorView extends Component {
                 />
               </div>
             </div>
-            <div className={styles.spaceViewMap}>Input space</div>
+            <div className={styles.spaceViewMap}>{this.renderSpaceOverview()}</div>
             <LegendView 
               className={styles.LegendView} 
             />
@@ -897,6 +954,7 @@ class RankingInspectorView extends Component {
                 topk={this.props.topk}
                 selectedInstance={this.props.selectedInstance}
                 selectedInstances={this.props.selectedInstances}
+                corrBtnOutliersAndWholeInstances={this.state.corrBtnOutliersAndWholeInstances}
                 perturbationResults={this.state.perturbationResults}
             />
           </div>

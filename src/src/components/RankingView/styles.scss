@@ -9,13 +9,13 @@
   row-gap: 10px;
   column-gap: 10px;
   grid-template-columns: 50% 50%;
-  grid-template-rows: 10% 35% 5% 15% 15%;
+  grid-template-rows: 8% 5% 15% 25% 30%;
   grid-template-areas: 
     't t'
-    'wrp wrp'
     'tst tst'
     'wrs tf'
-    'tss if';
+    'tss if'
+    'wrp wrp';
 
   .rankingViewTitle {
     grid-area: t;

@@ -6,11 +6,14 @@
     rankingListViewWidth: $layout-first-column;
     rankingListViewHeight: $layout-third-row + $layout-fourth-row;
 
+    individualColor: $individual-color;
     groupColor1: $group-color1;
     groupColor2: $group-color2;
     instanceColor: $instance-color;
     topkColor: $topk-color;
     nonTopkColor: $non-topk-color;
+    trueColor: $true-color;
+    falseColor: $false-color;
     topkTrueColor: $topk-true-color;
     topkFalseColor: $topk-false-color;
     nonTopkTrueColor: $non-topk-true-color;

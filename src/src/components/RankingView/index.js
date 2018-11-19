@@ -579,7 +579,7 @@ class RankingView extends Component {
               .attr('y', (d) => 0)
               .attr('width', rectWidth)
               .attr('height', rectHeight)
-              .style('fill', (d) => d.target ? gs.topkTrueColor : gs.topkFalseColor)
+              .style('fill', (d) => d.target ? gs.trueColor : gs.falseColor)
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5);
@@ -632,7 +632,7 @@ class RankingView extends Component {
               .attr('y', (d) => 0)
               .attr('width', rectWidth)
               .attr('height', rectHeight)
-              .style('fill', (d) => d.target ? gs.nonTopkTrueColor : gs.nonTopkFalseColor)
+              .style('fill', (d) => d.target ? gs.trueColor : gs.falseColor)
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5);
@@ -658,7 +658,7 @@ class RankingView extends Component {
               .attr('y', (d, i) => (rectHeight / 5) * (i % 5))
               .attr('width', rectHeight / 5)
               .attr('height', rectHeight / 5)
-              .style('fill', (d) => d.target ? gs.nonTopkTrueColor : gs.nonTopkFalseColor)
+              .style('fill', (d) => d.target ? gs.trueColor : gs.falseColor)
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5);
@@ -718,7 +718,7 @@ class RankingView extends Component {
           </div>
           <div className={styles.topkSummaryTitle  + ' ' + index.subTitle}>
             <Icon type="filter" theme="outlined" />
-            &nbsp;Top-k Summary
+            &nbsp;Whole Ranking Summary
           </div>
           <div className={styles.topkSummaryStat}>
             <div className={styles.accuracyWrapper}>
@@ -726,8 +726,8 @@ class RankingView extends Component {
               <div className={styles.accuracy}>{accuracy + '%'}</div>
             </div>
             <div className={styles.individualFairnessWrapper}>
-              <div className={styles.individualFairnessTitle}>Goodness</div>
-              <div className={styles.individualFairness}>{goodnessOfFairness}</div>
+              <div className={styles.individualFairnessTitle}>Statistical Parity</div>
+              <div className={styles.individualFairness}>{sp}</div>
             </div>
             <div className={styles.groupFairnessWrapper}>
               <div className={styles.individualFairnessTitle}>Group skew</div>

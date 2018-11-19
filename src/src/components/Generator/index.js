@@ -20,6 +20,7 @@ class Generator extends Component {
     super(props);
 
     this.state = {
+      corrBetweenSensitiveAndAllFeatures: {},
       rankingInstance: {
         rankingId: 1,
         sensitiveAttr: { 
@@ -109,6 +110,12 @@ class Generator extends Component {
            sensitiveAttrDropdownOpenChange || targetDropdownOpenChange || methodDropdownOpenChange;
   }
 
+  componentDidMount() {
+  }
+
+  componentDidUpdate() {
+  }
+
   toggleSensitiveAttrDropdown() {
     this.setState({
       sensitiveAttrDropdownOpen: !this.state.sensitiveAttrDropdownOpen
@@ -164,23 +171,6 @@ class Generator extends Component {
 
   onChange = (value) => {
     this.setState({ value });
-  }
-
-  calculateCorrBtnSensitiveAndFeature(feature, featureType, groupInstances1, groupInstances2) {  // t-test or chi-square
-    const featureValuesForGroup1 = groupInstances1.map((d) => d[feature]),
-          featureValuesForGroup2 = groupInstances2.map((d) => d[feature]);
-    let ttestStat, chiSquaredStat, pValue;
-
-    // categorical feature with group1 and group2
-    if (featureType === 'numerical') {
-      ttestStat = ttest(featureValuesForGroup1, featureValuesForGroup2);
-      pValue = ttestStat.pValue();
-    } else if (featureType === 'categorical') {
-      chiSquaredStat = chiSquaredTest(featureValuesForGroup1, featureValuesForGroup2, 1);
-      pValue = chiSquaredStat;
-    }
-
-    return Math.floor(pValue * 100) / 100;
   }
 
   renderSelectProtectedGroup() {
@@ -259,10 +249,12 @@ class Generator extends Component {
 
   renderFeatureSelectionsForTable() {
     const _self = this;
-    const { dataset, numericalFeatures, rankingInstance } = this.props,
+    const { dataset, numericalFeatures, corrBtnSensitiveAndAllFeatures, rankingInstance } = this.props,
           { sensitiveAttr } = rankingInstance,
-          wholeFeatures = Object.keys(dataset[0]),
+          wholeFeatures = Object.keys(dataset[0]).filter((d) => d !== 'idx' || d !== sensitiveAttr.name),
           sensitiveAttrName = sensitiveAttr.name;
+
+    console.log('corrResultBetweenSensitiveAndAllFeaturesss: ', corrBtnSensitiveAndAllFeatures);
 
     const groupInstances1 = dataset.filter((d) => d[sensitiveAttrName] === 0),
           groupInstances2 = dataset.filter((d) => d[sensitiveAttrName] === 1);
@@ -285,7 +277,7 @@ class Generator extends Component {
 
       return {
         feature: feature.replace(/_/g, ' '),
-        dist: _self.calculateCorrBtnSensitiveAndFeature(feature, featureType, groupInstances1, groupInstances2),
+        dist: Math.round(corrBtnSensitiveAndAllFeatures[feature] * 100) / 100,
         corr: (featureType === 'numerical') ? _self.renderCorrPlotWithSensitiveAttrForNumericalVars(feature, groupInstances1, groupInstances2)
             : _self.renderCorrPlotWithSensitiveAttrForCategoricalVars(feature)
       };
@@ -393,7 +385,7 @@ class Generator extends Component {
           .attr('height', (d) => _self.layout.featureTable.corr.height - yScale(d.length))
           .style('fill', gs.groupColor2)
           .style('stroke', 'black')
-          .style('opacity', 0.5)
+          .style('opacity', 1)
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);
 
@@ -409,24 +401,38 @@ class Generator extends Component {
 
     const { dataset, rankingInstance } = this.props,
           { instances, sensitiveAttr } = rankingInstance,
-          sensitiveAttrName = sensitiveAttr.name;
+          { protectedGroup, nonProtectedGroup } = sensitiveAttr,
+          sensitiveAttrName = sensitiveAttr.name,
+          sensitiveAttrRange = sensitiveAttr.range;
+
+    let protectedGroupBinary, nonProtectedGroupBinary;
+
+    if (sensitiveAttrRange[0] === protectedGroup){  // Find the corresponding 0 or 1 to protected or non-protected group string
+      protectedGroupBinary = 0;
+      nonProtectedGroupBinary = 1;
+    } else {
+      protectedGroupBinary = 1;
+      nonProtectedGroupBinary = 0;
+    }
 
     const instancesForFeatureValues1 = dataset.filter((d) => d[feature] === 0),
           instancesForFeatureValues2 = dataset.filter((d) => d[feature] === 1),
-          groupForFeatureValue1 = instancesForFeatureValues1.map((d) => d[sensitiveAttrName]),
-          groupForFeatureValue2 = instancesForFeatureValues2.map((d) => d[sensitiveAttrName]),
-          groupLength1 = groupForFeatureValue1.length,
-          groupLength2 = groupForFeatureValue2.length;
+          featureValuesForProtectedGroup = dataset.filter((d) => d[sensitiveAttrName] === protectedGroupBinary)
+                                           .map((d) => d[feature]),
+          featureValuesForNonProtectedGroup = dataset.filter((d) => d[sensitiveAttrName] === nonProtectedGroupBinary)
+                                           .map((d) => d[feature]),
+          protectedGroupLength = featureValuesForProtectedGroup.length,
+          nonProtectedGroupLength = featureValuesForNonProtectedGroup.length;
     const thresholds = [0, 1];
     
-    const dataBinGroup1 = d3.histogram()
+    const dataBinProtectedGroup = d3.histogram()
                   .domain([0, 1])
                   .thresholds(thresholds)
-                  (groupForFeatureValue1),
-          dataBinGroup2 = d3.histogram()
+                  (featureValuesForProtectedGroup),
+          dataBinNonProtectedGroup = d3.histogram()
                   .domain([0, 1])
                   .thresholds(thresholds)
-                  (groupForFeatureValue2);
+                  (featureValuesForNonProtectedGroup);
 
     const svgCorrPlot = new ReactFauxDOM.Element('svg');
 
@@ -438,10 +444,10 @@ class Generator extends Component {
 
     // Both groups share the same x and y scale
     const xGroupScale1 = d3.scaleBand()
-                  .domain(dataBinGroup1.map((d) => d.x0))
+                  .domain(dataBinProtectedGroup.map((d) => d.x0))
                   .range([5, _self.layout.featureTable.corr.width/2 - 5]),
           xGroupScale2 = d3.scaleBand()
-                  .domain(dataBinGroup2.map((d) => d.x0))
+                  .domain(dataBinNonProtectedGroup.map((d) => d.x0))
                   .range([_self.layout.featureTable.corr.width/2 + 5, _self.layout.featureTable.corr.width - 5]),
           yGroupScale1 = d3.scaleLinear()
                   .domain([0, 1])
@@ -454,47 +460,45 @@ class Generator extends Component {
           //     .attr('transform', 'translate(0,0)')
           //     .call(d3.axisBottom(xScale).tickSize(0).tickFormat(''));
 
-    let groupHistogramBar1, groupHistogramBar2;
+    let protectedGroupHistogramBar, nonProtectedGroupHistogramBar;
 
-    groupHistogramBar1 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1')
-          .data(dataBinGroup1)
+    protectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1')
+          .data(dataBinProtectedGroup)
           .enter().append('g')
           .attr('class', 'g_corr_plot_group1')
           .attr('transform', function(d, i) {
-            const groupLength = i == 0 ? groupLength1 : groupLength2;
-            return 'translate(' + xGroupScale1(d.x0) + ',' + yGroupScale1(d.length / groupLength) + ')'; 
+            return 'translate(' + xGroupScale1(d.x0) + ',' + yGroupScale1(d.length / protectedGroupLength) + ')'; 
           });
 
-    groupHistogramBar1.append('rect')
+    protectedGroupHistogramBar.append('rect')
           .attr('x', 0)
           .attr('width', xGroupScale1.bandwidth())
           .attr('height', (d, i) => {
-            const groupLength = i == 0 ? groupLength1 : groupLength2;
-            return _self.layout.featureTable.corr.height - yGroupScale1(d.length / groupLength)
+            return _self.layout.featureTable.corr.height - yGroupScale1(d.length / protectedGroupLength)
           })
-          .style('fill', (d, i) => i == 0 ? gs.groupColor1 : gs.groupColor2)
+          .style('fill', gs.groupColor2)
           .style('stroke', 'black')
-          .style('opacity', 0.5)
+          .style('opacity', 1)
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);
 
-    groupHistogramBar2 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2')
-          .data(dataBinGroup2)
+    nonProtectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2')
+          .data(dataBinNonProtectedGroup)
           .enter().append('g')
           .attr('class', 'g_corr_plot_group2')
           .attr('transform', function(d, i) {
-            const groupLength = i == 0 ? groupLength1 : groupLength2;
-            return 'translate(' + xGroupScale2(d.x0) + ',' + yGroupScale2(d.length / groupLength) + ')'; 
+            const groupLength = i == 0 ? protectedGroupLength : nonProtectedGroupLength;
+            return 'translate(' + xGroupScale2(d.x0) + ',' + yGroupScale2(d.length / nonProtectedGroupLength) + ')'; 
           });
 
-    groupHistogramBar2.append('rect')
+    nonProtectedGroupHistogramBar.append('rect')
           .attr('x', 0)
           .attr('width', xGroupScale2.bandwidth())
           .attr('height', (d, i) => {
-            const groupLength = i == 0 ? groupLength1 : groupLength2;
-            return _self.layout.featureTable.corr.height - yGroupScale2(d.length / groupLength)
+            const groupLength = i == 0 ? protectedGroupLength : nonProtectedGroupLength;
+            return _self.layout.featureTable.corr.height - yGroupScale2(d.length / nonProtectedGroupLength)
           })
-          .style('fill', (d, i) => i == 0 ? gs.groupColor1 : gs.groupColor2)
+          .style('fill', gs.groupColor1)
           .style('stroke', 'black')
           .style('opacity', 0.5)
           .style('shape-rendering', 'crispEdge')
@@ -591,6 +595,10 @@ class Generator extends Component {
   }
 
   render() {
+    // if (!this.state.corrBetweenSensitiveAndAllFeatures || Object.keys(this.state.corrBetweenSensitiveAndAllFeatures).length === 0) {
+    //   return <div />
+    // }
+    
     console.log('Generater rendered');
     const { rankingInstance, methods } = this.props,
           { features, sensitiveAttr, target, method } = rankingInstance;

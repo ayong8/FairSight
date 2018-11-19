@@ -53,7 +53,7 @@ class IndividualInspectionView extends Component {
 
       return (
         <div className={styles.IndividualInspectionView}>
-          <div className={index.subTitle}>Selected Individual</div>
+          <div className={index.title}>Local Inspector</div>
           <div className={styles.IndividualStatus}>
             {/* <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', marginBottom: 10}}/> */}
             <div>

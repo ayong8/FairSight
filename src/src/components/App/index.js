@@ -45,6 +45,7 @@ class App extends Component {
                     'present_residence_since',	'number_of_existing_credits_at_this_bank',	'marriage',
                     'other_debtors', 'status_of_existing_checking_account',	'property',
                     'other_installment_plans', 'housing'],
+      corrBtnSensitiveAndAllFeatures: {},
       methods: [
         {name: 'RankSVM', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
         {name: 'SVM', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
@@ -73,8 +74,8 @@ class App extends Component {
           name: 'sex', 
           type: 'categorical', 
           range: ['Male', 'Female'],
-          protectedGroup: 'Male',
-          nonProtectedGroup: 'Female' 
+          protectedGroup: 'Female',
+          nonProtectedGroup: 'Male' 
         },
         features: [
           { name: 'foreign_worker', type: 'categorical', range: [0,1], value: ['No', 'Yes'] },
@@ -137,7 +138,6 @@ class App extends Component {
           { method, isForPerturbation } = rankingInstance;
 
     // Store feature information
-    dataset
 
     this.getFetches(rankingInstance, method)
     .then((responses) => {
@@ -160,6 +160,7 @@ class App extends Component {
       this.calculateNDM(this.permutationDiffs);
       this.calculateGroupSkew(this.pairwiseDiffs);
       this.calculateOutputMeasures(isForPerturbation);
+      this.calculateCorrBtnSensitiveAndAllFeatures();
 
       console.log('isOutlier: ', instances);
 
@@ -603,6 +604,59 @@ class App extends Component {
         .range([0, 1]);
   }
 
+  calculateCorrBtnSensitiveAndAllFeatures() {
+    const _self = this;
+    const { dataset, rankingInstance } = this.state,
+          { sensitiveAttr } = rankingInstance,
+          wholeFeatures = Object.keys(dataset[0]).filter((d) => d !== 'idx' || d !== sensitiveAttr.name),
+          sensitiveAttrName = sensitiveAttr.name;
+
+    const groupInstances1 = dataset.filter((d) => d[sensitiveAttrName] === 0),
+          groupInstances2 = dataset.filter((d) => d[sensitiveAttrName] === 1);
+
+    const corrTestRequest = {
+      wholeFeatures: wholeFeatures,
+      groupInstances1: groupInstances1,
+      groupInstances2: groupInstances2
+    }
+
+    fetch('/dataset/calculateAndersonDarlingTest/', {
+      method: 'post',
+      body: JSON.stringify(corrTestRequest)
+    })
+    .then((response) => {
+      return response.json();
+    })   
+    .then((response) => {
+      // { FEATURE-NAME: TEST-RESULT, ... }
+      const corrTestResult = JSON.parse(response);
+      console.log('corrTestResulttt: ', corrTestResult)
+      _self.setState({
+        corrBtnSensitiveAndAllFeatures: corrTestResult
+      });
+    });
+    // Send all features and two groups to server and calculate Anderson-Darling test
+
+    // wholeFeatures.map((feature) => {
+    //   let featureType;
+    //   const isFeatureNumerical = numericalFeatures.indexOf(feature) >= 0 ? true : false;
+      
+    //   if (isFeatureNumerical === true) {
+    //     featureType = 'numerical';
+    //   } else if (isFeatureNumerical === false) {
+    //     featureType = 'categorical';
+    //   }
+
+    // // categorical feature with group1 and group2
+    // if (featureType === 'numerical') {
+    //   ttestStat = ttest(featureValuesForGroup1, featureValuesForGroup2);
+    //   pValue = ttestStat.pValue();
+    // } else if (featureType === 'categorical') {
+    //   chiSquaredStat = chiSquaredTest(featureValuesForGroup1, featureValuesForGroup2, 1);
+    //   pValue = chiSquaredStat;
+    // }
+  }
+
   // Calculate distortions of combinatorial pairs (For pairwise distortion plot)
   calculatePairwiseDiffs() {
     const _self = this;
@@ -735,14 +789,34 @@ class App extends Component {
   }
 
   calculateOutputMeasures(isForPerturbation) {
-    const { rankingInstance } = this.state,
-          { instances } = rankingInstance;
+    const { rankingInstance, topk, n } = this.state,
+          { instances, sensitiveAttr } = rankingInstance,
+          { protectedGroup, nonProtectedGroup, range } = sensitiveAttr;
+    let protectedGroupBinary, nonProtectedGroupBinary;
+
+    if (range[0] === protectedGroup){  // Find the corresponding 0 or 1 to protected or non-protected group string
+      protectedGroupBinary = 0;
+      nonProtectedGroupBinary = 1;
+    } else {
+      protectedGroupBinary = 1;
+      nonProtectedGroupBinary = 0;
+    }
 
     const group1 = instances.filter((d) => d.group === 0),
           group2 = instances.filter((d) => d.group === 1);
 
     const groupRanking1 = group1.map((d) => d.ranking),
           groupRanking2 = group2.map((d) => d.ranking);
+
+    const protectedGroupInTopk = instances.filter((d) => d.group === protectedGroupBinary && d.ranking < topk ),
+          protectedGroupInWhole = instances.filter((d) => d.group === protectedGroupBinary);
+
+    const nProtectedGroupInTopk = protectedGroupInTopk.length,
+          nProtectedGroupInWhole = protectedGroupInWhole.length,
+          Z = (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (Math.min(nProtectedGroupInWhole, topk) / topk) - (nProtectedGroupInWhole / n) ),
+          rND = 1 - (1/Z) * (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (nProtectedGroupInTopk / topk) - (nProtectedGroupInWhole / n) );
+
+    console.log('rNDDD: ', rND);
 
     const statisticalParity = (_.sum(group2.map((d) => 1 / d.ranking).filter((d) => d.isTopk)) / group2.length) / 
                               (_.sum(group1.map((d) => 1 / d.ranking).filter((d) => d.isTopk)) / group1.length);
@@ -754,7 +828,7 @@ class App extends Component {
         ...prevState.rankingInstance,
         stat: {
           ...prevState.rankingInstance.stat,
-          sp: Math.round(statisticalParity * 100) / 100,
+          sp: Math.round(rND * 100) / 100,
           cp: Math.round(conditionalParity * 100) / 100
         }
       }
@@ -788,7 +862,7 @@ class App extends Component {
           std = Math.sqrt(variance);
 
     return instances.map((d) => {
-      const threshold = mean + 1.95*std;
+      const threshold = mean + 1.645*std;
       if (d.sumDistortion >= threshold) {
         d.isOutlier = true;
       } else {
@@ -889,6 +963,7 @@ class App extends Component {
         (!this.state.permutationDiffs || this.state.permutationDiffs.length === 0) ||
         (!this.state.confIntervalPoints || this.state.confIntervalPoints.length === 0) ||
         (!this.state.rankings || this.state.rankings.length === 0) || 
+        (Object.keys(this.state.corrBtnSensitiveAndAllFeatures).length === 0) ||
         (!this.state.topk)
        ) {
       return <div />
@@ -916,6 +991,7 @@ class App extends Component {
             methods={this.state.methods}
             features={this.state.features}
             numericalFeatures={this.state.numericalFeatures}
+            corrBtnSensitiveAndAllFeatures={this.state.corrBtnSensitiveAndAllFeatures}
             rankingInstance={this.state.rankingInstance}
             n={this.state.n}
             onSelectRankingInstanceOptions={this.handleRankingInstanceOptions}

@@ -51,5 +51,10 @@ urlpatterns = [
         regex=r'^calculateConfidenceInterval/$',
         view=views.CalculateConfidenceInterval.as_view(),
         name='confidenceInterval'
+    ),
+    url(
+        regex=r'^calculateAndersonDarlingTest/$',
+        view=views.CalculateAndersonDarlingTest.as_view(),
+        name='andersonDarlingTest'
     )
 ]

@@ -100,22 +100,29 @@ def load_trained_model(ranking_instance):
     for file_num in range(1, 15):
         filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId'])
         filename = filename + '_' + str(file_num) + '.pkl'
+        model = ''
         
         if os.path.exists(filename):
             try:
                 print('openn: ', filename)
                 f = open(filename, 'rb')
-                unpickler = pickle.Unpickler(f)
-                model = unpickler.load()
-                f.close()
                 if os.path.exists(filename):    # Since it's asynchronous
                     try:
+                        unpickler = pickle.Unpickler(f)
+                        model = unpickler.load()
+                        f.close()
                         os.remove(filename)
                     except FileNotFoundError as e:
                         pass
+                    except EOFError as e2:
+                        pass
 
-                return model
             except FileNotFoundError as e:
+                continue
+        
+            if model != '':
+                return model
+            else:
                 continue
 
 def run_experiment_iteration_themis_ml_ACF(
@@ -683,6 +690,33 @@ class TestCorrelationBtnSensitiveAndFeatures(APIView):
     
     def get(self, request, format=None):
         pass
+
+# To calculate the similarity of two groups with different length: 
+# (1) Protected vs. Non-protected group conditional to a feature (in Generator)
+# (2) Outliers vs. Whole instances
+class CalculateAndersonDarlingTest(APIView):
+
+    def get(self, request, format=None):
+        pass
+
+    def post(self, request, format=None):
+        json_request = json.loads(request.body.decode(encoding='UTF-8'))
+        features = json_request['wholeFeatures']
+        group_instances1 = json_request['groupInstances1']
+        group_instances2 = json_request['groupInstances2']
+
+        print('featuresss: ', features)
+        
+        test_result = {}
+        for feature in features:
+            feature_values_group1 = [ instance[feature] for instance in group_instances1 ]
+            feature_values_group2 = [ instance[feature] for instance in group_instances2 ]
+
+            sig_level = stats.anderson_ksamp([feature_values_group1, feature_values_group2]).significance_level
+            print('andersonnn: ', feature, sig_level)
+            test_result[feature] = sig_level
+
+        return Response(json.dumps(test_result))
 
 # Get the confidence interval of slope to measure the fair area
 class CalculateConfidenceInterval(APIView):

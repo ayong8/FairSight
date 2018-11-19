@@ -16,6 +16,23 @@ class RankingsListView extends Component {
   constructor(props) {
     super(props);
 
+    this.layout = {
+      rankingPlot: {
+        width: 300,
+        height: 200,
+        svg: {
+          width: 250,
+          height: 200,
+          margin: 25
+        },
+        plot: {
+          width: 200,
+          height: 150,
+          margin: 20
+        }
+      }
+    }
+
     this.renderRankingInstances = this.renderRankingInstances.bind(this);
   }
 
@@ -23,6 +40,35 @@ class RankingsListView extends Component {
     if (this.props.rankings !== nextProps.rankings) { return true; }
 
     return false;
+  }
+
+  renderRankingPlot() {
+    const _self = this;
+    const { rankings } = this.props;
+
+    const svg = new ReactFauxDOM.Element('svg');
+
+    svg.setAttribute('width', '100%');
+    svg.setAttribute('height', _self.layout.rankingPlot.svg.height);
+    svg.setAttribute('class', 'svg_ranking_plot');
+
+    // x and y axis and scale
+    const xFairnessScale = d3.scaleLinear()
+            .domain([0, 1])
+            .range([0, _self.layout.rankingPlot.plot.width]),
+          yAccuracyScale = d3.scaleLinear()
+            .domain([0, 1])
+            .range([0, _self.layout.rankingPlot.plot.height]);
+
+    const gRankings = d3.select(svg)
+            .selectAll('.ranking')
+            .data(rankings).enter()
+            .append('circle')
+            .attr('class', 'ranking')
+            .attr('cx', (d) => xFairnessScale(0.5))
+            .attr('cy', (d) => yAccuracyScale(0.5))
+            .attr('r', 2)
+            .attr('');
   }
 
   renderRankingInstances() {

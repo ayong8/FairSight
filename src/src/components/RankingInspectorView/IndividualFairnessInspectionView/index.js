@@ -116,7 +116,7 @@ class IndividualFairnessInspectionView extends Component {
   renderCategoricalFeatureForOutlier(feature) {
     const _self = this;
 
-    const { data, topk, selectedInstances } = this.props;
+    const { data, topk, selectedInstances, corrBtnOutliersAndWholeInstances } = this.props;
     const { instances } = data,
           topkInstances = instances.filter((d) => d.ranking <= topk),
           outliers = instances.filter((d) => d.isOutlier);
@@ -176,7 +176,7 @@ class IndividualFairnessInspectionView extends Component {
             .call(d3.axisBottom(xFeatureScaleForOutliers).tickSize(0).tickFormat((d) => d === 0 ? 'No' : 'Yes'));
     const rScale = d3.scaleBand()
             .domain([1, 5, 10, 25, 50, 100])
-            .range([3, 6, 9, 12, 15]);
+            .range([3, 6, 12, 24, 48]);
     const r = 3;
     
     const featureHistogramForInstances = d3.select(svgFeature)
@@ -279,6 +279,7 @@ class IndividualFairnessInspectionView extends Component {
     return (
       <div>
         <div className={index.featureTitle}>{name.replace(/_/g, ' ')}</div>
+        <div>{corrBtnOutliersAndWholeInstances[name]}</div>
         {svgFeature.toReact()}
       </div>
     );
@@ -313,10 +314,12 @@ class IndividualFairnessInspectionView extends Component {
 
     const instancesBin = d3.histogram()  // For selected instances
             .domain([min, max])
-            .thresholds(d3.range(min, max, (min+max)/5))
+            .thresholds(d3.range(30).map((d) => min + (max-min) / 30 * d))
             .value((d) => d.features[name])
             (instances);
 
+    console.log('thresholdsss: ', name, d3.range(30).map((d) => min + (min+max) / 30));
+      
     const xFeatureScale = d3.scaleBand()
             .domain(instancesBin.map((d) => d.x0))
             .range([this.layout.outlier.feature.histoForCont.margin, this.layout.outlier.feature.histoForCont.width - this.layout.outlier.feature.histoForCont.margin]),
@@ -515,7 +518,7 @@ class IndividualFairnessInspectionView extends Component {
     return (
       <div className={styles.ccForFeature}>
         <div className={index.featureTitle}>{perturbedFeature.replace(/_/g, ' ')}</div>
-        <div className={index.perturbedMeasure}>{'RANKING CHANGES: ' + 0 + '  ' + 'ACC: ' + 0 + '  ' + 'SP: ' + 0}</div>
+        <div className={index.perturbedMeasure}>{'RANKING CHANGES: ' + 0 + '  ' + 'ACC: ' + diffAcc + '  ' + 'SP: ' + diffSp}</div>
         {svgFeature.toReact()}
       </div>
     );
@@ -721,14 +724,19 @@ class IndividualFairnessInspectionView extends Component {
   }
 
   render() {
-    if ((!this.props.perturbationResults || this.props.perturbationResults === 0)) {
+    if ((!this.props.perturbationResults || this.props.perturbationResults.length === 0) ||
+        (Object.keys(this.props.corrBtnOutliersAndWholeInstances).length === 0)
+    ) {
       return <div />
     }
 
     return (
       <div className={styles.IndividualFairnessInspectionView}>
-        <div className={styles.outlierAnalysis}>{this.renderOutlierAnalysis()}</div>
-        <div className={styles.ccAnalysis}>{this.renderCC()}</div>
+        <div className={index.subTitle}>Feature Inspector</div>
+        <div className={styles.fairnessInspectionWrapper}>
+          <div className={styles.outlierAnalysis}>{this.renderOutlierAnalysis()}</div>
+          <div className={styles.ccAnalysis}>{this.renderCC()}</div>
+        </div>
       </div>
     );
   }

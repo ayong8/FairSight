@@ -241,9 +241,10 @@ class Generator extends Component {
   renderFeatureSelections() {
     const { features } = this.props;
 
-    return features.map((feature) => 
+    return features.map((feature, idx) => 
         (<TreeNode value={feature.name} 
-                   title={feature.name}>
+                   title={feature.name}
+                   key={idx}>
         </TreeNode>));
   }
 
@@ -251,7 +252,7 @@ class Generator extends Component {
     const _self = this;
     const { dataset, numericalFeatures, corrBtnSensitiveAndAllFeatures, rankingInstance } = this.props,
           { sensitiveAttr } = rankingInstance,
-          wholeFeatures = Object.keys(dataset[0]).filter((d) => d !== 'idx' || d !== sensitiveAttr.name),
+          wholeFeatures = Object.keys(dataset[0]).filter((d) => d !== 'idx'),
           sensitiveAttrName = sensitiveAttr.name;
 
     console.log('corrResultBetweenSensitiveAndAllFeaturesss: ', corrBtnSensitiveAndAllFeatures);
@@ -277,7 +278,7 @@ class Generator extends Component {
 
       return {
         feature: feature.replace(/_/g, ' '),
-        dist: Math.round(corrBtnSensitiveAndAllFeatures[feature] * 100) / 100,
+        dist: feature !== sensitiveAttr.name ? Math.round(corrBtnSensitiveAndAllFeatures[feature] * 100) / 100 : 'NaN',
         corr: (featureType === 'numerical') ? _self.renderCorrPlotWithSensitiveAttrForNumericalVars(feature, groupInstances1, groupInstances2)
             : _self.renderCorrPlotWithSensitiveAttrForCategoricalVars(feature)
       };
@@ -673,12 +674,6 @@ class Generator extends Component {
         { typeof(this.props.rankingInstance.sensitiveAttr) === 'undefined' ? <div></div> : this.renderSelectProtectedGroup() }
         {/* // Feature selector */}
         <div className={styles.selectFeatures}>Features</div>
-        <Alert
-          message='  Fairness through unawareness'
-          description='Make sure not to select the sensitive attribute'
-          type='info'
-          showIcon
-        />
         <TreeSelect
           className={styles.featureSelector}
           showSearch

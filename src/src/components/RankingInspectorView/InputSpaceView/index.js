@@ -122,8 +122,7 @@ class InputSpaceView extends Component {
                     ? gs.groupColor1
                     : gs.groupColor2;
               } else if (mode === 'IF') {
-                return gs.individualColor;
-                //return d.isTopk ? gs.topkColor : gs.nonTopkColor;
+                return d.isTopk ? gs.topkColor : gs.individualColor;
               }
           })
           .style('stroke', 'black')

@@ -712,9 +712,9 @@ class CalculateAndersonDarlingTest(APIView):
             feature_values_group1 = [ instance[feature] for instance in group_instances1 ]
             feature_values_group2 = [ instance[feature] for instance in group_instances2 ]
 
-            sig_level = stats.anderson_ksamp([feature_values_group1, feature_values_group2]).significance_level
-            print('andersonnn: ', feature, sig_level)
-            test_result[feature] = sig_level
+            wass_dist = stats.wasserstein_distance(feature_values_group1, feature_values_group2)
+            print('andersonnn: ', feature, wass_dist)
+            test_result[feature] = math.sqrt(wass_dist)
 
         return Response(json.dumps(test_result))
 

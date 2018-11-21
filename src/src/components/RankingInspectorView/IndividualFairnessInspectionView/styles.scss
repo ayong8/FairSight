@@ -7,6 +7,7 @@
 
     .outlierAnalysis {
         width: 33%;
+        height: 250px;
         margin: 5px;
         padding: 10px;
         background-color: #f0f0f0;
@@ -18,6 +19,13 @@
     .featureForOutlier {
         margin-bottom: 20px;
     }
+    .featureForOutlierTitle {
+        display: flex;
+        justify-content: space-between;
+    }
+    .similarity {
+        font-size: 0.9rem;
+    }
     .perturbedMeasure {
         margin: 5px 0;
         color: #023d74;
@@ -26,6 +34,7 @@
     }
     .ccAnalysis { // Counterfactuals and Critical Region
         width: 66%;
+        height: 250px;
         margin: 5px;
         padding: 10px;
         background-color: #f0f0f0;

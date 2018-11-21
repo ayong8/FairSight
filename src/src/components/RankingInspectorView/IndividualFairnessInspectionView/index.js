@@ -173,10 +173,10 @@ class IndividualFairnessInspectionView extends Component {
             .attr('class', 'g_x_feature_axis_outliers')
             .attr('transform', 'translate(' + (_self.layout.outlier.feature.widthForInstances + _self.layout.outlier.feature.widthForMedian) + ',' + 
                                               (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + _self.layout.outlier.feature.margin) + ')')
-            .call(d3.axisBottom(xFeatureScaleForOutliers).tickSize(0).tickFormat((d) => d === 0 ? 'No' : 'Yes'));
-    const rScale = d3.scaleBand()
+            .call(d3.axisBottom(xFeatureScaleForOutliers).tickSizeOuter(0).tickFormat((d) => d === 0 ? 'No' : 'Yes'));
+    const rScale = d3.scaleThreshold()
             .domain([1, 5, 10, 25, 50, 100])
-            .range([3, 6, 12, 24, 48]);
+            .range([2, 3, 4, 5, 6]);
     const r = 3;
     
     const featureHistogramForInstances = d3.select(svgFeature)
@@ -186,7 +186,7 @@ class IndividualFairnessInspectionView extends Component {
             .attr('class', 'g_feature_histogram_for_instances_' + name)
             .attr('transform', function(d) {
               return 'translate(' + _self.layout.outlier.feature.margin + ',' 
-                                  + (_self.layout.outlier.feature.height - _self.layout.outlier.feature.marginBottom +
+                                  + (_self.layout.outlier.feature.height - _self.layout.outlier.feature.marginBottom -
                                      _self.layout.outlier.feature.margin) + ')'; 
             })
             .each(function(d, i) {
@@ -209,15 +209,20 @@ class IndividualFairnessInspectionView extends Component {
               }
               while (remainder >= 0);
 
+              let cumulativeHeight = 0;
               d3.select(this)
                 .selectAll('.circle_categorical_plot')
                 .data(circles)
                 .enter().append('circle')
                 .attr('class', 'circle_categorical_plot')
                 .attr('cx', (e) => xFeatureScaleForInstances(featureValue) - r)
-                .attr('cy', (e, i) => - rScale(e) - (i*(2*rScale(e)) + 0.5))
+                .attr('cy', (e, i) => {
+                  const cy = rScale(e) + cumulativeHeight + 0.5;
+                  cumulativeHeight += 2 * rScale(e);
+                  return _self.layout.outlier.feature.marginBottom - cy;
+                })
                 .attr('r', (e) => rScale(e))
-                .style('fill', (e) => 'black')
+                .style('fill', (e) => gs.individualColor)
                 .style('stroke', (e) => 'none')
                 .style('stroke-width', (e) => 1);
               
@@ -271,15 +276,17 @@ class IndividualFairnessInspectionView extends Component {
                 .attr('cy', (e, i) => _self.layout.outlier.feature.height - _self.layout.outlier.feature.marginBottom +
                                       _self.layout.outlier.feature.margin - r - (i*(2*r) + 0.5))
                 .attr('r', r)
-                .style('fill', (e) => e.isTopk ? 'black' : 'gray')
+                .style('fill', gs.outlierColor)
                 .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : 'none'))
                 .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
             });
 
     return (
       <div>
-        <div className={index.featureTitle}>{name.replace(/_/g, ' ')}</div>
-        <div>{corrBtnOutliersAndWholeInstances[name]}</div>
+        <div className={styles.featureForOutlierTitle + ' ' + index.featureTitle}>
+          <div>{name.replace(/_/g, ' ')}</div>
+          <div className={styles.similarity}>{'Distance: ' + Math.round(corrBtnOutliersAndWholeInstances[name] * 100)  / 100}</div>
+        </div>
         {svgFeature.toReact()}
       </div>
     );
@@ -288,7 +295,7 @@ class IndividualFairnessInspectionView extends Component {
   renderContinuousFeatureForOutlier(feature) {
     const _self = this;
 
-    const { data, topk, selectedInstances } = this.props;
+    const { data, topk, selectedInstances, corrBtnOutliersAndWholeInstances } = this.props;
     const { instances } = data,
           topkInstances = instances.filter((d) => d.ranking <= topk),
           outliers = instances.filter((d) => d.isOutlier);
@@ -318,7 +325,7 @@ class IndividualFairnessInspectionView extends Component {
             .value((d) => d.features[name])
             (instances);
 
-    console.log('thresholdsss: ', name, d3.range(30).map((d) => min + (min+max) / 30));
+    console.log('thresholdsss: ', name, d3.range(5).map((d) => Math.round(min + (max-min) / 5 * d * 100) / 100));
       
     const xFeatureScale = d3.scaleBand()
             .domain(instancesBin.map((d) => d.x0))
@@ -328,7 +335,7 @@ class IndividualFairnessInspectionView extends Component {
                 .attr('class', 'g_x_feature_axis_instances')
                 .attr('transform', 'translate(0,' + (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + 
                                                     _self.layout.outlier.feature.margin) + ')')
-                .call(d3.axisBottom(xFeatureScale).tickValues(d3.range(0, max, (min+max)/5))),
+                .call(d3.axisBottom(xFeatureScale).tickSizeOuter(0).tickValues(xFeatureScale.domain().filter(function(d,i){ return !(i%6)})).tickFormat(d3.format(".2f"))),
           r = xFeatureScale.bandwidth() / 2;
 
     const featureHistogram = d3.select(svgFeature).selectAll('.g_outlier_histogram')
@@ -348,14 +355,18 @@ class IndividualFairnessInspectionView extends Component {
                 .attr('cx', r)
                 .attr('cy', (e, i) => - r - (i*(2*r) + 0.5))
                 .attr('r', r)
-                .style('fill', (e) => e.isTopk ? 'black' : 'gray')
+                .style('fill', (e) => e.isTopk ? gs.topkColor : gs.individualColor)
                 .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : 'none'))
                 .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
             });
 
+    console.log('similarityyy: ', corrBtnOutliersAndWholeInstances[name]);
     return (
       <div className={styles.featureForOutlier}>
-        <div className={index.featureTitle}>{name.replace(/_/g, ' ')}</div>
+        <div className={styles.featureForOutlierTitle + ' ' + index.featureTitle}>
+          <div>{name.replace(/_/g, ' ')}</div>
+          <div className={styles.similarity}>{'Distance: ' + Math.round(corrBtnOutliersAndWholeInstances[name] * 100) / 100}</div>
+        </div>
         {svgFeature.toReact()}
       </div>
     );
@@ -589,9 +600,9 @@ class IndividualFairnessInspectionView extends Component {
             .attr('transform', 'translate(' + (_self.layout.cc.feature.plot.margin + plotWidth) + ',' + _self.layout.cc.feature.plot.marginTop + ')');
 
     const topkLine = d3.select(svgOriginalRanking).append('line')
-            .attr('x1', _self.layout.cc.feature.plot.margin + topkRankingScale(topk+1))
+            .attr('x1', _self.layout.cc.feature.plot.margin + topkRankingScale(topk))
             .attr('y1', _self.layout.cc.feature.plot.margin)
-            .attr('x2', _self.layout.cc.feature.plot.margin + topkRankingScale(topk+1))
+            .attr('x2', _self.layout.cc.feature.plot.margin + topkRankingScale(topk))
             .attr('y2', _self.layout.cc.feature.plot.marginTop + rectHeight + 10)
             .style('stroke', 'black')
             .style('stroke-width', 2)
@@ -614,7 +625,8 @@ class IndividualFairnessInspectionView extends Component {
       <div>
         <div className={styles.ccTitle + ' ' + index.subTitle}>Counterfactuals & Critical Regions</div>
           {svgCCOverview.toReact()}
-          {this.renderCRDistortionPlot()}
+          <div> </div>
+          {/* {this.renderCRDistortionPlot()} */}
           {svgOriginalRanking.toReact()}
         <div className={styles.featureImpactsList}>
           <div className={index.subTitle2}>FEATURES</div>
@@ -670,7 +682,7 @@ class IndividualFairnessInspectionView extends Component {
                 .append('g')
                 .attr('class', 'g_x_distortion_axis')
                 .attr('transform', 'translate(0,' + (_self.layout.outlier.histogram.height - _self.layout.outlier.histogram.marginBottom + _self.layout.outlier.histogram.margin) + ')')
-                .call(d3.axisBottom(xDistortionScale).tickValues(d3.range(0, max, 5))),
+                .call(d3.axisBottom(xDistortionScale).tickSizeOuter(0)),
           r = xDistortionScale.bandwidth() / 2;
 
     const distortionHistogram = d3.select(_self.svgOutlier).selectAll('.g_outlier_histogram')
@@ -690,8 +702,8 @@ class IndividualFairnessInspectionView extends Component {
                 .attr('cy', (e, i) => _self.layout.outlier.histogram.height - _self.layout.outlier.histogram.marginBottom -
                                       r - (i*xDistortionScale.bandwidth()+0.5))
                 .attr('r', r)
-                .style('fill', (e) => e.outlier? gs.outlierColor :
-                                      e.isTopk ? gs.topkColor : gs.nonTopkColor)
+                .style('fill', (e) => e.isTopk ? gs.topkColor :
+                                      e.isOutlier ? gs.outlierColor : gs.individualColor)
                 .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : 'none'))
                 .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
             });

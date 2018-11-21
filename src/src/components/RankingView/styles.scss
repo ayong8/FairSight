@@ -9,12 +9,11 @@
   row-gap: 10px;
   column-gap: 10px;
   grid-template-columns: 50% 50%;
-  grid-template-rows: 8% 5% 15% 25% 30%;
+  grid-template-rows: 10% 10% 35% 45%;
   grid-template-areas: 
     't t'
     'tst tst'
-    'wrs tf'
-    'tss if'
+    'tf if'
     'wrp wrp';
 
   .rankingViewTitle {
@@ -24,11 +23,24 @@
     padding-bottom: 10px;
   }
 
-  .wholeRankingPlot {
-    grid-area: wrp;
+  .placeholder {
+    grid-area: ph;
   }
 
-  .wholeRankingSummaryTitle { 
+  .wholeRankingPlotWrapper {
+    grid-area: wrp;
+    display: flex;
+  }
+
+  .wholeRankingPlot {
+    width: 90%;
+  }
+
+  .wholeRankingSummaryStat1 {
+    width: 10%;
+  }
+
+  .filterTitle { 
     grid-area: wrst;
     margin-top: 0;
     // border-bottom: 1px solid #d9d9d9;

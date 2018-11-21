@@ -65,7 +65,7 @@ class OutputSpaceView extends Component {
           .attr('width', 30)
           .attr('height', (d) => rectInterval - 2)
           .style('fill', (d) => (mode === 'GF') ? groupColorScale(d.group) : 
-                                (mode === 'IF' && d.topk) ? gs.topkColor : gs.nonTopkColor)
+                                (mode === 'IF' && d.isTopk) ? gs.topkColor : gs.individualColor)
           .style('stroke', 'black')
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);

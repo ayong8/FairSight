@@ -19,12 +19,11 @@ body {
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
-  grid-template-rows: 20px 30px 100px 300px 1200px 80px;
+  grid-template-rows: 20px 30px 350px 1200px 80px;
   grid-template-columns: 20% 20% 37.5% 20%;
   grid-template-areas:
     'mg mg mg mg'
     'm m m m'
-    'g r r l'
     'g r r l'
     'g ri ri l'
     'f f f f';
@@ -43,7 +42,7 @@ body {
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
-  grid-template-rows: 30px 250px 100px 300px 150px 150px;
+  grid-template-rows: 30px 250px 100px 300px 150px 350px;
   grid-template-columns: 20% 40% 20% 17%;
   grid-template-areas:
     'rt rt rt rt'

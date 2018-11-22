@@ -1,20 +1,21 @@
 .RankingView {
   grid-area: r;
-
+  width: 99%;
   background-color: white;
   padding: 0 10px;
-  border-bottom: 1.5px solid lightgray;
+  border-bottom: 1px solid lightgray;
 
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
-  grid-template-columns: 50% 50%;
-  grid-template-rows: 10% 10% 35% 45%;
+  grid-template-columns: 20% 40% 40%;
+  grid-template-rows: 10% 10% 20% 30% 10%;
   grid-template-areas: 
-    't t'
-    'tst tst'
-    'tf if'
-    'wrp wrp';
+    't t t'
+    'tst tst tst'
+    'wrst tf if'
+    'wrp wrp wrp'
+    'rbw rbw rbw';
 
   .rankingViewTitle {
     grid-area: t;
@@ -27,9 +28,14 @@
     grid-area: ph;
   }
 
+  .topkSummaryTitle { 
+    grid-area: tst;
+    margin-top: 5px;
+    // border-bottom: 1px solid #d7d7d7;
+  }
+
   .wholeRankingPlotWrapper {
     grid-area: wrp;
-    display: flex;
   }
 
   .wholeRankingPlot {
@@ -37,7 +43,9 @@
   }
 
   .wholeRankingSummaryStat1 {
-    width: 10%;
+    grid-area: wrst;
+    display: flex;
+    justify-content: space-around;
   }
 
   .filterTitle { 
@@ -65,12 +73,6 @@
       font-size: 2rem;
       margin-bottom: 10px;
     }
-  }
-
-  .topkSummaryTitle { 
-    grid-area: tst;
-    margin-top: 0;
-    // border-bottom: 1px solid #d7d7d7;
   }
 
   .topkSummaryStat {
@@ -118,6 +120,7 @@
   }
 
   .runButtonWrapper {
+    grid-area: rbw;
     display: grid;
     -ms-flex-pack: right;
     justify-content: right;

@@ -877,6 +877,13 @@ class RankingInspectorView extends Component {
             distortionMin = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[0],
             distortionMax = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[1];
 
+      const inputSpaceText = d3.select(svg)
+              .append('text')
+              .attr('x', 0)
+              .attr('y', 0)
+              .text('INPUT SPACE')
+              .style('font-size', '11px');
+
       return (
         <div>{svg.toReact()}</div>
       );
@@ -888,34 +895,15 @@ class RankingInspectorView extends Component {
           <div className={styles.SpaceView}>
             <div className={styles.spaceViewTitleWrapper}>
               <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Global Inspector</div>
-              <div className={styles.intervalSlider}>
-                <InputNumber
-                  size='small'
-                  min={1}
-                  max={this.props.n}
-                  style={{ width: 40 }}
-                  value={1}
-                />
-                <span>&nbsp;-&nbsp;</span>
-                <InputNumber
-                  size='small'
-                  min={1}
-                  max={this.props.n}
-                  style={{ width: 40 }}
-                  value={30} // this.state.selectedRankingInterval.to
-                  // onChange={this.handleIntervalChange}
-                />
-                <Slider 
-                  step={1} 
-                  min={1}
-                  max={100} // this.props.n
-                  value={30} // this.state.selectedRankingInterval.to
-                  style={{ width: 150 }}
-                  // onChange={} // this.handleIntervalChange
-                />
-              </div>
+              <IndividualInspectionView
+                className={styles.IndividualInspectionView}
+                data={this.props.data}
+                topk={this.props.topk}
+                selectedInstance={this.props.selectedInstance}
+                selectedRankingInterval={this.props.selectedRankingInterval} 
+              />
             </div>
-            <div className={styles.spaceViewMap}>{this.renderSpaceOverview()}</div>
+            <div className={styles.spaceMapView}>{this.renderSpaceOverview()}</div>
             <LegendView 
               className={styles.LegendView} 
             />
@@ -941,13 +929,6 @@ class RankingInspectorView extends Component {
             </div>
           </div>
           <div className={styles.InspectionComponentsView}>
-            <IndividualInspectionView
-                className={styles.IndividualInspectionView}
-                data={this.props.data}
-                topk={this.props.topk}
-                selectedInstance={this.props.selectedInstance}
-                selectedRankingInterval={this.props.selectedRankingInterval} 
-            />
             <IndividualFairnessInspectionView
                 className={styles.IndividualFairnessInspectionView}
                 data={this.props.data}

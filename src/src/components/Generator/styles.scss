@@ -8,9 +8,7 @@
   align-items: center;
   font-size: 12px;
 
-  background-color: #003569;
-  border: 2px solid white;
-  color: white;
+  border-right: 1px solid lightgray;
   padding: 7px;
   font-size: 1.1rem;
 
@@ -19,7 +17,6 @@
     display: flex;
     
     .generatorTitle {
-        color: white;
         padding: 0;
     }
     .step1 { 
@@ -40,7 +37,7 @@
 
   .generatorSubTitle {
     font-weight: 600;
-    border-top: 1px solid white;
+    border-top: 1px solid lightgray;
     padding: 1px;
     padding-top: 10px;
     margin: 15px 5px;
@@ -87,7 +84,6 @@
   .selectProtectedGroupWrapper {
     width: 90%;
     margin: 0 auto;
-    color: white;
     font-size: 1rem;
 
     .selectProtectedGroup {

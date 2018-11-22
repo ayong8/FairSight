@@ -94,7 +94,7 @@ class RankingView extends Component {
           .style('stroke-width', 2);
       } else {
         d3.selectAll('.rect_whole_ranking_topk')
-          .style('stroke-width', 1);
+          .style('stroke-width', 0.5);
       }
     }
 
@@ -517,8 +517,6 @@ class RankingView extends Component {
       svg.setAttribute('0 0 200 200');
       svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       svg.setAttribute('class', 'svg_whole_ranking');
-      svg.style.setProperty('background-color', 'whitesmoke');
-      svg.style.setProperty('border', '1px solid #dedede');
   
       const rectInterval = 10,
             rectWidth = 8,
@@ -565,12 +563,14 @@ class RankingView extends Component {
             //   .call(d3.axisBottom(nonTopkRankingScale).tickValues(d3.range(topk+1, n, 10)));
 
       const rectTopkRegion = d3.select(svg).append('rect')
+              .attr('class', 'rect_topk_region')
               .attr('x', _self.layout.wholeRankingPlot.plot.margin)
               .attr('y', _self.layout.wholeRankingPlot.svg.height - _self.layout.wholeRankingPlot.plot.margin - 17.5)
-              .attr('width', _self.layout.wholeRankingPlot.plot.margin + topkPlotWidth)
+              .attr('width', _self.layout.wholeRankingPlot.plot.margin + topkPlotWidth - _self.layout.wholeRankingPlot.plot.marginBtn)
               .attr('height', 5)
               .style('fill', gs.topkColor),
             rectNonTopkRegion = d3.select(svg).append('rect')
+              .attr('class', 'rect_non_topk_region')
               .attr('x', _self.layout.wholeRankingPlot.plot.margin + topkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn)
               .attr('y', _self.layout.wholeRankingPlot.svg.height - _self.layout.wholeRankingPlot.plot.margin - 17.5)
               .attr('width', selectedNonTopkRankingScale(to) - selectedNonTopkRankingScale(topk + 1))
@@ -586,23 +586,6 @@ class RankingView extends Component {
             gNonTopkRanking = d3.select(svg).append('g')
               .attr('class', 'g_non_topk_whole_ranking')
               .attr('transform', 'translate(' + (_self.layout.wholeRankingPlot.plot.margin + topkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn + selectedNonTopkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn) + ',' + _self.layout.wholeRankingPlot.plot.marginTop + ')');
-
-      const topkLine = d3.select(svg)
-              .append('line')
-              .attr('x1', _self.layout.wholeRankingPlot.plot.margin + topkRankingScale(topk) + 15)
-              .attr('y1', 0)
-              .attr('x2', _self.layout.wholeRankingPlot.plot.margin + topkRankingScale(topk) + 15)
-              .attr('y2', _self.layout.wholeRankingPlot.svg.height)
-              .style('stroke', 'black')
-              .style('stroke-dasharray', '3,3'),
-            nonTopkLine = d3.select(svg)
-              .append('line')
-              .attr('x1', _self.layout.wholeRankingPlot.plot.margin + topkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn + selectedNonTopkRankingScale(to) + 15)
-              .attr('y1', 0)
-              .attr('x2', _self.layout.wholeRankingPlot.plot.margin + topkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn + selectedNonTopkRankingScale(to) + 15)
-              .attr('y2', _self.layout.wholeRankingPlot.svg.height)
-              .style('stroke', 'black')
-              .style('stroke-dasharray', '3,3');
   
       const topkRects = gTopkRanking.selectAll('.rect_whole_ranking_topk')
               .data(topkInstances)
@@ -725,46 +708,24 @@ class RankingView extends Component {
             Current ranking: &nbsp;
             <Tag color="#108ee9">{'R' + data.rankingId}</Tag>
           </div>
-          <div className={styles.wholeRankingPlotWrapper}>
-            <div className={styles.wholeRankingSummaryStat1}>
-              <div className={styles.accuracyWrapper}>
-                <div className={styles.accuracyTitle}>Accuracy</div>
-                <div className={styles.accuracy}>{accuracy + '%'}</div>
-              </div>
-              <div className={styles.groupFairnessWrapper}>
-                <div 
-                  className={styles.groupFairnessTitle} 
-                  onMouseOver={this.handleMouseOverGroupFairness}
-                  onMouseOut={this.handleMouseOverGroupFairness}
-                >Statistical Parity</div>
-                <div className={styles.groupFairness}>{sp}</div>
-              </div>
-              {/* <div className={styles.groupFairnessWrapper}>
-                <div className={styles.individualFairnessTitle}>Group skew</div>
-                <div className={styles.individualFairness}>{groupSkew}</div>
-              </div> */}
-            </div>
-            {this.renderWholeRankingPlot()}
-          </div>
-          <div className={styles.filterTitle + ' ' + index.subTitle}>Filter</div>
           <div className={styles.topkSummaryTitle  + ' ' + index.subTitle}>
             <Icon type="filter" theme="outlined" />
             &nbsp;Filter
           </div>
-          {/* <div className={styles.topkSummaryStat}>
+          <div className={styles.wholeRankingSummaryStat1}>
             <div className={styles.accuracyWrapper}>
               <div className={styles.accuracyTitle}>Accuracy</div>
               <div className={styles.accuracy}>{accuracy + '%'}</div>
             </div>
-            <div className={styles.individualFairnessWrapper}>
-              <div className={styles.individualFairnessTitle}>Statistical Parity</div>
-              <div className={styles.individualFairness}>{sp}</div>
-            </div>
             <div className={styles.groupFairnessWrapper}>
-              <div className={styles.individualFairnessTitle}>Group skew</div>
-              <div className={styles.individualFairness}>{groupSkew}</div>
+              <div 
+                className={styles.groupFairnessTitle} 
+                onMouseOver={this.handleMouseOverGroupFairness}
+                onMouseOut={this.handleMouseOverGroupFairness}
+              >Statistical Parity</div>
+              <div className={styles.groupFairness}>{sp}</div>
             </div>
-          </div> */}
+          </div>
           <div className={styles.topkFilterView}>
             <div className={styles.topkInputWrapper}>
               <div className={styles.topkFilterTitle}>Top-k</div>
@@ -787,16 +748,11 @@ class RankingView extends Component {
                 min={1}
                 max={this.props.n}
                 value={this.state.topk}
-                style={{ width: 450 }}
+                style={{ width: '90%' }}
                 onChange={this.handleSelectedTopk} 
               />
             </div>
           </div>
-          {/* <UtilityView 
-              className={styles.UtilityView}
-              n={this.props.n}
-              rankingInstance={this.props.data}
-              topk={this.props.topk} /> */}
           <div className={styles.intervalFilterView}>            
             <div className={styles.intervalInputWrapper}>
               <div className={styles.intervalFilterTitle}>Interval</div>
@@ -825,15 +781,18 @@ class RankingView extends Component {
               min={1}
               max={this.props.n}
               value={this.state.selectedRankingInterval.to}
-              style={{ width: 450 }}
+              style={{ width: '90%' }}
               onChange={this.handleIntervalChange}
             />
-            <div className={styles.runButtonWrapper}>
-              <Button 
-                className={styles.buttonGenerateRanking} 
-                color='danger' 
-                onClick={this.handleFilterRunning}>RUN</Button>
-            </div>
+          </div>
+          <div className={styles.wholeRankingPlotWrapper}>
+            {this.renderWholeRankingPlot()}
+          </div>
+          <div className={styles.runButtonWrapper}>
+            <Button 
+              className={styles.buttonGenerateRanking} 
+              color='danger' 
+              onClick={this.handleFilterRunning}>RUN</Button>
           </div>
         </div>
       );

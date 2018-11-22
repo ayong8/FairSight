@@ -103,18 +103,30 @@ class InputSpaceView extends Component {
           .domain(d3.extent(instances, (d) => d.dim2))
           .range([this.layout.svg.height - this.layout.svg.padding, 0]);
 
+      const diagonalPattern = d3.select(svg)
+          .append('defs')
+          .append('pattern')
+            .attr('id', 'diagonalHatch')
+            .attr('patternUnits', 'userSpaceOnUse')
+            .attr('width', 4)
+            .attr('height', 4)
+          .append('path')
+            .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+            .attr('stroke', '#000000')
+            .attr('stroke-width', 1);
+
       let gCircles = d3.select(svg)
           .append('g')
           .attr('transform', 'translate(10,10)');
 
       const circles = gCircles
-          .selectAll('.item')
+          .selectAll('.item2')
           .data(instances)
           .enter().append('circle')
-          .attr('class', 'item')
+          .attr('class', 'item2')
           .attr('cx', (d) => xScale(d.dim1))
           .attr('cy', (d) => yScale(d.dim2))
-          .attr('r', 3)
+          .attr('r', 4)
           .style('fill', (d) => {
               if (mode === 'GF') {
                 let group = d.group;
@@ -122,7 +134,33 @@ class InputSpaceView extends Component {
                     ? gs.groupColor1
                     : gs.groupColor2;
               } else if (mode === 'IF') {
-                return d.isTopk ? gs.topkColor : gs.individualColor;
+                //return d.isTopk ? gs.topkColor : gs.individualColor;
+                return 'yellow';
+              }
+          })
+          .style('stroke', 'black')
+          .style('opacity', 0.7)
+          .on('mouseover', (d) => {
+              // _self.props.onMouseoverInstance(d.idx);
+          });
+
+      const circlesForPattern = gCircles
+          .selectAll('.item')
+          .data(instances)
+          .enter().append('circle')
+          .attr('class', 'item')
+          .attr('cx', (d) => xScale(d.dim1))
+          .attr('cy', (d) => yScale(d.dim2))
+          .attr('r', 4)
+          .style('fill', (d) => {
+              if (mode === 'GF') {
+                let group = d.group;
+                return group === 0
+                    ? gs.groupColor1
+                    : gs.groupColor2;
+              } else if (mode === 'IF') {
+                //return d.isTopk ? gs.topkColor : gs.individualColor;
+                return 'url(#diagonalHatch)';
               }
           })
           .style('stroke', 'black')

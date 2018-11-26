@@ -37,12 +37,11 @@
     grid-area: t;
     display: flex;
     justify-content: space-between;
-    border-bottom: 1px solid #e3e0e1;
 
   }
   // .spaceViewTitle { grid-area: t; }
   // .intervalSelector { grid-area: is; }
-  .spaceViewMap { grid-area: sm; }
+  .spaceMapView { grid-area: sm; }
   .LegendView { grid-area: lg; }
   .OutputSpaceView { grid-area: tr; }
 

@@ -450,18 +450,16 @@ class App extends Component {
         };
       }
      });
-     
   }
 
-  handleModelRunning(){
-    const { rankingInstance } = this.state,
-          { method, isForPerturbation } = rankingInstance;
+  handleModelRunning(rankingInstance){  // this.state.rankingInstance from Generator
+    const { method } = rankingInstance;
 
     // data file loading here
     this.getFetches(rankingInstance, method)
     .then((responses) => {
-      const { rankingInstance, rankings } = this.state,
-          { instances } = rankingInstance;
+      const { rankings } = this.state,
+          { instances, isForPerturbation } = rankingInstance;
 
       let updatedInstances = [],
           inputs = [];

@@ -6,6 +6,7 @@
     rankingListViewWidth: $layout-first-column;
     rankingListViewHeight: $layout-third-row + $layout-fourth-row;
 
+    systemColor: $system-color;
     individualColor: $individual-color;
     groupColor1: $group-color1;
     groupColor2: $group-color2;
@@ -19,6 +20,7 @@
     nonTopkTrueColor: $non-topk-true-color;
     nonTopkFalseColor: $non-topk-false-color;
     outlierColor: $outlier-color;
-    betweenGroupColor: $between-group-color;
-    withinGroupColor: $within-group-color;
+    individualPairColor: $individual-pair-color;
+    betweenGroupPairColor: $between-group-pair-color;
+    withinGroupPairColor: $within-group-pair-color;
 }

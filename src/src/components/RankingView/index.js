@@ -39,8 +39,9 @@ class RankingView extends Component {
             plot: {
               width: 750,
               height: 90,
-              margin: 30,
+              margin: 10,
               marginTop: 40,
+              marginBottom: 30,
               marginBtn: 10
             }
           },
@@ -97,6 +98,12 @@ class RankingView extends Component {
           .style('stroke-width', 0.5);
       }
     }
+
+    // shouldComponentUpdate(nextProps, nextState) {
+    //   const shouldRunModel = nextProps.data.shouldRunModel;
+      
+    //   return shouldRunModel;
+    // }
 
     handleSelectedTopk(topk) {
       this.setState({
@@ -565,14 +572,14 @@ class RankingView extends Component {
       const rectTopkRegion = d3.select(svg).append('rect')
               .attr('class', 'rect_topk_region')
               .attr('x', _self.layout.wholeRankingPlot.plot.margin)
-              .attr('y', _self.layout.wholeRankingPlot.svg.height - _self.layout.wholeRankingPlot.plot.margin - 17.5)
+              .attr('y', _self.layout.wholeRankingPlot.svg.height - _self.layout.wholeRankingPlot.plot.marginBottom - 17.5)
               .attr('width', _self.layout.wholeRankingPlot.plot.margin + topkPlotWidth - _self.layout.wholeRankingPlot.plot.marginBtn)
               .attr('height', 5)
               .style('fill', gs.topkColor),
             rectNonTopkRegion = d3.select(svg).append('rect')
               .attr('class', 'rect_non_topk_region')
               .attr('x', _self.layout.wholeRankingPlot.plot.margin + topkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn)
-              .attr('y', _self.layout.wholeRankingPlot.svg.height - _self.layout.wholeRankingPlot.plot.margin - 17.5)
+              .attr('y', _self.layout.wholeRankingPlot.svg.height - _self.layout.wholeRankingPlot.plot.marginBottom - 17.5)
               .attr('width', selectedNonTopkRankingScale(to) - selectedNonTopkRankingScale(topk + 1))
               .attr('height', 5)
               .style('fill', gs.nonTopkColor);
@@ -586,7 +593,20 @@ class RankingView extends Component {
             gNonTopkRanking = d3.select(svg).append('g')
               .attr('class', 'g_non_topk_whole_ranking')
               .attr('transform', 'translate(' + (_self.layout.wholeRankingPlot.plot.margin + topkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn + selectedNonTopkPlotWidth + _self.layout.wholeRankingPlot.plot.marginBtn) + ',' + _self.layout.wholeRankingPlot.plot.marginTop + ')');
-  
+
+      const diagonalPattern = d3.select(svg)
+              .append('defs')
+              .append('pattern')
+                .attr('id', 'diagonalHatch')
+                .attr('patternUnits', 'userSpaceOnUse')
+                .attr('width', 4)
+                .attr('height', 4)
+              .append('path')
+                .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+                .attr('stroke', '#000000')
+                .attr('stroke-width', 1);
+      
+      // Needs two rects folded, one for pattern and the other for color
       const topkRects = gTopkRanking.selectAll('.rect_whole_ranking_topk')
               .data(topkInstances)
               .enter().append('rect')
@@ -595,7 +615,20 @@ class RankingView extends Component {
               .attr('y', (d) => 0)
               .attr('width', rectWidth)
               .attr('height', rectHeight)
-              .style('fill', (d) => d.target ? gs.trueColor : gs.falseColor)
+              .style('fill', gs.individualColor)
+              .style('stroke', 'black')
+              .style('shape-rendering', 'crispEdge')
+              .style('stroke-width', 0.5);
+
+      const topkRectsForPattern = gTopkRanking.selectAll('.rect_whole_ranking_topk_for_pattern')
+              .data(topkInstances)
+              .enter().append('rect')
+              .attr('class', (d) => 'rect_whole_ranking_topk_for_pattern rect_whole_ranking_topk_for_pattern_' + d.ranking)
+              .attr('x', (d) => topkRankingScale(d.ranking))
+              .attr('y', (d) => 0)
+              .attr('width', rectWidth)
+              .attr('height', rectHeight)
+              .style('fill', (d) => !d.target ? 'url(#diagonalHatch)' : 'none')
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5);
@@ -648,7 +681,20 @@ class RankingView extends Component {
               .attr('y', (d) => 0)
               .attr('width', rectWidth)
               .attr('height', rectHeight)
-              .style('fill', (d) => d.target ? gs.trueColor : gs.falseColor)
+              .style('fill', gs.individualColor)
+              .style('stroke', 'black')
+              .style('shape-rendering', 'crispEdge')
+              .style('stroke-width', 0.5);
+
+      const selectedNonTopkRectsForPattern = gSelectedNonTopkRanking.selectAll('.rect_whole_ranking_selected_non_topk_for_pattern')
+              .data(selectedNonTopkInstances)
+              .enter().append('rect')
+              .attr('class', (d) => 'rect_whole_ranking_selected_non_topk_for_pattern rect_whole_ranking_selected_non_topk_for_pattern_' + d.ranking)
+              .attr('x', (d) => selectedNonTopkRankingScale(d.ranking))
+              .attr('y', (d) => 0)
+              .attr('width', rectWidth)
+              .attr('height', rectHeight)
+              .style('fill', (d) => !d.target ? 'url(#diagonalHatch)' : 'none')
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5);
@@ -674,7 +720,20 @@ class RankingView extends Component {
               .attr('y', (d, i) => (rectHeight / 5) * (i % 5))
               .attr('width', rectHeight / 5)
               .attr('height', rectHeight / 5)
-              .style('fill', (d) => d.target ? gs.trueColor : gs.falseColor)
+              .style('fill', gs.individualColor)
+              .style('stroke', 'black')
+              .style('shape-rendering', 'crispEdge')
+              .style('stroke-width', 0.5);
+
+      const nonTopkRectsForPattern = gNonTopkRanking.selectAll('.non_topk_rect_for_pattern')
+              .data(nonTopkInstances)
+              .enter().append('rect')
+              .attr('class', (d) => 'non_topk_rect_for_pattern non_topk_rect__for_pattern_' + d.ranking)
+              .attr('x', (d, i) => rectWidth * Math.floor(i / 5))
+              .attr('y', (d, i) => (rectHeight / 5) * (i % 5))
+              .attr('width', rectHeight / 5)
+              .attr('height', rectHeight / 5)
+              .style('fill', (d) => !d.target ? 'url(#diagonalHatch)' : 'none')
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5);
@@ -739,7 +798,7 @@ class RankingView extends Component {
                 value={this.state.topk}
                 onChange={this.handleSelectedTopk}
               />
-              &nbsp;&nbsp;/&nbsp;&nbsp;{n}
+              /{n}
             </div>
             <div className={styles.topkSliderWrapper}>
               <Slider 

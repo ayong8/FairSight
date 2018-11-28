@@ -60,19 +60,6 @@
     .wholeRankingSummaryStat {
       display: flex;
     }
-
-    .accuracyWrapper,
-    .groupFairnessWrapper,
-    .individualFairnessWrapper {
-      width: 30%;
-    }
-
-    .accuracy,
-    .groupFairness,
-    .individualFairness {
-      font-size: 2rem;
-      margin-bottom: 10px;
-    }
   }
 
   .topkSummaryStat {
@@ -81,13 +68,17 @@
   }
 
   .accuracyWrapper,
-  .groupFairnessWrapper,
+  .inputGroupFairnessWrapper,
+  .mappingGroupFairnessWrapper,
+  .outputGroupFairnessWrapper,
   .individualFairnessWrapper {
     width: 30%;
   }
 
   .accuracy,
-  .groupFairness,
+  .inputGroupFairness,
+  .mappingGroupFairness,
+  .outputGroupFairness,
   .individualFairness {
     font-size: 2rem;
     margin-bottom: 10px;

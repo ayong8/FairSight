@@ -61,7 +61,7 @@ class RankingInspectorView extends Component {
       this.dataBinFlattened = [];
 
       this.state = {
-        mode: 'individualFairness',
+        mode: 'IF', // individual fairness
         selectedIntervalForMatrix: {
           from: 1,
           to: 50
@@ -123,6 +123,9 @@ class RankingInspectorView extends Component {
           width: 100,
           height: 100,
           margin: 5
+        },
+        svgSpeceOverview: {
+          height: 80
         }
       };
 
@@ -215,6 +218,12 @@ class RankingInspectorView extends Component {
       });
     }
 
+    shouldComponentUpdate(nextProps, nextState) {
+      const shouldRunModel = nextProps.data.shouldRunModel;
+      
+      return shouldRunModel;
+    }
+
     componentWillUpdate() {
       // this.updateMatrix();
     }
@@ -225,6 +234,8 @@ class RankingInspectorView extends Component {
 
         const { data } = this.props,
               { method, features } = data;
+
+        console.log('update of perturbed features: ', data.features.map((d) => d.name))
         
         // Perturb features
         const perturbationResults = [];
@@ -594,19 +605,19 @@ class RankingInspectorView extends Component {
           .range(['slateblue', 'white', 'palevioletred']);
       _self.absDistortionScale = d3.scaleLinear()
           .domain(d3.extent(permutationDiffsFlattened, (d) => d.absDistortion))
-          .range(['white', 'indigo']);
+          .range(['white', gs.individualPairColor]);
       _self.absDistortionBtnPairsScale = d3.scaleLinear()
           .domain(d3.extent(permutationDiffsFlattened, (d) => d.absDistortion))
-          .range(['white', 'mediumspringgreen']);
+          .range(['white', gs.betweenGroupPairColor]);
       _self.absDistortionWtnPairsScale = d3.scaleLinear()
           .domain(d3.extent(permutationDiffsFlattened, (d) => d.absDistortion))
-          .range(['white', 'deeppink']);
+          .range(['white', gs.withinGroupPairColor]);
       _self.sumDistortionScale = d3.scaleLinear()
           .domain(d3.extent(instances, (d) => d.sumDistortion))
           .range([5, _self.layout.svgMatrix.distortionSumPlotRight.width - 10]);
       _self.sumDistortionColorScale = d3.scaleLinear()
           .domain(d3.extent(instances, (d) => d.sumDistortion))
-          .range(['#fbfbfb', '#5c34ff']);
+          .range(['white', gs.individualPairColor]);
       _self.xAttributeScale = d3.scaleLinear()
           .domain(d3.extent(dataX, (d) => d.features[Object.keys(d.features)[0]]))
           .range(['white', '#003569']);
@@ -743,8 +754,8 @@ class RankingInspectorView extends Component {
               fillColor = 'red';
             }
             
-            return (mode === 'individualFairness') ? _self.absDistortionScale(absDistortion)
-                  : (mode === 'groupFairness' && pair === 3) ? _self.absDistortionBtnPairsScale(absDistortion)
+            return (mode === 'IF') ? _self.absDistortionScale(absDistortion)
+                  : (mode === 'GF' && pair === 3) ? _self.absDistortionBtnPairsScale(absDistortion)
                   : _self.absDistortionWtnPairsScale(absDistortion);
           })
           .style('stroke', (d) => {
@@ -810,34 +821,37 @@ class RankingInspectorView extends Component {
           .attr('y', (d) => 35 - _self.sumDistortionScale(d.sumDistortion))
           .attr('width', _self.xMatrixScale.bandwidth() - 1)
           .attr('height', (d) => _self.sumDistortionScale(d.sumDistortion))
-          .attr('fill', (d) => _self.sumDistortionColorScale(d.sumDistortion))
+          .attr('fill', (d) => 
+              (mode === 'IF') ? gs.individualColor : 
+              (mode === 'GF' && d.group === 0) ? gs.groupColor1 : gs.groupColor2
+          )
           .attr('stroke', 'black')
           .attr('stroke-width', 0.4);
 
-      // For histo matrix
-      gHistoCells.append('rect')
-          .attr('class', 'histo_rect')
-          .attr('x', 0)
-          .attr('y', 0)
-          .attr('width', _self.cellHistoWidth)
-          .attr('height', _self.cellHistoHeight)
-          .style('fill', (d) => _self.sumAbsDistortionScale(d.sumAbsDistortion))
-          .style('stroke', (d) => 'black')
-          .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.3);
+      // // For histo matrix
+      // gHistoCells.append('rect')
+      //     .attr('class', 'histo_rect')
+      //     .attr('x', 0)
+      //     .attr('y', 0)
+      //     .attr('width', _self.cellHistoWidth)
+      //     .attr('height', _self.cellHistoHeight)
+      //     .style('fill', (d) => _self.sumAbsDistortionScale(d.sumAbsDistortion))
+      //     .style('stroke', (d) => 'black')
+      //     .style('shape-rendering', 'crispEdge')
+      //     .style('stroke-width', 0.3);
 
-      gHistoMatrix.append('rect')
-          .attr('class', 'histo_selected_area')
-          .attr('x', 0)
-          .attr('y', 0)
-          .attr('width', _self.xHistoMatrixScale(2) - _self.xHistoMatrixScale(0))
-          .attr('height', _self.yHistoMatrixScale(0) - _self.yHistoMatrixScale(2))
-          .style('fill', (d) => '#8BC34A')
-          .style('fill-opacity', 0.5)
-          .style('stroke', (d) => 'black')
-          .style('stroke-dasharray', '2,2')
-          .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.3);
+      // gHistoMatrix.append('rect')
+      //     .attr('class', 'histo_selected_area')
+      //     .attr('x', 0)
+      //     .attr('y', 0)
+      //     .attr('width', _self.xHistoMatrixScale(2) - _self.xHistoMatrixScale(0))
+      //     .attr('height', _self.yHistoMatrixScale(0) - _self.yHistoMatrixScale(2))
+      //     .style('fill', (d) => '#8BC34A')
+      //     .style('fill-opacity', 0.5)
+      //     .style('stroke', (d) => 'black')
+      //     .style('stroke-dasharray', '2,2')
+      //     .style('shape-rendering', 'crispEdge')
+      //     .style('stroke-width', 0.3);
     }
 
     handleSelectGroupCheckbox(checked) {
@@ -861,31 +875,66 @@ class RankingInspectorView extends Component {
     renderSpaceOverview() {
       const _self = this;
 
-      const svg = new ReactFauxDOM.Element('svg');
-  
-      svg.setAttribute('width', '100%');
-      svg.setAttribute('height', _self.layout.svgMatrix.height);
-      svg.setAttribute('0 0 200 200');
-      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      svg.setAttribute('class', 'svg_matrix');
-
       const { mode } = this.state;
       const { data, topk, selectedInstance, selectedInstances,
               selectedPermutationDiffsFlattend, permutationDiffs, permutationDiffsFlattened } = this.props,
-            { instances } = data,
+            { instances, stat } = data,
+            { accuracy, goodnessOfFairness, groupSkew, sp, cp } = stat,
             to = selectedInstances.length,
             distortionMin = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[0],
             distortionMax = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[1];
 
-      const inputSpaceText = d3.select(svg)
-              .append('text')
-              .attr('x', 0)
-              .attr('y', 0)
-              .text('INPUT SPACE')
-              .style('font-size', '11px');
+      const mappingMeasure = (mode === 'GF') ?
+                              (<div className={styles.mappingGroupFairnessWrapper}>
+                                <div 
+                                  className={styles.mappingGroupFairnessTitle} 
+                                  onMouseOver={this.handleMouseOverGroupFairness}
+                                  onMouseOut={this.handleMouseOverGroupFairness}
+                                >GroupSkew</div>
+                                <div className={styles.mappingGroupFairness}>{groupSkew}</div>
+                              </div>) :
+                            (mode === 'IF') ?
+                              (<div className={styles.individualFairnessWrapper}>
+                                <div 
+                                  className={styles.individualFairnessTitle} 
+                                  onMouseOver={this.handleMouseOverIndividualFairness}
+                                  onMouseOut={this.handleMouseOverIndividualFairness}
+                                >Goodness of Fairness</div>
+                                <div className={styles.individualFairness}>{goodnessOfFairness}</div>
+                              </div>) : 
+                              (<div></div>);
+
+      const outputMeasure = (mode === 'GF') ?
+                                (<div className={styles.outputGroupFairnessWrapper}>
+                                  <div 
+                                    className={styles.outputGroupFairnessTitle} 
+                                    onMouseOver={this.handleMouseOverGroupFairness}
+                                    onMouseOut={this.handleMouseOverGroupFairness}
+                                    >Statistical Parity</div>
+                                  <div className={styles.outputGroupFairness}>{sp}</div>
+                                </div>) :
+                            (mode === 'IF') ?
+                                (<div></div>) : 
+                                (<div></div>);
 
       return (
-        <div>{svg.toReact()}</div>
+        <div className={styles.spaceOverview}>
+          <div className={styles.inputSpaceTitle}>INPUT SPACE</div>
+          <div className={styles.inputSpaceDescription}>-</div>
+          <div className={styles.inputSpaceMeasure}>INPUT SPACE</div>
+          <div className={styles.mappingSpaceTitle}>MAPPING</div>
+          <div className={styles.mappingSpaceDescription}>-</div>
+          <div className={styles.mappingSpaceMeasure}>{mappingMeasure}</div>
+          <div className={styles.outputSpaceTitle}>OUTPUT SPACE</div>
+          <div className={styles.outputSpaceDescription}>-</div>
+          <div className={styles.outputSpaceMeasure}>{outputMeasure}</div>
+          <div className={styles.intervalSpace1}>
+            <Icon type="right-circle" theme="twoTone" />
+          </div>
+          <div className={styles.intervalSpace2}>
+            <Icon type="right-circle" theme="twoTone" />
+          </div>
+        </div>
       );
     }
 
@@ -895,15 +944,8 @@ class RankingInspectorView extends Component {
           <div className={styles.SpaceView}>
             <div className={styles.spaceViewTitleWrapper}>
               <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Global Inspector</div>
-              <IndividualInspectionView
-                className={styles.IndividualInspectionView}
-                data={this.props.data}
-                topk={this.props.topk}
-                selectedInstance={this.props.selectedInstance}
-                selectedRankingInterval={this.props.selectedRankingInterval} 
-              />
             </div>
-            <div className={styles.spaceMapView}>{this.renderSpaceOverview()}</div>
+            {this.renderSpaceOverview()}
             <LegendView 
               className={styles.LegendView} 
             />
@@ -947,6 +989,10 @@ class RankingInspectorView extends Component {
       return (
         <div className={styles.IndividualFairnessView}>
           <div className={styles.SpaceView}>
+            <div className={styles.spaceViewTitleWrapper}>
+              <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Global Inspector</div>
+            </div>
+            {this.renderSpaceOverview()}
             <LegendView 
               className={styles.LegendView} 
             />
@@ -1006,8 +1052,8 @@ class RankingInspectorView extends Component {
       return (
         <div className={styles.RankingInspectorView}>
           <Tabs onChange={this.changeFairnessMode} type="card">
-            <TabPane tab="Individual Fairness" key="individualFairness">{this.renderIndividualFairnessView()}</TabPane>
-            <TabPane tab="Group Fairness" key="groupFairness">{this.renderGroupFairnessView()}</TabPane>
+            <TabPane tab="Individual Fairness" key="IF">{this.renderIndividualFairnessView()}</TabPane>
+            <TabPane tab="Group Fairness" key="GF">{this.renderGroupFairnessView()}</TabPane>
           </Tabs>
         </div>
       );

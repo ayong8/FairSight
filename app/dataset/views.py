@@ -396,6 +396,11 @@ class RunLR(APIView):
         if is_for_perturbation == False:
             X = whole_dataset_df[features]
         elif is_for_perturbation == True:
+            # # Update features in the instances (Sort by idx both and biject instance in the dataset to ranking instance one by one)
+            # ranking_instance['instances'] = sorted(ranking_instance['instances'], key=lambda d: d['idx'])
+            # filtered_instances = whole_dataset_df.sort_values(by=['idx'])[features]
+            # for idx, instance in enumerate(ranking_instance['instances']):
+            #     instance['features'] = filtered_instances.loc[idx]
             X = perturb_feature(ranking_instance)
 
         X_wo_s_attr = whole_dataset_df[features]
@@ -407,6 +412,7 @@ class RunLR(APIView):
             lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
             accuracy = lr_fit.score(X_test, y_test)
         elif is_for_perturbation == True:
+            print('ranking_instanccc:', ranking_instance)
             lr_fit = load_trained_model(ranking_instance)
             accuracy_after_perturbation = lr_fit.score(X_test, y_test)
 

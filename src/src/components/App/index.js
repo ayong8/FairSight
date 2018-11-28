@@ -9,10 +9,12 @@ import 'antd/dist/antd.css';
 
 import Menubar from 'components/Menubar';
 import Generator from 'components/Generator';
-import RankingsListView from 'components/RankingsListView';
 import RankingView from 'components/RankingView';
 import RankingInspectorView from 'components/RankingInspectorView';
+import RankingsListView from 'components/RankingsListView';
+import IndividualInspectionView from 'components/IndividualInspectionView';
 import Footer from "components/Footer";
+import { timeYears } from "d3-time";
 
 function pairwise(list) {
   if (list.length < 2) { return []; }
@@ -108,7 +110,8 @@ class App extends Component {
           fp: 0,
           ndcg: 0
         },
-        isForPerturbation: false  // False in python
+        isForPerturbation: false,  // False in python
+        shouldRunModel: true
       },
       output: [],
       selectedInstances: [],
@@ -137,14 +140,13 @@ class App extends Component {
     const { dataset, rankingInstance } = this.state,
           { method, isForPerturbation } = rankingInstance;
 
-    // Store feature information
-
     this.getFetches(rankingInstance, method)
     .then((responses) => {
-      const { rankingInstance, dataset, methods, features, 
+      const { methods, features, 
               topk, n, selectedRankingInterval, mouseoveredInstance, rankings,
-              permutationDiffsFlattened } = this.state,
-            { instances } = rankingInstance,
+              permutationDiffsFlattened } = this.state;
+      const updatedRankingInstance = responses[2],
+            { instances } = updatedRankingInstance,
             { from, to } = selectedRankingInterval;
 
       let updatedInstances = [],
@@ -176,6 +178,7 @@ class App extends Component {
             );
 
       this.setState((prevState) => ({
+        shouldRunModel: true,
         selectedInstances: this.selectedInstances,
         pairwiseDiffs: this.pairwiseDiffs,
         permutationDiffs: this.permutationDiffs,
@@ -187,7 +190,8 @@ class App extends Component {
           stat: {
             ...prevState.rankingInstance.stat,
             goodnessOfFairness: this.rSquared
-          }
+          },
+          isForPerturbation: false
         },
         rankings: [...prevState.rankings, rankingInstance]
       }));
@@ -295,6 +299,8 @@ class App extends Component {
               this.setState(prevState => ({
                 rankingInstance: rankingInstance
               }));
+
+              return rankingInstance;
             });
   }
 
@@ -402,6 +408,7 @@ class App extends Component {
         return {
           rankingInstance: {
             ...prevState.rankingInstance,
+            shouldRunModel: false,
             method: {
               ...methodObj
             }
@@ -417,6 +424,7 @@ class App extends Component {
         return {
           rankingInstance: {
             ...prevState.rankingInstance,
+            shouldRunModel: false,
             features: featureObjs
           }
         };
@@ -429,6 +437,7 @@ class App extends Component {
         return {
           rankingInstance: {
             ...prevState.rankingInstance,
+            shouldRunModel: false,
             sensitiveAttr: {
               ...featureObj
             }
@@ -443,6 +452,7 @@ class App extends Component {
         return {
           rankingInstance: {
             ...prevState.rankingInstance,
+            shouldRunModel: false,
             [stateProperty]: {
               ...featureObj
             }
@@ -452,14 +462,21 @@ class App extends Component {
      });
   }
 
-  handleModelRunning(rankingInstance){  // this.state.rankingInstance from Generator
-    const { method } = rankingInstance;
+  handleModelRunning(){  // this.state.rankingInstance from Generator
+    const { rankingInstance } = this.state,
+          { method } = rankingInstance;
+
+    const rankingInstanceWithUpdatedId = {
+      ...rankingInstance,
+      rankingId: rankingInstance.rankingId + 1
+    }
 
     // data file loading here
-    this.getFetches(rankingInstance, method)
+    this.getFetches(rankingInstanceWithUpdatedId, method)
     .then((responses) => {
       const { rankings } = this.state,
-          { instances, isForPerturbation } = rankingInstance;
+          updatedRankingInstance = responses[2],
+          { instances, isForPerturbation } = updatedRankingInstance;
 
       let updatedInstances = [],
           inputs = [];
@@ -480,13 +497,14 @@ class App extends Component {
         permutationDiffs: this.permutationDiffs,
         permutationDiffsFlattened: this.permutationDiffsFlattened,
         rankingInstance: {
-          ...prevState.rankingInstance,
+          ...updatedRankingInstance,
+          shouldRunModel: true,
           instances: updatedInstances,
-          rankingId: prevState.rankingInstance.rankingId + 1,
           stat: {
-            ...prevState.rankingInstance.stat,
+            ...updatedRankingInstance.stat,
             goodnessOfFairness: this.rSquared
-          }
+          },
+          isForPerturbation: false
         },
         rankings: [...prevState.rankings, rankingInstance]
       }));
@@ -512,9 +530,13 @@ class App extends Component {
     .then( (response) => {
       const confIntervalPoints = JSON.parse(response);
 
-      this.setState({
-        confIntervalPoints: confIntervalPoints
-      });
+      this.setState(prevState => ({
+        confIntervalPoints: confIntervalPoints,
+        rankingInstance: {
+          ...prevState.rankingInstance,
+          shouldRunModel: true
+        }
+      }));
       this.setFairInstancesFromConfidenceInterval(confIntervalPoints, this.pairwiseDiffs);
     });
   }
@@ -547,16 +569,17 @@ class App extends Component {
     });
   }
 
-  // handleMouseoverInstance(idx) {
-  //   this.setState({
-  //     selectedInstance: idx
-  //   });
-  // }
+  handleMouseoverInstance(idx) {
+    this.setState({
+      selectedInstance: idx
+    });
+  }
 
   handleSensitiveAttr(groupsObj) {
     this.setState(prevState => ({
       rankingInstance: {
         ...prevState.rankingInstance,
+        shouldRunModel: false,
         sensitiveAttr: {
           ...prevState.rankingInstance.sensitiveAttr,
           protectedGroup: groupsObj.protectedGroup,
@@ -982,7 +1005,6 @@ class App extends Component {
             topk={topk}
             data={this.state.rankingInstance}
             onSelectSensitiveAttr={this.handleSelectSensitiveAttr} />
-        <RankingsListView rankings={this.state.rankings} />
         <Generator 
             className={styles.Generator}
             dataset={this.state.dataset}
@@ -1020,6 +1042,14 @@ class App extends Component {
               onCalculateNDM={this.calculateNDM}
               onFilterRunning={this.handleFilterRunning} />
         </div>
+        <RankingsListView rankings={this.state.rankings} />
+        <IndividualInspectionView
+            className={styles.IndividualInspectionView}
+            data={this.state.rankingInstance}
+            topk={this.state.topk}
+            selectedInstance={this.state.selectedInstance}
+            selectedRankingInterval={this.state.selectedRankingInterval}
+        />
         <Footer />
       </div>
     );

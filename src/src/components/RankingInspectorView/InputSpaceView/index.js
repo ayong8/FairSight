@@ -135,7 +135,7 @@ class InputSpaceView extends Component {
                     : gs.groupColor2;
               } else if (mode === 'IF') {
                 //return d.isTopk ? gs.topkColor : gs.individualColor;
-                return 'yellow';
+                return gs.individualColor;
               }
           })
           .style('stroke', 'black')
@@ -152,17 +152,7 @@ class InputSpaceView extends Component {
           .attr('cx', (d) => xScale(d.dim1))
           .attr('cy', (d) => yScale(d.dim2))
           .attr('r', 4)
-          .style('fill', (d) => {
-              if (mode === 'GF') {
-                let group = d.group;
-                return group === 0
-                    ? gs.groupColor1
-                    : gs.groupColor2;
-              } else if (mode === 'IF') {
-                //return d.isTopk ? gs.topkColor : gs.individualColor;
-                return 'url(#diagonalHatch)';
-              }
-          })
+          .style('fill', (d) => !d.target ? 'url(#diagonalHatch)': 'none')
           .style('stroke', 'black')
           .style('opacity', 0.7)
           .on('mouseover', (d) => {
@@ -176,9 +166,9 @@ class InputSpaceView extends Component {
 
       return (
         <div className={styles.InputSpaceView}>
-          <div className={styles.inputSpaceViewTitleWrapper}>
+          {/* <div className={styles.inputSpaceViewTitleWrapper}>
             <div className={styles.inputSpaceViewTitle + ' ' + index.subTitle}>Input space</div>
-          </div>
+          </div> */}
           <div className={styles.IndividualPlotStatusView}>
               {svg.toReact()}
           </div>

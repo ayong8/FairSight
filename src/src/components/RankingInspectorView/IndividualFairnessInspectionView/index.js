@@ -121,6 +121,8 @@ class IndividualFairnessInspectionView extends Component {
           topkInstances = instances.filter((d) => d.ranking <= topk),
           outliers = instances.filter((d) => d.isOutlier);
 
+    console.log('ranking instance in renderCategoricalFeatureForOutlier: ', instances);
+
     const { name, range, value } = feature,
           avgInstances = _.mean(instances.map((d) => d.features[name])),
           avgOutliers = _.mean(outliers.map((d) => d.features[name]));
@@ -134,6 +136,8 @@ class IndividualFairnessInspectionView extends Component {
     svgFeature.setAttribute('class', 'svg_feature_for_outlier');
     svgFeature.style.setProperty('background-color', 'white');
     svgFeature.style.setProperty('border', '1px solid #dddbdb');
+
+    console.log('ranking instance in renderCategoricalFeatureForOutlier 2: ', instances);
 
     const featureBinForInstances = d3.histogram()
             .domain([0, 1])
@@ -736,12 +740,6 @@ class IndividualFairnessInspectionView extends Component {
   }
 
   render() {
-    if ((!this.props.perturbationResults || this.props.perturbationResults.length === 0) ||
-        (Object.keys(this.props.corrBtnOutliersAndWholeInstances).length === 0)
-    ) {
-      return <div />
-    }
-
     return (
       <div className={styles.IndividualFairnessInspectionView}>
         <div className={index.subTitle}>Feature Inspector</div>

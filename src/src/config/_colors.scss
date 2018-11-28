@@ -2,6 +2,7 @@ $bg-color: #fafafa;
 $dark-blue: #003569;
 $dark-grey: #999;
 
+$system-color: #003569;
 $individual-color: lightgray;
 $group-color1: mediumspringgreen; // For non-protected group
 $group-color2: #ff7043;    // For protected group
@@ -15,5 +16,6 @@ $non-topk-true-color: deepskyblue;
 $non-topk-false-color: wheat;
 $instance-color: deepskyblue; // Same as non-topk-color
 $outlier-color: red;
-$between-group-color: lightgreen;
-$within-group-color: pink;
+$individual-pair-color: #003569;
+$between-group-pair-color: indigo;
+$within-group-pair-color: hotpink;

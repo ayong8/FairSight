@@ -222,7 +222,7 @@ class Generator extends Component {
           // step = Math.floor((max-min) / nBins),
           // thresholds = d3.range(min, max, step);
 
-    return wholeFeatures.map((feature) => {
+    return wholeFeatures.map((feature, idx) => {
       let featureType;
       const isFeatureNumerical = numericalFeatures.indexOf(feature) >= 0 ? true : false;
       
@@ -233,6 +233,7 @@ class Generator extends Component {
       }
 
       return {
+        key: idx+1,
         feature: feature.replace(/_/g, ' '),
         dist: feature !== sensitiveAttr.name ? Math.round(corrBtnSensitiveAndAllFeatures[feature] * 100) / 100 : 'NaN',
         corr: (featureType === 'numerical') ? _self.renderCorrPlotWithSensitiveAttrForNumericalVars(feature, groupInstances1, groupInstances2)
@@ -546,16 +547,21 @@ class Generator extends Component {
   }
 
   render() {
-    // if (!this.state.corrBetweenSensitiveAndAllFeatures || Object.keys(this.state.corrBetweenSensitiveAndAllFeatures).length === 0) {
-    //   return <div />
-    // }
+    const _self = this;
     
     console.log('Generater rendered');
-    const { rankingInstance, methods } = this.props,
-          { features, sensitiveAttr, target, method } = rankingInstance;
+    const { dataset, rankingInstance, methods } = this.props,
+          { features, sensitiveAttr, target, method } = rankingInstance,
+          wholeFeatures = Object.keys(dataset[0]).filter((d) => d !== 'idx');
 
     // For feature selection 
     const featureNames = features.map((feature) => feature.name),
+          selectedRowKeys = wholeFeatures.map((d, idx) => {
+            const isFeatureSelected = featureNames.filter((e) => d === e);
+            if (isFeatureSelected.length !== 0)
+              return idx + 1;
+            return 'notSelected'
+          }).filter((f) => f !== 'notSelected'),
           targetName = target.name,
           sensitiveAttrName = sensitiveAttr.name,
           methodName = method.name;
@@ -566,13 +572,20 @@ class Generator extends Component {
       { title: 'Corr', dataIndex: 'corr', key: 3 }
     ];
     const dataFeatureTable = this.renderFeatureSelectionsForTable();
-    const featureSelectionRows = {
+    const featureSelection = {
+      selectedRowKeys,
       onChange: (selectedRowKeys, selectedRows) => {
+        console.log('onChange: ', selectedRows);
+        const selectedFeatureNames = selectedRows.map((d) => d.feature.split(' ').join('_'));
+        return _self.handleSelectFeatures(selectedFeatureNames);
       },
-      getCheckboxProps: record => ({
-        disabled: record.name === 'Disabled User',
-        name: record.name,
-      }),
+      getCheckboxProps: record => {
+        console.log('getCheckboxProps');
+        const isSelected = featureNames.filter((d) => d !== record.feature);
+        return {
+          disabled: isSelected.length === 0
+        }
+      },
     };
 
     // For method selection
@@ -638,16 +651,11 @@ class Generator extends Component {
           {this.renderFeatureSelections()}
         </TreeSelect>
         <Table 
-          rowSelection={featureSelectionRows}
+          rowSelection={featureSelection}
           columns={featureSelectionColumns} 
           dataSource={dataFeatureTable} 
           scroll={{ y: 200 }}
           pagination={false}
-          onRow={(record) => {
-            return {
-              onSelect: this.handleSelectFeatures
-            };
-          }}
         />
         {/* // Target variable selector */}
         <div className={styles.selectSensitiveAttr}>Target variable</div>
@@ -689,11 +697,6 @@ class Generator extends Component {
           dataSource={dataMethodTable} 
           scroll={{ y: 150 }}
           pagination={false}
-          onRow={(record) => {
-            return {
-              onSelect: this.handleSelectFeatures
-            };
-          }}
         />
         <div className={styles.runButtonWrapper}>
           <Button className={styles.buttonGenerateRanking} color='danger' onClick={this.handleClickRun}>RUN</Button>

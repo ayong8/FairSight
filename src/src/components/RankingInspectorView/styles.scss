@@ -22,7 +22,7 @@
   .SpaceView {
     display: grid;
     grid-template-columns: 30% 50% 20%;
-    grid-template-rows: 50px 80px 300px 100px;
+    grid-template-rows: 40px 110px 300px 100px;
     grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
       't t t'
       'sm sm sm'
@@ -37,11 +37,61 @@
     grid-area: t;
     display: flex;
     justify-content: space-between;
-
   }
-  // .spaceViewTitle { grid-area: t; }
-  // .intervalSelector { grid-area: is; }
-  .spaceMapView { grid-area: sm; }
+
+  .spaceOverview { 
+    grid-area: sm; 
+    display: grid;
+    grid-template-columns: 27% 5% 45% 5% 18%;
+    grid-template-rows: 20px 30px 30px;
+    grid-template-areas:
+      'it i1 mt i2 ot'
+      'id i1 md i2 od'
+      'im i1 mm i2 om';
+  }
+
+  .inputSpaceTitle { grid-area: it; }
+  .inputSpaceDescription { grid-area: id; }
+  .inputSpaceMeasure { grid-area: im; }
+  .mappingSpaceTitle { grid-area: mt; }
+  .mappingSpaceDescription { grid-area: md; }
+  .mappingSpaceMeasure { grid-area: mm; }
+  .outputSpaceTitle { grid-area: ot; }
+  .outputSpaceDescription { grid-area: od; }
+  .outputSpaceMeasure { grid-area: om; }
+  .intervalSpace1 { grid-area: i1; }
+  .intervalSpace2 { grid-area: i2; }
+
+  .inputSpaceTitle,
+  .mappingSpaceTitle,
+  .outputSpaceTitle {
+    justify-self: center;
+    color: #00346b;
+    font-size: 1.1rem;
+    font-weight: 500;
+  }
+
+  .intervalSpace1,
+  .intervalSpace2 {
+    align-self: center;
+    justify-self: center;
+  }
+
+  .accuracyWrapper,
+  .groupFairnessWrapper,
+  .individualFairnessWrapper {
+    width: 30%;
+  }
+
+  .accuracy,
+  .inputGroupFairness,
+  .mappingGroupFairness,
+  .outputGroupFairness,
+  .individualFairness {
+    font-size: 2rem;
+    margin-bottom: 10px;
+  }
+
   .LegendView { grid-area: lg; }
   .OutputSpaceView { grid-area: tr; }
 

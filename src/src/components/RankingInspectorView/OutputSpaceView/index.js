@@ -56,25 +56,50 @@ class OutputSpaceView extends Component {
               .attr('class', 'g_top_k_ranking')
               .attr('transform', 'translate(' + (130) + ',' + '10)');
 
-      gTopkRanking.selectAll('.rect_topk')
-          .data(selectedInstances)
-          .enter().append('rect')
-          .attr('class', (d) => 'rect_topk rect_topk_' + d.ranking)
-          .attr('x', (d) => 0)
-          .attr('y', (d) => rankingScale(d.ranking))
-          .attr('width', 30)
-          .attr('height', (d) => rectInterval - 2)
-          .style('fill', (d) => (mode === 'GF') ? groupColorScale(d.group) : 
-                                (mode === 'IF' && d.isTopk) ? gs.topkColor : gs.individualColor)
-          .style('stroke', 'black')
-          .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.5);
+      const diagonalPattern = d3.select(svg)
+              .append('defs')
+              .append('pattern')
+                .attr('id', 'diagonalHatch')
+                .attr('patternUnits', 'userSpaceOnUse')
+                .attr('width', 4)
+                .attr('height', 4)
+              .append('path')
+                .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+                .attr('stroke', '#000000')
+                .attr('stroke-width', 1);
+
+      const topkRect = gTopkRanking.selectAll('.rect_topk')
+              .data(selectedInstances)
+              .enter().append('rect')
+              .attr('class', (d) => 'rect_topk rect_topk_' + d.ranking)
+              .attr('x', (d) => 0)
+              .attr('y', (d) => rankingScale(d.ranking))
+              .attr('width', 30)
+              .attr('height', (d) => rectInterval - 2)
+              .style('fill', (d) => (mode === 'GF') ? groupColorScale(d.group) : 
+                                    (mode === 'IF') ? gs.individualColor : 'none')
+              .style('stroke', 'black')
+              .style('shape-rendering', 'crispEdge')
+              .style('stroke-width', 0.5);
+
+      const topkRectForPattern = gTopkRanking.selectAll('.rect_topk_for_pattern')
+              .data(selectedInstances)
+              .enter().append('rect')
+              .attr('class', (d) => 'rect_topk_for_pattern rect_topk_for_pattern_' + d.ranking)
+              .attr('x', (d) => 0)
+              .attr('y', (d) => rankingScale(d.ranking))
+              .attr('width', 30)
+              .attr('height', (d) => rectInterval - 2)
+              .style('fill', (d) => !d.target ? 'url(#diagonalHatch)': 'none')
+              .style('stroke', 'black')
+              .style('shape-rendering', 'crispEdge')
+              .style('stroke-width', 0.5);
 
       return (
         <div className={styles.OutputSpaceView}>
-          <div className={styles.rankingViewTitle + ' ' + index.subTitle}>
+          {/* <div className={styles.rankingViewTitle + ' ' + index.subTitle}>
             Output space &nbsp;
-          </div>
+          </div> */}
           {svg.toReact()}
         </div>
       );

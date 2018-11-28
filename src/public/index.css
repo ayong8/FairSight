@@ -99,6 +99,10 @@ body {
   font-size: 12px !important;
 }
 
+.anticon-right-circle {
+  font-size: 1.2rem;
+}
+
 .g_x_whole_ranking_topk_axis line { stroke: gray; }
 .g_x_whole_ranking_topk_axis path { stroke: gray; }
 .g_x_whole_ranking_topk_axis text { fill: gray; }

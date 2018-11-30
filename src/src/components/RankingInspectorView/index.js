@@ -879,7 +879,7 @@ class RankingInspectorView extends Component {
       const { data, topk, selectedInstance, selectedInstances,
               selectedPermutationDiffsFlattend, permutationDiffs, permutationDiffsFlattened } = this.props,
             { instances, stat } = data,
-            { accuracy, goodnessOfFairness, groupSkew, sp, cp } = stat,
+            { utility, goodnessOfFairness, groupSkew, sp, cp } = stat,
             to = selectedInstances.length,
             distortionMin = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[0],
             distortionMax = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[1];

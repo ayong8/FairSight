@@ -36,11 +36,11 @@ class RankingsListView extends Component {
     this.renderRankingInstances = this.renderRankingInstances.bind(this);
   }
 
-  shouldComponentUpdate(nextProps, nextState) {
-    if (this.props.rankings !== nextProps.rankings) { return true; }
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   if (this.props.rankings !== nextProps.rankings) { return true; }
 
-    return false;
-  }
+  //   return false;
+  // }
 
   renderRankingPlot() {
     const _self = this;
@@ -56,7 +56,7 @@ class RankingsListView extends Component {
     const xFairnessScale = d3.scaleLinear()
             .domain([0, 1])
             .range([0, _self.layout.rankingPlot.plot.width]),
-          yAccuracyScale = d3.scaleLinear()
+          yUtilityScale = d3.scaleLinear()
             .domain([0, 1])
             .range([0, _self.layout.rankingPlot.plot.height]);
 
@@ -66,7 +66,7 @@ class RankingsListView extends Component {
             .append('circle')
             .attr('class', 'ranking')
             .attr('cx', (d) => xFairnessScale(0.5))
-            .attr('cy', (d) => yAccuracyScale(0.5))
+            .attr('cy', (d) => yUtilityScale(0.5))
             .attr('r', 2)
             .attr('');
   }
@@ -111,7 +111,7 @@ class RankingsListView extends Component {
       return ( <tr key={idx}>
                 <td>{'R' + rankingId}</td>
                 <td></td>
-                <td>{stat.accuracy}</td>
+                <td>{stat.utility}</td>
                 <td>{stat.goodnessOfFairness}</td>
                 <td>{stat.groupSkew}</td>
                 <td>{stat.sp}</td>

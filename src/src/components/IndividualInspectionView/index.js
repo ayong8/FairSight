@@ -34,7 +34,7 @@ class IndividualInspectionView extends Component {
     renderEmptyTable() {
       return [
         {
-          feature: '',
+          feature: <div>ddd</div>,
           value: ''
         }
       ]

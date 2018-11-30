@@ -757,7 +757,7 @@ class RankingView extends Component {
 
       const { data, n } = this.props,
             { stat } = data,
-            { accuracy, goodnessOfFairness, groupSkew, sp, cp } = stat,
+            { utility, goodnessOfFairness, groupSkew, sp, cp } = stat,
             instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse(),
             topk = this.props.topk;
 
@@ -772,9 +772,9 @@ class RankingView extends Component {
             &nbsp;Filter
           </div>
           <div className={styles.wholeRankingSummaryStat1}>
-            <div className={styles.accuracyWrapper}>
-              <div className={styles.accuracyTitle}>Accuracy</div>
-              <div className={styles.accuracy}>{accuracy + '%'}</div>
+            <div className={styles.utilityWrapper}>
+              <div className={styles.utilityTitle}>Utility</div>
+              <div className={styles.utility}>{utility + '%'}</div>
             </div>
             <div className={styles.groupFairnessWrapper}>
               <div 

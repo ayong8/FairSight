@@ -91,24 +91,22 @@ class App extends Component {
         sumDistortion: 0,
         instances: [],
         stat: {
-          accuracy: 0,
+          utility: 0, // ndcg
           goodnessOfFairness: 0,
           groupSkew: 0,
           sp: 0,
           cp: 0,
           tp: 0,
-          fp: 0,
-          ndcg: 0
+          fp: 0
         },
         statForPerturbation: {
-          accuracy: 0,
+          utility: 0,
           goodnessOfFairness: 0,
           groupSkew: 0,
           sp: 0,
           cp: 0,
           tp: 0,
-          fp: 0,
-          ndcg: 0
+          fp: 0
         },
         isForPerturbation: false,  // False in python
         shouldRunModel: true
@@ -161,7 +159,7 @@ class App extends Component {
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
       this.calculateGroupSkew(this.pairwiseDiffs);
-      this.calculateOutputMeasures(isForPerturbation);
+      this.calculateOutputMeasures(topk);
       this.calculateCorrBtnSensitiveAndAllFeatures();
 
       console.log('isOutlier: ', instances);
@@ -474,7 +472,7 @@ class App extends Component {
     // data file loading here
     this.getFetches(rankingInstanceWithUpdatedId, method)
     .then((responses) => {
-      const { rankings } = this.state,
+      const { rankings, topk } = this.state,
           updatedRankingInstance = responses[2],
           { instances, isForPerturbation } = updatedRankingInstance;
 
@@ -490,7 +488,7 @@ class App extends Component {
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
       this.calculateGroupSkew(this.pairwiseDiffs);
-      this.calculateOutputMeasures(isForPerturbation);
+      this.calculateOutputMeasures(topk);
 
       this.setState((prevState) => ({
         pairwiseDiffs: this.pairwiseDiffs,
@@ -564,6 +562,8 @@ class App extends Component {
   }
 
   handleSelectedTopk(topk) {
+    this.calculateOutputMeasures(topk);
+
     this.setState({
       topk: topk
     });
@@ -809,12 +809,16 @@ class App extends Component {
     }));
   }
 
-  calculateOutputMeasures(isForPerturbation) {
-    const { rankingInstance, topk, n } = this.state,
+  calculateOutputMeasures(topk) {
+    console.log('topk in the calculateOutputMeasures: ', topk)
+    console.log('in the calculateOutputMeasures');
+
+    const { rankingInstance, n } = this.state,
           { instances, sensitiveAttr } = rankingInstance,
           { protectedGroup, nonProtectedGroup, range } = sensitiveAttr;
     let protectedGroupBinary, nonProtectedGroupBinary;
 
+    // For fairness = rND ... or possibly statistical and conditional parity
     if (range[0] === protectedGroup){  // Find the corresponding 0 or 1 to protected or non-protected group string
       protectedGroupBinary = 0;
       nonProtectedGroupBinary = 1;
@@ -837,25 +841,46 @@ class App extends Component {
           Z = (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (Math.min(nProtectedGroupInWhole, topk) / topk) - (nProtectedGroupInWhole / n) ),
           rND = 1 - (1/Z) * (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (nProtectedGroupInTopk / topk) - (nProtectedGroupInWhole / n) );
 
-    console.log('rNDDD: ', rND);
-
     const statisticalParity = (_.sum(group2.map((d) => 1 / d.ranking).filter((d) => d.isTopk)) / group2.length) / 
                               (_.sum(group1.map((d) => 1 / d.ranking).filter((d) => d.isTopk)) / group1.length);
     const conditionalParity = (_.sum(group2.filter((d) => d.isTopk && d.target === 1).map((d) => 1 / d.ranking)) / group2.length) / 
                               (_.sum(group1.filter((d) => d.isTopk && d.target === 1).map((d) => 1 / d.ranking)) / group1.length);
+
+    // For utility = nDCG
+    const topkInstances = instances.filter((d) => d.ranking <= topk);
+    
+    const DCG = topkInstances.map((d, i) => { // sorted by ranking
+              const relevance = d.target;
+              const cumulativeDiscount = Math.log(Math.max(i, 2)) / Math.log(2);
+
+              return relevance / cumulativeDiscount;
+            }).reduce((acc, curr) => acc + curr);
+
+    const IDCG = _.sortBy(topkInstances, 'target').reverse().map((d, i) => {
+              const relevance = d.target;
+              const cumulativeDiscount = Math.log(Math.max(i, 2)) / Math.log(2);
+
+              return relevance / cumulativeDiscount;
+            }).reduce((acc, curr) => acc + curr);
+
+    const nDCG = DCG / IDCG;
+
+    console.log('ndcg: ', nDCG, topkInstances.length, DCG, IDCG);
 
     this.setState((prevState) => ({
       rankingInstance: {
         ...prevState.rankingInstance,
         stat: {
           ...prevState.rankingInstance.stat,
+          utility: Math.round(nDCG * 100) / 100,
           sp: Math.round(rND * 100) / 100,
           cp: Math.round(conditionalParity * 100) / 100
         }
       }
     }));
 
-    return { 
+    return {
+      utility: Math.round(nDCG * 100) / 100,
       sp: Math.round(statisticalParity * 100) / 100, 
       cp: Math.round(conditionalParity * 100) / 100
     }

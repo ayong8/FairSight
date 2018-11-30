@@ -491,7 +491,7 @@ class Generator extends Component {
           buttonStyle='solid' 
           size='small'>
           <Radio.Button value={'Fairness'}>{'Fairness(F)'}</Radio.Button>
-          <Radio.Button value={'Accuracy'}>{'Accuracy(A)'}</Radio.Button>
+          <Radio.Button value={'Utility'}>{'Utility(A)'}</Radio.Button>
         </Radio.Group>
       </div>
     );

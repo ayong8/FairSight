@@ -1,7 +1,7 @@
 .IndividualFairnessInspectionView {
     height: 500px;
 
-    .fairnessInspectionWrapper {
+    .featureInspectorOverview {
         display: flex;
     }
 
@@ -16,15 +16,18 @@
     .featureListForOutlier {
         overflow-y: scroll;
     }
-    .featureForOutlier {
-        margin-bottom: 20px;
-    }
     .featureForOutlierTitle {
         display: flex;
         justify-content: space-between;
     }
     .similarity {
         font-size: 0.9rem;
+    }
+    .featureInspectorOverview {
+        display: flex;
+    }
+    .featureRow {
+        
     }
     .perturbedMeasure {
         margin: 5px 0;

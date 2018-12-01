@@ -761,6 +761,8 @@ class RankingView extends Component {
             instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse(),
             topk = this.props.topk;
 
+      console.log('statttttt: ', stat);
+
       return (
         <div className={styles.RankingView}>
           <div className={styles.rankingViewTitle + ' ' + index.title}>

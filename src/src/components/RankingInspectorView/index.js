@@ -195,14 +195,16 @@ class RankingInspectorView extends Component {
           return response.json();
         })   
         .then( (response) => {
-          const rankingInstance = JSON.parse(response);
+          const perturbedRankingInstance = JSON.parse(response);
 
           // Calculate and update measures
-          const { sp, cp } = _self.calculateOutputMeasuresForPerturbation();
-          rankingInstance.statForPerturbation.sp = sp;
-          rankingInstance.statForPerturbation.cp = cp;
+          const { utility, sp, cp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
+          perturbedRankingInstance.statForPerturbation.utility = utility;
+          perturbedRankingInstance.statForPerturbation.sp = sp;
+          perturbedRankingInstance.statForPerturbation.cp = cp;
           
-          perturbationResults.push(rankingInstance);
+          perturbationResults.push(perturbedRankingInstance);
+          console.log('perturbationResultsssss: ', perturbationResults);
 
           _self.setState({
             perturbationResults: perturbationResults
@@ -253,14 +255,15 @@ class RankingInspectorView extends Component {
             return response.json();
           })   
           .then( (response) => {
-            const rankingInstance = JSON.parse(response);
+            const perturbedRankingInstance = JSON.parse(response);
             
             // Calculate and update measures
-            const { sp, cp } = _self.calculateOutputMeasuresForPerturbation();
-            rankingInstance.statForPerturbation.sp = sp;
-            rankingInstance.statForPerturbation.cp = cp;
+            const { utility, sp, cp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
+            perturbedRankingInstance.statForPerturbation.utility = utility;
+            perturbedRankingInstance.statForPerturbation.sp = sp;
+            perturbedRankingInstance.statForPerturbation.cp = cp;
 
-            perturbationResults.push(rankingInstance);
+            perturbationResults.push(perturbedRankingInstance);
 
             _self.setState({
               perturbationResults: perturbationResults
@@ -284,11 +287,20 @@ class RankingInspectorView extends Component {
       });
     }
 
-    calculateOutputMeasuresForPerturbation() {
-      const _self = this;
+    calculateOutputMeasuresForPerturbation(perturbedRankingInstance) {
+      const { data, n, topk } = this.props,
+            { instances, sensitiveAttr } = perturbedRankingInstance,
+            { protectedGroup, nonProtectedGroup, range } = sensitiveAttr;
+      let protectedGroupBinary, nonProtectedGroupBinary;
 
-      const { data } = this.props,
-            { instances } = data;
+      // For fairness = rND ... or possibly statistical and conditional parity
+      if (range[0] === protectedGroup){  // Find the corresponding 0 or 1 to protected or non-protected group string
+        protectedGroupBinary = 0;
+        nonProtectedGroupBinary = 1;
+      } else {
+        protectedGroupBinary = 1;
+        nonProtectedGroupBinary = 0;
+      }
 
       const group1 = instances.filter((d) => d.group === 0),
             group2 = instances.filter((d) => d.group === 1);
@@ -296,13 +308,43 @@ class RankingInspectorView extends Component {
       const groupRanking1 = group1.map((d) => d.ranking),
             groupRanking2 = group2.map((d) => d.ranking);
 
-      const statisticalParity = (_.sum(group2.map((d) => 1 / d.ranking)) / group2.length) / 
-                                (_.sum(group1.map((d) => 1 / d.ranking)) / group1.length);
-      const conditionalParity = (_.sum(group2.filter((d) => d.target === 1).map((d) => 1 / d.ranking)) / group2.length) / 
-                                (_.sum(group1.filter((d) => d.target === 1).map((d) => 1 / d.ranking)) / group1.length);
+      const protectedGroupInTopk = instances.filter((d) => d.group === protectedGroupBinary && d.ranking < topk ),
+            protectedGroupInWhole = instances.filter((d) => d.group === protectedGroupBinary);
+
+      const nProtectedGroupInTopk = protectedGroupInTopk.length,
+            nProtectedGroupInWhole = protectedGroupInWhole.length,
+            Z = (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (Math.min(nProtectedGroupInWhole, topk) / topk) - (nProtectedGroupInWhole / n) ),
+            rND = 1 - (1/Z) * (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (nProtectedGroupInTopk / topk) - (nProtectedGroupInWhole / n) );
+
+      const statisticalParity = (_.sum(group2.filter((d) => d.ranking <= topk).map((d) => 1 / d.ranking)) / group2.length) / 
+                                (_.sum(group1.filter((d) => d.ranking <= topk).map((d) => 1 / d.ranking)) / group1.length);
+      const conditionalParity = (_.sum(group2.filter((d) => d.ranking <= topk && d.target === 1).map((d) => 1 / d.ranking)) / group2.length) / 
+                                (_.sum(group1.filter((d) => d.ranking <= topk && d.target === 1).map((d) => 1 / d.ranking)) / group1.length);
+
+      // For utility = nDCG
+      const topkInstances = instances.filter((d) => d.ranking <= topk);
+      
+      const DCG = topkInstances.map((d, i) => { // sorted by ranking
+                const relevance = d.target;
+                const cumulativeDiscount = Math.log(Math.max(i, 2)) / Math.log(2);
+
+                return relevance / cumulativeDiscount;
+              }).reduce((acc, curr) => acc + curr);
+
+      const IDCG = _.sortBy(topkInstances, 'target').reverse().map((d, i) => {
+                const relevance = d.target;
+                const cumulativeDiscount = Math.log(Math.max(i, 2)) / Math.log(2);
+
+                return relevance / cumulativeDiscount;
+              }).reduce((acc, curr) => acc + curr);
+
+      const nDCG = DCG / IDCG;
+
+      console.log('perturbation resultzzz: ', nDCG, statisticalParity, conditionalParity);
 
       return {
-        sp: Math.round(statisticalParity * 100) / 100,
+        utility: Math.round(nDCG * 100) / 100,
+        sp: Math.round(statisticalParity * 100) / 100, 
         cp: Math.round(conditionalParity * 100) / 100
       }
     }
@@ -597,7 +639,7 @@ class RankingInspectorView extends Component {
           .range([0, _self.layout.svgMatrix.matrixPlot.width]);
       _self.yMatrixScale = d3.scaleBand()
           .domain(_.map(dataSelectedY, (d) => d.ranking))  // For now, it's just an index of items(from observed)
-          .range([_self.layout.svgMatrix.matrixPlot.height, 0]);
+          .range([0, _self.layout.svgMatrix.matrixPlot.height]);
       _self.cellWidth = _self.xMatrixScale.bandwidth();
       _self.cellHeight = _self.yMatrixScale.bandwidth();
       _self.distortionScale = d3.scaleLinear()
@@ -664,6 +706,16 @@ class RankingInspectorView extends Component {
             : d.features[ sortMatrixYBy ]
           ));
 
+      const xRankingAxis = d3.select(_self.svgMatrix).append('g')
+                .attr('class', 'g_x_matrix_axis')
+                .attr('transform', 'translate(' + (_self.layout.svgMatrix.attrPlotLeft.width) + ',' + (_self.layout.svgMatrix.distortionSumPlotUpper.height + _self.layout.svgMatrix.matrixPlot.height) + ')')
+                .call(d3.axisBottom(_self.xMatrixScale).tickSize(0).tickValues([1, topk, to]));
+
+      const yRankingAxis = d3.select(_self.svgMatrix).append('g')
+                .attr('class', 'g_y_matrix_axis')
+                .attr('transform', 'translate(' + (_self.layout.svgMatrix.attrPlotLeft.width) + ',' + _self.layout.svgMatrix.distortionSumPlotUpper.height + ')')
+                .call(d3.axisLeft(_self.yMatrixScale).tickSize(0).tickValues([1, topk, to]));
+
       const gMatrix = d3.select(_self.svgMatrix).append('g')
                 .attr('class', 'g_matrix')
                 .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',' + _self.layout.svgMatrix.distortionSumPlotUpper.height + ')'),
@@ -674,13 +726,6 @@ class RankingInspectorView extends Component {
                 .attr('transform', function(d){
                   return 'translate(' + _self.xMatrixScale(d.ranking1) + ',' + _self.yMatrixScale(d.ranking2) + ')';
                 }),
-            gAttrPlotLeft = d3.select(_self.svgMatrix).append('g')
-                .attr('class', 'g_attr_plot_x')
-                .attr('transform', 'translate(0' + ','  + _self.layout.svgMatrix.distortionSumPlotUpper.height + ')'),
-            gAttrPlotBottom = d3.select(_self.svgMatrix).append('g')
-                .attr('class', 'g_attr_plot_y')
-                .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',' + 
-                                                  (_self.layout.svgMatrix.matrixPlot.height + _self.layout.svgMatrix.distortionSumPlotUpper.height) + ')'),
             gDistortionPlotTop = d3.select(_self.svgMatrix).append('g')
                 .attr('class', 'g_distortion_plot_x')
                 .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',0)'),                                                
@@ -696,24 +741,42 @@ class RankingInspectorView extends Component {
                 });
                                 
       // Top-k line
-      if (sortMatrixXBy === 'ranking') {
-        const topkLineX = gMatrix.append('line')
-                .attr('x1', _self.xMatrixScale(topk))
-                .attr('y1', _self.yMatrixScale(1))
-                .attr('x2', _self.xMatrixScale(topk))
-                .attr('y2', _self.yMatrixScale(to))
-                .style('stroke', 'red')
-                .style('stroke-width', 1);
-      }
-      if (sortMatrixYBy === 'ranking') {
-        const topkLineY = gMatrix.append('line')
-                .attr('x1', _self.xMatrixScale(1))
-                .attr('y1', _self.yMatrixScale(topk))
-                .attr('x2', _self.xMatrixScale(to))
-                .attr('y2', _self.yMatrixScale(topk))
-                .style('stroke', 'red')
-                .style('stroke-width', 1);
-      }
+      // if (sortMatrixXBy === 'ranking') {
+      //   const topkRect = gMatrix.append('rect')
+      //           .attr('x1', _self.xMatrixScale(topk))
+      //           .attr('y1', _self.yMatrixScale(1))
+      //           .attr('x2', _self.xMatrixScale(topk))
+      //           .attr('y2', _self.yMatrixScale(to))
+      //           .style('stroke', 'red')
+      //           .style('stroke-width', 1);
+      // }
+      // if (sortMatrixYBy === 'ranking') {
+      //   const topkLineY = gMatrix.append('line')
+      //           .attr('x1', _self.xMatrixScale(1))
+      //           .attr('y1', _self.yMatrixScale(topk))
+      //           .attr('x2', _self.xMatrixScale(to))
+      //           .attr('y2', _self.yMatrixScale(topk))
+      //           .style('stroke', 'red')
+      //           .style('stroke-width', 1);
+      // }
+
+      const selectedIntervalRect = gMatrix.append('rect')
+              .attr('x', 0)
+              .attr('y', 0)
+              .attr('width', _self.layout.svgMatrix.matrixPlot.width)
+              .attr('height', _self.layout.svgMatrix.matrixPlot.height)
+              .style('fill', 'none')
+              .style('stroke', 'skyblue')
+              .style('stroke-width', 2);
+
+      const topkRect = gMatrix.append('rect')
+              .attr('x', 0)
+              .attr('y', 0)
+              .attr('width', _self.xMatrixScale(topk))
+              .attr('height', _self.yMatrixScale(topk))
+              .style('fill', 'none')
+              .style('stroke', 'blue')
+              .style('stroke-width', 2);
 
       // Axis X1, X2 name
       const axisX1 = gMatrix.append('text')
@@ -777,40 +840,6 @@ class RankingInspectorView extends Component {
           })
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.3);
-
-      // Attribute plot left
-      gAttrPlotLeft.selectAll('.attr_rect_left')
-          .data(sortedSelectedY)
-          .enter().append('rect')
-          .attr('class', 'attr_rect_left')
-          .attr('x', 25)
-          .attr('y', (d) => _self.yMatrixScale(d.ranking))
-          .attr('width', 10)
-          .attr('height', _self.yMatrixScale.bandwidth() - 1)
-          .attr('fill', (d) => 
-            (sortMatrixYBy === 'sumDistortion') ? _self.yAttributeScale(d.sumDistortion) 
-            : (sortMatrixYBy === 'ranking') ? _self.yAttributeScale(d.ranking) 
-            : _self.yAttributeScale(d.features[sortMatrixYBy])
-          )
-          .attr('stroke', 'black')
-          .attr('stroke-width', 0.4);
-
-      // Attribute plot bottom
-      gAttrPlotBottom.selectAll('.attr_rect_bottom')
-          .data(sortedSelectedX)
-          .enter().append('rect')
-          .attr('class', 'attr_rect_bottom')
-          .attr('x', (d) => _self.xMatrixScale(d.ranking))
-          .attr('y', (d) => 5)
-          .attr('width', _self.xMatrixScale.bandwidth() - 1)
-          .attr('height', 10)
-          .attr('fill', (d) => 
-            (sortMatrixXBy === 'sumDistortion') ? _self.xAttributeScale(d.sumDistortion) 
-            : (sortMatrixXBy === 'ranking') ? _self.xAttributeScale(d.ranking) 
-            : _self.xAttributeScale(d.features[sortMatrixXBy])
-          )
-          .attr('stroke', 'black')
-          .attr('stroke-width', 0.4);
 
       // Distortion plot top
       gDistortionPlotTop.selectAll('.distortion_rect_top')

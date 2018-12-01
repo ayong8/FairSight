@@ -16,7 +16,7 @@ class OutputSpaceView extends Component {
       this.layout = {
           svg: {
             width: 80,
-            height: 350,
+            height: 800,
             margin: 10
           }
       };
@@ -35,9 +35,9 @@ class OutputSpaceView extends Component {
 
       svg.setAttribute('width', '100%');
       svg.setAttribute('height', _self.layout.svg.height);
-      svg.setAttribute('class', 'svg_top_ranking');
-      svg.style.setProperty('border', '1px solid #d9d9d9');
-      svg.style.setProperty('backgroundColor', '#fbfbfb');
+      svg.setAttribute('class', 'svg_output_space');
+      // svg.style.setProperty('border', '1px solid #d9d9d9');
+      // svg.style.setProperty('backgroundColor', '#fbfbfb');
 
       const rectInterval = 7;
       const rankingScale = d3.scaleBand()
@@ -48,7 +48,7 @@ class OutputSpaceView extends Component {
               .domain([0, 1]);
 
       const gAxis = d3.select(svg).append('g')
-            .attr('class', 'g_y_ranking_axis')
+            .attr('class', 'g_y_output_space_axis')
             .attr('transform', 'translate(' + 100 + ',' + 10 + ')')
             .call(d3.axisLeft(rankingScale).tickValues(d3.range(1, topk, 5)));
 

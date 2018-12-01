@@ -32,12 +32,12 @@ class IndividualFairnessInspectionView extends Component {
       outlier: {
         svg: {
           width: 200,
-          height: 150
+          height: 120
         },
         histogram: {
           width: 200,
           height: 120,
-          margin: 25,
+          margin: 10,
           marginBottom: 30
         },
         feature: {
@@ -93,7 +93,7 @@ class IndividualFairnessInspectionView extends Component {
           plot: {
             width: 250,
             height: 90,
-            margin: 30,
+            margin: 10,
             marginTop: 30
           }
         },
@@ -349,7 +349,7 @@ class IndividualFairnessInspectionView extends Component {
     }
   }
 
-  renderFeatureInspectorOverview() {
+  renderDistortionOutlierOverview() {
     const _self = this;
 
     _self.svgOutlier = new ReactFauxDOM.Element('svg');
@@ -423,6 +423,21 @@ class IndividualFairnessInspectionView extends Component {
                 .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
             });
 
+    return (
+      <div className={styles.featureInspectorOverview}>
+        {this.svgOutlier.toReact()}
+      </div>
+    );
+  }
+
+  renderOriginalRankingForPerturbation() {
+    const _self = this;
+
+    const { data, topk, selectedInstances } = this.props;
+    const { instances, features } = data,
+          topkInstances = instances.filter((d) => d.ranking <= topk),
+          nonTopkInstances = instances.filter((d) => d.ranking > topk);
+
     // Original ranking for perturbation
     const svgOriginalRanking = new ReactFauxDOM.Element('svg');
 
@@ -491,7 +506,6 @@ class IndividualFairnessInspectionView extends Component {
 
     return (
       <div className={styles.featureInspectorOverview}>
-        {this.svgOutlier.toReact()}
         {svgOriginalRanking.toReact()}
       </div>
     );
@@ -558,87 +572,6 @@ class IndividualFairnessInspectionView extends Component {
     );
   }
 
-  renderOriginalRankingForPerturbation() {
-    const _self = this;
-
-    const { data, topk, perturbationResults} = this.props;
-    const { features, instances } = data;
-
-    const svgOriginalRanking = new ReactFauxDOM.Element('svg');
-
-    svgOriginalRanking.setAttribute('width', _self.layout.cf.feature.svg.width);
-    svgOriginalRanking.setAttribute('height', _self.layout.cf.feature.svg.height);
-    svgOriginalRanking.setAttribute('0 0 200 200');
-    svgOriginalRanking.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    svgOriginalRanking.setAttribute('class', 'svg_feature_for_counterfactual');
-    svgOriginalRanking.style.setProperty('background-color', 'white');
-
-    const topkInstances = instances.filter((d) => d.ranking <= topk),
-          nonTopkInstances = instances.filter((d) => d.ranking > topk);
-
-    const n = instances.length,
-          rectInterval = 7,
-          rectWidth = 5,
-          rectHeight = 20,
-          plotWidth = rectInterval * topk; // topk and non-topk plot have the same length
-
-    const topkRankingScale = d3.scaleBand()
-            .domain(d3.range(1, topk+1))
-            .range([0, plotWidth]),
-          nonTopkRankingScale = d3.scaleBand()
-            .domain(d3.range(topk+1, n+1))
-            .range([0, plotWidth]),
-          groupColorScale = d3.scaleOrdinal()
-            .range([gs.groupColor1, gs.groupColor2])
-            .domain([0, 1]);
-
-    const xTopkAxis = d3.select(svgOriginalRanking)
-            .append('g')
-            .attr('class', 'g_x_counterfactual_axis')
-            .attr('transform', 'translate(' + _self.layout.cf.feature.plot.margin + ',' + (_self.layout.cf.feature.plot.marginTop + rectHeight + 10) + ')')
-            .call(d3.axisBottom(topkRankingScale).tickValues([1, ...d3.range(5, topk, 5)])),
-          xNonTopkAxis = d3.select(svgOriginalRanking)
-            .append('g')
-            .attr('class', 'g_x_counterfactual_axis')
-            .attr('transform', 'translate(' + (_self.layout.cf.feature.plot.margin + plotWidth) + ',' + (_self.layout.cf.feature.plot.marginTop + rectHeight + 10) + ')')
-            .call(d3.axisBottom(nonTopkRankingScale).tickValues([topk+1, ...d3.range(topk+10, n, 10)]));
-
-    const gTopkRanking = d3.select(svgOriginalRanking).append('g')
-            .attr('class', 'g_top_k_ranking_cf_')
-            .attr('transform', 'translate(' + _self.layout.cf.feature.plot.margin + ',' + _self.layout.cf.feature.plot.marginTop + ')'),
-          gNonTopkRanking = d3.select(svgOriginalRanking).append('g')
-            .attr('class', 'g_non_top_k_ranking_cf_')
-            .attr('transform', 'translate(' + (_self.layout.cf.feature.plot.margin + plotWidth) + ',' + _self.layout.cf.feature.plot.marginTop + ')');
-
-    const topkLine = d3.select(svgOriginalRanking).append('line')
-            .attr('x1', _self.layout.cf.feature.plot.margin + topkRankingScale(topk))
-            .attr('y1', _self.layout.cf.feature.plot.margin)
-            .attr('x2', _self.layout.cf.feature.plot.margin + topkRankingScale(topk))
-            .attr('y2', _self.layout.cf.feature.plot.marginTop + rectHeight + 10)
-            .style('stroke', 'black')
-            .style('stroke-width', 2)
-            .style('stroke-dashearray', '1,1');
-
-    gTopkRanking.selectAll('.rect_topk_cf')
-        .data(topkInstances)
-        .enter().append('rect')
-        .attr('class', (d) => 'rect_topk_cf rect_topk_cf_' + d.ranking)
-        .attr('x', (d) => topkRankingScale(d.ranking))
-        .attr('y', (d) => 0)
-        .attr('width', rectWidth)
-        .attr('height', rectHeight)
-        .style('fill', gs.topkColor)
-        .style('stroke', 'black')
-        .style('shape-rendering', 'crispEdge')
-        .style('stroke-width', 0.5);
-
-    return (
-      <div>
-        {svgOriginalRanking.toReact()}
-      </div>
-    );
-  }
-
   renderFeaturePerturbation(perturbedRankingInstance) {
     const _self = this;
 
@@ -682,7 +615,7 @@ class IndividualFairnessInspectionView extends Component {
             .append('g')
             .attr('class', 'g_x_counterfactual_axis')
             .attr('transform', 'translate(' + (_self.layout.cf.feature.plot.margin + plotWidth) + ',' + (_self.layout.cf.feature.plot.marginTop + rectHeight + 10) + ')')
-            .call(d3.axisBottom(nonTopkRankingScale).tickValues(d3.range(topk+1, n, 10)));
+            .call(d3.axisBottom(nonTopkRankingScale).tickValues([topk+1, ...d3.range(topk+10, n, 10)]));
 
     const gTopkRanking = d3.select(svgPerturbation).append('g')
             .attr('class', 'g_top_k_ranking_cf_' + perturbedFeature)
@@ -728,9 +661,9 @@ class IndividualFairnessInspectionView extends Component {
     console.log('stat: ', stat);
     console.log('statForPerturbation: ', statForPerturbation);
 
-    const diffUtility = stat.utility - statForPerturbation.utility,
-          diffSp = stat.sp - statForPerturbation.sp,
-          diffCp = stat.cp - statForPerturbation.cp;
+    const diffUtility = statForPerturbation.utility - stat.utility,
+          diffSp = statForPerturbation.sp - stat.sp,
+          diffCp = statForPerturbation.cp - stat.cp;
 
     return { 
       perturbationDiv: 
@@ -770,16 +703,27 @@ class IndividualFairnessInspectionView extends Component {
     // Put feature name, outlier and perturbation column put together
     const tableDataSource = [];
     const featureInspectorColumns = [
-      { title: 'Feature', dataIndex: 'feature', width: '12%' },
-      { title: 'Measure', dataIndex: 'corrBtnOutliersAndWholeInstances', width: '5%'},
+      { title: 'Feature', dataIndex: 'feature', width: '7%' },
+      { title: 'Measure', dataIndex: 'corrBtnOutliersAndWholeInstances', width: '6%'},
       { title: 'Outlier', dataIndex: 'outlier', width: '20%'},
-      { title: 'Ranking Change', dataIndex: 'rankingChange', width: '5%'},
-      { title: 'diffUtility', dataIndex: 'diffUtility', width: '5%'},
-      { title: 'diffSp', dataIndex: 'diffSp', width: '5%'},
+      { title: 'R', dataIndex: 'rankingChange', width: '6%'},
+      { title: 'U', dataIndex: 'diffUtility', width: '6%'},
+      { title: 'F', dataIndex: 'diffSp', width: '6%'},
       { title: 'Perturbation', dataIndex: 'perturbation', width: '45%'}
     ];
 
     console.log('perturbationResultsss: ', perturbationResults);
+
+    // Push the overview
+    tableDataSource.push({
+      feature: '',
+      corrBtnOutliersAndWholeInstances: '',
+      outlier: _self.renderDistortionOutlierOverview(),
+      rankingChange: '',
+      diffUtility: '',
+      diffSp: '',
+      perturbation: _self.renderOriginalRankingForPerturbation()
+    });
 
     features.forEach((feature) => {
       let svgFeature, outlierResultObj;
@@ -797,7 +741,7 @@ class IndividualFairnessInspectionView extends Component {
       const { perturbationDiv, rankingChange, diffUtility, diffSp } = _self.renderFeaturePerturbation(perturbationResult);
 
       tableDataSource.push({
-        feature: name,
+        feature: name.replace(/_/g, ' ').toUpperCase(),
         corrBtnOutliersAndWholeInstances: corrBtnOutliersAndWholeInstances,
         outlier: outlierDiv,
         rankingChange: rankingChange,
@@ -809,7 +753,7 @@ class IndividualFairnessInspectionView extends Component {
     
     return (
       <div className={styles.fairnessInspectionWrapper}>
-        <div className={styles.featureInspectorOverview}>{this.renderFeatureInspectorOverview()}</div>
+        {/* <div className={styles.featureInspectorOverview}>{this.renderDistortionOutlierOverview()}</div> */}
         {/* <div className={styles.outlierAnalysis}>{this.renderOutlierAnalysis()}</div>
         <div className={styles.ccAnalysis}>{this.renderCC()}</div> */}
         {/* <div className={styles.featureInspectorList}>
@@ -818,7 +762,7 @@ class IndividualFairnessInspectionView extends Component {
         <Table
           columns={featureInspectorColumns} 
           dataSource={tableDataSource} 
-          scroll={{ y: 200 }}
+          scroll={{ y: 400 }}
           pagination={false}
         />
       </div>

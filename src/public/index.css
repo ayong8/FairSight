@@ -111,6 +111,18 @@ body {
 .g_x_whole_ranking_selected_non_topk_axis path { stroke: gray; }
 .g_x_whole_ranking_selected_non_topk_axis text { fill: gray; }
 
+.g_x_matrix_axis line { stroke: gray; }
+.g_x_matrix_axis path { stroke: none; }
+.g_x_matrix_axis text { fill: gray; }
+
+.g_y_matrix_axis line { stroke: gray; }
+.g_y_matrix_axis path { stroke: none; }
+.g_y_matrix_axis text { fill: gray; }
+
+.g_y_output_space_axis line { stroke: gray; }
+.g_y_output_space_axis path { stroke: gray; }
+.g_y_output_space_axis text { fill: gray; }
+
 .g_x_distortion_axis line { stroke: gray; }
 .g_x_distortion_axis path { stroke: gray; }
 .g_x_distortion_axis text { fill: gray; }

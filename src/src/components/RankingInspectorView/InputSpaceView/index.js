@@ -92,8 +92,8 @@ class InputSpaceView extends Component {
       svg.setAttribute('width', this.layout.svg.width);
       svg.setAttribute('height', this.layout.svg.height)
       svg.setAttribute('class', 'svg_input_space');
-      svg.style.setProperty('border', '1px solid #d9d9d9');
-      svg.style.setProperty('backgroundColor', '#fbfbfb');
+      // svg.style.setProperty('border', '1px solid #d9d9d9');
+      // svg.style.setProperty('backgroundColor', '#fbfbfb');
 
       let xScale = d3.scaleLinear()
           .domain(d3.extent(instances, (d) => d.dim1))

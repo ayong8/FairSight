@@ -1,7 +1,7 @@
 .RankingInspectorView {
   grid-area: d;
 
-  background-color: #fbfbfb;
+  // background-color: #fbfbfb;
   border: 1px solid #f1f0f0;
   padding: 10px;
 
@@ -55,7 +55,7 @@
   .inputSpaceMeasure { grid-area: im; }
   .mappingSpaceTitle { grid-area: mt; }
   .mappingSpaceDescription { grid-area: md; }
-  .mappingSpaceMeasure { grid-area: mm; }
+  .mappingSpaceMeasure { grid-area: mm; display: flex; justify-content: center; }
   .outputSpaceTitle { grid-area: ot; }
   .outputSpaceDescription { grid-area: od; }
   .outputSpaceMeasure { grid-area: om; }
@@ -78,9 +78,12 @@
   }
 
   .utilityWrapper,
-  .groupFairnessWrapper,
-  .individualFairnessWrapper {
+  .groupFairnessWrapper {
     width: 30%;
+  }
+
+  .individualFairnessWrapper {
+    width: 100%;
   }
 
   .utility,

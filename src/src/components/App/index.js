@@ -159,7 +159,7 @@ class App extends Component {
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
       this.calculateGroupSkew(this.pairwiseDiffs);
-      this.calculateOutputMeasures(topk);
+      const { utility, sp, cp } = this.calculateOutputMeasures(topk);
       this.calculateCorrBtnSensitiveAndAllFeatures();
 
       console.log('isOutlier: ', instances);
@@ -187,7 +187,10 @@ class App extends Component {
           instances: sortedInstances,
           stat: {
             ...prevState.rankingInstance.stat,
-            goodnessOfFairness: this.rSquared
+            goodnessOfFairness: this.rSquared,
+            utility: utility,
+            sp: sp,
+            cp: cp
           },
           isForPerturbation: false
         },
@@ -841,10 +844,10 @@ class App extends Component {
           Z = (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (Math.min(nProtectedGroupInWhole, topk) / topk) - (nProtectedGroupInWhole / n) ),
           rND = 1 - (1/Z) * (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (nProtectedGroupInTopk / topk) - (nProtectedGroupInWhole / n) );
 
-    const statisticalParity = (_.sum(group2.map((d) => 1 / d.ranking).filter((d) => d.isTopk)) / group2.length) / 
-                              (_.sum(group1.map((d) => 1 / d.ranking).filter((d) => d.isTopk)) / group1.length);
-    const conditionalParity = (_.sum(group2.filter((d) => d.isTopk && d.target === 1).map((d) => 1 / d.ranking)) / group2.length) / 
-                              (_.sum(group1.filter((d) => d.isTopk && d.target === 1).map((d) => 1 / d.ranking)) / group1.length);
+    const statisticalParity = (_.sum(group2.filter((d) => d.ranking <= topk).map((d) => 1 / d.ranking)) / group2.length) / 
+                              (_.sum(group1.filter((d) => d.ranking <= topk).map((d) => 1 / d.ranking)) / group1.length);
+    const conditionalParity = (_.sum(group2.filter((d) => d.ranking <= topk && d.target === 1).map((d) => 1 / d.ranking)) / group2.length) / 
+                              (_.sum(group1.filter((d) => d.ranking <= topk && d.target === 1).map((d) => 1 / d.ranking)) / group1.length);
 
     // For utility = nDCG
     const topkInstances = instances.filter((d) => d.ranking <= topk);
@@ -867,17 +870,17 @@ class App extends Component {
 
     console.log('ndcg: ', nDCG, topkInstances.length, DCG, IDCG);
 
-    this.setState((prevState) => ({
-      rankingInstance: {
-        ...prevState.rankingInstance,
-        stat: {
-          ...prevState.rankingInstance.stat,
-          utility: Math.round(nDCG * 100) / 100,
-          sp: Math.round(rND * 100) / 100,
-          cp: Math.round(conditionalParity * 100) / 100
-        }
-      }
-    }));
+    // this.setState((prevState) => ({
+    //   rankingInstance: {
+    //     ...prevState.rankingInstance,
+    //     stat: {
+    //       ...prevState.rankingInstance.stat,
+    //       utility: Math.round(nDCG * 100) / 100,
+    //       sp: Math.round(rND * 100) / 100,
+    //       cp: Math.round(conditionalParity * 100) / 100
+    //     }
+    //   }
+    // }));
 
     return {
       utility: Math.round(nDCG * 100) / 100,

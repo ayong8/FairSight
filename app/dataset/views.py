@@ -204,6 +204,7 @@ def perturb_feature(ranking_instance):
     # print('perturbed_feature: ', perturbed_feature)
     # print('instancessss: ', [ instance['features'][perturbed_feature] for instance in instances ])
     # Shuffle the values (permutation)
+    random.seed(1)
     permuted_feature_values = random.sample([ instance['features'][perturbed_feature] for instance in instances ], len(instances))
 
     for idx, instance in enumerate(instances):

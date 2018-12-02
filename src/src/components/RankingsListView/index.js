@@ -19,16 +19,19 @@ class RankingsListView extends Component {
     this.layout = {
       rankingPlot: {
         width: 300,
-        height: 200,
+        height: 150,
         svg: {
           width: 250,
-          height: 200,
+          height: 150,
           margin: 25
         },
         plot: {
           width: 200,
-          height: 150,
-          margin: 20
+          height: 120,
+          margin: 20,
+          marginTop: 10,
+          marginLeft: 30,
+          marginBottom: 20
         }
       }
     }
@@ -54,21 +57,57 @@ class RankingsListView extends Component {
 
     // x and y axis and scale
     const xFairnessScale = d3.scaleLinear()
-            .domain([0, 1])
+            .domain([0, 2])
             .range([0, _self.layout.rankingPlot.plot.width]),
           yUtilityScale = d3.scaleLinear()
-            .domain([0, 1])
-            .range([0, _self.layout.rankingPlot.plot.height]);
+            .domain([0, 2])
+            .range([_self.layout.rankingPlot.plot.height, 0]);
+
+    const r = 7;
+    const backgroundRect = d3.select(svg)
+            .append('rect')
+            .attr('x', _self.layout.rankingPlot.plot.marginLeft)
+            .attr('y', _self.layout.rankingPlot.plot.marginTop)
+            .attr('width', _self.layout.rankingPlot.plot.width)
+            .attr('height', _self.layout.rankingPlot.plot.height)
+            .style('fill', 'whitesmoke');
+
+    const xFairnessAxis = d3.select(svg).append('g')
+            .attr('class', 'g_x_fairness_axis')
+            .attr('transform', 'translate(' + _self.layout.rankingPlot.plot.marginLeft + ',' + (_self.layout.rankingPlot.plot.marginTop + _self.layout.rankingPlot.plot.height) + ')')
+            .call(d3.axisBottom(xFairnessScale).ticks(5)),
+          yUtilityAxis = d3.select(svg).append('g')
+            .attr('class', 'g_y_utility_axis')
+            .attr('transform', 'translate(' + _self.layout.rankingPlot.plot.marginLeft + ',' + _self.layout.rankingPlot.plot.marginTop + ')')
+            .call(d3.axisLeft(yUtilityScale).ticks(5));
 
     const gRankings = d3.select(svg)
-            .selectAll('.ranking')
+            .selectAll('.g_ranking')
             .data(rankings).enter()
-            .append('circle')
-            .attr('class', 'ranking')
-            .attr('cx', (d) => xFairnessScale(0.5))
-            .attr('cy', (d) => yUtilityScale(0.5))
-            .attr('r', 2)
-            .attr('');
+            .append('g')
+            .attr('class', 'g_ranking')
+            .attr('transform', 'translate(' + _self.layout.rankingPlot.plot.marginLeft + ',' + _self.layout.rankingPlot.plot.marginTop + ')');
+    
+    gRankings.append('circle')
+        .attr('class', 'ranking_circle')
+        .attr('cx', (d) => xFairnessScale(d.stat.sp))
+        .attr('cy', (d) => yUtilityScale(d.stat.utility))
+        .attr('r', r)
+        .style('fill', 'none')
+        .style('stroke', 'black');
+
+    gRankings.append('text')
+        .attr('class', 'ranking_id')
+        .attr('x', (d) => xFairnessScale(d.stat.sp) - r/2 - 2.5)
+        .attr('y', (d) => yUtilityScale(d.stat.utility) + r/2 + 1)
+        .style('fill', 'black')
+        .text((d) => d.rankingId);
+
+    return (
+      <div>
+        {svg.toReact()}
+      </div>
+    )
   }
 
   renderRankingInstances() {
@@ -211,8 +250,7 @@ class RankingsListView extends Component {
         <div className={styles.titleWrapper}>
           <div className={index.title + ' ' + styles.title }> Rankings </div>
         </div>
-        <div className={styles.addRanking}>+</div>
-        <div className={styles.rankingCondition}></div>
+        {this.renderRankingPlot()}
         <Table borderless className={styles.FeatureTable}>
           <thead>
             <tr>

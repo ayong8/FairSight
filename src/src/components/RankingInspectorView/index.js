@@ -196,7 +196,7 @@ class RankingInspectorView extends Component {
         })   
         .then( (response) => {
           const perturbedRankingInstance = JSON.parse(response);
-
+          console.log('features to be perturbeddd: ', perturbedRankingInstance.perturbedFeature);
           // Calculate and update measures
           const { utility, sp, cp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
           perturbedRankingInstance.statForPerturbation.utility = utility;
@@ -256,6 +256,7 @@ class RankingInspectorView extends Component {
           })   
           .then( (response) => {
             const perturbedRankingInstance = JSON.parse(response);
+            console.log('features to be perturbeddd: ', perturbedRankingInstance.perturbedFeature);
             
             // Calculate and update measures
             const { utility, sp, cp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
@@ -264,10 +265,13 @@ class RankingInspectorView extends Component {
             perturbedRankingInstance.statForPerturbation.cp = cp;
 
             perturbationResults.push(perturbedRankingInstance);
+            console.log('perturbationResultsssss: ', perturbationResults);
 
-            _self.setState({
-              perturbationResults: perturbationResults
-            });
+            if (features.length === perturbationResults.length) {
+              _self.setState({
+                perturbationResults: perturbationResults
+              });
+            }
           });
         });
 
@@ -292,6 +296,9 @@ class RankingInspectorView extends Component {
             { instances, sensitiveAttr } = perturbedRankingInstance,
             { protectedGroup, nonProtectedGroup, range } = sensitiveAttr;
       let protectedGroupBinary, nonProtectedGroupBinary;
+
+      console.log(perturbedRankingInstance);
+      console.log(perturbedRankingInstance.perturbedFeature);
 
       // For fairness = rND ... or possibly statistical and conditional parity
       if (range[0] === protectedGroup){  // Find the corresponding 0 or 1 to protected or non-protected group string

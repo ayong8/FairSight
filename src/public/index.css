@@ -146,3 +146,11 @@ body {
 .g_x_counterfactual_axis line { stroke: gray; }
 .g_x_counterfactual_axis path { stroke: gray; }
 .g_x_counterfactual_axis text { fill: gray; }
+
+.g_x_fairness_axis line { stroke: gray; }
+.g_x_fairness_axis path { stroke: gray; }
+.g_x_fairness_axis text { fill: gray; }
+
+.g_y_utility_axis line { stroke: gray; }
+.g_y_utility_axis path { stroke: gray; }
+.g_y_utility_axis text { fill: gray; }

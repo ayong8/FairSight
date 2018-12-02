@@ -162,8 +162,6 @@ class App extends Component {
       const { utility, sp, cp } = this.calculateOutputMeasures(topk);
       this.calculateCorrBtnSensitiveAndAllFeatures();
 
-      console.log('isOutlier: ', instances);
-
       let sortedInstances = _.sortBy(updatedInstances, 'ranking'),
           selectedRanking = rankings[rankingInstance.rankingId - 1];
 
@@ -175,27 +173,31 @@ class App extends Component {
               (d.ranking2 >= from) && (d.ranking2 <= to)
             );
 
-      this.setState((prevState) => ({
-        shouldRunModel: true,
-        selectedInstances: this.selectedInstances,
-        pairwiseDiffs: this.pairwiseDiffs,
-        permutationDiffs: this.permutationDiffs,
-        permutationDiffsFlattened: this.permutationDiffsFlattened,
-        selectedPermutationDiffsFlattend: this.selectedPermutationDiffsFlattend,
-        rankingInstance: {
+      this.setState((prevState) => {
+        const currentRankingInstance = {
           ...prevState.rankingInstance,
-          instances: sortedInstances,
-          stat: {
-            ...prevState.rankingInstance.stat,
-            goodnessOfFairness: this.rSquared,
-            utility: utility,
-            sp: sp,
-            cp: cp
-          },
-          isForPerturbation: false
-        },
-        rankings: [...prevState.rankings, rankingInstance]
-      }));
+            instances: sortedInstances,
+            stat: {
+              ...prevState.rankingInstance.stat,
+              goodnessOfFairness: this.rSquared,
+              utility: utility,
+              sp: sp,
+              cp: cp
+            },
+            isForPerturbation: false
+        }
+
+        return {
+          shouldRunModel: true,
+          selectedInstances: this.selectedInstances,
+          pairwiseDiffs: this.pairwiseDiffs,
+          permutationDiffs: this.permutationDiffs,
+          permutationDiffsFlattened: this.permutationDiffsFlattened,
+          selectedPermutationDiffsFlattend: this.selectedPermutationDiffsFlattend,
+          rankingInstance: currentRankingInstance,
+          rankings: [ currentRankingInstance ]
+        }
+      });
 
       inputs = _.map(this.pairwiseDiffs, (d) => {
           return {
@@ -491,24 +493,33 @@ class App extends Component {
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
       this.calculateGroupSkew(this.pairwiseDiffs);
-      this.calculateOutputMeasures(topk);
+      const { utility, sp, cp } = this.calculateOutputMeasures(topk);
 
-      this.setState((prevState) => ({
-        pairwiseDiffs: this.pairwiseDiffs,
-        permutationDiffs: this.permutationDiffs,
-        permutationDiffsFlattened: this.permutationDiffsFlattened,
-        rankingInstance: {
-          ...updatedRankingInstance,
-          shouldRunModel: true,
-          instances: updatedInstances,
-          stat: {
-            ...updatedRankingInstance.stat,
-            goodnessOfFairness: this.rSquared
-          },
-          isForPerturbation: false
-        },
-        rankings: [...prevState.rankings, rankingInstance]
-      }));
+      this.setState((prevState) => {
+        const currentRankingInstance = {
+            ...updatedRankingInstance,
+            shouldRunModel: true,
+            instances: updatedInstances,
+            stat: {
+              ...updatedRankingInstance.stat,
+              goodnessOfFairness: this.rSquared,
+              utility: utility,
+              sp: sp,
+              cp: cp
+            },
+            isForPerturbation: false
+          }
+
+        return {
+          selectedInstances: this.selectedInstances,
+          pairwiseDiffs: this.pairwiseDiffs,
+          permutationDiffs: this.permutationDiffs,
+          permutationDiffsFlattened: this.permutationDiffsFlattened,
+          selectedPermutationDiffsFlattend: this.selectedPermutationDiffsFlattend,
+          rankingInstance: currentRankingInstance,
+          rankings: [...prevState.rankings, currentRankingInstance ]
+        }
+      });
 
       inputs = _.map(this.pairwiseDiffs, (d) => {
           return {

@@ -113,6 +113,11 @@ class IndividualFairnessInspectionView extends Component {
     }
   }
 
+  // shouldComponentUpdate(nextProps, nextState) {
+  //   console.log('lengthhhh: ', this.props.perturbationResults);
+  //   return nextProps.perturbationResults !== this.props.perturbationResults;
+  // }
+
   renderCategoricalFeatureForOutlier(feature) {
     const _self = this;
 
@@ -725,6 +730,8 @@ class IndividualFairnessInspectionView extends Component {
       perturbation: _self.renderOriginalRankingForPerturbation()
     });
 
+    console.log('ffff: ', features);
+
     features.forEach((feature) => {
       let svgFeature, outlierResultObj;
       const { name, type, range, value } = feature;
@@ -770,9 +777,10 @@ class IndividualFairnessInspectionView extends Component {
   }
 
   render() {
+    console.log('12345678: ', this.props.perturbationResults);
     if (!this.props.perturbationResults || this.props.perturbationResults.length !== this.props.data.features.length)
       return <div />
-    
+      console.log('12345678910: ', this.props.perturbationResults.map((d) => d.perturbedFeature));
     return (
       <div className={styles.IndividualFairnessInspectionView}>
         <div className={index.subTitle}>Feature Inspector</div>

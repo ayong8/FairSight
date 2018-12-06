@@ -89,41 +89,74 @@ def do_encoding_categorical_vars(whole_dataset_df):
     return dataset_df
 
 def save_trained_model(ranking_instance, model):
-    for file_num in range(1, 15):
-        filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId'])
-        filename = filename + '_' + str(file_num) + '.pkl'
-        with open(filename, 'wb') as f:
-            pickle.dump(model, f)
+    # for file_num in range(1, 20):
+    #     filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId'])
+    #     filename = filename + '_' + str(file_num) + '.pkl'
+    #     with open(filename, 'wb') as f:
+    #         pickle.dump(model, f)
+    filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId'])
+    filename = filename + '.pkl'
+    with open(filename, 'wb') as f:
+        pickle.dump(model, f)
         
 
 def load_trained_model(ranking_instance):
-    for file_num in range(1, 15):
-        filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId'])
-        filename = filename + '_' + str(file_num) + '.pkl'
-        model = ''
-        
-        if os.path.exists(filename):
-            try:
-                print('openn: ', filename)
-                f = open(filename, 'rb')
-                if os.path.exists(filename):    # Since it's asynchronous
-                    try:
-                        unpickler = pickle.Unpickler(f)
-                        model = unpickler.load()
-                        f.close()
-                        os.remove(filename)
-                    except FileNotFoundError as e:
-                        pass
-                    except EOFError as e2:
-                        pass
+    filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId']) + '.pkl'
+    model = ''
 
-            except FileNotFoundError as e:
-                continue
+    f = open(filename, 'rb')
+    unpickler = pickle.Unpickler(f)
+    model = unpickler.load()
+    f.close()
+
+    return model
+    
+    # if os.path.exists(filename):
+    #     try:
+    #         f = open(filename, 'rb')
+    #         if os.path.exists(filename):    # Since it's asynchronous
+    #             try:
+    #                 unpickler = pickle.Unpickler(f)
+    #                 model = unpickler.load()
+    #                 f.close()
+    #             except FileNotFoundError as e:
+    #                 pass
+    #             except EOFError as e2:
+    #                 pass
+
+    #     except FileNotFoundError as e:
+    #         pass
+    
+    #     if model != '':
+    #         return model
+    #     else:
+    #         pass
+    # for file_num in range(1, 20):
+    #     filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId'])
+    #     filename = filename + '_' + str(file_num) + '.pkl'
+    #     model = ''
         
-            if model != '':
-                return model
-            else:
-                continue
+    #     if os.path.exists(filename):
+    #         try:
+    #             f = open(filename, 'rb')
+    #             if os.path.exists(filename):    # Since it's asynchronous
+    #                 try:
+    #                     unpickler = pickle.Unpickler(f)
+    #                     model = unpickler.load()
+    #                     f.close()
+    #                     os.remove(filename)
+    #                 except FileNotFoundError as e:
+    #                     pass
+    #                 except EOFError as e2:
+    #                     pass
+
+    #         except FileNotFoundError as e:
+    #             continue
+        
+    #         if model != '':
+    #             return model
+    #         else:
+    #             continue
 
 def run_experiment_iteration_themis_ml_ACF(
         X, X_no_sex, y, s_sex, train, test):
@@ -191,8 +224,6 @@ def run_experiment_iteration_themis_ml_ACF(
     accuracy = roc_auc_score(y[test], acf_preds_sex)
     probs_would_not_default = [ prob[1] for prob in probs ]
 
-    print('probs: ')
-    print(probs_would_not_default)
     # convert metrics list of lists into dataframe
     return { 'prob': probs_would_not_default, 'accuracy': accuracy, 'acf_fit': acf_clf }
 
@@ -200,9 +231,8 @@ def perturb_feature(ranking_instance):
     perturbed_feature = ranking_instance['perturbedFeature']
     perturbed_feature_info = [ feature for feature in ranking_instance['features'] if feature['name'] == perturbed_feature ][0]
     instances = ranking_instance['instances']
+    print('perturbed_featureeeeeeee: ', perturbed_feature)
 
-    # print('perturbed_feature: ', perturbed_feature)
-    # print('instancessss: ', [ instance['features'][perturbed_feature] for instance in instances ])
     # Shuffle the values (permutation)
     random.seed(1)
     permuted_feature_values = random.sample([ instance['features'][perturbed_feature] for instance in instances ], len(instances))
@@ -210,7 +240,10 @@ def perturb_feature(ranking_instance):
     for idx, instance in enumerate(instances):
         instance['features'][perturbed_feature] = permuted_feature_values[idx]
 
-    return pd.DataFrame([ instance['features'] for instance in instances ])
+    perturbed_instance = pd.DataFrame([ instance['features'] for instance in instances ])
+    print(perturbed_instance.head())
+
+    return perturbed_instance
 
 class LoadFile(APIView):
     def get(self, request, format=None):
@@ -322,7 +355,6 @@ class RunSVM(APIView):
         pass
 
     def post(self, request, format=None):
-        print('here in runsvm')
         json_request = json.loads(request.body.decode(encoding='UTF-8'))
 
         features = [ feature['name'] for feature in json_request['features'] ]
@@ -394,28 +426,15 @@ class RunLR(APIView):
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
         whole_dataset_df = open_dataset(sample_file_path)
 
-        if is_for_perturbation == False:
-            X = whole_dataset_df[features]
-        elif is_for_perturbation == True:
-            # # Update features in the instances (Sort by idx both and biject instance in the dataset to ranking instance one by one)
-            # ranking_instance['instances'] = sorted(ranking_instance['instances'], key=lambda d: d['idx'])
-            # filtered_instances = whole_dataset_df.sort_values(by=['idx'])[features]
-            # for idx, instance in enumerate(ranking_instance['instances']):
-            #     instance['features'] = filtered_instances.loc[idx]
-            X = perturb_feature(ranking_instance)
+        X = whole_dataset_df[features]
 
         X_wo_s_attr = whole_dataset_df[features]
         y = whole_dataset_df[target]
         s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
         X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=True)
-        if is_for_perturbation == False:
-            lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
-            accuracy = lr_fit.score(X_test, y_test)
-        elif is_for_perturbation == True:
-            print('ranking_instanccc:', ranking_instance)
-            lr_fit = load_trained_model(ranking_instance)
-            accuracy_after_perturbation = lr_fit.score(X_test, y_test)
+        lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
+        accuracy = lr_fit.score(X_test, y_test)
 
         probs = lr_fit.predict_proba(X)
         probs_would_not_default = [ prob[1] for prob in probs ]
@@ -425,18 +444,11 @@ class RunLR(APIView):
         output_df['group'] = s
         output_df['target'] = y
 
-        if is_for_perturbation == True:
-            instances_df = pd.DataFrame(ranking_instance['instances']).sort_values(by='idx', ascending=True)
-            instances = ranking_instance['instances']
-            previous_ranking_df = pd.DataFrame({'previousRanking': instances_df['ranking'], \
-                                                'idx': instances_df['idx']})
-            previous_ranking_df.set_index('idx')
-            output_df = pd.merge(output_df, previous_ranking_df, on=['idx'])
-
         # Add rankings
         output_df['prob'] = probs_would_not_default
         output_df = output_df.sort_values(by='prob', ascending=False)
         output_df['ranking'] = range(1, len(output_df) + 1)
+        print('LR original: ', output_df['prob'])
 
         # Convert to dict and put all features into 'features' key
         instances_dict_list = list(output_df.T.to_dict().values())
@@ -447,15 +459,104 @@ class RunLR(APIView):
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
 
-        if is_for_perturbation == True:
-            ranking_instance['statForPerturbation']['accuracy'] = math.ceil(accuracy_after_perturbation * 100)    
-        else:
-            ranking_instance['stat']['accuracy'] = math.ceil(accuracy * 100)
+        ranking_instance['stat']['accuracy'] = math.ceil(accuracy * 100)
         ranking_instance['instances'] = instances_dict_list
 
-        save_trained_model(ranking_instance, lr_fit)
-
         return Response(json.dumps(ranking_instance))
+
+class RunLRForPerturbation(APIView):
+
+    def get(self, request, format=None):
+        pass
+
+    def post(self, request, format=None):
+        ranking_instances = json.loads(request.body.decode(encoding='UTF-8'))
+        response_list = []
+
+        o_ranking_instance = ranking_instances[0]
+
+        for ranking_instance in ranking_instances:
+            features = [ feature['name'] for feature in ranking_instance['features'] ]
+            target = ranking_instance['target']['name']
+            sensitive_attr = ranking_instance['sensitiveAttr']['name']
+            method = ranking_instance['method']['name']
+            is_for_perturbation = ranking_instance['isForPerturbation']
+
+            raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
+            whole_dataset_df = open_dataset(sample_file_path)
+
+            X = whole_dataset_df[features]
+            y = whole_dataset_df[target]
+            s = whole_dataset_df[sensitive_attr] # male:0, female: 1
+
+            X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=True)
+            lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
+
+            X = perturb_feature(ranking_instance)
+            probs = lr_fit.predict_proba(X)
+            accuracy_after_perturbation = lr_fit.score(X_test, y_test)
+            probs_would_not_default = [ prob[1] for prob in probs ]
+            print('1111: ', probs_would_not_default)
+
+            output_df = X.copy()
+            output_df['idx'] = whole_dataset_df['idx']
+            output_df['group'] = s
+            output_df['target'] = y
+
+            instances_df = pd.DataFrame(ranking_instance['instances']).sort_values(by='idx', ascending=True)
+            instances = ranking_instance['instances']
+            previous_ranking_df = pd.DataFrame({'previousRanking': instances_df['ranking'], \
+                                                'idx': instances_df['idx']})
+            previous_ranking_df.set_index('idx')
+            output_df = pd.merge(output_df, previous_ranking_df, on=['idx'])
+
+            # Add rankings
+            output_df['prob'] = probs_would_not_default
+            output_df = output_df.sort_values(by='prob', ascending=False)
+            output_df['ranking'] = range(1, len(output_df) + 1)
+            
+
+            # Convert to dict and put all features into 'features' key
+            instances_dict_list = list(output_df.T.to_dict().values())
+            for output_item in instances_dict_list:  # Go over all items
+                features_dict = {}
+                for feature_key in features:
+                    features_dict[ feature_key ] = output_item[ feature_key ]
+                    output_item.pop(feature_key, None)
+                output_item['features'] = features_dict
+
+            ranking_instance['statForPerturbation']['accuracy'] = math.ceil(accuracy_after_perturbation * 100)    
+            ranking_instance['instances'] = instances_dict_list
+
+            response_list.append(ranking_instance)
+
+
+        features = [ feature['name'] for feature in o_ranking_instance['features'] ]
+        target = o_ranking_instance['target']['name']
+        sensitive_attr = o_ranking_instance['sensitiveAttr']['name']
+        method = o_ranking_instance['method']['name']
+        is_for_perturbation = o_ranking_instance['isForPerturbation']
+
+        raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
+        whole_dataset_df = open_dataset(sample_file_path)
+
+        X = whole_dataset_df[features]
+
+        X_wo_s_attr = whole_dataset_df[features]
+        y = whole_dataset_df[target]
+        s = whole_dataset_df[sensitive_attr] # male:0, female: 1
+
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=True)
+
+        lr_fit = load_trained_model(o_ranking_instance)
+        accuracy_after_perturbation = lr_fit.score(X_test, y_test)
+
+        probs = lr_fit.predict_proba(X)
+        probs_would_not_default = [ prob[1] for prob in probs ]
+        print('original ranking test: ')
+        print(probs_would_not_default)
+
+        return Response(json.dumps(response_list))
 
 # Run Additive Counterfactual Fairness (ACF) algorithm using themis-ml library
 class RunACF(APIView):
@@ -554,8 +655,6 @@ class RunLRA(APIView):
         lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
         accuracy = lr_fit.score(X_test, y_test)
         pred_probs = lr_fit.predict_proba(X)
-        print('probs of lr: ')
-        print(pred_probs)
 
         output_df = X.copy()
         output_df['idx'] = idx_col
@@ -660,8 +759,6 @@ class CalculatePairwiseInputDistance(APIView):
             else:
                 is_categorical_feature_list.append(True)
 
-        print(features)
-        print(is_categorical_feature_list)
         pairwise_distances = gower_distances(X, categorical_features=is_categorical_feature_list)
 
         # Convert 2d array to a list of pairwise dictionaries
@@ -711,8 +808,6 @@ class CalculateAndersonDarlingTest(APIView):
         features = json_request['wholeFeatures']
         group_instances1 = json_request['groupInstances1']
         group_instances2 = json_request['groupInstances2']
-
-        print('featuresss: ', features)
         
         test_result = {}
         for feature in features:
@@ -720,7 +815,6 @@ class CalculateAndersonDarlingTest(APIView):
             feature_values_group2 = [ instance[feature] for instance in group_instances2 ]
 
             wass_dist = stats.wasserstein_distance(feature_values_group1, feature_values_group2)
-            print('andersonnn: ', feature, wass_dist)
             test_result[feature] = math.sqrt(wass_dist)
 
         return Response(json.dumps(test_result))

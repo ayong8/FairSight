@@ -138,6 +138,7 @@ class RankingInspectorView extends Component {
       this.handleColoringMatrix = this.handleColoringMatrix.bind(this);
       this.handleSelectGroupCheckbox = this.handleSelectGroupCheckbox.bind(this);
       this.handleSelectOutlierAndFairCheckbox = this.handleSelectOutlierAndFairCheckbox.bind(this);
+      this.handleSelectedInstance = this.handleSelectedInstance.bind(this);
       // this.handleMouseoverInstance = this.handleMouseoverInstance.bind(this);
     }
 
@@ -157,7 +158,6 @@ class RankingInspectorView extends Component {
       const featureValuesForOutliers = outliers.map((d) => d.features),
             featureValuesForWholeInstances = wholeInstances.map((d) => d.features)
 
-      const perturbationResults = [];
       const corrTestRequest = {
         wholeFeatures: featureNames,
         groupInstances1: featureValuesForOutliers,
@@ -175,40 +175,47 @@ class RankingInspectorView extends Component {
       .then((response) => {
         // { FEATURE-NAME: TEST-RESULT, ... }
         const corrTestResult = JSON.parse(response);
-        console.log('corrTestResult for outliersss: ', corrTestResult)
         _self.setState({
           corrBtnOutliersAndWholeInstances: corrTestResult
         });
       });
 
       // Perturb features
-      features.forEach((feature) => {
-        const request = { ...data, 'perturbedFeature': feature.name, 'isForPerturbation': true } // 1 is True in python
-        const urlForMethod = (method.name === 'Logistic Regression') ? 'runLR' 
-                              : (method.name === 'SVM') ? 'runSVM'
+      const perturbationResults = [];
+      const urlForMethod = (method.name === 'Logistic Regression') ? 'runLRForPerturbation' 
+                              : (method.name === 'SVM') ? 'runSVMForPerturbation'
                               : 'RunSVM'
-        fetch('/dataset/' + urlForMethod + '/', {
-          method: 'post',
-          body: JSON.stringify(request)
-        })
-        .then( (response) => {
-          return response.json();
-        })   
-        .then( (response) => {
-          const perturbedRankingInstance = JSON.parse(response);
-          console.log('features to be perturbeddd: ', perturbedRankingInstance.perturbedFeature);
-          // Calculate and update measures
-          const { utility, sp, cp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
-          perturbedRankingInstance.statForPerturbation.utility = utility;
-          perturbedRankingInstance.statForPerturbation.sp = sp;
-          perturbedRankingInstance.statForPerturbation.cp = cp;
-          
-          perturbationResults.push(perturbedRankingInstance);
-          console.log('perturbationResultsssss: ', perturbationResults);
 
-          _self.setState({
-            perturbationResults: perturbationResults
-          });
+      const requests = features.map((feature) => ({
+                ...data, 
+                perturbedFeature: feature.name, 
+                isForPerturbation: true 
+              }));
+
+      fetch('/dataset/' + urlForMethod + '/', {
+        method: 'post',
+        body: JSON.stringify(requests)
+      })
+      .then( (response) => {
+        return response.json();
+      })   
+      .then( (responses) => {
+        const perturbedRankingInstances = JSON.parse(responses);
+        
+        const perturbationResults = perturbedRankingInstances.map((perturbedRankingInstance) => {
+                  console.log('perturbationResultssss: ', perturbedRankingInstance.perturbedFeature);
+                  console.log('perturbationResultssss: ', perturbedRankingInstance.instances.map((d) => d.idx));
+                  // Calculate and update measures
+                  const { utility, sp, cp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
+                  perturbedRankingInstance.statForPerturbation.utility = utility;
+                  perturbedRankingInstance.statForPerturbation.sp = sp;
+                  perturbedRankingInstance.statForPerturbation.cp = cp;
+
+                  return perturbedRankingInstance;
+                });
+        
+        _self.setState({
+          perturbationResults: perturbationResults
         });
       });
 
@@ -236,42 +243,42 @@ class RankingInspectorView extends Component {
 
         const { data } = this.props,
               { method, features } = data;
-
-        console.log('update of perturbed features: ', data.features.map((d) => d.name))
         
         // Perturb features
-        const perturbationResults = [];
-
-        features.forEach((feature) => {
-          const request = { ...data, 'perturbedFeature': feature.name, 'isForPerturbation': true } // 1 is True in python
-          const urlForMethod = (method.name === 'Logistic Regression') ? 'runLR' 
-                                : (method.name === 'SVM') ? 'runSVM'
+        const urlForMethod = (method.name === 'Logistic Regression') ? 'runLRForPerturbation' 
+                                : (method.name === 'SVM') ? 'runSVMForPerturbation'
                                 : 'RunSVM'
-          fetch('/dataset/' + urlForMethod + '/', {
-            method: 'post',
-            body: JSON.stringify(request)
-          })
-          .then( (response) => {
-            return response.json();
-          })   
-          .then( (response) => {
-            const perturbedRankingInstance = JSON.parse(response);
-            console.log('features to be perturbeddd: ', perturbedRankingInstance.perturbedFeature);
-            
-            // Calculate and update measures
-            const { utility, sp, cp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
-            perturbedRankingInstance.statForPerturbation.utility = utility;
-            perturbedRankingInstance.statForPerturbation.sp = sp;
-            perturbedRankingInstance.statForPerturbation.cp = cp;
 
-            perturbationResults.push(perturbedRankingInstance);
-            console.log('perturbationResultsssss: ', perturbationResults);
+        const requests = features.map((feature) => ({
+                  ...data, 
+                  perturbedFeature: feature.name, 
+                  isForPerturbation: true 
+                }));
 
-            if (features.length === perturbationResults.length) {
-              _self.setState({
-                perturbationResults: perturbationResults
-              });
-            }
+        fetch('/dataset/' + urlForMethod + '/', {
+          method: 'post',
+          body: JSON.stringify(requests)
+        })
+        .then( (response) => {
+          return response.json();
+        })   
+        .then( (responses) => {
+          const perturbedRankingInstances = JSON.parse(responses);
+          
+          const perturbationResults = perturbedRankingInstances.map((perturbedRankingInstance) => {
+                    console.log('perturbationResultssss: ', perturbedRankingInstance.perturbedFeature);
+                    console.log('perturbationResultssss: ', perturbedRankingInstance.instances.map((d) => d.idx));
+                    // Calculate and update measures
+                    const { utility, sp, cp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
+                    perturbedRankingInstance.statForPerturbation.utility = utility;
+                    perturbedRankingInstance.statForPerturbation.sp = sp;
+                    perturbedRankingInstance.statForPerturbation.cp = cp;
+
+                    return perturbedRankingInstance;
+                  });
+          
+          _self.setState({
+            perturbationResults: perturbationResults
           });
         });
 
@@ -291,14 +298,15 @@ class RankingInspectorView extends Component {
       });
     }
 
+    handleSelectedInstance(instance) {
+      this.props.onSelectedInstance(instance);
+    }
+
     calculateOutputMeasuresForPerturbation(perturbedRankingInstance) {
       const { data, n, topk } = this.props,
             { instances, sensitiveAttr } = perturbedRankingInstance,
             { protectedGroup, nonProtectedGroup, range } = sensitiveAttr;
       let protectedGroupBinary, nonProtectedGroupBinary;
-
-      console.log(perturbedRankingInstance);
-      console.log(perturbedRankingInstance.perturbedFeature);
 
       // For fairness = rND ... or possibly statistical and conditional parity
       if (range[0] === protectedGroup){  // Find the corresponding 0 or 1 to protected or non-protected group string
@@ -346,8 +354,6 @@ class RankingInspectorView extends Component {
               }).reduce((acc, curr) => acc + curr);
 
       const nDCG = DCG / IDCG;
-
-      console.log('perturbation resultzzz: ', nDCG, statisticalParity, conditionalParity);
 
       return {
         utility: Math.round(nDCG * 100) / 100,
@@ -608,44 +614,50 @@ class RankingInspectorView extends Component {
       _self.svgMatrix.setAttribute('class', 'svg_matrix');
 
       const { mode } = this.state;
-      const { data, topk, selectedInstance, selectedInstances,
-              selectedPermutationDiffsFlattend, permutationDiffs, permutationDiffsFlattened } = this.props,
+      const { data, topk, selectedInstance, selectedRankingInterval,
+              permutationDiffs, permutationDiffsFlattened } = this.props,
             { instances } = data,
-            to = selectedInstances.length,
+            { from, to } = selectedRankingInterval,
             distortionMin = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[0],
-            distortionMax = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[1];
+            distortionMax = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[1],
+            selectedInstances = instances.slice(from, to),
+            selectedPermutationDiffsFlattend = _.filter(permutationDiffsFlattened, (d) => 
+              (d.ranking1 >= from) && (d.ranking1 <= to) &&
+              (d.ranking2 >= from) && (d.ranking2 <= to)
+            );
 
-      let dataX = instances,
-          dataY = instances,
-          dataSelectedX = selectedInstances,
-          dataSelectedY = selectedInstances;
+      // let dataX = instances,
+      //     dataY = instances,
+      //     dataSelectedX = selectedInstances,
+      //     dataSelectedY = selectedInstances;
 
-      const nDataPerAxis = this.props.n,  // # of data points per axis
-            nBinPerAxis = 10,             // nBinPerAxis == nXBin == nYBin
-            nDataPerBin = Math.round(nDataPerAxis / nBinPerAxis);
+      // const nDataPerAxis = this.props.n,  // # of data points per axis
+      //       nBinPerAxis = 10,             // nBinPerAxis == nXBin == nYBin
+      //       nDataPerBin = Math.round(nDataPerAxis / nBinPerAxis);
 
-      for (let i=0; i<nBinPerAxis; i++) {
-        _self.dataBin[i] = [];
-        for (let j=0; j<nBinPerAxis; j++) {
-          _self.dataBin[i][j] = {};
-          _self.dataBin[i][j].sumAbsDistortion = 0;
-          _self.dataBin[i][j].idx1 = i;
-          _self.dataBin[i][j].idx2 = j;
+      // // For bins for whole histogram
+      // for (let i=0; i<nBinPerAxis; i++) {
+      //   _self.dataBin[i] = [];
+      //   for (let j=0; j<nBinPerAxis; j++) {
+      //     _self.dataBin[i][j] = {};
+      //     _self.dataBin[i][j].sumAbsDistortion = 0;
+      //     _self.dataBin[i][j].idx1 = i;
+      //     _self.dataBin[i][j].idx2 = j;
 
-          for (let k=i*nDataPerBin; k<(i+1)*nDataPerBin; k++) {
-            for (let l=j*nDataPerBin; l<(j+1)*nDataPerBin; l++) {
-              _self.dataBin[i][j].sumAbsDistortion += permutationDiffs[k][l].absDistortion;
-            }
-          }
-        }
-      }
+      //     for (let k=i*nDataPerBin; k<(i+1)*nDataPerBin; k++) {
+      //       for (let l=j*nDataPerBin; l<(j+1)*nDataPerBin; l++) {
+      //         _self.dataBin[i][j].sumAbsDistortion += permutationDiffs[k][l].absDistortion;
+      //       }
+      //     }
+      //   }
+      // }
 
       _self.dataBinFlattened = _.flatten(_self.dataBin);
       _self.xMatrixScale = d3.scaleBand()
-          .domain(_.map(dataSelectedX, (d) => d.ranking))  // For now, it's just an index of items(from observed)
+          .domain(_.map(selectedInstances, (d) => d.ranking))  // For now, it's just an index of items(from observed)
           .range([0, _self.layout.svgMatrix.matrixPlot.width]);
       _self.yMatrixScale = d3.scaleBand()
-          .domain(_.map(dataSelectedY, (d) => d.ranking))  // For now, it's just an index of items(from observed)
+          .domain(_.map(selectedInstances, (d) => d.ranking))  // For now, it's just an index of items(from observed)
           .range([0, _self.layout.svgMatrix.matrixPlot.height]);
       _self.cellWidth = _self.xMatrixScale.bandwidth();
       _self.cellHeight = _self.yMatrixScale.bandwidth();
@@ -653,65 +665,65 @@ class RankingInspectorView extends Component {
           .domain([distortionMin, (distortionMin + distortionMax)/2, distortionMax])
           .range(['slateblue', 'white', 'palevioletred']);
       _self.absDistortionScale = d3.scaleLinear()
-          .domain(d3.extent(permutationDiffsFlattened, (d) => d.absDistortion))
+          .domain([0, d3.max(selectedPermutationDiffsFlattend, (d) => d.absDistortion)])
           .range(['white', gs.individualPairColor]);
       _self.absDistortionBtnPairsScale = d3.scaleLinear()
-          .domain(d3.extent(permutationDiffsFlattened, (d) => d.absDistortion))
+          .domain([0, d3.max(selectedPermutationDiffsFlattend, (d) => d.absDistortion)])
           .range(['white', gs.betweenGroupPairColor]);
       _self.absDistortionWtnPairsScale = d3.scaleLinear()
-          .domain(d3.extent(permutationDiffsFlattened, (d) => d.absDistortion))
+          .domain([0, d3.max(selectedPermutationDiffsFlattend, (d) => d.absDistortion)])
           .range(['white', gs.withinGroupPairColor]);
       _self.sumDistortionScale = d3.scaleLinear()
-          .domain(d3.extent(instances, (d) => d.sumDistortion))
+          .domain([0, d3.max(selectedInstances, (d) => d.sumDistortion)])
           .range([5, _self.layout.svgMatrix.distortionSumPlotRight.width - 10]);
       _self.sumDistortionColorScale = d3.scaleLinear()
-          .domain(d3.extent(instances, (d) => d.sumDistortion))
+          .domain([0, d3.max(selectedInstances, (d) => d.sumDistortion)])
           .range(['white', gs.individualPairColor]);
-      _self.xAttributeScale = d3.scaleLinear()
-          .domain(d3.extent(dataX, (d) => d.features[Object.keys(d.features)[0]]))
-          .range(['white', '#003569']);
-      _self.yAttributeScale = d3.scaleLinear()
-          .domain(d3.extent(dataY, (d) => d.features[Object.keys(d.features)[0]]))
-          .range(['white', '#003569']);
+      // _self.xAttributeScale = d3.scaleLinear()
+      //     .domain(d3.extent(dataX, (d) => d.features[Object.keys(d.features)[0]]))
+      //     .range(['white', '#003569']);
+      // _self.yAttributeScale = d3.scaleLinear()
+      //     .domain(d3.extent(dataY, (d) => d.features[Object.keys(d.features)[0]]))
+      //     .range(['white', '#003569']);
 
-      // For sum heatmap matrix
-      _self.xHistoMatrixScale = d3.scaleBand()
-          .domain(d3.range(nBinPerAxis))  // For now, it's just an index of items(from observed)
-          .range([0, _self.layout.svgMatrix.histoMatrix.width]);
-      _self.yHistoMatrixScale = d3.scaleBand()
-          .domain(d3.range(nBinPerAxis))  // For now, it's just an index of items(from observed)
-          .range([_self.layout.svgMatrix.distortionSumPlotUpper.height, 
-                  _self.layout.svgMatrix.histoMatrix.height + _self.layout.svgMatrix.distortionSumPlotUpper.height]);
-      _self.cellHistoWidth = _self.xHistoMatrixScale.bandwidth();
-      _self.cellHistoHeight = _self.yHistoMatrixScale.bandwidth();
-      _self.sumAbsDistortionScale = d3.scaleLinear()
-          .domain(d3.extent(_self.dataBinFlattened, (d) => d.sumAbsDistortion))
-          .range(['white', 'indigo']);
+      // // For sum heatmap matrix
+      // _self.xHistoMatrixScale = d3.scaleBand()
+      //     .domain(d3.range(nBinPerAxis))  // For now, it's just an index of items(from observed)
+      //     .range([0, _self.layout.svgMatrix.histoMatrix.width]);
+      // _self.yHistoMatrixScale = d3.scaleBand()
+      //     .domain(d3.range(nBinPerAxis))  // For now, it's just an index of items(from observed)
+      //     .range([_self.layout.svgMatrix.distortionSumPlotUpper.height, 
+      //             _self.layout.svgMatrix.histoMatrix.height + _self.layout.svgMatrix.distortionSumPlotUpper.height]);
+      // _self.cellHistoWidth = _self.xHistoMatrixScale.bandwidth();
+      // _self.cellHistoHeight = _self.yHistoMatrixScale.bandwidth();
+      // _self.sumAbsDistortionScale = d3.scaleLinear()
+      //     .domain(d3.extent(_self.dataBinFlattened, (d) => d.sumAbsDistortion))
+      //     .range(['white', 'indigo']);
 
-      //*** Initial sort
-      // Sort x or y data (Sort by the feature & add sorting index)
-      const sortMatrixXBy = 'ranking',
-            sortMatrixYBy = 'ranking';
+      // //*** Initial sort
+      // // Sort x or y data (Sort by the feature & add sorting index)
+      // const sortMatrixXBy = 'ranking',
+      //       sortMatrixYBy = 'ranking';
 
-      let sortedSelectedX = [...dataSelectedX].sort((a, b) => d3.ascending(a.ranking, b.ranking)),
-          sortedSelectedY = [...dataSelectedY].sort((a, b) => d3.ascending(a.ranking, b.ranking));
+      // let sortedSelectedX = [...dataSelectedX].sort((a, b) => d3.ascending(a.ranking, b.ranking)),
+      //     sortedSelectedY = [...dataSelectedY].sort((a, b) => d3.ascending(a.ranking, b.ranking));
 
-      _self.xMatrixScale
-          .domain(_.map(sortedSelectedX, (d) => d.ranking));
-      _self.yMatrixScale
-          .domain(_.map(sortedSelectedY, (d) => d.ranking));
-      _self.xAttributeScale
-          .domain(d3.extent(sortedSelectedX, (d) => 
-            sortMatrixXBy === 'sumDistortion' ? d.sumDistortion 
-            : sortMatrixXBy === 'ranking' ? d.ranking
-            : d.features[ sortMatrixXBy ]
-          ));
-      _self.yAttributeScale
-          .domain(d3.extent(sortedSelectedY, (d) => 
-            sortMatrixYBy === 'sumDistortion' ? d.sumDistortion 
-            : sortMatrixYBy === 'ranking' ? d.ranking
-            : d.features[ sortMatrixYBy ]
-          ));
+      // _self.xMatrixScale
+      //     .domain(_.map(sortedSelectedX, (d) => d.ranking));
+      // _self.yMatrixScale
+      //     .domain(_.map(sortedSelectedY, (d) => d.ranking));
+      // _self.xAttributeScale
+      //     .domain(d3.extent(sortedSelectedX, (d) => 
+      //       sortMatrixXBy === 'sumDistortion' ? d.sumDistortion 
+      //       : sortMatrixXBy === 'ranking' ? d.ranking
+      //       : d.features[ sortMatrixXBy ]
+      //     ));
+      // _self.yAttributeScale
+      //     .domain(d3.extent(sortedSelectedY, (d) => 
+      //       sortMatrixYBy === 'sumDistortion' ? d.sumDistortion 
+      //       : sortMatrixYBy === 'ranking' ? d.ranking
+      //       : d.features[ sortMatrixYBy ]
+      //     ));
 
       const xRankingAxis = d3.select(_self.svgMatrix).append('g')
                 .attr('class', 'g_x_matrix_axis')
@@ -735,17 +747,17 @@ class RankingInspectorView extends Component {
                 }),
             gDistortionPlotTop = d3.select(_self.svgMatrix).append('g')
                 .attr('class', 'g_distortion_plot_x')
-                .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',0)'),                                                
-            gHistoMatrix = d3.select(_self.svgMatrix).append('g')
-                .attr('class', 'g_histo_matrix')
-                .attr('transform', 'translate(' + (_self.layout.svgMatrix.attrPlotLeft.width + _self.layout.svgMatrix.matrixPlot.width + 20) + ',0)'),
-            gHistoCells = gHistoMatrix.selectAll('.g_histo_cell')
-                .data(_self.dataBinFlattened)
-                .enter().append('g')
-                .attr('class', 'g_histo_cell')
-                .attr('transform', function(d){
-                  return 'translate(' + _self.xHistoMatrixScale(d.idx1) + ',' + _self.yHistoMatrixScale(d.idx2) + ')';
-                });
+                .attr('transform', 'translate(' + _self.layout.svgMatrix.attrPlotLeft.width + ',0)');                                           
+            // gHistoMatrix = d3.select(_self.svgMatrix).append('g')
+            //     .attr('class', 'g_histo_matrix')
+            //     .attr('transform', 'translate(' + (_self.layout.svgMatrix.attrPlotLeft.width + _self.layout.svgMatrix.matrixPlot.width + 20) + ',0)'),
+            // gHistoCells = gHistoMatrix.selectAll('.g_histo_cell')
+            //     .data(_self.dataBinFlattened)
+            //     .enter().append('g')
+            //     .attr('class', 'g_histo_cell')
+            //     .attr('transform', function(d){
+            //       return 'translate(' + _self.xHistoMatrixScale(d.idx1) + ',' + _self.yHistoMatrixScale(d.idx2) + ')';
+            //     });
                                 
       // Top-k line
       // if (sortMatrixXBy === 'ranking') {
@@ -809,20 +821,6 @@ class RankingInspectorView extends Component {
           .style('fill', (d) => {
             const pair = d.pair,
                   absDistortion = d.absDistortion;
-            const distortion = d.distortion,
-                  distortionMin = _self.distortionScale.domain()[0],
-                  distortionMax = _self.distortionScale.domain()[1],
-                  distortionInterval = distortionMax - distortionMin,
-                  fairThreshold = _self.distortionScale.domain()[0] + distortionInterval * 0.05,
-                  outlierThreshold = _self.distortionScale.domain()[1] - 0.000000000000000000000000000000000000000000000005;
-          
-            let fillColor = _self.distortionScale(d.distortion);
-            
-            if(distortion < fairThreshold) {
-              fillColor = 'blue';
-            } else if (distortion > outlierThreshold) {
-              fillColor = 'red';
-            }
             
             return (mode === 'IF') ? _self.absDistortionScale(absDistortion)
                   : (mode === 'GF' && pair === 3) ? _self.absDistortionBtnPairsScale(absDistortion)
@@ -846,11 +844,15 @@ class RankingInspectorView extends Component {
             return 'black';
           })
           .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.3);
+          .style('stroke-width', 0.3)
+          .on('mouseover', (d) => {
+            //console.log(d.absDistortion);
+          });
 
+      // console.log('sortedSelectedX: ', sortedSelectedX.map((d) => d.sumDistortion));
       // Distortion plot top
       gDistortionPlotTop.selectAll('.distortion_rect_top')
-          .data(sortedSelectedX)
+          .data(selectedInstances)
           .enter().append('rect')
           .attr('class', 'distortion_rect_top')
           .attr('x', (d) => _self.xMatrixScale(d.ranking))
@@ -862,7 +864,10 @@ class RankingInspectorView extends Component {
               (mode === 'GF' && d.group === 0) ? gs.groupColor1 : gs.groupColor2
           )
           .attr('stroke', 'black')
-          .attr('stroke-width', 0.4);
+          .attr('stroke-width', 0.4)
+          .on('mouseover', (d) => {
+            //console.log('distortion_sum: ', d.sumDistortion, d.ranking);
+          })
 
       // // For histo matrix
       // gHistoCells.append('rect')
@@ -912,11 +917,12 @@ class RankingInspectorView extends Component {
       const _self = this;
 
       const { mode } = this.state;
-      const { data, topk, selectedInstance, selectedInstances,
+      const { data, topk, selectedInstance, selectedRankingInterval,
               selectedPermutationDiffsFlattend, permutationDiffs, permutationDiffsFlattened } = this.props,
             { instances, stat } = data,
             { utility, goodnessOfFairness, groupSkew, sp, cp } = stat,
-            to = selectedInstances.length,
+            { from, to } = selectedRankingInterval,
+            selectedInstances = instances.slice(from, to),
             distortionMin = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[0],
             distortionMax = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[1];
 
@@ -990,7 +996,9 @@ class RankingInspectorView extends Component {
                 mode={'IF'}
                 data={this.props.data}
                 topk={this.props.topk}
-                selectedInstances={this.props.selectedInstances} />
+                selectedInstances={this.props.selectedInstances}
+                selectedRankingInterval={this.props.selectedRankingInterval}
+                onSelectedInstance={this.handleSelectedInstance} />
             <InputSpaceView 
                 className={styles.InputSpaceView}
                 mode={'IF'}
@@ -999,6 +1007,7 @@ class RankingInspectorView extends Component {
                 inputCoords={this.props.inputCoords}
                 selectedInstance={this.props.selectedInstance}
                 selectedInstances={this.props.selectedInstances}
+                selectedRankingInterval={this.props.selectedRankingInterval}
             />
             <div className={styles.MatrixWrapper}>
               <div className={styles.MatrixView}>
@@ -1013,6 +1022,7 @@ class RankingInspectorView extends Component {
                 topk={this.props.topk}
                 selectedInstance={this.props.selectedInstance}
                 selectedInstances={this.props.selectedInstances}
+                selectedRankingInterval={this.props.selectedRankingInterval}
                 corrBtnOutliersAndWholeInstances={this.state.corrBtnOutliersAndWholeInstances}
                 perturbationResults={this.state.perturbationResults}
             />
@@ -1037,7 +1047,8 @@ class RankingInspectorView extends Component {
                 mode={'GF'}
                 data={this.props.data}
                 topk={this.props.topk}
-                selectedInstances={this.props.selectedInstances} />
+                selectedInstances={this.props.selectedInstances}
+                selectedRankingInterval={this.props.selectedRankingInterval} />
             <InputSpaceView 
                 className={styles.InputSpaceView}
                 mode={'GF'}
@@ -1046,6 +1057,9 @@ class RankingInspectorView extends Component {
                 inputCoords={this.props.inputCoords}
                 selectedInstance={this.props.selectedInstance}
                 selectedInstances={this.state.selectedInstances} 
+                selectedRankingInterval={this.props.selectedRankingInterval}
+                corrBtnOutliersAndWholeInstances={this.state.corrBtnOutliersAndWholeInstances}
+                perturbationResults={this.state.perturbationResults}
             />
             <div className={styles.MatrixWrapper}>
               <div className={styles.MatrixView}>

@@ -18,17 +18,29 @@ class OutputSpaceView extends Component {
             width: 80,
             height: 800,
             margin: 10
+          },
+          plot: {
+            marginLeft: 100,
+            marginTop: 10
           }
       };
+    }
+
+    componentWillUpdate() {
+      if (!this.props.selectedInstance || Object.keys(this.props.selectedInstance).length !== 0) {
+        // d3.selectAll('.rect_whole_ranking_topk_' + this.props.selectedInstance.features.idx)
+        //   .style('stroke-width', 2);
+      }
     }
 
     render() {
       console.log('OutputSpaceView rendered');
       const _self = this;
 
-      const { mode, data, topk, selectedInstances } = this.props,
+      const { mode, data, topk, selectedRankingInterval } = this.props,
             { instances } = data,
-            to = selectedInstances.length;
+            { from, to } = selectedRankingInterval,
+            selectedInstances = instances.slice(from, to);
       
       // Set up the layout
       const svg = new ReactFauxDOM.Element('svg');
@@ -39,18 +51,35 @@ class OutputSpaceView extends Component {
       // svg.style.setProperty('border', '1px solid #d9d9d9');
       // svg.style.setProperty('backgroundColor', '#fbfbfb');
 
-      const rectInterval = 7;
+      const rectInterval = 7,
+            topkPlotHeight = rectInterval * topk,
+            selectedNonTopkPlotHeight = rectInterval * (to - topk + 1);
       const rankingScale = d3.scaleBand()
               .domain(_.map(selectedInstances, (d) => d.ranking))
               .range([0, rectInterval * to]),
+            topkRankingScale = d3.scaleBand()
+              .domain(d3.range(1, topk+1))
+              .range([0, topkPlotHeight]),
+            selectedNonTopkRankingScale = d3.scaleBand()
+              .domain(d3.range(topk+1, to+1))
+              .range([0, selectedNonTopkPlotHeight]),
             groupColorScale = d3.scaleOrdinal()
               .range([gs.groupColor1, gs.groupColor2])
               .domain([0, 1]);
 
-      const gAxis = d3.select(svg).append('g')
-            .attr('class', 'g_y_output_space_axis')
-            .attr('transform', 'translate(' + 100 + ',' + 10 + ')')
-            .call(d3.axisLeft(rankingScale).tickValues(d3.range(1, topk, 5)));
+      const topkTickValues = [1, ...d3.range(5, topk, 5), topk],
+            selectedNonTopkTickValues = [topk+1, ...d3.range(topk+1 + ((topk+1) % 5), to, 5), to];
+
+      const xTopkAxis = d3.select(svg)
+              .append('g')
+              .attr('class', 'g_x_output_space_topk_axis')
+              .attr('transform', 'translate(' + _self.layout.plot.marginLeft + ',' + (_self.layout.plot.marginTop) + ')')
+              .call(d3.axisLeft(topkRankingScale).tickValues(topkTickValues).tickSizeOuter(0)),
+            xSelectedNonTopkAxis = d3.select(svg)
+              .append('g')
+              .attr('class', 'g_x_output_space_selected_non_topk_axis')
+              .attr('transform', 'translate(' + (_self.layout.plot.marginLeft) + ',' + (_self.layout.plot.marginTop + topkPlotHeight) + ')')
+              .call(d3.axisLeft(selectedNonTopkRankingScale).tickSizeOuter(0).tickValues(d3.range(topk+1, to, 5)));
 
       const gTopkRanking = d3.select(svg).append('g')
               .attr('class', 'g_top_k_ranking')
@@ -80,7 +109,11 @@ class OutputSpaceView extends Component {
                                     (mode === 'IF') ? gs.individualColor : 'none')
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
-              .style('stroke-width', 0.5);
+              .style('stroke-width', 0.5)
+              .on('mouseover', function(d) {
+                d3.select(this).style('stroke', 'black');
+                _self.props.onSelectedInstance(d);
+              });
 
       const topkRectForPattern = gTopkRanking.selectAll('.rect_topk_for_pattern')
               .data(selectedInstances)
@@ -93,7 +126,10 @@ class OutputSpaceView extends Component {
               .style('fill', (d) => !d.target ? 'url(#diagonalHatch)': 'none')
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
-              .style('stroke-width', 0.5);
+              .style('stroke-width', 0.5)
+              .on('mouseover', (d) => {
+                this.props.onSelectedInstance(d);
+              });
 
       return (
         <div className={styles.OutputSpaceView}>

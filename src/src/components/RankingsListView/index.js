@@ -2,8 +2,7 @@ import React, { Component } from "react";
 import * as d3 from 'd3';
 import ReactFauxDOM from 'react-faux-dom';
 import _ from 'lodash';
-import { Table } from 'reactstrap';
-import { Tag, Icon } from 'antd';
+import { Table, Tag, Icon } from 'antd';
 
 import styles from "./styles.scss";
 import index from "../../index.css";
@@ -93,14 +92,14 @@ class RankingsListView extends Component {
         .attr('cx', (d) => xFairnessScale(d.stat.sp))
         .attr('cy', (d) => yUtilityScale(d.stat.utility))
         .attr('r', r)
-        .style('fill', 'none')
-        .style('stroke', 'black');
+        .style('fill', 'darkgray')
+        .style('stroke', 'none');
 
     gRankings.append('text')
         .attr('class', 'ranking_id')
-        .attr('x', (d) => xFairnessScale(d.stat.sp) - r/2 - 2.5)
+        .attr('x', (d) => xFairnessScale(d.stat.sp) - r/2 - 0.5)
         .attr('y', (d) => yUtilityScale(d.stat.utility) + r/2 + 1)
-        .style('fill', 'black')
+        .style('fill', 'white')
         .text((d) => d.rankingId);
 
     return (
@@ -147,96 +146,14 @@ class RankingsListView extends Component {
             .style('shape-rendering', 'crispEdge')
             .style('stroke-width', 0.3);
 
-      return ( <tr key={idx}>
-                <td>{'R' + rankingId}</td>
-                <td></td>
-                <td>{stat.utility}</td>
-                <td>{stat.goodnessOfFairness}</td>
-                <td>{stat.groupSkew}</td>
-                <td>{stat.sp}</td>
-              </tr> 
-          );
+      return {
+        id: 'R' + rankingId,
+        topk: '',
+        if: Math.round(stat.goodnessOfFairness * 100) + '%',
+        gf: Math.round(stat.sp * 100) + '%',
+        u: Math.round(stat.utility * 100) + '%'
+      }
     });
-  }
-
-  renderTradeoffPlot() {
-    // if (!this.props.data || this.props.data.length === 0) {
-    //   return <div />
-    // }
-
-    // const _self = this,
-    //       wholeInstances = _.toArray(this.props.inputCoords),
-    //       instances = wholeInstances.slice(0, 100);
-
-    // const svg = new ReactFauxDOM.Element('svg');
-
-    // svg.setAttribute('width', this.layout.svg.width);
-    // svg.setAttribute('height', this.layout.svg.height)
-    // svg.setAttribute('class', 'svg_input_space');
-    // svg.style.setProperty('border', '1px solid #d9d9d9');
-
-    // let xScale = d3.scaleLinear()
-    //     .domain(d3.extent(instances, (d) => d.dim1))
-    //     .range([0, this.layout.svg.width - this.layout.svg.padding]);
-
-    // let yScale = d3.scaleLinear()
-    //     .domain(d3.extent(instances, (d) => d.dim2))
-    //     .range([this.layout.svg.height - this.layout.svg.padding, 0]);
-
-    // let gCircles = d3.select(svg)
-    //     .append('g')
-    //     .attr('transform', 'translate(10,10)');
-
-    // const circles = gCircles
-    //     .selectAll('.item')
-    //     .data(instances)
-    //     .enter().append('circle')
-    //     .attr('class', 'item')
-    //     .attr('cx', (d) => xScale(d.dim1))
-    //     .attr('cy', (d) => yScale(d.dim2))
-    //     .attr('r', 3)
-    //     .style('fill', (d) => {
-    //         let group = d.group;
-    //         return group === 0
-    //             ? gs.groupColor1
-    //             : gs.groupColor2;
-    //     })
-    //     .style('stroke', 'black')
-    //     .style('opacity', 0.7)
-    //     .on('mouseover', (d) => {
-    //         // _self.props.onMouseoverInstance(d.idx);
-    //     });
-
-    // // Handle mouseover action
-    // // circles
-    // //     .filter((d) => d.idx === this.props.selectedRankingInterval)
-    // //     .style('stroke-width', 2);
-
-    // return (
-    //   <div className={styles.InputSpaceView}>
-    //     <div className={styles.inputSpaceViewTitleWrapper}>
-    //       <div className={styles.inputSpaceViewTitle + ' ' + index.subTitle}>Input space</div>
-    //     </div>
-    //     <div className={styles.IndividualPlotStatusView}>
-    //         {svg.toReact()}
-    //     </div>
-    //     {/* <div className={styles.FeatureTableView}>
-    //       <div className={index.title}>Features</div>
-    //       <Table borderless className={styles.FeatureTable}>
-    //         <thead>
-    //           <tr>
-    //               <th>Features</th>
-    //               <th>Custom weight</th>
-    //               <th>Correlation with Sensitive attribute</th>
-    //           </tr>
-    //         </thead>
-    //         <tbody className={styles.FeatureTableTbody}>
-    //           {this.renderFeatures()}
-    //         </tbody>
-    //       </Table>
-    //     </div> */}
-    //   </div>
-    // );
   }
 
   render() {
@@ -245,27 +162,26 @@ class RankingsListView extends Component {
         return <div />
       }
 
+    const rankingListColumns = [
+        { title: 'ID', dataIndex: 'id', width: '10%' },
+        { title: 'TOPK', dataIndex: 'topk', width: '15%' },
+        { title: 'GF', dataIndex: 'gf', width: '20%'},
+        { title: 'IF', dataIndex: 'if', width: '20%'},
+        { title: 'U', dataIndex: 'u', width: '20%'}
+      ];
+
     return (
       <div className={styles.RankingsListView}>
         <div className={styles.titleWrapper}>
           <div className={index.title + ' ' + styles.title }> Rankings </div>
         </div>
         {this.renderRankingPlot()}
-        <Table borderless className={styles.FeatureTable}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Ranking</th>
-              <th>ACC</th>
-              <th>GD</th>
-              <th>GS</th>
-              <th>SP</th>
-            </tr>
-          </thead>
-          <tbody className={styles.FeatureTableTbody}>
-            {this.renderRankingInstances()}
-          </tbody>
-        </Table>
+        <Table
+          columns={rankingListColumns} 
+          dataSource={this.renderRankingInstances()} 
+          scroll={{ y: 400 }}
+          pagination={false}
+        />
       </div>
     );
   }

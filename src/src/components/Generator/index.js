@@ -211,8 +211,6 @@ class Generator extends Component {
           wholeFeatures = Object.keys(dataset[0]).filter((d) => d !== 'idx'),
           sensitiveAttrName = sensitiveAttr.name;
 
-    console.log('corrResultBetweenSensitiveAndAllFeaturesss: ', corrBtnSensitiveAndAllFeatures);
-
     const groupInstances1 = dataset.filter((d) => d[sensitiveAttrName] === 0),
           groupInstances2 = dataset.filter((d) => d[sensitiveAttrName] === 1);
           // featureValues = _.map(instances, (d) => d.features[feature]),
@@ -575,12 +573,10 @@ class Generator extends Component {
     const featureSelection = {
       selectedRowKeys,
       onChange: (selectedRowKeys, selectedRows) => {
-        console.log('onChange: ', selectedRows);
         const selectedFeatureNames = selectedRows.map((d) => d.feature.split(' ').join('_'));
         return _self.handleSelectFeatures(selectedFeatureNames);
       },
       getCheckboxProps: record => {
-        console.log('getCheckboxProps');
         const isSelected = featureNames.filter((d) => d !== record.feature);
         return {
           disabled: isSelected.length === 0

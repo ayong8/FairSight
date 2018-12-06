@@ -20,13 +20,11 @@ class IndividualInspectionView extends Component {
       const { data, selectedInstance } = this.props,
             { instances } = data,
             selectedInstanceIdx = selectedInstance;
-      
-      const mouseoveredInstance = instances.filter((d) => d.idx === selectedInstance)[0];
   
-      return Object.keys(mouseoveredInstance.features).map((feature, idx) => {
+      return Object.keys(selectedInstance.features).map((feature, idx) => {
         return {
           feature: feature.replace(/_/g, ' '),
-          value: mouseoveredInstance.features[feature]
+          value: selectedInstance.features[feature]
         };
       });
     }

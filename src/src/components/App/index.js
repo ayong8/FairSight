@@ -84,7 +84,11 @@ class App extends Component {
           { name: 'credit_amount', type: 'continuous', range: 'continuous' },
           { name: 'age_in_years', type: 'continuous', range: 'continuous'},
           { name: 'telephone', type: 'categorical', range: [0,1]},
-          { name: 'savings', type: 'continuous', range: 'continuous'}
+          { name: 'savings', type: 'continuous', range: [0,1,2,3,4]},
+          { name: 'present_employment_since', type: 'categorical', range: 'continuous'},
+          { name: 'duration_in_month', type: 'continuous', range: [0,1]},
+          { name: 'account_check_status', type: 'categorical', range: [0,1]},
+          { name: 'credit_history', type: 'categorical', range: [0,1]}
         ],
         target: { name: 'credit_risk', type: 'categorical', range: [0, 1], value: ['No', 'Yes'] },
         method: { name: 'Logistic Regression' },
@@ -125,6 +129,7 @@ class App extends Component {
     this.handleModelRunning = this.handleModelRunning.bind(this);
     this.handleSelectedInterval = this.handleSelectedInterval.bind(this);
     this.handleSelectedTopk = this.handleSelectedTopk.bind(this);
+    this.handleSelectedInstance = this.handleSelectedInstance.bind(this);
     this.handleRankingInstanceOptions = this.handleRankingInstanceOptions.bind(this);
     this.handleSensitiveAttr = this.handleSensitiveAttr.bind(this);
     this.handleFilterRunning = this.handleFilterRunning.bind(this);
@@ -279,7 +284,6 @@ class App extends Component {
           })   
           .then( (response) => {
               const rankingInstance = JSON.parse(response);
-              console.log(rankingInstance.instances.map((d) => d.idx));
               
               this.setState(prevState => ({
                 rankingInstance: rankingInstance
@@ -288,7 +292,6 @@ class App extends Component {
   }
 
   runLR(rankingInstance) {
-    console.log('in runLR: ', rankingInstance.instances.map((d) => d.idx));
     return fetch('/dataset/runLR/', {
             method: 'post',
             body: JSON.stringify(rankingInstance)
@@ -308,7 +311,6 @@ class App extends Component {
   }
 
   runSVM(rankingInstance) {
-    console.log('in runSVM: ', rankingInstance.instances.map((d) => d.idx));
     return fetch('/dataset/runSVM/', {
             method: 'post',
             body: JSON.stringify(rankingInstance)
@@ -396,6 +398,12 @@ class App extends Component {
         this.getFeatures(), this.runACF(rankingInstance), 
         this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
     }
+  }
+
+  handleSelectedInstance(instance) {
+    this.setState({
+      selectedInstance: instance
+    });
   }
 
   handleRankingInstanceOptions(optionObj) {  // optionObj e.g., { sensitiveAttr: 'sex' }
@@ -665,7 +673,7 @@ class App extends Component {
     .then((response) => {
       // { FEATURE-NAME: TEST-RESULT, ... }
       const corrTestResult = JSON.parse(response);
-      console.log('corrTestResulttt: ', corrTestResult)
+
       _self.setState({
         corrBtnSensitiveAndAllFeatures: corrTestResult
       });
@@ -731,9 +739,11 @@ class App extends Component {
       });
     }
 
-    const sorted = _.sortBy(pairwiseDiffs, 'diffInput');
-    const diffInput = sorted.map((d) => d.diffInput),
-          diffOutput = sorted.map((d) => d.diffOutput);
+    const diffInputs = pairwiseDiffs.map((d) => d.scaledDiffInput);
+    const mean = diffInputs.reduce((acc, curr) => acc + curr) / diffInputs.length,
+          variance = diffInputs
+            .map((scaledDiffInput) => Math.pow(scaledDiffInput - mean, 2))
+            .reduce((acc, curr) => acc + curr) / diffInputs.length;
 
     this.pairwiseDiffs = pairwiseDiffs;
   }
@@ -797,6 +807,7 @@ class App extends Component {
 
                 return d;
               });
+
     return updatedInstances;
   }
 
@@ -824,9 +835,6 @@ class App extends Component {
   }
 
   calculateOutputMeasures(topk) {
-    console.log('topk in the calculateOutputMeasures: ', topk)
-    console.log('in the calculateOutputMeasures');
-
     const { rankingInstance, n } = this.state,
           { instances, sensitiveAttr } = rankingInstance,
           { protectedGroup, nonProtectedGroup, range } = sensitiveAttr;
@@ -878,8 +886,6 @@ class App extends Component {
             }).reduce((acc, curr) => acc + curr);
 
     const nDCG = DCG / IDCG;
-
-    console.log('ndcg: ', nDCG, topkInstances.length, DCG, IDCG);
 
     // this.setState((prevState) => ({
     //   rankingInstance: {
@@ -946,22 +952,20 @@ class App extends Component {
   }
 
   calculateRSquared(pairwiseDiffs) {
-    let SSR_arr = [], SST_arr = [],
-        SSR, SST, rSquared,
+    let SSE_arr = [], SST_arr = [],
+        SSE, SST, rSquared,
         n = pairwiseDiffs.length,
         meanY = _.sum(_.map(pairwiseDiffs, (d) => d.scaledDiffOutput)) / n;
     
     _.each(pairwiseDiffs, (d) => {
-      SSR_arr.push(Math.pow(meanY - d.scaledDiffInput, 2));
+      SSE_arr.push(Math.pow(d.scaledDiffOutput - d.scaledDiffInput, 2));
       SST_arr.push(Math.pow(meanY - d.scaledDiffOutput, 2));
     });
 
-    SSR = _.sum(SSR_arr);
+    SSE = _.sum(SSE_arr);
     SST = _.sum(SST_arr);
-
-    console.log(SSR, SST)
     
-    this.rSquared = Math.round((SSR / SST) * 100) / 100;
+    this.rSquared = Math.round((1 - (SSE / SST)) * 100) / 100;
   }
 
   calculateNDM(selectedPermutationDiffs) {  // Noise Dissimilarity Measure for feature matrix
@@ -1035,8 +1039,6 @@ class App extends Component {
           { instances } = rankingInstance,
           { from, to } = selectedRankingInterval;
 
-    console.log('featuresss: ', features);
-
     return (
       <div className={styles.App}>
         <div className={styles.marginDiv}></div>
@@ -1070,16 +1072,16 @@ class App extends Component {
               data={this.state.rankingInstance}
               topk={this.state.topk}
               n={this.state.n}
-              selectedInstances={this.state.selectedInstances}
               selectedInstance={this.state.mouseoveredInstance}
+              selectedRankingInterval={this.state.selectedRankingInterval}
               pairwiseInputDistances={this.state.pairwiseInputDistances}
               permutationInputDistances={this.state.permutationInputDistances}
               permutationDiffs={this.permutationDiffs}
               permutationDiffsFlattened={this.permutationDiffsFlattened}
-              selectedPermutationDiffsFlattend={this.state.selectedPermutationDiffsFlattend}
               inputCoords={this.state.inputCoords}
               onCalculateNDM={this.calculateNDM}
-              onFilterRunning={this.handleFilterRunning} />
+              onFilterRunning={this.handleFilterRunning}
+              onSelectedInstance={this.handleSelectedInstance} />
         </div>
         <RankingsListView rankings={this.state.rankings} />
         <IndividualInspectionView

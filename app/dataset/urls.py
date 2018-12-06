@@ -28,6 +28,11 @@ urlpatterns = [
         name='LR'
     ),
     url(
+        regex=r'^runLRForPerturbation/$',
+        view=views.RunLRForPerturbation.as_view(),
+        name='LRForPerturbation'
+    ),
+    url(
         regex=r'^runACF/$',
         view=views.RunACF.as_view(),
         name='ACF'

@@ -761,8 +761,6 @@ class RankingView extends Component {
             instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse(),
             topk = this.props.topk;
 
-      console.log('statttttt: ', stat);
-
       return (
         <div className={styles.RankingView}>
           <div className={styles.rankingViewTitle + ' ' + index.title}>
@@ -776,7 +774,7 @@ class RankingView extends Component {
           <div className={styles.wholeRankingSummaryStat1}>
             <div className={styles.utilityWrapper}>
               <div className={styles.utilityTitle}>Utility</div>
-              <div className={styles.utility}>{utility + '%'}</div>
+              <div className={styles.utility}>{(utility * 100) + '%'}</div>
             </div>
             <div className={styles.groupFairnessWrapper}>
               <div 
@@ -784,7 +782,7 @@ class RankingView extends Component {
                 onMouseOver={this.handleMouseOverGroupFairness}
                 onMouseOut={this.handleMouseOverGroupFairness}
               >Statistical Parity</div>
-              <div className={styles.groupFairness}>{sp}</div>
+              <div className={styles.groupFairness}>{(sp * 100) + '%'}</div>
             </div>
           </div>
           <div className={styles.topkFilterView}>
@@ -800,7 +798,6 @@ class RankingView extends Component {
                 value={this.state.topk}
                 onChange={this.handleSelectedTopk}
               />
-              /{n}
             </div>
             <div className={styles.topkSliderWrapper}>
               <Slider 

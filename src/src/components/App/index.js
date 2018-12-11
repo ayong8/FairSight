@@ -12,9 +12,9 @@ import Generator from 'components/Generator';
 import RankingView from 'components/RankingView';
 import RankingInspectorView from 'components/RankingInspectorView';
 import RankingsListView from 'components/RankingsListView';
-import IndividualInspectionView from 'components/IndividualInspectionView';
 import Footer from "components/Footer";
-import { timeYears } from "d3-time";
+
+import { Tracker } from 'react-tracker';
 
 function pairwise(list) {
   if (list.length < 2) { return []; }
@@ -43,16 +43,18 @@ class App extends Component {
     this.state = {
       dataset: [],
       features: [],
-      numericalFeatures: ['age_in_years', 'duration_in_month', 'credit_amount',	'savings', 'installment_as_income_perc',
-                    'present_residence_since',	'number_of_existing_credits_at_this_bank',	'marriage',
-                    'other_debtors', 'status_of_existing_checking_account',	'property',
-                    'other_installment_plans', 'housing'],
+      numericalFeatures: ['age_in_years', 'duration_in_month', 'credit_amount'],
+      ordinalFeatures: ['savings', 'installment_as_income_perc', 'present_residence_since',	
+                        'number_of_existing_credits_at_this_bank',	'marriage',
+                        'other_debtors', 'status_of_existing_checking_account',	'property',
+                        'other_installment_plans', 'housing'],
       corrBtnSensitiveAndAllFeatures: {},
       methods: [
         {name: 'RankSVM', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
         {name: 'SVM', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
         {name: 'Logistic Regression', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
-        {name: 'Additive Counterfactual Fairness', spec: { Q1: 'F', Q2: 'B', Q3: 'Yes', Q4: 'No' }}
+        {name: 'Additive Counterfactual Fairness', spec: { Q1: 'F', Q2: 'B', Q3: 'Yes', Q4: 'No' }},
+        {name: 'FA*IR', spec: { Q1: 'F', Q2: 'B', Q3: 'Yes', Q4: 'Yes' }}
       ],
       sensitiveAttrs: [
         { name: 'sex', type: 'categorical', range: ['Men', 'Women'], protectedGroup: 'Men', nonProtectedGroup: 'Women'  },
@@ -75,29 +77,31 @@ class App extends Component {
         sensitiveAttr: { 
           name: 'sex', 
           type: 'categorical', 
-          range: ['Male', 'Female'],
-          protectedGroup: 'Female',
-          nonProtectedGroup: 'Male' 
+          range: ['Female', 'Male'],
+          protectedGroup: 'Male',
+          nonProtectedGroup: 'Female' 
         },
         features: [
-          { name: 'foreign_worker', type: 'categorical', range: [0,1], value: ['No', 'Yes'] },
-          { name: 'credit_amount', type: 'continuous', range: 'continuous' },
-          { name: 'age_in_years', type: 'continuous', range: 'continuous'},
-          { name: 'telephone', type: 'categorical', range: [0,1]},
-          { name: 'savings', type: 'continuous', range: [0,1,2,3,4]},
-          { name: 'present_employment_since', type: 'categorical', range: 'continuous'},
-          { name: 'duration_in_month', type: 'continuous', range: [0,1]},
-          { name: 'account_check_status', type: 'categorical', range: [0,1]},
-          { name: 'credit_history', type: 'categorical', range: [0,1]}
+          { name: 'foreign_worker', type: 'categorical', range: [], value: ['No', 'Yes'] },
+          { name: 'credit_amount', type: 'continuous', range: []},
+          { name: 'age_in_years', type: 'continuous', range: []},
+          { name: 'marriage', type: 'categorical', range: []},
+          { name: 'job', type: 'categorical', range: []},
+          { name: 'credit_history', type: 'categorical', range: []},
+          { name: 'account_check_status', type: 'categorical', range: []}
         ],
-        target: { name: 'credit_risk', type: 'categorical', range: [0, 1], value: ['No', 'Yes'] },
+        target: { name: 'credit_risk', type: 'categorical', range: [], value: ['No', 'Yes'] },
         method: { name: 'Logistic Regression' },
         sumDistortion: 0,
         instances: [],
         stat: {
           utility: 0, // ndcg
+          precisionK: 0,
           goodnessOfFairness: 0,
+          rNNSum: 0,
           groupSkew: 0,
+          GFDCG: 0, // Global GF measure
+          rND: 0, 
           sp: 0,
           cp: 0,
           tp: 0,
@@ -105,14 +109,19 @@ class App extends Component {
         },
         statForPerturbation: {
           utility: 0,
+          precisionK: 0,
           goodnessOfFairness: 0,
+          rNNSum: 0,
           groupSkew: 0,
+          GFDCG: 0,
+          rND: 0,
           sp: 0,
           cp: 0,
           tp: 0,
           fp: 0
         },
         isForPerturbation: false,  // False in python
+        currentTopk: 30,
         shouldRunModel: true
       },
       output: [],
@@ -158,13 +167,13 @@ class App extends Component {
       this.calculatePairwiseDiffs();
       this.calculatePermutationDiffs();
       this.permutationDiffsFlattened = _.flatten(this.permutationDiffs);
-      this.calculateRSquared(this.pairwiseDiffs);
+      const rNNSum = this.calculateRSquared(instances, this.pairwiseDiffs);
       this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
       this.calculateGroupSkew(this.pairwiseDiffs);
-      const { utility, sp, cp } = this.calculateOutputMeasures(topk);
+      const { utility, precisionK, GFDCG, rND, sp, cp } = this.calculateOutputMeasures(topk);
       this.calculateCorrBtnSensitiveAndAllFeatures();
 
       let sortedInstances = _.sortBy(updatedInstances, 'ranking'),
@@ -185,7 +194,11 @@ class App extends Component {
             stat: {
               ...prevState.rankingInstance.stat,
               goodnessOfFairness: this.rSquared,
+              rNNSum: rNNSum,
               utility: utility,
+              precisionK: precisionK,
+              GFDCG: GFDCG,
+              rND: rND,
               sp: sp,
               cp: cp
             },
@@ -288,6 +301,8 @@ class App extends Component {
               this.setState(prevState => ({
                 rankingInstance: rankingInstance
               }));
+
+              return rankingInstance;
             });
   }
 
@@ -324,6 +339,8 @@ class App extends Component {
               this.setState(prevState => ({
                 rankingInstance: rankingInstance
               }));
+
+              return rankingInstance;
             });
   }
 
@@ -341,6 +358,8 @@ class App extends Component {
               this.setState(prevState => ({
                 rankingInstance: rankingInstance
               }));
+
+              return rankingInstance;
             });
   }
   
@@ -495,13 +514,13 @@ class App extends Component {
       this.calculatePairwiseDiffs();
       this.calculatePermutationDiffs();
       this.permutationDiffsFlattened = _.flatten(this.permutationDiffs);
-      this.calculateRSquared(this.pairwiseDiffs);
+      const rNNSum = this.calculateRSquared(instances, this.pairwiseDiffs);
       this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
       this.calculateGroupSkew(this.pairwiseDiffs);
-      const { utility, sp, cp } = this.calculateOutputMeasures(topk);
+      const { utility, precisionK, GFDCG, rND, sp, cp } = this.calculateOutputMeasures(topk);
 
       this.setState((prevState) => {
         const currentRankingInstance = {
@@ -511,7 +530,11 @@ class App extends Component {
             stat: {
               ...updatedRankingInstance.stat,
               goodnessOfFairness: this.rSquared,
+              rNNSum: rNNSum,
               utility: utility,
+              precisionK: precisionK,
+              GFDCG: GFDCG,
+              rND: rND,
               sp: sp,
               cp: cp
             },
@@ -561,7 +584,7 @@ class App extends Component {
     });
   }
 
-  handleFilterRunning() {
+  handleFilterRunning(currentTopk) {
     const { rankingInstance, permutationDiffsFlattened, selectedRankingInterval } = this.state,
           { instances } = rankingInstance,
           { from, to } = selectedRankingInterval;
@@ -571,10 +594,14 @@ class App extends Component {
             (d.ranking2 >= from) && (d.ranking2 <= to)
           );
 
-    this.setState({
+    this.setState(prevState => ({
       selectedPermutationDiffsFlattend: selectedPermutationDiffsFlattend,
-      selectedInstances: instances.slice(from, to)
-    });
+      selectedInstances: instances.slice(from, to),
+      rankingInstance: {
+        ...prevState.rankingInstance,
+        currentTopk: currentTopk
+      }
+    }));
   }
 
   handleSelectedInterval(intervalTo) {
@@ -855,52 +882,54 @@ class App extends Component {
     const groupRanking1 = group1.map((d) => d.ranking),
           groupRanking2 = group2.map((d) => d.ranking);
 
-    const protectedGroupInTopk = instances.filter((d) => d.group === protectedGroupBinary && d.ranking < topk ),
+    const protectedGroupInTopk = instances.filter((d) => d.group === protectedGroupBinary && d.ranking <= topk ),
           protectedGroupInWhole = instances.filter((d) => d.group === protectedGroupBinary);
+
+    const nonProtectedGroupInTopk = instances.filter((d) => d.group === nonProtectedGroupBinary && d.ranking <= topk ),
+          nonProtectedGroupInWhole = instances.filter((d) => d.group === nonProtectedGroupBinary);
 
     const nProtectedGroupInTopk = protectedGroupInTopk.length,
           nProtectedGroupInWhole = protectedGroupInWhole.length,
+          nNonProtectedGroupInWhole = nonProtectedGroupInWhole.length,
           Z = (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (Math.min(nProtectedGroupInWhole, topk) / topk) - (nProtectedGroupInWhole / n) ),
           rND = 1 - (1/Z) * (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (nProtectedGroupInTopk / topk) - (nProtectedGroupInWhole / n) );
 
-    const statisticalParity = (_.sum(group2.filter((d) => d.ranking <= topk).map((d) => 1 / d.ranking)) / group2.length) / 
-                              (_.sum(group1.filter((d) => d.ranking <= topk).map((d) => 1 / d.ranking)) / group1.length);
-    const conditionalParity = (_.sum(group2.filter((d) => d.ranking <= topk && d.target === 1).map((d) => 1 / d.ranking)) / group2.length) / 
-                              (_.sum(group1.filter((d) => d.ranking <= topk && d.target === 1).map((d) => 1 / d.ranking)) / group1.length);
+    const statisticalParity = (group2.filter((d) => d.ranking <= topk).length / group2.length) / 
+                              (group1.filter((d) => d.ranking <= topk).length / group1.length);
+    const conditionalParity = (group2.filter((d) => d.ranking <= topk && d.target === 1) / group2.length) / 
+                              (group1.filter((d) => d.ranking <= topk && d.target === 1) / group1.length);
 
     // For utility = nDCG
     const topkInstances = instances.filter((d) => d.ranking <= topk);
+    const precisionK = topkInstances.filter((d) => d.target === 1).length / topkInstances.length;
+
+    const DCGForProtectedGroup = protectedGroupInTopk.map((d) => d.target * (n - d.ranking) / n)
+                                                     .reduce((acc, curr) => acc + curr) / nProtectedGroupInWhole;
+    const DCGForNonProtectedGroup = nonProtectedGroupInTopk.map((d) => d.target * (n - d.ranking) / n) 
+                                                          .reduce((acc, curr) => acc + curr) / nNonProtectedGroupInWhole;
+    const GFDCG = DCGForNonProtectedGroup / DCGForProtectedGroup;
     
     const DCG = topkInstances.map((d, i) => { // sorted by ranking
               const relevance = d.target;
-              const cumulativeDiscount = Math.log(Math.max(i, 2)) / Math.log(2);
+              const cumulativeDiscount = (topk - d.ranking) / topk;
 
-              return relevance / cumulativeDiscount;
+              return relevance * cumulativeDiscount;
             }).reduce((acc, curr) => acc + curr);
 
     const IDCG = _.sortBy(topkInstances, 'target').reverse().map((d, i) => {
               const relevance = d.target;
-              const cumulativeDiscount = Math.log(Math.max(i, 2)) / Math.log(2);
+              const cumulativeDiscount = (topk - i) / topk;
 
-              return relevance / cumulativeDiscount;
+              return relevance * cumulativeDiscount;
             }).reduce((acc, curr) => acc + curr);
 
     const nDCG = DCG / IDCG;
 
-    // this.setState((prevState) => ({
-    //   rankingInstance: {
-    //     ...prevState.rankingInstance,
-    //     stat: {
-    //       ...prevState.rankingInstance.stat,
-    //       utility: Math.round(nDCG * 100) / 100,
-    //       sp: Math.round(rND * 100) / 100,
-    //       cp: Math.round(conditionalParity * 100) / 100
-    //     }
-    //   }
-    // }));
-
     return {
       utility: Math.round(nDCG * 100) / 100,
+      precisionK: Math.round(precisionK * 100) / 100,
+      GFDCG: Math.round(GFDCG * 100) / 100,
+      rND: Math.round(rND * 100) / 100,
       sp: Math.round(statisticalParity * 100) / 100, 
       cp: Math.round(conditionalParity * 100) / 100
     }
@@ -951,7 +980,7 @@ class App extends Component {
         });
   }
 
-  calculateRSquared(pairwiseDiffs) {
+  calculateRSquared(instances, pairwiseDiffs) {
     let SSE_arr = [], SST_arr = [],
         SSE, SST, rSquared,
         n = pairwiseDiffs.length,
@@ -966,6 +995,72 @@ class App extends Component {
     SST = _.sum(SST_arr);
     
     this.rSquared = Math.round((1 - (SSE / SST)) * 100) / 100;
+
+    const nNeighbors = 4;
+    let rNNs = [];
+    instances.forEach((instance) => {
+      let rNN;
+      // Identify NNs
+      const NNPairs = pairwiseDiffs.filter((d) => {
+        return (d.idx1 == instance.idx) || (d.idx2 == instance.idx);
+      }).sort((a, b) => d3.descending(a.scaledDiffInput, b.scaledDiffInput)).slice(0, nNeighbors);
+
+      console.log(instance.idx);
+      console.log(NNPairs);
+
+      const yDiffsForNNs = NNPairs.map((d) => Math.abs(d.ranking1 - d.ranking2) / Math.max(d.ranking1, d.ranking2)),
+            sumDiffsForNNs = yDiffsForNNs.reduce((acc, curr) => acc + curr);
+
+      rNN = sumDiffsForNNs / nNeighbors;
+
+      rNNs.push(rNN);
+    });
+
+    const rNNSum = rNNs.reduce((acc, curr) => acc + curr) / rNNs.length;
+
+    return rNNSum;
+  }
+
+  identifyNNs(instance, nNeighbors) {
+    const { pairwiseDiffs } = this.props;
+    const selectedInstanceIdx = instance.idx;
+
+    const NNs = pairwiseDiffs.filter((d) => {
+      return d.idx1 == selectedInstanceIdx;
+    }).sort((a, b) => d3.descending(a.scaledDiffInput, b.scaledDiffInput)).slice(0, nNeighbors);
+
+    return NNs;
+  }
+
+  calculateXNN(instance) {  
+    const nNeighbors = 4;
+    const NNs = this.identifyNNs(instance, nNeighbors);
+
+    if(NNs.length === 0)
+      return 'NaN';
+
+    const yDiffsForNNs = NNs.map((d) => Math.abs(d.ranking1 - d.ranking2) / Math.max(d.ranking1, d.ranking2)),
+          sumDiffsForNNs = yDiffsForNNs.reduce((acc, curr) => acc + curr);
+
+    const rNN = sumDiffsForNNs / nNeighbors;
+
+    return rNN;
+
+    // idx1: pairs[i][0].idx,
+    // idx2: pairs[i][1].idx,
+    // ranking1: pairs[i][0].instance.ranking,
+    // ranking2: pairs[i][1].instance.ranking,
+    // x1: pairs[i][0].instance,
+    // x2: pairs[i][1].instance,
+    // pair: pair,
+    // diffInput: diffInput,
+    // diffOutput: diffOutput,
+    // scaledDiffInput: _self.inputScale(diffInput),
+    // scaledDiffOutput: _self.outputScale(diffOutput),
+    // distortion: _self.outputScale(diffOutput) - _self.inputScale(diffInput),
+    // absDistortion: Math.abs(_self.outputScale(diffOutput) - _self.inputScale(diffInput)),
+    // isFair: false,
+    // isOutlier: false
   }
 
   calculateNDM(selectedPermutationDiffs) {  // Noise Dissimilarity Measure for feature matrix
@@ -1039,6 +1134,12 @@ class App extends Component {
           { instances } = rankingInstance,
           { from, to } = selectedRankingInterval;
 
+
+    const tracker = new Tracker([
+              // pageViewListener,
+              // productClickListener
+            ]);
+
     return (
       <div className={styles.App}>
         <div className={styles.marginDiv}></div>
@@ -1052,6 +1153,7 @@ class App extends Component {
             methods={this.state.methods}
             features={this.state.features}
             numericalFeatures={this.state.numericalFeatures}
+            ordinalFeatures={this.state.ordinalFeatures}
             corrBtnSensitiveAndAllFeatures={this.state.corrBtnSensitiveAndAllFeatures}
             rankingInstance={this.state.rankingInstance}
             n={this.state.n}
@@ -1076,21 +1178,15 @@ class App extends Component {
               selectedRankingInterval={this.state.selectedRankingInterval}
               pairwiseInputDistances={this.state.pairwiseInputDistances}
               permutationInputDistances={this.state.permutationInputDistances}
+              pairwiseDiffs={this.pairwiseDiffs}
               permutationDiffs={this.permutationDiffs}
               permutationDiffsFlattened={this.permutationDiffsFlattened}
               inputCoords={this.state.inputCoords}
               onCalculateNDM={this.calculateNDM}
-              onFilterRunning={this.handleFilterRunning}
-              onSelectedInstance={this.handleSelectedInstance} />
+              onFilterRunning={this.handleFilterRunning} 
+          />
         </div>
         <RankingsListView rankings={this.state.rankings} />
-        <IndividualInspectionView
-            className={styles.IndividualInspectionView}
-            data={this.state.rankingInstance}
-            topk={this.state.topk}
-            selectedInstance={this.state.selectedInstance}
-            selectedRankingInterval={this.state.selectedRankingInterval}
-        />
         <Footer />
       </div>
     );

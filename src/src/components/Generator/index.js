@@ -6,7 +6,7 @@ import { Button } from 'reactstrap';
 import { FormGroup, FormText, Input, Label,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import { Alert, TreeSelect, Slider, InputNumber, Icon, Table, Badge, Radio } from 'antd';
-import ttest from 'ttest';
+// import ttest from 'ttest';
 import chiSquaredTest from 'chi-squared-test';
 
 import styles from './styles.scss';
@@ -153,11 +153,11 @@ class Generator extends Component {
         <div className={styles.selectProtectedGroup}>
           <div className={styles.group1}>
             <Badge onClick={this.handleClickGroup} status='default' />
-            {protectedGroup}
+            {protectedGroup + '(50%)'}
           </div>
           <div className={styles.group2}>
             <Badge status='error' />
-            {nonProtectedGroup}
+            {nonProtectedGroup  + '(50%)'}
           </div>
         </div>
       </div>
@@ -206,35 +206,34 @@ class Generator extends Component {
 
   renderFeatureSelectionsForTable() {
     const _self = this;
-    const { dataset, numericalFeatures, corrBtnSensitiveAndAllFeatures, rankingInstance } = this.props,
+    const { dataset, features, numericalFeatures, ordinalFeatures, corrBtnSensitiveAndAllFeatures, rankingInstance } = this.props,
           { sensitiveAttr } = rankingInstance,
           wholeFeatures = Object.keys(dataset[0]).filter((d) => d !== 'idx'),
           sensitiveAttrName = sensitiveAttr.name;
 
     const groupInstances1 = dataset.filter((d) => d[sensitiveAttrName] === 0),
           groupInstances2 = dataset.filter((d) => d[sensitiveAttrName] === 1);
-          // featureValues = _.map(instances, (d) => d.features[feature]),
-          // nBins = 10,
-          // min = d3.min(featureValues),
-          // max = d3.max(featureValues),
-          // step = Math.floor((max-min) / nBins),
-          // thresholds = d3.range(min, max, step);
 
-    return wholeFeatures.map((feature, idx) => {
+    return features.map((feature, idx) => {
+      const { name, type, range } = feature;
       let featureType;
-      const isFeatureNumerical = numericalFeatures.indexOf(feature) >= 0 ? true : false;
       
-      if (isFeatureNumerical === true) {
-        featureType = 'numerical';
-      } else if (isFeatureNumerical === false) {
-        featureType = 'categorical';
+      if (type === 'categorical') {
+        if (range.length == 2) {
+          featureType = 'categorical';
+        } else {
+          featureType = 'ordinal';
+        }
+      } else if (type === 'continuous') {
+        featureType = 'continuous';
       }
 
       return {
         key: idx+1,
-        feature: feature.replace(/_/g, ' '),
-        dist: feature !== sensitiveAttr.name ? Math.round(corrBtnSensitiveAndAllFeatures[feature] * 100) / 100 : 'NaN',
-        corr: (featureType === 'numerical') ? _self.renderCorrPlotWithSensitiveAttrForNumericalVars(feature, groupInstances1, groupInstances2)
+        feature: name.replace(/_/g, ' '),
+        dist: name !== sensitiveAttr.name ? Math.round(corrBtnSensitiveAndAllFeatures[name] * 100) / 100 : 'NaN',
+        corr: (featureType === 'continuous') ? _self.renderCorrPlotWithSensitiveAttrForNumericalVars(feature, groupInstances1, groupInstances2)
+            : (featureType === 'ordinal') ? _self.renderCorrPlotWithSensitiveAttrForOrdinalVars(feature, groupInstances1, groupInstances2)
             : _self.renderCorrPlotWithSensitiveAttrForCategoricalVars(feature)
       };
     });
@@ -262,11 +261,12 @@ class Generator extends Component {
     const _self = this;
 
     const { rankingInstance, dataset } = this.props,
-          { instances } = rankingInstance;
+          { instances } = rankingInstance,
+          { name, type, range } = feature;
 
-    const featureValues = dataset.map((d) => d[feature]),
-          featureValuesForGroup1 = groupInstances1.map((d) => d[feature]),
-          featureValuesForGroup2 = groupInstances2.map((d) => d[feature]);
+    const featureValues = dataset.map((d) => d[name]),
+          featureValuesForGroup1 = groupInstances1.map((d) => d[name]),
+          featureValuesForGroup2 = groupInstances2.map((d) => d[name]);
 
     const nBins = 10,
           min = d3.min(featureValues),
@@ -275,15 +275,15 @@ class Generator extends Component {
           thresholds = d3.range(min, max, step);
     
     const dataBin = d3.histogram()
-                  .domain(d3.extent(featureValues))
+                  .domain(range)
                   .thresholds(thresholds)
                   (featureValues),
           dataBinGroup1 = d3.histogram()
-                  .domain(d3.extent(featureValues))
+                  .domain(range)
                   .thresholds(thresholds)
                   (featureValuesForGroup1),
           dataBinGroup2 = d3.histogram()
-                  .domain(d3.extent(featureValues))
+                  .domain(range)
                   .thresholds(thresholds)
                   (featureValuesForGroup2);
 
@@ -293,7 +293,7 @@ class Generator extends Component {
     svgCorrPlot.setAttribute('height', _self.layout.featureTable.corr.height);
     svgCorrPlot.setAttribute('0 0 100 100');
     svgCorrPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    svgCorrPlot.setAttribute('class', 'svg_corr_plot_' + feature);
+    svgCorrPlot.setAttribute('class', 'svg_corr_plot_' + name);
 
     // Both groups share the same x and y scale
     const xScale = d3.scaleBand()
@@ -309,10 +309,10 @@ class Generator extends Component {
 
     let groupHistogramBar1, groupHistogramBar2;
 
-    groupHistogramBar1 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1_' + feature)
+    groupHistogramBar1 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1_' + name)
           .data(dataBinGroup1)
           .enter().append('g')
-          .attr('class', 'g_corr_plot_group1_' + feature)
+          .attr('class', 'g_corr_plot_group1_' + name)
           .attr('transform', function(d) {
             return 'translate(' + xScale(d.x0) + ',' + yScale(d.length) + ')'; 
           });
@@ -327,10 +327,10 @@ class Generator extends Component {
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);
 
-    groupHistogramBar2 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2_' + feature)
+    groupHistogramBar2 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2_' + name)
           .data(dataBinGroup2)
           .enter().append('g')
-          .attr('class', 'g_corr_plot_group2_' + feature)
+          .attr('class', 'g_corr_plot_group2_' + name)
           .attr('transform', function(d) {
             return 'translate(' + xScale(d.x0) + ',' + yScale(d.length) + ')'; 
           });
@@ -339,6 +339,123 @@ class Generator extends Component {
           .attr('x', 0)
           .attr('width', xScale.bandwidth())
           .attr('height', (d) => _self.layout.featureTable.corr.height - yScale(d.length))
+          .style('fill', '#fd5d00')
+          .style('stroke', 'black')
+          .style('opacity', 0.5)
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.5);
+
+    return (
+      <div className={styles.corrPlotWrapper}>
+        {svgCorrPlot.toReact()}
+      </div>
+    );
+  }
+
+  renderCorrPlotWithSensitiveAttrForOrdinalVars(feature) {
+    const _self = this;
+
+    const { dataset, rankingInstance } = this.props,
+          { instances, sensitiveAttr } = rankingInstance,
+          { name, type, range } = feature,
+          { protectedGroup, nonProtectedGroup } = sensitiveAttr,
+          sensitiveAttrName = sensitiveAttr.name,
+          sensitiveAttrRange = sensitiveAttr.range;
+
+    const svgCorrPlot = new ReactFauxDOM.Element('svg');
+
+    svgCorrPlot.setAttribute('width', _self.layout.featureTable.corr.width);
+    svgCorrPlot.setAttribute('height', _self.layout.featureTable.corr.height);
+    svgCorrPlot.setAttribute('0 0 100 100');
+    svgCorrPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    svgCorrPlot.setAttribute('class', 'svg_corr_plot_' + name);
+
+    let protectedGroupBinary, nonProtectedGroupBinary;
+
+    if (sensitiveAttrRange[0] === protectedGroup){  // Find the corresponding 0 or 1 to protected or non-protected group string
+      protectedGroupBinary = 0;
+      nonProtectedGroupBinary = 1;
+    } else {
+      protectedGroupBinary = 1;
+      nonProtectedGroupBinary = 0;
+    }
+
+    const featureValues = dataset.map((d) => d[name]),
+          instancesForFeatureValues2 = dataset.filter((d) => d[name] === 1),
+          featureValuesForProtectedGroup = dataset.filter((d) => d[sensitiveAttrName] === protectedGroupBinary)
+                                           .map((d) => d[name]),
+          featureValuesForNonProtectedGroup = dataset.filter((d) => d[sensitiveAttrName] === nonProtectedGroupBinary)
+                                           .map((d) => d[name]),
+          protectedGroupLength = featureValuesForProtectedGroup.length,
+          nonProtectedGroupLength = featureValuesForNonProtectedGroup.length;
+
+    const featureValuesCountObject = _.countBy(featureValues),
+          featureValuesForProtectedGroupCountObject = _.countBy(featureValuesForProtectedGroup),
+          featureValuesForNonProtectedGroupCountObject = _.countBy(featureValuesForNonProtectedGroup),
+          featureValuesCount = Object.keys(featureValuesCountObject).map((value) => {
+                    return { 
+                      value: value, 
+                      count: featureValuesCountObject[value]
+                    }
+                  }),
+          featureValuesForProtectedGroupCount = Object.keys(featureValuesForProtectedGroupCountObject).map((value) => {
+                    return { 
+                      value: value, 
+                      count: featureValuesForProtectedGroupCountObject[value]
+                    }
+                  }),
+          
+          featureValuesForNonProtectedGroupCount = Object.keys(featureValuesForNonProtectedGroupCountObject).map((value) => {
+                    return { 
+                      value: value, 
+                      count: featureValuesForNonProtectedGroupCountObject[value]
+                    }
+                  });
+
+    // Both groups share the same x and y scale
+    const xGroupScale1 = d3.scaleBand()
+                  .domain(range)
+                  .range([_self.layout.featureTable.corr.width/2 + 5, _self.layout.featureTable.corr.width - 5]),
+          xGroupScale2 = d3.scaleBand()
+                  .domain(range)
+                  .range([5, _self.layout.featureTable.corr.width/2 - 5]),
+          yGroupScale1 = d3.scaleLinear()
+                  .domain([0, d3.max(featureValuesForProtectedGroupCount, (d) => d.count)])
+                  .range([_self.layout.featureTable.corr.height, 0]),
+          yGroupScale2 = d3.scaleLinear()
+                  .domain([0, d3.max(featureValuesForNonProtectedGroupCount, (d) => d.count)])
+                  .range([_self.layout.featureTable.corr.height, 0]);
+          // xAxis = d3.select(svg)
+          //     .append('g')
+          //     .attr('transform', 'translate(0,0)')
+          //     .call(d3.axisBottom(xScale).tickSize(0).tickFormat(''));
+    
+    let protectedGroupHistogramBar, nonProtectedGroupHistogramBar;
+
+    protectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1')
+          .data(featureValuesForProtectedGroupCount)
+          .enter().append('g')
+          .attr('class', 'g_corr_plot_group1')
+          .append('rect')
+          .attr('x', (d) => xGroupScale1(d.value))
+          .attr('y', (d) => yGroupScale1(d.count))
+          .attr('width', xGroupScale1.bandwidth())
+          .attr('height', (d, i) => _self.layout.featureTable.corr.height - yGroupScale1(d.count))
+          .style('fill', gs.groupColor1)
+          .style('stroke', 'black')
+          .style('opacity', 0.5)
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.5);
+
+    nonProtectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2')
+          .data(featureValuesForNonProtectedGroupCount)
+          .enter().append('g')
+          .attr('class', 'g_corr_plot_group2')
+          .append('rect')
+          .attr('x', (d) => xGroupScale2(d.value))
+          .attr('y', (d) => yGroupScale2(d.count))
+          .attr('width', xGroupScale2.bandwidth())
+          .attr('height', (d, i) => _self.layout.featureTable.corr.height - yGroupScale2(d.count))
           .style('fill', gs.groupColor2)
           .style('stroke', 'black')
           .style('opacity', 1)
@@ -357,6 +474,7 @@ class Generator extends Component {
 
     const { dataset, rankingInstance } = this.props,
           { instances, sensitiveAttr } = rankingInstance,
+          { name, type, range } = feature,
           { protectedGroup, nonProtectedGroup } = sensitiveAttr,
           sensitiveAttrName = sensitiveAttr.name,
           sensitiveAttrRange = sensitiveAttr.range;
@@ -371,12 +489,12 @@ class Generator extends Component {
       nonProtectedGroupBinary = 0;
     }
 
-    const instancesForFeatureValues1 = dataset.filter((d) => d[feature] === 0),
-          instancesForFeatureValues2 = dataset.filter((d) => d[feature] === 1),
+    const instancesForFeatureValues1 = dataset.filter((d) => d[name] === 0),
+          instancesForFeatureValues2 = dataset.filter((d) => d[name] === 1),
           featureValuesForProtectedGroup = dataset.filter((d) => d[sensitiveAttrName] === protectedGroupBinary)
-                                           .map((d) => d[feature]),
+                                           .map((d) => d[name]),
           featureValuesForNonProtectedGroup = dataset.filter((d) => d[sensitiveAttrName] === nonProtectedGroupBinary)
-                                           .map((d) => d[feature]),
+                                           .map((d) => d[name]),
           protectedGroupLength = featureValuesForProtectedGroup.length,
           nonProtectedGroupLength = featureValuesForNonProtectedGroup.length;
     const thresholds = [0, 1];
@@ -396,7 +514,7 @@ class Generator extends Component {
     svgCorrPlot.setAttribute('height', _self.layout.featureTable.corr.height);
     svgCorrPlot.setAttribute('0 0 100 100');
     svgCorrPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    svgCorrPlot.setAttribute('class', 'svg_corr_plot_' + feature);
+    svgCorrPlot.setAttribute('class', 'svg_corr_plot_' + name);
 
     // Both groups share the same x and y scale
     const xGroupScale1 = d3.scaleBand()
@@ -552,6 +670,10 @@ class Generator extends Component {
           { features, sensitiveAttr, target, method } = rankingInstance,
           wholeFeatures = Object.keys(dataset[0]).filter((d) => d !== 'idx');
 
+    console.log('dddddd');
+    console.log(rankingInstance);
+    console.log(features);
+    console.log(wholeFeatures);
     // For feature selection 
     const featureNames = features.map((feature) => feature.name),
           selectedRowKeys = wholeFeatures.map((d, idx) => {
@@ -612,8 +734,8 @@ class Generator extends Component {
         <div className={styles.generatorDatasetWrapper}>
           <div className={styles.generatorSubTitle}>Dataset</div>
           <div className={styles.generatorDescription}>
-            <div>- 20 Features</div>
-            <div>- 1,000 instances</div>
+            <div>- 12 Features</div>
+            <div>- 100 instances</div>
           </div>
         </div>
         <div className={styles.generatorSubTitle}>Feature</div>

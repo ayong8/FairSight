@@ -19,9 +19,14 @@
     }
   }
 
+  .inspectorWrapper {
+    display: flex;
+  }
+
   .SpaceView {
+    width: 80%;
     display: grid;
-    grid-template-columns: 30% 50% 20%;
+    grid-template-columns: 35% 45% 20%;
     grid-template-rows: 40px 110px 300px 100px;
     grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
       't t t'
@@ -42,7 +47,7 @@
   .spaceOverview { 
     grid-area: sm; 
     display: grid;
-    grid-template-columns: 27% 5% 45% 5% 18%;
+    grid-template-columns: 32% 5% 40% 5% 18%;
     grid-template-rows: 20px 30px 30px;
     grid-template-areas:
       'it i1 mt i2 ot'

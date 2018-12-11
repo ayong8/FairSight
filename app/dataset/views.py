@@ -45,13 +45,18 @@ import math
 import json, simplejson
 
 simple_file_path = './data/themis_ml_toy.csv'
-sample_file_path = './data/german_data_sample.csv'
+sample_file_path = './data/german_data_w_selected_features_100_5_5_synthetic.csv'
 heavy_file_path = './data/german_data.csv'
 
-numerical_features = ['age_in_years', 'duration_in_month', 'credit_amount',	'savings', 'installment_as_income_perc',
-                    'present_residence_since',	'number_of_existing_credits_at_this_bank',	'marriage',
-                    'other_debtors', 'status_of_existing_checking_account',	'property',
-                    'other_installment_plans', 'housing']
+numerical_features = ['age_in_years', 'duration_in_month', 'credit_amount']
+ordinal_features = [ 
+                    {'name': 'present_employment_since',	'range': [0, 1, 2, 3, 4]},
+                    {'name': 'marriage', 'range': [0, 1, 2, 3]},
+                    {'name': 'job', 'range': [0, 1, 2, 3]},
+                    {'name': 'account_check_status', 'range': [0, 1, 2, 3]},
+                    {'name': 'credit_history', 'range': [0, 1, 2, 3, 4]},
+                    {'name': 'housing', 'range': [0, 1, 2]}
+                  ]
 
 category_ranges = {
     'age>25': ['age_over_25', 'age_less_25'],
@@ -231,7 +236,6 @@ def perturb_feature(ranking_instance):
     perturbed_feature = ranking_instance['perturbedFeature']
     perturbed_feature_info = [ feature for feature in ranking_instance['features'] if feature['name'] == perturbed_feature ][0]
     instances = ranking_instance['instances']
-    print('perturbed_featureeeeeeee: ', perturbed_feature)
 
     # Shuffle the values (permutation)
     random.seed(1)
@@ -241,7 +245,6 @@ def perturb_feature(ranking_instance):
         instance['features'][perturbed_feature] = permuted_feature_values[idx]
 
     perturbed_instance = pd.DataFrame([ instance['features'] for instance in instances ])
-    print(perturbed_instance.head())
 
     return perturbed_instance
 
@@ -257,22 +260,26 @@ class ExtractFeatures(APIView):
         dataset_df = whole_dataset_df.copy()
         dataset_df = dataset_df.drop('idx', axis=1)
         feature_info_list = []
+        ordinal_feature_names = [ feature['name'] for feature in ordinal_features ]
 
         for feature in dataset_df:
             feature_info = {}
-            if feature not in numerical_features:
-                dataset_df[feature] = pd.Categorical(dataset_df[feature])
-                categories = dataset_df[feature].cat.categories
-                dataset_df[feature] = dataset_df[feature].cat.codes
-                feature_info = { 'name': feature, 'type': 'categorical', 'range': list(categories) }
-            else:
+            
+            if feature in numerical_features: # For continuous features
                 min_value = float(np.amin(dataset_df[feature]))
                 max_value = float(np.amax(dataset_df[feature]))
                 mean_value = float(np.mean(dataset_df[feature]))
                 std_value = float(math.sqrt(np.mean(dataset_df[feature])))
                 feature_info = { 'name': feature, 'type': 'continuous', 'mean': mean_value, 'std': std_value, 'range': [min_value, max_value] }
+            elif feature in ordinal_feature_names:  # For ordinal features
+                feature_dict = [ feature_dict for feature_dict in ordinal_features if feature_dict['name'] == feature ][0]
+                feature_info = { 'name': feature, 'type': 'categorical', 'range': feature_dict['range'] }
+            else:  # For categorical features
+                feature_info = { 'name': feature, 'type': 'categorical', 'range': [0, 1], 'vallue': ['No', 'Yes'] }
             
             feature_info_list.append(feature_info)
+
+        print(feature_info_list)
 
         return Response(json.dumps(feature_info_list))
 
@@ -355,26 +362,28 @@ class RunSVM(APIView):
         pass
 
     def post(self, request, format=None):
-        json_request = json.loads(request.body.decode(encoding='UTF-8'))
+        ranking_instance = json.loads(request.body.decode(encoding='UTF-8'))
 
-        features = [ feature['name'] for feature in json_request['features'] ]
-        target = json_request['target']['name']
-        sensitive_attr = json_request['sensitiveAttr']['name']
-        method = json_request['method']['name']
+        features = [ feature['name'] for feature in ranking_instance['features'] ]
+        target = ranking_instance['target']['name']
+        sensitive_attr = ranking_instance['sensitiveAttr']['name']
+        method = ranking_instance['method']['name']
+        is_for_perturbation = ranking_instance['isForPerturbation']
 
-        raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
         whole_dataset_df = open_dataset(sample_file_path)
 
         X = whole_dataset_df[features]
+
         X_wo_s_attr = whole_dataset_df[features]
         y = whole_dataset_df[target]
         s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
-        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3)
+        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=True)
         svm_fit = svm.SVC(kernel='linear', random_state=0, cache_size=7000, probability=True).fit(X_train, y_train)
         accuracy = svm_fit.score(X_test, y_test)
+
         probs = svm_fit.predict_proba(X)
-        probs_would_not_default = [ prob[0] for prob in probs ]
+        probs_would_not_default = [ prob[1] for prob in probs ]
 
         output_df = X.copy()
         output_df['idx'] = whole_dataset_df['idx']
@@ -395,19 +404,10 @@ class RunSVM(APIView):
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
 
-        ranking_instance_dict = {
-            'rankingId': json_request['rankingId'],
-            'features': json_request['features'],
-            'target': json_request['target'],
-            'sensitiveAttr': json_request['sensitiveAttr'],
-            'method': json_request['method'],
-            'stat': { 'accuracy': math.ceil(accuracy * 100) },
-            'instances': instances_dict_list
-        }
+        ranking_instance['stat']['accuracy'] = math.ceil(accuracy * 100)
+        ranking_instance['instances'] = instances_dict_list
 
-        save_trained_model(ranking_instance_dict, svm_fit)
-
-        return Response(json.dumps(ranking_instance_dict))
+        return Response(json.dumps(ranking_instance))
 
 class RunLR(APIView):
 
@@ -421,13 +421,10 @@ class RunLR(APIView):
         target = ranking_instance['target']['name']
         sensitive_attr = ranking_instance['sensitiveAttr']['name']
         method = ranking_instance['method']['name']
-        is_for_perturbation = ranking_instance['isForPerturbation']
 
-        raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
         whole_dataset_df = open_dataset(sample_file_path)
 
         X = whole_dataset_df[features]
-
         X_wo_s_attr = whole_dataset_df[features]
         y = whole_dataset_df[target]
         s = whole_dataset_df[sensitive_attr] # male:0, female: 1
@@ -448,7 +445,6 @@ class RunLR(APIView):
         output_df['prob'] = probs_would_not_default
         output_df = output_df.sort_values(by='prob', ascending=False)
         output_df['ranking'] = range(1, len(output_df) + 1)
-        print('LR original: ', output_df['prob'])
 
         # Convert to dict and put all features into 'features' key
         instances_dict_list = list(output_df.T.to_dict().values())
@@ -473,8 +469,6 @@ class RunLRForPerturbation(APIView):
         ranking_instances = json.loads(request.body.decode(encoding='UTF-8'))
         response_list = []
 
-        o_ranking_instance = ranking_instances[0]
-
         for ranking_instance in ranking_instances:
             features = [ feature['name'] for feature in ranking_instance['features'] ]
             target = ranking_instance['target']['name']
@@ -485,18 +479,18 @@ class RunLRForPerturbation(APIView):
             raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
             whole_dataset_df = open_dataset(sample_file_path)
 
-            X = whole_dataset_df[features]
+            # X = whole_dataset_df[features]
             y = whole_dataset_df[target]
             s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
+            X = perturb_feature(ranking_instance)
             X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=True)
             lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
 
-            X = perturb_feature(ranking_instance)
+            
             probs = lr_fit.predict_proba(X)
             accuracy_after_perturbation = lr_fit.score(X_test, y_test)
             probs_would_not_default = [ prob[1] for prob in probs ]
-            print('1111: ', probs_would_not_default)
 
             output_df = X.copy()
             output_df['idx'] = whole_dataset_df['idx']
@@ -530,31 +524,69 @@ class RunLRForPerturbation(APIView):
 
             response_list.append(ranking_instance)
 
+        return Response(json.dumps(response_list))
 
-        features = [ feature['name'] for feature in o_ranking_instance['features'] ]
-        target = o_ranking_instance['target']['name']
-        sensitive_attr = o_ranking_instance['sensitiveAttr']['name']
-        method = o_ranking_instance['method']['name']
-        is_for_perturbation = o_ranking_instance['isForPerturbation']
+class RunSVMForPerturbation(APIView):
 
-        raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
-        whole_dataset_df = open_dataset(sample_file_path)
+    def get(self, request, format=None):
+        pass
 
-        X = whole_dataset_df[features]
+    def post(self, request, format=None):
+        ranking_instances = json.loads(request.body.decode(encoding='UTF-8'))
+        response_list = []
 
-        X_wo_s_attr = whole_dataset_df[features]
-        y = whole_dataset_df[target]
-        s = whole_dataset_df[sensitive_attr] # male:0, female: 1
+        for ranking_instance in ranking_instances:
+            features = [ feature['name'] for feature in ranking_instance['features'] ]
+            target = ranking_instance['target']['name']
+            sensitive_attr = ranking_instance['sensitiveAttr']['name']
+            method = ranking_instance['method']['name']
+            is_for_perturbation = ranking_instance['isForPerturbation']
 
-        X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=True)
+            raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
+            whole_dataset_df = open_dataset(sample_file_path)
 
-        lr_fit = load_trained_model(o_ranking_instance)
-        accuracy_after_perturbation = lr_fit.score(X_test, y_test)
+            # X = whole_dataset_df[features]
+            y = whole_dataset_df[target]
+            s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
-        probs = lr_fit.predict_proba(X)
-        probs_would_not_default = [ prob[1] for prob in probs ]
-        print('original ranking test: ')
-        print(probs_would_not_default)
+            X = perturb_feature(ranking_instance)
+            X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=True)
+            svm_fit = svm.SVC(kernel='linear', random_state=0, cache_size=7000, probability=True).fit(X_train, y_train)
+            
+            probs = svm_fit.predict_proba(X)
+            accuracy_after_perturbation = svm_fit.score(X_test, y_test)
+            probs_would_not_default = [ prob[1] for prob in probs ]
+
+            output_df = X.copy()
+            output_df['idx'] = whole_dataset_df['idx']
+            output_df['group'] = s
+            output_df['target'] = y
+
+            instances_df = pd.DataFrame(ranking_instance['instances']).sort_values(by='idx', ascending=True)
+            instances = ranking_instance['instances']
+            previous_ranking_df = pd.DataFrame({'previousRanking': instances_df['ranking'], \
+                                                'idx': instances_df['idx']})
+            previous_ranking_df.set_index('idx')
+            output_df = pd.merge(output_df, previous_ranking_df, on=['idx'])
+
+            # Add rankings
+            output_df['prob'] = probs_would_not_default
+            output_df = output_df.sort_values(by='prob', ascending=False)
+            output_df['ranking'] = range(1, len(output_df) + 1)
+            
+            # Convert to dict and put all features into 'features' key
+            instances_dict_list = list(output_df.T.to_dict().values())
+            for output_item in instances_dict_list:  # Go over all items
+                features_dict = {}
+                for feature_key in features:
+                    features_dict[ feature_key ] = output_item[ feature_key ]
+                    output_item.pop(feature_key, None)
+                output_item['features'] = features_dict
+
+            ranking_instance['statForPerturbation']['accuracy'] = math.ceil(accuracy_after_perturbation * 100)    
+            ranking_instance['instances'] = instances_dict_list
+
+            response_list.append(ranking_instance)
 
         return Response(json.dumps(response_list))
 
@@ -564,14 +596,13 @@ class RunACF(APIView):
         pass
 
     def post(self, request, format=None):
-        json_request = json.loads(request.body.decode(encoding='UTF-8'))
+        ranking_instance = json.loads(request.body.decode(encoding='UTF-8'))
 
-        features = [ feature['name'] for feature in json_request['features'] ]
-        target = json_request['target']['name']
-        sensitive_attr = json_request['sensitiveAttr']['name']
-        method = json_request['method']['name']
+        features = [ feature['name'] for feature in ranking_instance['features'] ]
+        target = ranking_instance['target']['name']
+        sensitive_attr = ranking_instance['sensitiveAttr']['name']
+        method = ranking_instance['method']['name']
 
-        raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
         whole_dataset_df = open_dataset(sample_file_path)
 
         X = whole_dataset_df[features]
@@ -583,18 +614,17 @@ class RunACF(APIView):
         N_REPEATS = 20
         cv = RepeatedStratifiedKFold(n_splits=N_SPLITS, n_repeats=N_REPEATS, random_state=41)
 
-        probs_df = pd.DataFrame()
         for i, (train_idx, test_idx) in enumerate(cv.split(X.values, y.values, groups=s.values)):
             if i == 0:
                 result_dict = run_experiment_iteration_themis_ml_ACF(
                     X.values, X_wo_s_attr.values, y.values, s.values, train_idx, test_idx)
-    
+
         output_df = X.copy()
         output_df['idx'] = whole_dataset_df['idx']
         output_df['group'] = s
         output_df['target'] = y
 
-        # Add rankings
+       # Add rankings
         acf_fit = result_dict['acf_fit']
         output_df['prob'] = result_dict['prob']
         output_df = output_df.sort_values(by='prob', ascending=False)
@@ -610,20 +640,81 @@ class RunACF(APIView):
                 output_item.pop(feature_key, None)
             output_item['features'] = features_dict
 
-        ranking_instance_dict = {
-            'rankingId': json_request['rankingId'],
-            'features': json_request['features'],
-            'target': json_request['target'],
-            'sensitiveAttr': json_request['sensitiveAttr'],
-            'method': json_request['method'],
-            'stat': { 'accuracy': math.ceil(accuracy * 100) },
-            'instances': instances_dict_list
-        }
+        ranking_instance['stat']['accuracy'] = math.ceil(accuracy * 100)
+        ranking_instance['instances'] = instances_dict_list
 
-        save_trained_model(ranking_instance_dict, acf_fit)
+        print('ranking instance: ')
+        print(ranking_instance)
 
-        return Response(json.dumps(ranking_instance_dict))
-                
+        return Response(json.dumps(ranking_instance))
+
+class RunACFForPerturbation(APIView):
+
+    def get(self, request, format=None):
+        pass
+
+    def post(self, request, format=None):
+        ranking_instances = json.loads(request.body.decode(encoding='UTF-8'))
+        response_list = []
+
+        for ranking_instance in ranking_instances:
+            features = [ feature['name'] for feature in ranking_instance['features'] ]
+            target = ranking_instance['target']['name']
+            sensitive_attr = ranking_instance['sensitiveAttr']['name']
+            method = ranking_instance['method']['name']
+            is_for_perturbation = ranking_instance['isForPerturbation']
+
+            raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
+            whole_dataset_df = open_dataset(sample_file_path)
+
+            # X = whole_dataset_df[features]
+            y = whole_dataset_df[target]
+            s = whole_dataset_df[sensitive_attr] # male:0, female: 1
+            X = perturb_feature(ranking_instance)
+            X_wo_s_attr = whole_dataset_df[features]
+            
+            N_SPLITS = 5
+            N_REPEATS = 20
+            cv = RepeatedStratifiedKFold(n_splits=N_SPLITS, n_repeats=N_REPEATS, random_state=41)
+
+            for i, (train_idx, test_idx) in enumerate(cv.split(X.values, y.values, groups=s.values)):
+                if i == 0:
+                    result_dict = run_experiment_iteration_themis_ml_ACF(
+                        X.values, X_wo_s_attr.values, y.values, s.values, train_idx, test_idx)
+
+            output_df = X.copy()
+            output_df['idx'] = whole_dataset_df['idx']
+            output_df['group'] = s
+            output_df['target'] = y
+
+            instances_df = pd.DataFrame(ranking_instance['instances']).sort_values(by='idx', ascending=True)
+            instances = ranking_instance['instances']
+            previous_ranking_df = pd.DataFrame({'previousRanking': instances_df['ranking'], \
+                                                'idx': instances_df['idx']})
+            previous_ranking_df.set_index('idx')
+            output_df = pd.merge(output_df, previous_ranking_df, on=['idx'])
+
+            # Add rankings
+            output_df['prob'] = result_dict['prob']
+            output_df = output_df.sort_values(by='prob', ascending=False)
+            output_df['ranking'] = range(1, len(output_df) + 1)
+            accuracy_after_perturbation = result_dict['accuracy']
+            
+            # Convert to dict and put all features into 'features' key
+            instances_dict_list = list(output_df.T.to_dict().values())
+            for output_item in instances_dict_list:  # Go over all items
+                features_dict = {}
+                for feature_key in features:
+                    features_dict[ feature_key ] = output_item[ feature_key ]
+                    output_item.pop(feature_key, None)
+                output_item['features'] = features_dict
+
+            ranking_instance['statForPerturbation']['accuracy'] = math.ceil(accuracy_after_perturbation * 100)    
+            ranking_instance['instances'] = instances_dict_list
+
+            response_list.append(ranking_instance)
+
+        return Response(json.dumps(response_list))
 
 class RunLRA(APIView):
 
@@ -814,7 +905,15 @@ class CalculateAndersonDarlingTest(APIView):
             feature_values_group1 = [ instance[feature] for instance in group_instances1 ]
             feature_values_group2 = [ instance[feature] for instance in group_instances2 ]
 
-            wass_dist = stats.wasserstein_distance(feature_values_group1, feature_values_group2)
+            # Normalize
+            whole_values = feature_values_group1 + feature_values_group2
+            max_val = max(whole_values)
+            min_val = min(whole_values)
+
+            normalized_feature_values_group1 = (np.array(feature_values_group1) - min_val) / (max_val - min_val)
+            normalized_feature_values_group2 = (np.array(feature_values_group2) - min_val) / (max_val - min_val)
+
+            wass_dist = stats.wasserstein_distance(normalized_feature_values_group1, normalized_feature_values_group2)
             test_result[feature] = math.sqrt(wass_dist)
 
         return Response(json.dumps(test_result))

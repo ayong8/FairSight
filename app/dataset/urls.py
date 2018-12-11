@@ -17,10 +17,20 @@ urlpatterns = [
         view=views.RunRankSVM.as_view(),
         name='rankSVM'
     ),
+    # url(
+    #     regex=r'^runRankSVMForPerturbation/$',
+    #     view=views.RunRankSVMForPerturbation.as_view(),
+    #     name='rankSVMForPerturbation'
+    # ),
     url(
         regex=r'^runSVM/$',
         view=views.RunSVM.as_view(),
         name='SVM'
+    ),
+    url(
+        regex=r'^runSVMForPerturbation/$',
+        view=views.RunSVMForPerturbation.as_view(),
+        name='SVMForPerturbation'
     ),
     url(
         regex=r'^runLR/$',
@@ -36,6 +46,11 @@ urlpatterns = [
         regex=r'^runACF/$',
         view=views.RunACF.as_view(),
         name='ACF'
+    ),
+    url(
+        regex=r'^runACFForPerturbation/$',
+        view=views.RunACFForPerturbation.as_view(),
+        name='ACFForPerturbation'
     ),
     url(
         regex=r'^runMDS/$',
@@ -60,6 +75,6 @@ urlpatterns = [
     url(
         regex=r'^calculateAndersonDarlingTest/$',
         view=views.CalculateAndersonDarlingTest.as_view(),
-        name='andersonDarlingTest'
+        name='wassersteinDistance'
     )
 ]

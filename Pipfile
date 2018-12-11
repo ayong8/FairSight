@@ -43,6 +43,7 @@ statsmodels = "*"
 scipy = "*"
 simplejson = "*"
 themis-ml = "*"
+django-storages = "*"
 
 [dev-packages]
 

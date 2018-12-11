@@ -1,9 +1,17 @@
 .IndividualInspectionView {
     grid-area: ii;
-    width: 50%;
+    width: 20%;
 
     border-top: 1px solid #d9d9d9;
+    border: 1px solid #e2e2e2;
+    background-color: #fcfbfb;
 
+    padding: 5px;
+    margin: 0 5px;
+
+    // .instanceDataTableWrapper {
+    //     display: flex;
+    // }
     .IndividualStatus {
         height: 200px;
     }

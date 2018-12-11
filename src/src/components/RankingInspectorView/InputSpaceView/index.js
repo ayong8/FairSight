@@ -37,6 +37,29 @@ class InputSpaceView extends Component {
              selectedInstancesPropsChange;
     }
 
+    componentWillUpdate(nextProps, nextState) {
+      if (this.props.selectedInstance !== nextProps.selectedInstance) {
+        if (nextProps.selectedInstance.idx !== undefined) {
+          console.log('componentwillupdate in input mouseover: ', nextProps.selectedInstance.idx);
+          d3.select('.circle_input_' + nextProps.selectedInstance.idx)
+            .classed('selected', true)
+            .style('stroke-width', 2);
+          d3.select('.circle_input2_' + nextProps.selectedInstance.idx)
+            .classed('selected', true)
+            .style('stroke-width', 2);
+        }
+        else {
+          console.log('componentwillupdate in input mouseout: ', nextProps.selectedInstance.idx);
+          d3.selectAll('.circle_input selected')
+            .classed('selected', false)
+            .style('stroke-width', 0.5);
+          d3.selectAll('.circle_input2 selected')
+            .classed('selected', false)
+            .style('stroke-width', 0.5);
+        }
+      }
+    }
+
     getChangeHandler(key) {
         return (value) => this.setState({ [key]: value });
     }
@@ -83,7 +106,7 @@ class InputSpaceView extends Component {
       }
 
       const _self = this;
-      const { mode, inputCoords} = this.props;
+      const { mode, inputCoords, topk, selectedInstanceNNs} = this.props;
       const wholeInstances = _.toArray(inputCoords),
             instances = wholeInstances.slice(0, 100);
 
@@ -120,10 +143,10 @@ class InputSpaceView extends Component {
           .attr('transform', 'translate(10,10)');
 
       const circles = gCircles
-          .selectAll('.item2')
+          .selectAll('.circle_input2')
           .data(instances)
           .enter().append('circle')
-          .attr('class', 'item2')
+          .attr('class', (d) => 'circle_input2 circle_input2_' + d.idx)
           .attr('cx', (d) => xScale(d.dim1))
           .attr('cy', (d) => yScale(d.dim2))
           .attr('r', 4)
@@ -140,29 +163,43 @@ class InputSpaceView extends Component {
           })
           .style('stroke', 'black')
           .style('opacity', 0.7)
-          .on('mouseover', (d) => {
-              // _self.props.onMouseoverInstance(d.idx);
+          .on('mouseover', function(d) {
+            // d3.select('.circle_input2_' + d.idx).style('stroke-width', 2);
+            _self.props.onSelectedInstance(d.idx);
+            console.log(selectedInstanceNNs);
+            selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
+              d3.select('.circle_input2_' + selectedInstanceNN.idx).style('stroke', 'red');
+            });
+          })
+          .on('mouseout', function(d) {
+            // d3.select('.circle_input2_' + d.idx).style('stroke-width', 0.5);
+            _self.props.onUnselectedInstance();
           });
 
       const circlesForPattern = gCircles
-          .selectAll('.item')
+          .selectAll('.circle_input')
           .data(instances)
           .enter().append('circle')
-          .attr('class', 'item')
+          .attr('class', (d) => 'circle_input circle_input_' + d.idx)
           .attr('cx', (d) => xScale(d.dim1))
           .attr('cy', (d) => yScale(d.dim2))
           .attr('r', 4)
           .style('fill', (d) => !d.target ? 'url(#diagonalHatch)': 'none')
           .style('stroke', 'black')
           .style('opacity', 0.7)
-          .on('mouseover', (d) => {
-              // _self.props.onMouseoverInstance(d.idx);
+          .on('mouseover', function(d) {
+            console.log('inputed circleeeeee: ', d);
+            // d3.select('.circle_input_' + d.idx).style('stroke-width', 2);
+            _self.props.onSelectedInstance(d.idx);
+            console.log(selectedInstanceNNs);
+            selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
+              d3.select('.circle_input_' + selectedInstanceNN.idx).style('stroke', 'red');
+            });
+          })
+          .on('mouseout', function(d) {
+            // d3.select('.circle_input_' + d.idx).style('stroke-width', 0.5);
+            _self.props.onUnselectedInstance();
           });
-
-      // Handle mouseover action
-      // circles
-      //     .filter((d) => d.idx === this.props.selectedRankingInterval)
-      //     .style('stroke-width', 2);
 
       return (
         <div className={styles.InputSpaceView}>

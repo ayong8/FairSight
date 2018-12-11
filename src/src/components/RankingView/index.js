@@ -90,13 +90,13 @@ class RankingView extends Component {
     componentWillUpdate() {
       const { isMouseOveredGroupFairness } = this.state;
 
-      if (isMouseOveredGroupFairness === false) {
-        d3.selectAll('.rect_whole_ranking_topk')
-          .style('stroke-width', 2);
-      } else {
-        d3.selectAll('.rect_whole_ranking_topk')
-          .style('stroke-width', 0.5);
-      }
+      // if (isMouseOveredGroupFairness === false) {
+      //   d3.selectAll('.rect_whole_ranking_topk')
+      //     .style('stroke-width', 2);
+      // } else {
+      //   d3.selectAll('.rect_whole_ranking_topk')
+      //     .style('stroke-width', 0.5);
+      // }
     }
 
     // shouldComponentUpdate(nextProps, nextState) {
@@ -126,7 +126,7 @@ class RankingView extends Component {
 
       this.props.onSelectedTopk(topk); // Send up the state 'topk' to state
       this.props.onSelectedInterval(to);
-      this.props.onRunningFilter();
+      this.props.onRunningFilter(topk);
     }
 
     handleMouseOverGroupFairness() {
@@ -530,6 +530,27 @@ class RankingView extends Component {
             rectHeight = 30,
             topkPlotWidth = rectInterval * topk, // topk and non-topk plot have the same length
             selectedNonTopkPlotWidth = rectInterval * (to - topk + 1);
+
+      let precisionKData = [],
+          statParityData = [];
+      
+      instances.map((d) => d.target)
+          .reduce((acc, curr, currIdx) => {
+            const ranking = currIdx + 1,
+                  length = currIdx + 1;
+
+            precisionKData.push([ ranking, (acc + curr) / length]);
+            return acc + curr;
+          });
+
+      instances.map((d) => d.group)
+          .reduce((acc, curr, currIdx) => {
+            const ranking = currIdx + 1,
+                  length = currIdx + 1;
+
+            statParityData.push([ ranking, (acc + curr) / length]);
+            return acc + curr;
+          });
   
       const topkRankingScale = d3.scaleBand()
               .domain(d3.range(1, topk+1))
@@ -543,12 +564,12 @@ class RankingView extends Component {
             groupColorScale = d3.scaleOrdinal()
               .range([gs.groupColor1, gs.groupColor2])
               .domain([0, 1]),
-            precisionPlot = d3.scaleLinear()
-              .range([0, _self.layout.wholeRankingPlot.plot.height])
-              .domain([0, 1]),
-            groupProportionPlot = d3.scaleLinear()
-              .range([0, _self.layout.wholeRankingPlot.plot.height])
-              .domain([0, 1]);
+            precisionKScale = d3.scaleLinear()
+              .range([0, rectHeight])
+              .domain([ d3.max(precisionKData.map((d) => d[1])), d3.min(precisionKData.map((d) => d[1])) ]),
+            statParityScale = d3.scaleLinear()
+              .range([0, rectHeight])
+              .domain([ d3.max(statParityData.map((d) => d[1])), d3.min(statParityData.map((d) => d[1])) ]);
 
       const topkTickValues = [1, ...d3.range(5, topk, 5), topk],
             selectedNonTopkTickValues = [topk+1, ...d3.range(topk+1 + ((topk+1) % 5), to, 5), to];
@@ -602,7 +623,7 @@ class RankingView extends Component {
                 .attr('width', 4)
                 .attr('height', 4)
               .append('path')
-                .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+                .attr('d', 'M-3,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
                 .attr('stroke', '#000000')
                 .attr('stroke-width', 1);
       
@@ -646,22 +667,47 @@ class RankingView extends Component {
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5);
 
-      // const accuracyData = [];
-      
-      // topkInstances.forEach((d) => {
 
-      // });
+      const fittedPrecisionKLineForTopk = d3.line()
+              .x((d) => topkRankingScale(d[0]) + 5)
+              .y((d) => precisionKScale(d[1])),
+            fittedPrecisionKPathForTopk = gTopkRanking.append('path')
+              .datum(precisionKData.slice(0, topk))
+              .attr('d', fittedPrecisionKLineForTopk)
+              .style('stroke', 'black')
+              .style('fill', 'none')
+              .style('stroke-width', '2px')
+              .style('stroke-dasharray', '3,1'),
+            fittedPrecisionKCirclesForTopk = gTopkRanking
+              .selectAll('.circle_precision_k')
+              .data(precisionKData.slice(0, topk))
+              .enter().append('circle')
+              .attr('class', 'circle_percision_k')
+              .attr('cx', (d) => topkRankingScale(d[0]) + 5)
+              .attr('cy', (d) => precisionKScale(d[1]))
+              .attr('r', 2)
+              .attr('stroke', 'black');
 
-      // const fittedLine = d3.line()
-      //         .x((d) => topkRankingScale(d[0]))
-      //         .y((d) => (d[1])),
-      //       fittedPath1 = gPlot.append('path')
-      //         .datum(fit.points)
-      //         .attr('d', fittedLine)
-      //         .style('stroke', 'black')
-      //         .style('fill', 'none')
-      //         .style('stroke-width', '3px')
-      //         .style('stroke-dasharray', '10,10'),
+      const fittedStatParityLineForTopk = d3.line()
+              .x((d) => topkRankingScale(d[0]) + 5)
+              .y((d) => statParityScale(d[1])),
+            fittedStatParityPathForTopk = gTopkRanking.append('path')
+              .datum(statParityData.slice(0, topk))
+              .attr('d', fittedStatParityLineForTopk)
+              .style('stroke', 'red')
+              .style('fill', 'none')
+              .style('stroke-width', '2px')
+              .style('stroke-dasharray', '3,1'),
+            fittedStatParityCirclesForTopk = gTopkRanking
+              .selectAll('.circle_stat_parity_k')
+              .data(statParityData.slice(0, topk))
+              .enter().append('circle')
+              .attr('class', 'circle_stat_parity_k')
+              .attr('cx', (d) => topkRankingScale(d[0]) + 5)
+              .attr('cy', (d) => statParityScale(d[1]))
+              .attr('r', 2)
+              .style('fill', 'red')
+              .attr('stroke', 'red');
 
       const topkTradeoffPlot = gTopkRanking.selectAll('.topk_group_rect')
               .data(topkInstances)
@@ -711,6 +757,47 @@ class RankingView extends Component {
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5);
+
+      const fittedPrecisionKLineForNonTopk = d3.line()
+              .x((d) => selectedNonTopkRankingScale(d[0]) + 5)
+              .y((d) => precisionKScale(d[1])),
+            fittedPrecisionKPathForNonTopk = gSelectedNonTopkRanking.append('path')
+              .datum(precisionKData.slice(topk, to))
+              .attr('d', fittedPrecisionKLineForNonTopk)
+              .style('stroke', 'black')
+              .style('fill', 'none')
+              .style('stroke-width', '2px')
+              .style('stroke-dasharray', '3,1'),
+            fittedPrecisionKCirclesForNonTopk = gSelectedNonTopkRanking
+              .selectAll('.circle_precision_k')
+              .data(precisionKData.slice(topk, to))
+              .enter().append('circle')
+              .attr('class', 'circle_percision_k')
+              .attr('cx', (d) => selectedNonTopkRankingScale(d[0]) + 5)
+              .attr('cy', (d) => precisionKScale(d[1]))
+              .attr('r', 2)
+              .attr('stroke', 'black');
+
+      const fittedStatParityLineForNonTopk = d3.line()
+              .x((d) => selectedNonTopkRankingScale(d[0]) + 5)
+              .y((d) => statParityScale(d[1])),
+            fittedStatParityPathForNonTopk = gSelectedNonTopkRanking.append('path')
+              .datum(statParityData.slice(topk, to))
+              .attr('d', fittedStatParityLineForNonTopk)
+              .style('stroke', 'red')
+              .style('fill', 'none')
+              .style('stroke-width', '2px')
+              .style('stroke-dasharray', '3,1'),
+            fittedStatParityCirclesForNonTopk = gSelectedNonTopkRanking
+              .selectAll('.circle_stat_parity_k')
+              .data(statParityData.slice(topk, to))
+              .enter().append('circle')
+              .attr('class', 'circle_stat_parity_k')
+              .attr('cx', (d) => selectedNonTopkRankingScale(d[0]) + 5)
+              .attr('cy', (d) => statParityScale(d[1]))
+              .attr('r', 2)
+              .style('fill', 'red')
+              .attr('stroke', 'red');
   
       const nonTopkRects = gNonTopkRanking.selectAll('.non_topk_rect')
               .data(nonTopkInstances)
@@ -757,9 +844,12 @@ class RankingView extends Component {
 
       const { data, n } = this.props,
             { stat } = data,
-            { utility, goodnessOfFairness, groupSkew, sp, cp } = stat,
-            instances = _.sortBy([...data.instances], ['score'], ['desc']).reverse(),
+            { utility, goodnessOfFairness, groupSkew, GFDCG, rND, sp, cp } = stat,
+            instances = _.sortBy([...data.instances], ['ranking'], ['desc']),
             topk = this.props.topk;
+
+      console.log('ranking');
+      console.log(instances.map((d) => d.idx));
 
       return (
         <div className={styles.RankingView}>
@@ -774,7 +864,7 @@ class RankingView extends Component {
           <div className={styles.wholeRankingSummaryStat1}>
             <div className={styles.utilityWrapper}>
               <div className={styles.utilityTitle}>Utility</div>
-              <div className={styles.utility}>{(utility * 100) + '%'}</div>
+              <div className={styles.utility}>{Math.round(utility * 100) + '%'}</div>
             </div>
             <div className={styles.groupFairnessWrapper}>
               <div 
@@ -782,7 +872,7 @@ class RankingView extends Component {
                 onMouseOver={this.handleMouseOverGroupFairness}
                 onMouseOut={this.handleMouseOverGroupFairness}
               >Statistical Parity</div>
-              <div className={styles.groupFairness}>{(sp * 100) + '%'}</div>
+              <div className={styles.groupFairness}>{Math.round(GFDCG * 100) / 100}</div>
             </div>
           </div>
           <div className={styles.topkFilterView}>

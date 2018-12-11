@@ -18,18 +18,18 @@ class RankingsListView extends Component {
     this.layout = {
       rankingPlot: {
         width: 300,
-        height: 150,
+        height: 300,
         svg: {
           width: 250,
-          height: 150,
+          height: 300,
           margin: 25
         },
         plot: {
-          width: 200,
-          height: 120,
+          width: 280,
+          height: 250,
           margin: 20,
           marginTop: 10,
-          marginLeft: 30,
+          marginLeft: 40,
           marginBottom: 20
         }
       }
@@ -59,7 +59,7 @@ class RankingsListView extends Component {
             .domain([0, 2])
             .range([0, _self.layout.rankingPlot.plot.width]),
           yUtilityScale = d3.scaleLinear()
-            .domain([0, 2])
+            .domain([0, 100])
             .range([_self.layout.rankingPlot.plot.height, 0]);
 
     const r = 7;
@@ -78,7 +78,7 @@ class RankingsListView extends Component {
           yUtilityAxis = d3.select(svg).append('g')
             .attr('class', 'g_y_utility_axis')
             .attr('transform', 'translate(' + _self.layout.rankingPlot.plot.marginLeft + ',' + _self.layout.rankingPlot.plot.marginTop + ')')
-            .call(d3.axisLeft(yUtilityScale).ticks(5));
+            .call(d3.axisLeft(yUtilityScale).ticks(5).tickFormat((d) => d + '%'));
 
     const gRankings = d3.select(svg)
             .selectAll('.g_ranking')
@@ -89,16 +89,16 @@ class RankingsListView extends Component {
     
     gRankings.append('circle')
         .attr('class', 'ranking_circle')
-        .attr('cx', (d) => xFairnessScale(d.stat.sp))
-        .attr('cy', (d) => yUtilityScale(d.stat.utility))
+        .attr('cx', (d) => xFairnessScale(d.stat.GFDCG))
+        .attr('cy', (d) => yUtilityScale(d.stat.rNNSum * 100))
         .attr('r', r)
         .style('fill', 'darkgray')
         .style('stroke', 'none');
 
     gRankings.append('text')
         .attr('class', 'ranking_id')
-        .attr('x', (d) => xFairnessScale(d.stat.sp) - r/2 - 0.5)
-        .attr('y', (d) => yUtilityScale(d.stat.utility) + r/2 + 1)
+        .attr('x', (d) => xFairnessScale(d.stat.GFDCG) - r/2 - 0.5)
+        .attr('y', (d) => yUtilityScale(d.stat.rNNSum * 100) + r/2 + 1)
         .style('fill', 'white')
         .text((d) => d.rankingId);
 
@@ -112,8 +112,8 @@ class RankingsListView extends Component {
   renderRankingInstances() {
     const dataRankings = this.props.rankings;
 
-    return _.map(dataRankings, (ranking, idx) => {
-      const { rankingId, instances, method, stat } = ranking;
+    return _.map(dataRankings, (rankingInstance, idx) => {
+      const { rankingId, currentTopk, instances, method, stat } = rankingInstance;
 
       const svg = new ReactFauxDOM.Element('svg');
       svg.setAttribute('width', '100%');
@@ -148,9 +148,9 @@ class RankingsListView extends Component {
 
       return {
         id: 'R' + rankingId,
-        topk: '',
-        if: Math.round(stat.goodnessOfFairness * 100) + '%',
-        gf: Math.round(stat.sp * 100) + '%',
+        topk: currentTopk,
+        if: Math.round(stat.rNNSum * 100) + '%',
+        gf: Math.round(stat.GFDCG) + '%',
         u: Math.round(stat.utility * 100) + '%'
       }
     });
@@ -177,6 +177,7 @@ class RankingsListView extends Component {
         </div>
         {this.renderRankingPlot()}
         <Table
+          className={styles.rankingComparisonTable}
           columns={rankingListColumns} 
           dataSource={this.renderRankingInstances()} 
           scroll={{ y: 400 }}

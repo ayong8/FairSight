@@ -6,7 +6,7 @@ import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap
 import { Checkbox, Icon, Table, Tabs, Slider, InputNumber } from 'antd';
 
 import LegendView from 'components/RankingInspectorView/LegendView';
-import IndividualFairnessInspectionView from 'components/RankingInspectorView/IndividualFairnessInspectionView';
+import FeatureInspectionView from 'components/RankingInspectorView/FeatureInspectionView';
 import IndividualInspectionView from 'components/RankingInspectorView/IndividualInspectionView';
 import OutputSpaceView from 'components/RankingInspectorView/OutputSpaceView';
 import InputSpaceView from 'components/RankingInspectorView/InputSpaceView';
@@ -66,6 +66,10 @@ class RankingInspectorView extends Component {
           from: 1,
           to: 50
         },
+        selectedInstance: {},
+        selectedInstanceNNs: [],
+        nNeighbors: 4,
+        xNN: 'Not selected',
         selectedInstances: [],
         selectedPairwiseDiffs: [],
         selectedPermutationDiffs: [],
@@ -139,7 +143,7 @@ class RankingInspectorView extends Component {
       this.handleSelectGroupCheckbox = this.handleSelectGroupCheckbox.bind(this);
       this.handleSelectOutlierAndFairCheckbox = this.handleSelectOutlierAndFairCheckbox.bind(this);
       this.handleSelectedInstance = this.handleSelectedInstance.bind(this);
-      // this.handleMouseoverInstance = this.handleMouseoverInstance.bind(this);
+      this.handleUnselectedInstance = this.handleUnselectedInstance.bind(this);
     }
 
     componentWillMount() {
@@ -184,7 +188,7 @@ class RankingInspectorView extends Component {
       const perturbationResults = [];
       const urlForMethod = (method.name === 'Logistic Regression') ? 'runLRForPerturbation' 
                               : (method.name === 'SVM') ? 'runSVMForPerturbation'
-                              : 'RunSVM'
+                              : 'runACFForPerturbation'
 
       const requests = features.map((feature) => ({
                 ...data, 
@@ -203,13 +207,10 @@ class RankingInspectorView extends Component {
         const perturbedRankingInstances = JSON.parse(responses);
         
         const perturbationResults = perturbedRankingInstances.map((perturbedRankingInstance) => {
-                  console.log('perturbationResultssss: ', perturbedRankingInstance.perturbedFeature);
-                  console.log('perturbationResultssss: ', perturbedRankingInstance.instances.map((d) => d.idx));
                   // Calculate and update measures
-                  const { utility, sp, cp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
-                  perturbedRankingInstance.statForPerturbation.utility = utility;
+                  const { precisionK, sp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
+                  perturbedRankingInstance.statForPerturbation.precisionK = precisionK;
                   perturbedRankingInstance.statForPerturbation.sp = sp;
-                  perturbedRankingInstance.statForPerturbation.cp = cp;
 
                   return perturbedRankingInstance;
                 });
@@ -247,7 +248,7 @@ class RankingInspectorView extends Component {
         // Perturb features
         const urlForMethod = (method.name === 'Logistic Regression') ? 'runLRForPerturbation' 
                                 : (method.name === 'SVM') ? 'runSVMForPerturbation'
-                                : 'RunSVM'
+                                : 'runACFForPerturbation'
 
         const requests = features.map((feature) => ({
                   ...data, 
@@ -266,13 +267,10 @@ class RankingInspectorView extends Component {
           const perturbedRankingInstances = JSON.parse(responses);
           
           const perturbationResults = perturbedRankingInstances.map((perturbedRankingInstance) => {
-                    console.log('perturbationResultssss: ', perturbedRankingInstance.perturbedFeature);
-                    console.log('perturbationResultssss: ', perturbedRankingInstance.instances.map((d) => d.idx));
                     // Calculate and update measures
-                    const { utility, sp, cp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
-                    perturbedRankingInstance.statForPerturbation.utility = utility;
+                    const { precisionK, sp } = _self.calculateOutputMeasuresForPerturbation(perturbedRankingInstance);
+                    perturbedRankingInstance.statForPerturbation.precisionK = precisionK;
                     perturbedRankingInstance.statForPerturbation.sp = sp;
-                    perturbedRankingInstance.statForPerturbation.cp = cp;
 
                     return perturbedRankingInstance;
                   });
@@ -298,8 +296,27 @@ class RankingInspectorView extends Component {
       });
     }
 
-    handleSelectedInstance(instance) {
-      this.props.onSelectedInstance(instance);
+    handleSelectedInstance(selectedInstanceIdx) {
+      const { data } = this.props,
+            { instances } = data,
+            selectedInstance = instances.filter((d) => d.idx === selectedInstanceIdx)[0];
+
+      console.log('in handleselected: ', selectedInstanceIdx);
+      console.log('in handleselected: ', selectedInstance);
+
+      this.setState({
+        selectedInstance: selectedInstance,
+        selectedInstanceNNs: this.identifyNNs(selectedInstance, 4),
+        xNN: this.calculateXNN(selectedInstance),
+      });
+    }
+
+    handleUnselectedInstance() {
+      this.setState({
+        selectedInstance: {},
+        selectedInstanceNNs: [],
+        xNN: 'Not selected'
+      });
     }
 
     calculateOutputMeasuresForPerturbation(perturbedRankingInstance) {
@@ -331,13 +348,14 @@ class RankingInspectorView extends Component {
             Z = (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (Math.min(nProtectedGroupInWhole, topk) / topk) - (nProtectedGroupInWhole / n) ),
             rND = 1 - (1/Z) * (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (nProtectedGroupInTopk / topk) - (nProtectedGroupInWhole / n) );
 
-      const statisticalParity = (_.sum(group2.filter((d) => d.ranking <= topk).map((d) => 1 / d.ranking)) / group2.length) / 
-                                (_.sum(group1.filter((d) => d.ranking <= topk).map((d) => 1 / d.ranking)) / group1.length);
-      const conditionalParity = (_.sum(group2.filter((d) => d.ranking <= topk && d.target === 1).map((d) => 1 / d.ranking)) / group2.length) / 
-                                (_.sum(group1.filter((d) => d.ranking <= topk && d.target === 1).map((d) => 1 / d.ranking)) / group1.length);
+      const statisticalParity = (group2.filter((d) => d.ranking <= topk).length / group2.length) / 
+            (group1.filter((d) => d.ranking <= topk).length / group1.length);
+      const conditionalParity = (group2.filter((d) => d.ranking <= topk && d.target === 1) / group2.length) / 
+            (group1.filter((d) => d.ranking <= topk && d.target === 1) / group1.length);
 
       // For utility = nDCG
       const topkInstances = instances.filter((d) => d.ranking <= topk);
+      const precisionK = topkInstances.filter((d) => d.target === 1).length / topkInstances.length;
       
       const DCG = topkInstances.map((d, i) => { // sorted by ranking
                 const relevance = d.target;
@@ -357,9 +375,52 @@ class RankingInspectorView extends Component {
 
       return {
         utility: Math.round(nDCG * 100) / 100,
+        precisionK: Math.round(precisionK * 100) / 100,
         sp: Math.round(statisticalParity * 100) / 100, 
         cp: Math.round(conditionalParity * 100) / 100
       }
+    }
+
+    identifyNNs(selectedInstance, nNeighbors) {
+      const { pairwiseDiffs } = this.props;
+      const selectedInstanceIdx = selectedInstance.idx;
+
+      const NNs = pairwiseDiffs.filter((d) => {
+        return d.idx1 == selectedInstanceIdx;
+      }).sort((a, b) => d3.descending(a.scaledDiffInput, b.scaledDiffInput)).slice(0, nNeighbors);
+
+      return NNs;
+    }
+
+    calculateXNN(selectedInstance) {  
+      const nNeighbors = 4;
+      const NNs = this.identifyNNs(selectedInstance, nNeighbors);
+
+      if (NNs.length === 0)
+        return 'NaN';
+
+      const yDiffsForNNs = NNs.map((d) => Math.abs(d.ranking1 - d.ranking2) / Math.max(d.ranking1, d.ranking2)),
+            sumDiffsForNNs = yDiffsForNNs.reduce((acc, curr) => acc + curr);
+  
+      const rNN = sumDiffsForNNs / nNeighbors;
+  
+      return rNN;
+  
+      // idx1: pairs[i][0].idx,
+      // idx2: pairs[i][1].idx,
+      // ranking1: pairs[i][0].instance.ranking,
+      // ranking2: pairs[i][1].instance.ranking,
+      // x1: pairs[i][0].instance,
+      // x2: pairs[i][1].instance,
+      // pair: pair,
+      // diffInput: diffInput,
+      // diffOutput: diffOutput,
+      // scaledDiffInput: _self.inputScale(diffInput),
+      // scaledDiffOutput: _self.outputScale(diffOutput),
+      // distortion: _self.outputScale(diffOutput) - _self.inputScale(diffInput),
+      // absDistortion: Math.abs(_self.outputScale(diffOutput) - _self.inputScale(diffInput)),
+      // isFair: false,
+      // isOutlier: false
     }
 
 
@@ -920,7 +981,7 @@ class RankingInspectorView extends Component {
       const { data, topk, selectedInstance, selectedRankingInterval,
               selectedPermutationDiffsFlattend, permutationDiffs, permutationDiffsFlattened } = this.props,
             { instances, stat } = data,
-            { utility, goodnessOfFairness, groupSkew, sp, cp } = stat,
+            { utility, goodnessOfFairness, rNNSum, GFDCG, groupSkew, sp, cp } = stat,
             { from, to } = selectedRankingInterval,
             selectedInstances = instances.slice(from, to),
             distortionMin = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[0],
@@ -942,7 +1003,7 @@ class RankingInspectorView extends Component {
                                   onMouseOver={this.handleMouseOverIndividualFairness}
                                   onMouseOut={this.handleMouseOverIndividualFairness}
                                 >Goodness of Fairness</div>
-                                <div className={styles.individualFairness}>{goodnessOfFairness}</div>
+                                <div className={styles.individualFairness}>{Math.round(rNNSum * 100) + '%'}</div>
                               </div>) : 
                               (<div></div>);
 
@@ -953,7 +1014,7 @@ class RankingInspectorView extends Component {
                                     onMouseOver={this.handleMouseOverGroupFairness}
                                     onMouseOut={this.handleMouseOverGroupFairness}
                                     >Statistical Parity</div>
-                                  <div className={styles.outputGroupFairness}>{sp}</div>
+                                  <div className={styles.outputGroupFairness}>{GFDCG}</div>
                                 </div>) :
                             (mode === 'IF') ?
                                 (<div></div>) : 
@@ -980,7 +1041,7 @@ class RankingInspectorView extends Component {
       );
     }
 
-    renderIndividualFairnessView(){
+    renderRankingInspector(mode){ // mode == 'IF' (individual fairness), 'GF' (group fairness)
       return (
         <div className={styles.IndividualFairnessView}>
           <div className={styles.SpaceView}>
@@ -993,21 +1054,30 @@ class RankingInspectorView extends Component {
             />
             <OutputSpaceView 
                 className={styles.OutputSpaceView}
-                mode={'IF'}
+                mode={mode}
                 data={this.props.data}
                 topk={this.props.topk}
+                selectedInstance={this.state.selectedInstance}
+                selectedInstanceNNs={this.state.selectedInstanceNNs}
+                nNeighbors={this.state.nNeighbors}
                 selectedInstances={this.props.selectedInstances}
                 selectedRankingInterval={this.props.selectedRankingInterval}
-                onSelectedInstance={this.handleSelectedInstance} />
+                onSelectedInstance={this.handleSelectedInstance}
+                onUnselectedInstance={this.handleUnselectedInstance} 
+            />
             <InputSpaceView 
                 className={styles.InputSpaceView}
-                mode={'IF'}
+                mode={mode}
                 data={this.props.data}
                 topk={this.props.topk}
                 inputCoords={this.props.inputCoords}
-                selectedInstance={this.props.selectedInstance}
+                selectedInstance={this.state.selectedInstance}
+                selectedInstanceNNs={this.state.selectedInstanceNNs}
+                nNeighbors={this.state.nNeighbors}
                 selectedInstances={this.props.selectedInstances}
                 selectedRankingInterval={this.props.selectedRankingInterval}
+                onSelectedInstance={this.handleSelectedInstance}
+                onUnselectedInstance={this.handleUnselectedInstance}
             />
             <div className={styles.MatrixWrapper}>
               <div className={styles.MatrixView}>
@@ -1015,12 +1085,19 @@ class RankingInspectorView extends Component {
               </div>
             </div>
           </div>
+          <IndividualInspectionView
+              className={styles.IndividualInspectionView}
+              data={this.props.rankingInstance}
+              topk={this.props.topk}
+              selectedInstance={this.state.selectedInstance}
+              selectedRankingInterval={this.props.selectedRankingInterval}
+              xNN={this.state.xNN}
+          />
           <div className={styles.InspectionComponentsView}>
-            <IndividualFairnessInspectionView
-                className={styles.IndividualFairnessInspectionView}
+            <FeatureInspectionView
+                className={styles.FeatureInspectionView}
                 data={this.props.data}
                 topk={this.props.topk}
-                selectedInstance={this.props.selectedInstance}
                 selectedInstances={this.props.selectedInstances}
                 selectedRankingInterval={this.props.selectedRankingInterval}
                 corrBtnOutliersAndWholeInstances={this.state.corrBtnOutliersAndWholeInstances}
@@ -1031,49 +1108,69 @@ class RankingInspectorView extends Component {
       );
     }
 
-    renderGroupFairnessView(){
+    renderRankingInspector(mode){ // mode == 'IF' (individual fairness), 'GF' (group fairness)
       return (
         <div className={styles.IndividualFairnessView}>
-          <div className={styles.SpaceView}>
-            <div className={styles.spaceViewTitleWrapper}>
-              <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Global Inspector</div>
+          <div className={styles.inspectorWrapper}>
+            <div className={styles.SpaceView}>
+              <div className={styles.spaceViewTitleWrapper}>
+                <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Global Inspector</div>
+              </div>
+              {this.renderSpaceOverview()}
+              <LegendView 
+                className={styles.LegendView} 
+              />
+              <OutputSpaceView 
+                  className={styles.OutputSpaceView}
+                  mode={mode}
+                  data={this.props.data}
+                  topk={this.props.topk}
+                  selectedInstance={this.state.selectedInstance}
+                  selectedInstanceNNs={this.state.selectedInstanceNNs}
+                  nNeighbors={this.state.nNeighbors}
+                  selectedInstances={this.props.selectedInstances}
+                  selectedRankingInterval={this.props.selectedRankingInterval}
+                  onSelectedInstance={this.handleSelectedInstance}
+                  onUnselectedInstance={this.handleUnselectedInstance} 
+              />
+              <InputSpaceView 
+                  className={styles.InputSpaceView}
+                  mode={mode}
+                  data={this.props.data}
+                  topk={this.props.topk}
+                  inputCoords={this.props.inputCoords}
+                  selectedInstance={this.state.selectedInstance}
+                  selectedInstanceNNs={this.state.selectedInstanceNNs}
+                  nNeighbors={this.state.nNeighbors}
+                  selectedInstances={this.props.selectedInstances}
+                  selectedRankingInterval={this.props.selectedRankingInterval}
+                  onSelectedInstance={this.handleSelectedInstance}
+                  onUnselectedInstance={this.handleUnselectedInstance}
+              />
+              <div className={styles.MatrixWrapper}>
+                <div className={styles.MatrixView}>
+                  {this.svgMatrix.toReact()}
+                </div>
+              </div>
             </div>
-            {this.renderSpaceOverview()}
-            <LegendView 
-              className={styles.LegendView} 
+            <IndividualInspectionView
+                className={styles.IndividualInspectionView}
+                data={this.props.rankingInstance}
+                topk={this.props.topk}
+                selectedInstance={this.state.selectedInstance}
+                selectedRankingInterval={this.props.selectedRankingInterval}
+                xNN={this.state.xNN}
             />
-            <OutputSpaceView 
-                className={styles.OutputSpaceView}
-                mode={'GF'}
+          </div>
+          <div className={styles.InspectionComponentsView}>
+            <FeatureInspectionView
+                className={styles.FeatureInspectionView}
                 data={this.props.data}
                 topk={this.props.topk}
                 selectedInstances={this.props.selectedInstances}
-                selectedRankingInterval={this.props.selectedRankingInterval} />
-            <InputSpaceView 
-                className={styles.InputSpaceView}
-                mode={'GF'}
-                data={this.props.data}
-                topk={this.props.topk}
-                inputCoords={this.props.inputCoords}
-                selectedInstance={this.props.selectedInstance}
-                selectedInstances={this.state.selectedInstances} 
                 selectedRankingInterval={this.props.selectedRankingInterval}
                 corrBtnOutliersAndWholeInstances={this.state.corrBtnOutliersAndWholeInstances}
                 perturbationResults={this.state.perturbationResults}
-            />
-            <div className={styles.MatrixWrapper}>
-              <div className={styles.MatrixView}>
-                {this.svgMatrix.toReact()}
-              </div>
-            </div>
-          </div>
-          <div className={styles.InspectionComponentsView}>
-            <IndividualInspectionView
-                className={styles.IndividualInspectionView}
-                data={this.props.data}
-                topk={this.props.topk}
-                selectedInstance={this.props.selectedInstance}
-                selectedRankingInterval={this.props.selectedRankingInterval}
             />
           </div>
         </div>
@@ -1091,6 +1188,7 @@ class RankingInspectorView extends Component {
       }
       const _self = this;
       const TabPane = Tabs.TabPane;
+      const { mode } = this.state;
          
       _self.renderMatrix();
 
@@ -1101,9 +1199,13 @@ class RankingInspectorView extends Component {
 
       return (
         <div className={styles.RankingInspectorView}>
-          <Tabs onChange={this.changeFairnessMode} type="card">
-            <TabPane tab="Individual Fairness" key="IF">{this.renderIndividualFairnessView()}</TabPane>
-            <TabPane tab="Group Fairness" key="GF">{this.renderGroupFairnessView()}</TabPane>
+          <Tabs 
+            onChange={this.changeFairnessMode} 
+            type="card"
+            activeKey={this.state.mode}
+          >
+            <TabPane tab="Individual Fairness" key="IF">{this.renderRankingInspector(mode)}</TabPane>
+            <TabPane tab="Group Fairness" key="GF">{this.renderRankingInspector(mode)}</TabPane>
           </Tabs>
         </div>
       );

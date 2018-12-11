@@ -40,7 +40,7 @@ body {
 }
 .ant-table-row > td,
 .ant-table-thead > tr > th {
-  padding: 8px !important;
+  padding: 6px !important;
   font-size: 1rem !important;
 }
 .ant-table-thead > tr > th {
@@ -59,15 +59,19 @@ body {
 }
 
 .ant-radio-button-wrapper {
-  background-color: lightgray !important;
+  background-color: mediumspringgreen !important;
   padding: 0 15px !important;
+}
+
+.ant-badge-status-default {
+  background-color: mediumspringgreen !important;
 }
 
 .ant-badge-status-error {
   background-color: #ff7043 !important;
 }
 
-.dropdownmenu-show {
+.dropdown-menu.show {
   width: 90% !important;
 }
 
@@ -123,29 +127,29 @@ body {
 .g_y_output_space_axis path { stroke: gray; }
 .g_y_output_space_axis text { fill: gray; }
 
-.g_x_distortion_axis line { stroke: gray; }
-.g_x_distortion_axis path { stroke: gray; }
+.g_x_distortion_axis line { stroke: gray; stroke-width: 2px; }
+.g_x_distortion_axis path { stroke: gray; stroke-width: 2px; }
 .g_x_distortion_axis text { fill: gray; }
 
 .g_cr_plot_axis line { stroke: gray; }
 .g_cr_plot_axis path { stroke: gray; }
 .g_cr_plot_axis text { fill: gray; }
 
-.g_x_feature_axis_instances line { stroke: gray; }
-.g_x_feature_axis_instances path { stroke: gray; }
+.g_x_feature_axis_instances line { stroke: gray; stroke-width: 2px; }
+.g_x_feature_axis_instances path { stroke: gray; stroke-width: 2px; }
 .g_x_feature_axis_instances text { fill: gray; }
 
-.g_x_median_axis line { stroke: gray; }
-.g_x_median_axis path { stroke: gray; }
+.g_x_median_axis line { stroke: gray; stroke-width: 2px; }
+.g_x_median_axis path { stroke: gray; stroke-width: 2px; }
 .g_x_median_axis text { fill: gray; }
 
-.g_x_feature_axis_outliers line { stroke: gray; }
-.g_x_feature_axis_outliers path { stroke: gray; }
+.g_x_feature_axis_outliers line { stroke: gray; stroke-width: 2px; }
+.g_x_feature_axis_outliers path { stroke: gray; stroke-width: 2px; }
 .g_x_feature_axis_outliers text { fill: gray; }
 
-.g_x_counterfactual_axis line { stroke: gray; }
-.g_x_counterfactual_axis path { stroke: gray; }
-.g_x_counterfactual_axis text { fill: gray; }
+.g_x_permutation_axis line { stroke: gray; stroke-width: 2px; }
+.g_x_permutation_axis path { stroke: gray; stroke-width: 2px; }
+.g_x_permutation_axis text { fill: gray; }
 
 .g_x_fairness_axis line { stroke: gray; }
 .g_x_fairness_axis path { stroke: gray; }

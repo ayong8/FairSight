@@ -17,34 +17,28 @@ class IndividualInspectionView extends Component {
 
     renderFeatureTable() {
       const _self = this;
-      const { data, selectedInstance } = this.props,
-            { instances } = data,
-            selectedInstanceIdx = selectedInstance;
-      
-      const mouseoveredInstance = instances.filter((d) => d.idx === selectedInstance)[0];
+      const { selectedInstance } = this.props;
   
-      return Object.keys(mouseoveredInstance.features).map((feature, idx) => {
+      return Object.keys(selectedInstance.features).map((feature, idx) => {
         return {
           feature: feature.replace(/_/g, ' '),
-          value: mouseoveredInstance.features[feature]
+          value: selectedInstance.features[feature]
         };
       });
     }
 
     renderEmptyTable() {
-      return {
-        feature: '',
-        value: ''
-      }
+      return [
+        {
+          feature: <div></div>,
+          value: ''
+        }
+      ]
     }
 
     render() {
       console.log('IndividualInspectionView rendered');
-      const { data, selectedInstance } = this.props,
-            { instances } = data,
-            selectedInstanceIdx = selectedInstance;
-      
-      const mouseoveredInstance = instances.filter((d) => d.idx === selectedInstance)[0];
+      const { selectedInstance } = this.props;
   
       const columns = [
         { title: 'Feature', dataIndex: 'feature', width: '70%' },
@@ -54,23 +48,25 @@ class IndividualInspectionView extends Component {
       return (
         <div className={styles.IndividualInspectionView}>
           <div className={index.subTitle}>Local Inspector</div>
-          <div className={styles.IndividualStatus}>
-            {/* <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', marginBottom: 10}}/> */}
-            <div>
-              <Badge status="success"/>
-              <span className={index.instnaceIdTitle}>Instance ID:</span>
-              1
+            <div className={styles.IndividualStatus}>
+              {/* <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', marginBottom: 10}}/> */}
+              <div>
+                <Badge status="success"/>
+                <span className={index.instanceIdTitle}>Instance ID:&nbsp;</span>
+                {(selectedInstance && Object.keys(selectedInstance).length !== 0) ? selectedInstance.idx : ''}
+              </div>
+              <div className={styles.individualMeasures}>{'rNN: ' + Math.round(this.props.xNN * 100) / 100}</div>
+              <div className={styles.instanceDataTableWrapper}>
+                <Table
+                  className={styles.instanceDataTable}
+                  columns={columns} 
+                  dataSource={ (selectedInstance && Object.keys(selectedInstance).length !== 0) ? this.renderFeatureTable() : this.renderEmptyTable() } 
+                  scroll={{ y: 120 }}
+                  pagination={false}
+                  bordered
+                />
+              </div>
             </div>
-            <div className={styles.selectedRankingIntervalInfo}>
-              <Table
-                columns={columns} 
-                dataSource={ typeof(selectedInstance) === 'undefined' ? this.renderEmptyTable() : this.renderFeatureTable() } 
-                scroll={{ y: 120 }}
-                pagination={false}
-                bordered
-              />
-            </div>
-          </div>
         </div>
       );
     }

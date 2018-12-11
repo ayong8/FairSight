@@ -20,24 +20,48 @@ class OutputSpaceView extends Component {
             margin: 10
           },
           plot: {
-            marginLeft: 100,
+            marginLeft: 60,
             marginTop: 10
           }
       };
     }
 
-    componentWillUpdate() {
-      if (!this.props.selectedInstance || Object.keys(this.props.selectedInstance).length !== 0) {
-        // d3.selectAll('.rect_whole_ranking_topk_' + this.props.selectedInstance.features.idx)
-        //   .style('stroke-width', 2);
-      }
+    componentWillUpdate(nextProps, nextState) {
+      // // if mouseover and NNs are selected,
+      // if (!nextProps.selectedInstanceNNs || nextProps.selectedInstanceNNs.length !== 0) {
+      //   console.log('in update: ', nextProps.selectedInstanceNNs);
+      //   nextProps.selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
+      //     console.log(selectedInstanceNN.idx2);
+      //     d3.select('.rect_output_' + selectedInstanceNN.idx2).style('stroke', 'red').classed('neighbor', true);
+      //   });
+      // } 
+      // // if mouseout and NNs are unselected,
+      // else {
+      //   if(d3.selectAll('.neighbor')){
+      //     d3.selectAll('.neighbor')
+      //       .style('stroke', 'black')
+      //       .classed('neighbor', false);
+      //   }
+      // }
+    }
+
+    identifyNNs(selectedInstance, nNeighbors) {
+      const { pairwiseDiffs } = this.props;
+      const selectedInstanceIdx = selectedInstance.idx;
+
+      const NNs = pairwiseDiffs.filter((d) => {
+        return d.idx1 == selectedInstanceIdx;
+      }).sort((a, b) => d3.descending(a.scaledDiffInput, b.scaledDiffInput)).slice(0, nNeighbors);
+
+      return NNs;
     }
 
     render() {
       console.log('OutputSpaceView rendered');
+
       const _self = this;
 
-      const { mode, data, topk, selectedRankingInterval } = this.props,
+      const { mode, data, topk, selectedRankingInterval, selectedInstanceNNs, nNeighbors } = this.props,
             { instances } = data,
             { from, to } = selectedRankingInterval,
             selectedInstances = instances.slice(from, to);
@@ -83,7 +107,7 @@ class OutputSpaceView extends Component {
 
       const gTopkRanking = d3.select(svg).append('g')
               .attr('class', 'g_top_k_ranking')
-              .attr('transform', 'translate(' + (130) + ',' + '10)');
+              .attr('transform', 'translate(' + (80) + ',' + '10)');
 
       const diagonalPattern = d3.select(svg)
               .append('defs')
@@ -97,10 +121,10 @@ class OutputSpaceView extends Component {
                 .attr('stroke', '#000000')
                 .attr('stroke-width', 1);
 
-      const topkRect = gTopkRanking.selectAll('.rect_topk')
+      const outputRect = gTopkRanking.selectAll('.rect_output2')
               .data(selectedInstances)
               .enter().append('rect')
-              .attr('class', (d) => 'rect_topk rect_topk_' + d.ranking)
+              .attr('class', (d) => 'rect_output2 rect_output2_' + d.idx)
               .attr('x', (d) => 0)
               .attr('y', (d) => rankingScale(d.ranking))
               .attr('width', 30)
@@ -111,14 +135,22 @@ class OutputSpaceView extends Component {
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .on('mouseover', function(d) {
-                d3.select(this).style('stroke', 'black');
-                _self.props.onSelectedInstance(d);
+                d3.select('.rect_output2_' + d.idx).style('stroke-width', 2);
+                _self.props.onSelectedInstance(d.idx);
+                console.log(selectedInstanceNNs);
+                selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
+                  d3.select('.rect_output2_' + selectedInstanceNN.idx).style('stroke', 'red');
+                });
+              })
+              .on('mouseout', function(d) {
+                d3.select('.rect_output2_' + d.idx).style('stroke-width', 0.5);
+                _self.props.onUnselectedInstance();
               });
 
-      const topkRectForPattern = gTopkRanking.selectAll('.rect_topk_for_pattern')
+      const outputRectForPattern = gTopkRanking.selectAll('.rect_output')
               .data(selectedInstances)
               .enter().append('rect')
-              .attr('class', (d) => 'rect_topk_for_pattern rect_topk_for_pattern_' + d.ranking)
+              .attr('class', (d) => 'rect_output rect_output_' + d.idx)
               .attr('x', (d) => 0)
               .attr('y', (d) => rankingScale(d.ranking))
               .attr('width', 30)
@@ -127,8 +159,17 @@ class OutputSpaceView extends Component {
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
-              .on('mouseover', (d) => {
-                this.props.onSelectedInstance(d);
+              .on('mouseover', function(d) {
+                console.log('outpued recttttt: ', d);
+                d3.select('.rect_output_' + d.idx).style('stroke-width', 2);
+                _self.props.onSelectedInstance(d.idx);
+                selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
+                  d3.select('.rect_output_' + selectedInstanceNN.idx).style('stroke', 'red');
+                });
+              })
+              .on('mouseout', function(d) {
+                d3.select('.rect_output_' + d.idx).style('stroke-width', 0.5);
+                _self.props.onUnselectedInstance();
               });
 
       return (

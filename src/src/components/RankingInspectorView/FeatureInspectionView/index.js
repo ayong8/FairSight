@@ -220,7 +220,7 @@ class IndividualFairnessInspectionView extends Component {
                 })
                 .attr('r', (e) => rScale(e))
                 .style('fill', (e) => gs.individualColor)
-                .style('stroke', (e) => 'none')
+                .style('stroke', (e) => d3.rgb(gs.individualColor).darker())
                 .style('stroke-width', (e) => 1);
             });
     
@@ -349,7 +349,7 @@ class IndividualFairnessInspectionView extends Component {
                 .attr('r', r)
                 .style('fill', (e) => e.isTopk ? gs.topkColor : 
                                       e.isOutlier ? 'red' : gs.individualColor)
-                .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : 'none'))
+                .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : d3.rgb(gs.individualColor).darker()))
                 .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
             });
 
@@ -598,7 +598,7 @@ class IndividualFairnessInspectionView extends Component {
                 .attr('r', r)
                 .style('fill', (e) => e.isTopk ? gs.topkColor :
                                       e.isOutlier ? gs.outlierColor : gs.individualColor)
-                .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : 'none'))
+                .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : d3.rgb(gs.individualColor).darker()))
                 .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
 
               d3.select(this)

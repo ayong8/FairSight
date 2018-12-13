@@ -103,7 +103,7 @@ class RankingInspectorView extends Component {
             height: 300
           },
           attrPlotLeft: {
-            width: 40,
+            width: 30,
             height: 300
           },
           attrPlotBottom: {
@@ -1023,86 +1023,19 @@ class RankingInspectorView extends Component {
       return (
         <div className={styles.spaceOverview}>
           <div className={styles.inputSpaceTitle}>INPUT SPACE</div>
-          <div className={styles.inputSpaceDescription}>-</div>
+          <div className={styles.inputSpaceDescription}></div>
           <div className={styles.inputSpaceMeasure}>INPUT SPACE</div>
           <div className={styles.mappingSpaceTitle}>MAPPING</div>
-          <div className={styles.mappingSpaceDescription}>-</div>
+          <div className={styles.mappingSpaceDescription}></div>
           <div className={styles.mappingSpaceMeasure}>{mappingMeasure}</div>
           <div className={styles.outputSpaceTitle}>OUTPUT SPACE</div>
-          <div className={styles.outputSpaceDescription}>-</div>
+          <div className={styles.outputSpaceDescription}></div>
           <div className={styles.outputSpaceMeasure}>{outputMeasure}</div>
           <div className={styles.intervalSpace1}>
             <Icon type="right-circle" theme="twoTone" />
           </div>
           <div className={styles.intervalSpace2}>
             <Icon type="right-circle" theme="twoTone" />
-          </div>
-        </div>
-      );
-    }
-
-    renderRankingInspector(mode){ // mode == 'IF' (individual fairness), 'GF' (group fairness)
-      return (
-        <div className={styles.IndividualFairnessView}>
-          <div className={styles.SpaceView}>
-            <div className={styles.spaceViewTitleWrapper}>
-              <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Global Inspector</div>
-            </div>
-            {this.renderSpaceOverview()}
-            <LegendView 
-              className={styles.LegendView} 
-            />
-            <OutputSpaceView 
-                className={styles.OutputSpaceView}
-                mode={mode}
-                data={this.props.data}
-                topk={this.props.topk}
-                selectedInstance={this.state.selectedInstance}
-                selectedInstanceNNs={this.state.selectedInstanceNNs}
-                nNeighbors={this.state.nNeighbors}
-                selectedInstances={this.props.selectedInstances}
-                selectedRankingInterval={this.props.selectedRankingInterval}
-                onSelectedInstance={this.handleSelectedInstance}
-                onUnselectedInstance={this.handleUnselectedInstance} 
-            />
-            <InputSpaceView 
-                className={styles.InputSpaceView}
-                mode={mode}
-                data={this.props.data}
-                topk={this.props.topk}
-                inputCoords={this.props.inputCoords}
-                selectedInstance={this.state.selectedInstance}
-                selectedInstanceNNs={this.state.selectedInstanceNNs}
-                nNeighbors={this.state.nNeighbors}
-                selectedInstances={this.props.selectedInstances}
-                selectedRankingInterval={this.props.selectedRankingInterval}
-                onSelectedInstance={this.handleSelectedInstance}
-                onUnselectedInstance={this.handleUnselectedInstance}
-            />
-            <div className={styles.MatrixWrapper}>
-              <div className={styles.MatrixView}>
-                {this.svgMatrix.toReact()}
-              </div>
-            </div>
-          </div>
-          <IndividualInspectionView
-              className={styles.IndividualInspectionView}
-              data={this.props.rankingInstance}
-              topk={this.props.topk}
-              selectedInstance={this.state.selectedInstance}
-              selectedRankingInterval={this.props.selectedRankingInterval}
-              xNN={this.state.xNN}
-          />
-          <div className={styles.InspectionComponentsView}>
-            <FeatureInspectionView
-                className={styles.FeatureInspectionView}
-                data={this.props.data}
-                topk={this.props.topk}
-                selectedInstances={this.props.selectedInstances}
-                selectedRankingInterval={this.props.selectedRankingInterval}
-                corrBtnOutliersAndWholeInstances={this.state.corrBtnOutliersAndWholeInstances}
-                perturbationResults={this.state.perturbationResults}
-            />
           </div>
         </div>
       );

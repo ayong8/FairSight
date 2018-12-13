@@ -29,10 +29,10 @@ body {
 }
 
 /* ant design => customize */
-.ant-slider-track,
+/* .ant-slider-track,
 .ant-slider-handle {
   background-color: #00346b !important;
-}
+} */
 .ant-table {
   width: 100% !important;
   margin: 10px auto !important;
@@ -166,3 +166,5 @@ body {
 .g_x_output_space_selected_non_topk_axis line { stroke: gray; }
 .g_x_output_space_selected_non_topk_axis path { stroke: gray; }
 .g_x_output_space_selected_non_topk_axis text { fill: gray; }
+
+.selected { stroke-width: 2px !important; }

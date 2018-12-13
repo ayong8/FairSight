@@ -41,8 +41,8 @@ class IndividualInspectionView extends Component {
       const { selectedInstance } = this.props;
   
       const columns = [
-        { title: 'Feature', dataIndex: 'feature', width: '70%' },
-        { title: 'Value', dataIndex: 'value', width: '30%'}
+        { title: 'Feature', dataIndex: 'feature', width: '65%' },
+        { title: 'Value', dataIndex: 'value', width: '35%'}
       ];
 
       return (

@@ -39,25 +39,15 @@ class InputSpaceView extends Component {
 
     componentWillUpdate(nextProps, nextState) {
       if (this.props.selectedInstance !== nextProps.selectedInstance) {
-        if (nextProps.selectedInstance.idx !== undefined) {
-          console.log('componentwillupdate in input mouseover: ', nextProps.selectedInstance.idx);
-          d3.select('.circle_input_' + nextProps.selectedInstance.idx)
-            .classed('selected', true)
-            .style('stroke-width', 2);
-          d3.select('.circle_input2_' + nextProps.selectedInstance.idx)
-            .classed('selected', true)
-            .style('stroke-width', 2);
-        }
-        else {
-          console.log('componentwillupdate in input mouseout: ', nextProps.selectedInstance.idx);
-          d3.selectAll('.circle_input selected')
-            .classed('selected', false)
-            .style('stroke-width', 0.5);
-          d3.selectAll('.circle_input2 selected')
-            .classed('selected', false)
-            .style('stroke-width', 0.5);
+        if (Object.keys(nextProps.selectedInstance).length !== 0) {
+          d3.selectAll('.circle_input_selected').style('black', 1).classed('circle_input_selected', false);
+          d3.selectAll('.circle_input_' + nextProps.selectedInstance.idx).style('black', 2).classed('circle_input_selected', true);
         }
       }
+
+      // selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
+      //   d3.select('.circle_input2_' + selectedInstanceNN.idx).style('stroke', 'red');
+      // });
     }
 
     getChangeHandler(key) {
@@ -120,11 +110,11 @@ class InputSpaceView extends Component {
 
       let xScale = d3.scaleLinear()
           .domain(d3.extent(instances, (d) => d.dim1))
-          .range([0, this.layout.svg.width - this.layout.svg.padding]);
+          .range([5, this.layout.svg.width - this.layout.svg.padding]);
 
       let yScale = d3.scaleLinear()
           .domain(d3.extent(instances, (d) => d.dim2))
-          .range([this.layout.svg.height - this.layout.svg.padding, 0]);
+          .range([this.layout.svg.height - this.layout.svg.padding, 5]);
 
       const diagonalPattern = d3.select(svg)
           .append('defs')
@@ -140,7 +130,7 @@ class InputSpaceView extends Component {
 
       let gCircles = d3.select(svg)
           .append('g')
-          .attr('transform', 'translate(10,10)');
+          .attr('transform', 'translate(0,0)');
 
       const circles = gCircles
           .selectAll('.circle_input2')
@@ -164,15 +154,9 @@ class InputSpaceView extends Component {
           .style('stroke', 'black')
           .style('opacity', 0.7)
           .on('mouseover', function(d) {
-            // d3.select('.circle_input2_' + d.idx).style('stroke-width', 2);
             _self.props.onSelectedInstance(d.idx);
-            console.log(selectedInstanceNNs);
-            selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
-              d3.select('.circle_input2_' + selectedInstanceNN.idx).style('stroke', 'red');
-            });
           })
           .on('mouseout', function(d) {
-            // d3.select('.circle_input2_' + d.idx).style('stroke-width', 0.5);
             _self.props.onUnselectedInstance();
           });
 

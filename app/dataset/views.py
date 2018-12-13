@@ -21,7 +21,7 @@ from pandas.io.json import json_normalize
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics.pairwise import pairwise_distances
-from sklearn.manifold import MDS
+from sklearn.manifold import MDS, TSNE
 from sklearn.preprocessing import Imputer
 from sklearn.linear_model import LogisticRegression
 from sklearn import preprocessing
@@ -813,9 +813,20 @@ class RunMDS(APIView):
         y = whole_dataset_df[target]
         s = whole_dataset_df[sensitive_attr] # male:0, female: 1
 
-        d = pairwise_distances(X)
+        for feature in features:
+            X[ feature ] = X[ feature ].astype(float)
 
-        df_mds_result = pd.DataFrame(MDS(n_components=2, metric=False, random_state=3).fit_transform(d), X.index)
+        is_categorical_feature_list = []
+        for feature in features:
+            if feature in numerical_features:
+                is_categorical_feature_list.append(False)
+            else:
+                is_categorical_feature_list.append(True)
+
+        d = gower_distances(X, categorical_features=is_categorical_feature_list)
+        print(d[0])
+
+        df_mds_result = pd.DataFrame(TSNE(n_components=2, metric='precomputed', random_state=3).fit_transform(d), X.index)
         df_mds_result['idx'] = whole_dataset_df['idx']
         df_mds_result['group'] = s
         df_mds_result['target'] = y

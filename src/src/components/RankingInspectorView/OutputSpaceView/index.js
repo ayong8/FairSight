@@ -20,29 +20,27 @@ class OutputSpaceView extends Component {
             margin: 10
           },
           plot: {
-            marginLeft: 60,
+            marginLeft: 40,
             marginTop: 10
           }
       };
     }
 
     componentWillUpdate(nextProps, nextState) {
-      // // if mouseover and NNs are selected,
-      // if (!nextProps.selectedInstanceNNs || nextProps.selectedInstanceNNs.length !== 0) {
-      //   console.log('in update: ', nextProps.selectedInstanceNNs);
-      //   nextProps.selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
-      //     console.log(selectedInstanceNN.idx2);
-      //     d3.select('.rect_output_' + selectedInstanceNN.idx2).style('stroke', 'red').classed('neighbor', true);
-      //   });
-      // } 
-      // // if mouseout and NNs are unselected,
-      // else {
-      //   if(d3.selectAll('.neighbor')){
-      //     d3.selectAll('.neighbor')
-      //       .style('stroke', 'black')
-      //       .classed('neighbor', false);
-      //   }
-      // }
+      console.log('come hereee');
+      if (this.props.seletedInstance !== nextProps.selectedInstance)  {
+        if (Object.keys(nextProps.selectedInstance).length !== 0) {
+          d3.selectAll('.selected').style('black', 1).classed('selected', false);
+          d3.selectAll('.rect_output_' + nextProps.selectedInstance.idx).style('black', 2).classed('selected', true);
+        }
+      }
+      console.log('qqqq: ', nextProps.selectedInstanceNNs);
+      if (this.props.seletedInstanceNNs !== nextProps.selectedInstanceNNs) {
+          nextProps.selectedInstanceNNs.forEach((selectedInstanceNN) => {
+          d3.selectAll('.neighbor').style('stroke', 'black').style('stroke-width', 1).classed('neighbor', false);
+          d3.selectAll('.rect_output_' + selectedInstanceNN.idx2).style('stroke', 'red').style('stroke-width', 2).classed('neighbor', true);
+        });
+      }
     }
 
     identifyNNs(selectedInstance, nNeighbors) {
@@ -107,7 +105,7 @@ class OutputSpaceView extends Component {
 
       const gTopkRanking = d3.select(svg).append('g')
               .attr('class', 'g_top_k_ranking')
-              .attr('transform', 'translate(' + (80) + ',' + '10)');
+              .attr('transform', 'translate(' + (50) + ',' + '10)');
 
       const diagonalPattern = d3.select(svg)
               .append('defs')
@@ -135,15 +133,15 @@ class OutputSpaceView extends Component {
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .on('mouseover', function(d) {
-                d3.select('.rect_output2_' + d.idx).style('stroke-width', 2);
+                // d3.selectAll('.rect_output2_' + d.idx).style('stroke-width', 2);
                 _self.props.onSelectedInstance(d.idx);
                 console.log(selectedInstanceNNs);
-                selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
-                  d3.select('.rect_output2_' + selectedInstanceNN.idx).style('stroke', 'red');
-                });
+                // selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
+                //   d3.selectAll('.rect_output2_' + selectedInstanceNN.idx).style('stroke', 'red');
+                // });
               })
               .on('mouseout', function(d) {
-                d3.select('.rect_output2_' + d.idx).style('stroke-width', 0.5);
+                // d3.select('.rect_output2_' + d.idx).style('stroke-width', 0.5);
                 _self.props.onUnselectedInstance();
               });
 
@@ -160,15 +158,15 @@ class OutputSpaceView extends Component {
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .on('mouseover', function(d) {
-                console.log('outpued recttttt: ', d);
-                d3.select('.rect_output_' + d.idx).style('stroke-width', 2);
+                // console.log('outpued recttttt: ', d);
+                // d3.selectAll('.rect_output_' + d.idx).style('stroke-width', 2);
                 _self.props.onSelectedInstance(d.idx);
-                selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
-                  d3.select('.rect_output_' + selectedInstanceNN.idx).style('stroke', 'red');
-                });
+                // selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
+                //   d3.select('.rect_output_' + selectedInstanceNN.idx).style('stroke', 'red');
+                // });
               })
               .on('mouseout', function(d) {
-                d3.select('.rect_output_' + d.idx).style('stroke-width', 0.5);
+                // d3.selectAll('.rect_output_' + d.idx).style('stroke-width', 0.5);
                 _self.props.onUnselectedInstance();
               });
 

@@ -150,7 +150,7 @@ class RankingsListView extends Component {
         id: 'R' + rankingId,
         topk: currentTopk,
         if: Math.round(stat.rNNSum * 100) + '%',
-        gf: Math.round(stat.GFDCG) + '%',
+        gf: stat.GFDCG,
         u: Math.round(stat.utility * 100) + '%'
       }
     });

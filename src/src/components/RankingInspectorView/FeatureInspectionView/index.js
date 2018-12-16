@@ -251,7 +251,7 @@ class IndividualFairnessInspectionView extends Component {
           .attr('height', 4)
         .append('path')
           .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
-          .attr('stroke', '#000000')
+          .attr('stroke', 'red')
           .attr('stroke-width', 1);
 
     const featureHistogramForOutliers = d3.select(svgFeature)
@@ -273,7 +273,7 @@ class IndividualFairnessInspectionView extends Component {
                                       _self.layout.outlier.feature.margin - r - (i*(2*r) + 0.5))
                 .attr('r', r)
                 .style('fill', gs.outlierColor)
-                .style('stroke', (e) => e.isOutlier ? 'url(#diagonalHatch)' : (e.isOutlierWithinSelection ? 'blue' : 'none'))
+                .style('stroke', (e) => e.isOutlier ? 'url(#diagonalHatch)' : (e.isOutlierWithinSelection ? d3.rgb('blue').darker() : d3.rgb(gs.individualColor).darker()))
                 .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
             });
 
@@ -349,8 +349,8 @@ class IndividualFairnessInspectionView extends Component {
                 .attr('r', r)
                 .style('fill', (e) => e.isTopk ? gs.topkColor : 
                                       e.isOutlier ? 'red' : gs.individualColor)
-                .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : d3.rgb(gs.individualColor).darker()))
-                .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
+                .style('stroke', (e) => e.isOutlier ? d3.rgb('red').darker() : (e.isOutlierWithinSelection ? d3.rgb('blue').darker() : d3.rgb(gs.individualColor).darker()))
+                .style('stroke-width', (e) => 0.5);
             });
 
     return {
@@ -434,7 +434,7 @@ class IndividualFairnessInspectionView extends Component {
           .attr('height', 4)
         .append('path')
           .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
-          .attr('stroke', '#000000')
+          .attr('stroke', 'red')
           .attr('stroke-width', 1);
     
     // const gFeatureHistogramForInstances = d3.select(svgFeature)
@@ -576,7 +576,7 @@ class IndividualFairnessInspectionView extends Component {
             .attr('height', 4)
           .append('path')
             .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
-            .attr('stroke', '#000000')
+            .attr('stroke', 'red')
             .attr('stroke-width', 1);
 
     const distortionHistogram = d3.select(_self.svgOutlier).selectAll('.g_outlier_histogram')
@@ -598,8 +598,8 @@ class IndividualFairnessInspectionView extends Component {
                 .attr('r', r)
                 .style('fill', (e) => e.isTopk ? gs.topkColor :
                                       e.isOutlier ? gs.outlierColor : gs.individualColor)
-                .style('stroke', (e) => e.isOutlier ? 'red' : (e.isOutlierWithinSelection ? 'blue' : d3.rgb(gs.individualColor).darker()))
-                .style('stroke-width', (e) => e.isOutlier ? 1 : (e.isOutlierWithinSelection ? 1 : 0));
+                .style('stroke', (e) => e.isOutlier ? d3.rgb('red').darker() : (e.isOutlierWithinSelection ? d3.rgb('blue').darker() : d3.rgb(gs.individualColor).darker()))
+                .style('stroke-width', (e) => 0.5);
 
               d3.select(this)
                 .selectAll('.circle_histogram_outlier_fill')
@@ -843,9 +843,9 @@ class IndividualFairnessInspectionView extends Component {
 
     console.log('statForPerturbation: ', statForPerturbation);
 
-    const diffPrecisionK = statForPerturbation.precisionK - stat.precisionK,
-          diffSp = statForPerturbation.sp - stat.sp,
-          diffCp = statForPerturbation.cp - stat.cp;
+    const diffPrecisionK = stat.precisionK - statForPerturbation.precisionK,
+          diffSp = stat.sp - statForPerturbation.sp,
+          diffCp = stat.cp - statForPerturbation.cp;
 
     return { 
       perturbationDiv: 

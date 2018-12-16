@@ -848,6 +848,19 @@ class App extends Component {
             .map((d) => d.absDistortion),
           wtnPairsSum = wtnPairs.reduce((sum, curr) => sum + curr);
 
+    const wtnPairsForGroup1 = pairwiseDiffs
+          .filter((d) => d.pair === 1)
+          .map((d) => d.absDistortion),
+          wtnPairsSumForGroup1 = wtnPairs.reduce((sum, curr) => sum + curr);
+
+    const wtnPairsForGroup2 = pairwiseDiffs
+          .filter((d) => d.pair === 2)
+          .map((d) => d.absDistortion),
+          wtnPairsSumForGroup2 = wtnPairs.reduce((sum, curr) => sum + curr);
+
+
+    console.log('wtnpairssss: ', wtnPairsSumForGroup1 / wtnPairsForGroup1.length, wtnPairsSumForGroup2 / wtnPairsForGroup2.length);
+
     const groupSkew = (btnPairsSum / btnPairs.length) / 
                       (wtnPairsSum / wtnPairs.length);
     this.setState((prevState) => ({

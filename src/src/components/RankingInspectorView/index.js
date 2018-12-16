@@ -61,7 +61,7 @@ class RankingInspectorView extends Component {
       this.dataBinFlattened = [];
 
       this.state = {
-        mode: 'IF', // individual fairness
+        mode: 'GF', // individual fairness
         selectedIntervalForMatrix: {
           from: 1,
           to: 50
@@ -1013,8 +1013,8 @@ class RankingInspectorView extends Component {
                                     className={styles.outputGroupFairnessTitle} 
                                     onMouseOver={this.handleMouseOverGroupFairness}
                                     onMouseOut={this.handleMouseOverGroupFairness}
-                                    >Statistical Parity</div>
-                                  <div className={styles.outputGroupFairness}>{GFDCG}</div>
+                                    >Fairness</div>
+                                  <div className={styles.outputGroupFairness}>{Math.round(GFDCG * 100) / 100}</div>
                                 </div>) :
                             (mode === 'IF') ?
                                 (<div></div>) : 
@@ -1024,7 +1024,7 @@ class RankingInspectorView extends Component {
         <div className={styles.spaceOverview}>
           <div className={styles.inputSpaceTitle}>INPUT SPACE</div>
           <div className={styles.inputSpaceDescription}></div>
-          <div className={styles.inputSpaceMeasure}>INPUT SPACE</div>
+          <div className={styles.inputSpaceMeasure}></div>
           <div className={styles.mappingSpaceTitle}>MAPPING</div>
           <div className={styles.mappingSpaceDescription}></div>
           <div className={styles.mappingSpaceMeasure}>{mappingMeasure}</div>

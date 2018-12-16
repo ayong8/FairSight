@@ -36,7 +36,8 @@ class Generator extends Component {
       featureTable: {
         corr: {
           width: 60,
-          height: 40
+          height: 60,
+          marginBtn: 5
         }
       }
     }
@@ -413,18 +414,18 @@ class Generator extends Component {
                   });
 
     // Both groups share the same x and y scale
-    const xGroupScale1 = d3.scaleBand()
+    const xScale = d3.scaleBand()
                   .domain(range)
-                  .range([_self.layout.featureTable.corr.width/2 + 5, _self.layout.featureTable.corr.width - 5]),
-          xGroupScale2 = d3.scaleBand()
-                  .domain(range)
-                  .range([5, _self.layout.featureTable.corr.width/2 - 5]),
+                  .range([5, _self.layout.featureTable.corr.width - 5]),
+          // xScale = d3.scaleBand()
+          //         .domain(range)
+          //         .range([5, _self.layout.featureTable.corr.width/2 - 5]),
           yGroupScale1 = d3.scaleLinear()
                   .domain([0, d3.max(featureValuesForProtectedGroupCount, (d) => d.count)])
-                  .range([_self.layout.featureTable.corr.height, 0]),
+                  .range([_self.layout.featureTable.corr.height, _self.layout.featureTable.corr.height/2 + _self.layout.featureTable.corr.marginBtn]),
           yGroupScale2 = d3.scaleLinear()
                   .domain([0, d3.max(featureValuesForNonProtectedGroupCount, (d) => d.count)])
-                  .range([_self.layout.featureTable.corr.height, 0]);
+                  .range([_self.layout.featureTable.corr.height/2, _self.layout.featureTable.corr.marginBtn]);
           // xAxis = d3.select(svg)
           //     .append('g')
           //     .attr('transform', 'translate(0,0)')
@@ -437,9 +438,9 @@ class Generator extends Component {
           .enter().append('g')
           .attr('class', 'g_corr_plot_group1')
           .append('rect')
-          .attr('x', (d) => xGroupScale1(d.value))
+          .attr('x', (d) => xScale(d.value))
           .attr('y', (d) => yGroupScale1(d.count))
-          .attr('width', xGroupScale1.bandwidth())
+          .attr('width', xScale.bandwidth())
           .attr('height', (d, i) => _self.layout.featureTable.corr.height - yGroupScale1(d.count))
           .style('fill', gs.groupColor1)
           .style('stroke', 'black')
@@ -452,10 +453,10 @@ class Generator extends Component {
           .enter().append('g')
           .attr('class', 'g_corr_plot_group2')
           .append('rect')
-          .attr('x', (d) => xGroupScale2(d.value))
+          .attr('x', (d) => xScale(d.value))
           .attr('y', (d) => yGroupScale2(d.count))
-          .attr('width', xGroupScale2.bandwidth())
-          .attr('height', (d, i) => _self.layout.featureTable.corr.height - yGroupScale2(d.count))
+          .attr('width', xScale.bandwidth())
+          .attr('height', (d, i) => _self.layout.featureTable.corr.height/2 - yGroupScale2(d.count))
           .style('fill', gs.groupColor2)
           .style('stroke', 'black')
           .style('opacity', 1)
@@ -517,22 +518,26 @@ class Generator extends Component {
     svgCorrPlot.setAttribute('class', 'svg_corr_plot_' + name);
 
     // Both groups share the same x and y scale
-    const xGroupScale1 = d3.scaleBand()
+    const xScale = d3.scaleBand()
                   .domain(dataBinProtectedGroup.map((d) => d.x0))
-                  .range([5, _self.layout.featureTable.corr.width/2 - 5]),
-          xGroupScale2 = d3.scaleBand()
-                  .domain(dataBinNonProtectedGroup.map((d) => d.x0))
-                  .range([_self.layout.featureTable.corr.width/2 + 5, _self.layout.featureTable.corr.width - 5]),
+                  .range([15, _self.layout.featureTable.corr.width - 15]),
+          // xScale = d3.scaleBand()
+          //         .domain(dataBinNonProtectedGroup.map((d) => d.x0))
+          //         .range([_self.layout.featureTable.corr.width/2 + 5, _self.layout.featureTable.corr.width - 5]),
           yGroupScale1 = d3.scaleLinear()
                   .domain([0, 1])
-                  .range([_self.layout.featureTable.corr.height, 0]),
+                  .range([_self.layout.featureTable.corr.height/2, _self.layout.featureTable.corr.marginBtn]),
           yGroupScale2 = d3.scaleLinear()
                   .domain([0, 1])
-                  .range([_self.layout.featureTable.corr.height, 0]);
-          // xAxis = d3.select(svg)
-          //     .append('g')
-          //     .attr('transform', 'translate(0,0)')
-          //     .call(d3.axisBottom(xScale).tickSize(0).tickFormat(''));
+                  .range([_self.layout.featureTable.corr.height/2, _self.layout.featureTable.corr.marginBtn]),
+          xGroupAxis1 = d3.select(svgCorrPlot)
+              .append('g')
+              .attr('transform', 'translate(0,' + _self.layout.featureTable.corr.height/2 + ')')
+              .call(d3.axisBottom(xScale).tickSize(0).tickFormat('')),
+          xGroupAxis2 = d3.select(svgCorrPlot)
+              .append('g')
+              .attr('transform', 'translate(0' + _self.layout.featureTable.corr.height + '0)')
+              .call(d3.axisBottom(xScale).tickSize(0).tickFormat(''));
 
     let protectedGroupHistogramBar, nonProtectedGroupHistogramBar;
 
@@ -541,14 +546,14 @@ class Generator extends Component {
           .enter().append('g')
           .attr('class', 'g_corr_plot_group1')
           .attr('transform', function(d, i) {
-            return 'translate(' + xGroupScale1(d.x0) + ',' + yGroupScale1(d.length / protectedGroupLength) + ')'; 
+            return 'translate(' + xScale(d.x0) + ',' + yGroupScale1(d.length / protectedGroupLength) + ')'; 
           });
 
     protectedGroupHistogramBar.append('rect')
           .attr('x', 0)
-          .attr('width', xGroupScale1.bandwidth())
+          .attr('width', xScale.bandwidth())
           .attr('height', (d, i) => {
-            return _self.layout.featureTable.corr.height - yGroupScale1(d.length / protectedGroupLength)
+            return _self.layout.featureTable.corr.height/2 - yGroupScale1(d.length / protectedGroupLength)
           })
           .style('fill', gs.groupColor2)
           .style('stroke', 'black')
@@ -562,15 +567,15 @@ class Generator extends Component {
           .attr('class', 'g_corr_plot_group2')
           .attr('transform', function(d, i) {
             const groupLength = i == 0 ? protectedGroupLength : nonProtectedGroupLength;
-            return 'translate(' + xGroupScale2(d.x0) + ',' + yGroupScale2(d.length / nonProtectedGroupLength) + ')'; 
+            return 'translate(' + xScale(d.x0) + ',' + (_self.layout.featureTable.corr.height/2 + yGroupScale2(d.length / nonProtectedGroupLength)) + ')'; 
           });
 
     nonProtectedGroupHistogramBar.append('rect')
           .attr('x', 0)
-          .attr('width', xGroupScale2.bandwidth())
+          .attr('width', xScale.bandwidth())
           .attr('height', (d, i) => {
             const groupLength = i == 0 ? protectedGroupLength : nonProtectedGroupLength;
-            return _self.layout.featureTable.corr.height - yGroupScale2(d.length / nonProtectedGroupLength)
+            return _self.layout.featureTable.corr.height/2 - yGroupScale2(d.length / nonProtectedGroupLength)
           })
           .style('fill', gs.groupColor1)
           .style('stroke', 'black')
@@ -772,7 +777,7 @@ class Generator extends Component {
           rowSelection={featureSelection}
           columns={featureSelectionColumns} 
           dataSource={dataFeatureTable} 
-          scroll={{ y: 200 }}
+          scroll={{ y: 250 }}
           pagination={false}
         />
         {/* // Target variable selector */}

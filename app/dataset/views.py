@@ -487,7 +487,6 @@ class RunLRForPerturbation(APIView):
             X_train, X_test, y_train, y_test = train_test_split(X.as_matrix(), y.as_matrix(), test_size=0.3, random_state=42, shuffle=True)
             lr_fit = LogisticRegression(random_state=0).fit(X_train, y_train)
 
-            
             probs = lr_fit.predict_proba(X)
             accuracy_after_perturbation = lr_fit.score(X_test, y_test)
             probs_would_not_default = [ prob[1] for prob in probs ]

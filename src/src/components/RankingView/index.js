@@ -531,8 +531,8 @@ class RankingView extends Component {
             topkPlotWidth = rectInterval * topk, // topk and non-topk plot have the same length
             selectedNonTopkPlotWidth = rectInterval * (to - topk + 1);
 
-      let precisionKData = [],
-          statParityData = [];
+      let precisionKData = [ [ 1, instances.map((d) => d.target)[0] ] ],
+          statParityData = [ [ 1, instances.map((d) => d.group)[0]  ] ];
       
       instances.map((d) => d.target)
           .reduce((acc, curr, currIdx) => {
@@ -769,7 +769,7 @@ class RankingView extends Component {
             fittedPrecisionKPathForNonTopk = gSelectedNonTopkRanking.append('path')
               .datum(precisionKData.slice(topk, to))
               .attr('d', fittedPrecisionKLineForNonTopk)
-              .style('stroke', 'black')
+              .style('stroke', precisionKPlotColor)
               .style('fill', 'none')
               .style('stroke-width', '2px')
               .style('stroke-dasharray', '3,1'),
@@ -782,7 +782,7 @@ class RankingView extends Component {
               .attr('cy', (d) => precisionKScale(d[1]))
               .attr('r', 3)
               .style('fill', 'white')
-              .style('stroke', gs.systemColor)
+              .style('stroke', precisionKPlotColor)
               .style('stroke-width', 2);
 
       const fittedStatParityLineForNonTopk = d3.line()
@@ -791,18 +791,19 @@ class RankingView extends Component {
             fittedStatParityPathForNonTopk = gSelectedNonTopkRanking.append('path')
               .datum(statParityData.slice(topk, to))
               .attr('d', fittedStatParityLineForNonTopk)
-              .style('stroke', 'red')
+              .style('stroke', gs.systemColor)
               .style('fill', 'none')
               .style('stroke-width', '2px')
               .style('stroke-dasharray', '3,1'),
             fittedStatParityCirclesForNonTopk = gSelectedNonTopkRanking
               .selectAll('.circle_stat_parity_k')
               .data(statParityData.slice(topk, to))
-              .enter().append('circle')
-              .attr('class', 'circle_stat_parity_k')
-              .attr('cx', (d) => selectedNonTopkRankingScale(d[0]) + 5)
-              .attr('cy', (d) => statParityScale(d[1]))
-              .attr('r', 3)
+              .enter().append('rect')
+              .attr('class', 'rect_stat_parity_k')
+              .attr('x', (d) => selectedNonTopkRankingScale(d[0]) + 2.5)
+              .attr('y', (d) => statParityScale(d[1]) - 2.5)
+              .attr('width', 5)
+              .attr('height', 5)
               .style('fill', 'white')
               .style('stroke', gs.systemColor)
               .style('stroke-width', 2);

@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { Checkbox, Icon, Table, Tabs, Slider, InputNumber } from 'antd';
+import { Select, Icon, Table, Tabs, Slider, InputNumber } from 'antd';
 
 import LegendView from 'components/RankingInspectorView/LegendView';
 import FeatureInspectionView from 'components/RankingInspectorView/FeatureInspectionView';
@@ -74,12 +74,15 @@ class RankingInspectorView extends Component {
         selectedPairwiseDiffs: [],
         selectedPermutationDiffs: [],
         selectedPermutationDiffsFlattened: [],
+        sortMatrixDropdownOpen: false,
         sortMatrixXdropdownOpen: false,
         sortMatrixYdropdownOpen: false,
         colorMatrixDropdownOpen: false,
+        sortMatrixBy: 'ranking',
         sortMatrixXBy: 'distortion',
         sortMatrixYBy: 'distortion',
         colorMatrixBy: 'pairwise_distortion',
+        sortMatrixDropdownValue: 'ranking',
         sortMatrixXdropdownValue: 'features',
         sortMatrixYdropdownValue: 'features',
         colorMatrixDropdownValue: 'Pairwise distortion',
@@ -134,12 +137,10 @@ class RankingInspectorView extends Component {
       };
 
       this.changeFairnessMode = this.changeFairnessMode.bind(this);
-      this.toggleMatrixX = this.toggleMatrixX.bind(this);
+      this.toggleMatrix = this.toggleMatrix.bind(this);
       this.toggleMatrixY = this.toggleMatrixY.bind(this);
       this.toggleMatrixColor = this.toggleMatrixColor.bind(this);
-      this.handleSortingMatrixX = this.handleSortingMatrixX.bind(this);
-      this.handleSortingMatrixY = this.handleSortingMatrixY.bind(this);
-      this.handleColoringMatrix = this.handleColoringMatrix.bind(this);
+      this.handleSortingMatrix = this.handleSortingMatrix.bind(this);
       this.handleSelectGroupCheckbox = this.handleSelectGroupCheckbox.bind(this);
       this.handleSelectOutlierAndFairCheckbox = this.handleSelectOutlierAndFairCheckbox.bind(this);
       this.handleSelectedInstance = this.handleSelectedInstance.bind(this);
@@ -234,8 +235,11 @@ class RankingInspectorView extends Component {
       return shouldRunModel;
     }
 
-    componentWillUpdate() {
-      // this.updateMatrix();
+    componentWillUpdate(nextProps, nextState) {
+      if (this.props.seletedInstance !== nextProps.selectedInstance)  {
+        d3.select('distortion_rect_top_' + nextProps.selectedInstance.idx)
+          .style('stroke-width', 2);
+      }
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -340,35 +344,53 @@ class RankingInspectorView extends Component {
       const groupRanking1 = group1.map((d) => d.ranking),
             groupRanking2 = group2.map((d) => d.ranking);
 
-      const protectedGroupInTopk = instances.filter((d) => d.group === protectedGroupBinary && d.ranking < topk ),
-            protectedGroupInWhole = instances.filter((d) => d.group === protectedGroupBinary);
+      const protectedGroupInTopk = instances.filter((d) => d.group === 1 && d.ranking <= topk ),
+            protectedGroupInWhole = instances.filter((d) => d.group === 1);
+
+      const nonProtectedGroupInTopk = instances.filter((d) => d.group === 0 && d.ranking <= topk ),
+            nonProtectedGroupInWhole = instances.filter((d) => d.group === 0);
 
       const nProtectedGroupInTopk = protectedGroupInTopk.length,
             nProtectedGroupInWhole = protectedGroupInWhole.length,
+            nNonProtectedGroupInWhole = nonProtectedGroupInWhole.length,
             Z = (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (Math.min(nProtectedGroupInWhole, topk) / topk) - (nProtectedGroupInWhole / n) ),
             rND = 1 - (1/Z) * (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (nProtectedGroupInTopk / topk) - (nProtectedGroupInWhole / n) );
 
       const statisticalParity = (group2.filter((d) => d.ranking <= topk).length / group2.length) / 
-            (group1.filter((d) => d.ranking <= topk).length / group1.length);
+                                (group1.filter((d) => d.ranking <= topk).length / group1.length);
       const conditionalParity = (group2.filter((d) => d.ranking <= topk && d.target === 1) / group2.length) / 
-            (group1.filter((d) => d.ranking <= topk && d.target === 1) / group1.length);
+                                (group1.filter((d) => d.ranking <= topk && d.target === 1) / group1.length);
 
       // For utility = nDCG
       const topkInstances = instances.filter((d) => d.ranking <= topk);
       const precisionK = topkInstances.filter((d) => d.target === 1).length / topkInstances.length;
+
+      let GFDCG; 
+      if (protectedGroupInTopk.length === 0 || nonProtectedGroupInTopk.length === 0) {
+        GFDCG = 5;
+      }
+      else {
+        const DCGForProtectedGroup = protectedGroupInTopk.map((d) => d.target * (n - d.ranking) / n)
+                                                      .reduce((acc, curr) => acc + curr) / nProtectedGroupInWhole;
+        const DCGForNonProtectedGroup = nonProtectedGroupInTopk.length === 0 ? nonProtectedGroupInTopk.map((d) => d.target * (n - d.ranking) / n) 
+                                                                                .reduce((acc, curr) => acc + curr) / nNonProtectedGroupInWhole
+                                                                              : 
+        GFDCG = DCGForProtectedGroup / DCGForNonProtectedGroup;
+      }
+      
       
       const DCG = topkInstances.map((d, i) => { // sorted by ranking
                 const relevance = d.target;
-                const cumulativeDiscount = Math.log(Math.max(i, 2)) / Math.log(2);
+                const cumulativeDiscount = (topk - d.ranking) / topk;
 
-                return relevance / cumulativeDiscount;
+                return relevance * cumulativeDiscount;
               }).reduce((acc, curr) => acc + curr);
 
       const IDCG = _.sortBy(topkInstances, 'target').reverse().map((d, i) => {
                 const relevance = d.target;
-                const cumulativeDiscount = Math.log(Math.max(i, 2)) / Math.log(2);
+                const cumulativeDiscount = (topk - i) / topk;
 
-                return relevance / cumulativeDiscount;
+                return relevance * cumulativeDiscount;
               }).reduce((acc, curr) => acc + curr);
 
       const nDCG = DCG / IDCG;
@@ -376,6 +398,8 @@ class RankingInspectorView extends Component {
       return {
         utility: Math.round(nDCG * 100) / 100,
         precisionK: Math.round(precisionK * 100) / 100,
+        GFDCG: Math.round(GFDCG * 100) / 100,
+        rND: Math.round(rND * 100) / 100,
         sp: Math.round(statisticalParity * 100) / 100, 
         cp: Math.round(conditionalParity * 100) / 100
       }
@@ -424,9 +448,9 @@ class RankingInspectorView extends Component {
     }
 
 
-    toggleMatrixX() {
+    toggleMatrix() {
       this.setState({
-        sortMatrixXdropdownOpen: !this.state.sortMatrixXdropdownOpen
+        sortMatrixDropdownOpen: !this.state.sortMatrixDropdownOpen
       });
     }
 
@@ -442,226 +466,225 @@ class RankingInspectorView extends Component {
       });
     }
 
-    handleSortingMatrixX(e) {
+    handleSortingMatrix(e) {
       const _self = this;
 
-      const sortMatrixXBy = e.target.value,
-            { data } = this.props,
-            { selectedInstances, selectedPermutationDiffsFlattend } = this.props;
-
-      const sortedX = _.sortBy(selectedInstances, 
-                (sortMatrixXBy === 'sumDistortion') ? sortMatrixXBy 
-                : (sortMatrixXBy === 'ranking') ? sortMatrixXBy 
-                : 'features.'+ sortMatrixXBy
-              );
-      
-      _self.xMatrixScale.domain(
-          _.map(sortedX, (d) => d.ranking));
-      _self.xAttributeScale.domain(
-          d3.extent(selectedInstances, (d) => 
-            (sortMatrixXBy === 'sumDistortion') ? d.sumDistortion
-            : (sortMatrixXBy === 'ranking') ? d.ranking
-            : d.features[sortMatrixXBy]
-          ));
-
-      this.setState({ 
-        sortMatrixXBy: e.target.value,
-        sortMatrixXdropdownValue: sortMatrixXBy
-      });
-
-      // For matrix cells
-      d3.selectAll('.g_cell')
-          .data(selectedPermutationDiffsFlattend)
-          .transition()
-          .duration(750)
-          .attr('transform', (d) =>
-            'translate(' + _self.xMatrixScale(d.ranking1) + ',' + _self.yMatrixScale(d.ranking2) + ')'
-          );
-
-      // Bottom
-      // For Attribute plot on the bottom
-      d3.selectAll('.attr_rect_bottom')
-          .data(selectedInstances)
-          .transition()
-          .duration(750)
-          .attr('x', (d) => _self.xMatrixScale(d.ranking))
-          .attr('fill', (d) => 
-            (sortMatrixXBy === 'sumDistortion') ? _self.xAttributeScale(d.sumDistortion)
-            : (sortMatrixXBy === 'ranking') ? _self.xAttributeScale(d.ranking)
-            : _self.xAttributeScale(d.features[sortMatrixXBy])
-          );
-
-      d3.selectAll('.pair_rect_bottom')
-          .data(selectedInstances)
-          .transition()
-          .duration(750)
-          .attr('x', (d) => _self.xMatrixScale(d.ranking));
-
-      // For sum distortion plot on the bottom
-      d3.selectAll('.sum_distortion_rect_bottom')
-          .data(selectedInstances)
-          .transition()
-          .duration(750)
-          .attr('x', (d) => _self.xMatrixScale(d.ranking) + _self.cellWidth / 2);
-
-      d3.selectAll('.sum_distortion_circle_bottom')
-          .data(selectedInstances)
-          .transition()
-          .duration(750)
-          .attr('cx', (d) => _self.xMatrixScale(d.ranking) + _self.cellWidth / 2);
-
-      //this.props.onCalculateNDM(this.selectedPermutationDiffs);
-    }
-
-    handleSortingMatrixY(e) {
-      const _self = this;
-
-      const sortMatrixYBy = e.target.value,
-            { data } = this.props,
-            { selectedInstances, selectedPermutationDiffsFlattend } = this.props;
-
-      const sortedY = _.sortBy(selectedInstances, 
-              (sortMatrixYBy === 'sumDistortion') ? sortMatrixYBy 
-              : (sortMatrixYBy === 'ranking') ? sortMatrixYBy 
-              : 'features.'+ sortMatrixYBy
+      const sortMatrixBy = e.target.value,
+            { data, topk, selectedRankingInterval,
+              permutationDiffsFlattened } = this.props,
+            { instances } = data,
+            { from, to } = selectedRankingInterval,
+            selectedInstances = instances.slice(from, to),
+            selectedPermutationDiffsFlattend = _.filter(permutationDiffsFlattened, (d) => 
+              (d.ranking1 >= from) && (d.ranking1 <= to) &&
+              (d.ranking2 >= from) && (d.ranking2 <= to)
             );
-      
-      _self.yMatrixScale.domain(
-          _.map(sortedY, (d) => d.ranking));
-      _self.yAttributeScale.domain(
-            d3.extent(selectedInstances, (d) => 
-              (sortMatrixYBy === 'sumDistortion') ? d.sumDistortion
-              : (sortMatrixYBy === 'ranking') ? d.ranking
-              : d.features[sortMatrixYBy]
-          ));
 
-      this.setState({ 
-        sortMatrixYBy: e.target.value,
-        sortMatrixYdropdownValue: sortMatrixYBy
-      });
+      let sortedInstances = [];
 
-      d3.selectAll('.g_cell')
-          .data(selectedPermutationDiffsFlattend)
-          .transition()
-          .duration(750)
-          .attr('transform', (d) =>
-            'translate(' + _self.xMatrixScale(d.ranking1) + ',' + _self.yMatrixScale(d.ranking2) + ')'
-          );
+      if (sortMatrixBy === 'ranking') {
+        sortedInstances = _.orderBy(selectedInstances, sortMatrixBy);
 
-      // Bottom
-      // For Attribute plot on the bottom
-      d3.selectAll('.attr_rect_left')
-          .data(selectedInstances)
-          .transition()
-          .duration(750)
-          .attr('y', (d) => _self.yMatrixScale(d.ranking))
-          .attr('fill', (d) => 
-            (sortMatrixYBy === 'sumDistortion') ? _self.yAttributeScale(d.sumDistortion)
-            : (sortMatrixYBy === 'ranking') ? _self.yAttributeScale(d.ranking)
-            : _self.yAttributeScale(d.features[sortMatrixYBy])
-          );
+        _self.xMatrixScale.domain(
+          _.map(sortedInstances, (d) => d.ranking));
 
-      d3.selectAll('.pair_rect_left')
-          .data(selectedInstances)
-          .transition()
-          .duration(750)
-          .attr('y', (d) => _self.yMatrixScale(d.ranking));
+        _self.yMatrixScale.domain(
+          _.map(sortedInstances, (d) => d.ranking));
+        
+        d3.select(_self.svgMatrix).selectAll('.g_cell')
+            .data(selectedPermutationDiffsFlattend)
+            .transition()
+            .duration(750)
+            .attr('transform', (d) =>
+              'translate(' + _self.xMatrixScale(d.ranking1) + ',' + _self.yMatrixScale(d.ranking2) + ')'
+            );
 
-      // For sum distortion plot on the bottom
-      d3.selectAll('.sum_distortion_rect_left')
-          .data(selectedInstances)
-          .transition()
-          .duration(750)
-          .attr('y', (d) => _self.yMatrixScale(d.ranking) + _self.cellWidth / 2);
+        d3.select(_self.svgMatrix).selectAll('.distortion_rect_top')
+            .data(selectedInstances)
+            .transition()
+            .duration(750)
+            .attr('x', (d) => _self.xMatrixScale(d.ranking));
 
-      d3.selectAll('.sum_distortion_circle_left')
-          .data(selectedInstances)
-          .transition()
-          .duration(750)
-          .attr('cy', (d) => _self.yMatrixScale(d.ranking) + _self.cellWidth / 2);
-      
-      //this.props.onCalculateNDM(this.selectedPermutationDiffsFlattend);
-    }
+      } else if (sortMatrixBy === 'group') {
+        sortedInstances = _.orderBy(selectedInstances, [sortMatrixBy, 'sumDistortion'], ['asc', 'desc']);
 
-    handleColoringMatrix(e) {
-      const _self = this;
+        _self.xMatrixScale.domain(
+          _.map(sortedInstances, (d) => d.idx));
 
-      const colorMatrixBy = e.target.value,
-            { data } = this.props,
-            { selectedInstances, selectedPermutationDiffsFlattend } = this.props;
+        _self.yMatrixScale.domain(
+          _.map(sortedInstances, (d) => d.idx));
 
-      this.setState({ 
-        colorMatrixYBy: colorMatrixBy,
-        colorMatrixDropdownValue: colorMatrixBy
-      });
+        d3.selectAll('.g_cell')
+            .data(selectedPermutationDiffsFlattend)
+            .transition()
+            .duration(750)
+            .attr('transform', (d) =>
+              'translate(' + _self.xMatrixScale(d.idx1) + ',' + _self.yMatrixScale(d.idx2) + ')'
+            );
 
-      if (colorMatrixBy === 'pairwise_distortion') {
-        d3.selectAll('.pair_rect')
-          // .data(selectedPermutationDiffsFlattend)
-          .transition()
-          .duration(750)
-          .style('fill', (d) => {
-            if (d.pair === 3)
-              return _self.absDistortionBtnPairsScale(d.absDistortion);
-            else
-              return _self.absDistortionWtnPairsScale(d.absDistortion);
-          });
-      } else if (colorMatrixBy === 'pairwise_distortion') {
-        d3.selectAll('.pair_rect')
-          // .data(selectedPermutationDiffsFlattend)
-          .transition()
-          .duration(750)
-          .style('fill', (d) => {
-              return _self.absDistortionBtnPairsScale(d.absDistortion);
-          });
+        d3.selectAll('.distortion_rect_top')
+            .data(selectedInstances)
+            .transition()
+            .duration(750)
+            .attr('x', (d) => _self.xMatrixScale(d.idx));
       }
+      
+
+      _self.setState({ 
+        sortMatrixBy: sortMatrixBy,
+        sortMatrixDropdownValue: sortMatrixBy
+      });
     }
 
-    renderMatrixXDropdownSelections() {
-      const { data } = this.props,
-            { features } = data;
+    // handleSortingMatrixY(e) {
+    //   const _self = this;
 
-      const featureNames = features
-              .map((d) => d.name)
-              .concat('sumDistortion', 'ranking');
+    //   const sortMatrixYBy = e.target.value,
+    //         { data } = this.props,
+    //         { selectedInstances, selectedPermutationDiffsFlattend } = this.props;
 
-      return featureNames.map((feature, idx) => 
-          (<DropdownItem
-              key={idx}
-              value={feature} 
-              onClick={this.handleSortingMatrixX}>
-              {feature}
-          </DropdownItem>));
-    }
+    //   const sortedY = _.sortBy(selectedInstances, 
+    //           (sortMatrixYBy === 'sumDistortion') ? sortMatrixYBy 
+    //           : (sortMatrixYBy === 'ranking') ? sortMatrixYBy 
+    //           : 'features.'+ sortMatrixYBy
+    //         );
+      
+    //   _self.yMatrixScale.domain(
+    //       _.map(sortedY, (d) => d.ranking));
+    //   _self.yAttributeScale.domain(
+    //         d3.extent(selectedInstances, (d) => 
+    //           (sortMatrixYBy === 'sumDistortion') ? d.sumDistortion
+    //           : (sortMatrixYBy === 'ranking') ? d.ranking
+    //           : d.features[sortMatrixYBy]
+    //       ));
 
-    renderMatrixYDropdownSelections() {
-      const { data } = this.props,
-            { features } = data;
+    //   this.setState({ 
+    //     sortMatrixYBy: e.target.value,
+    //     sortMatrixYdropdownValue: sortMatrixYBy
+    //   });
 
-      const featureNames = features
-              .map((d) => d.name)
-              .concat('sumDistortion', 'ranking');
+    //   d3.selectAll('.g_cell')
+    //       .data(selectedPermutationDiffsFlattend)
+    //       .transition()
+    //       .duration(750)
+    //       .attr('transform', (d) =>
+    //         'translate(' + _self.xMatrixScale(d.ranking1) + ',' + _self.yMatrixScale(d.ranking2) + ')'
+    //       );
 
-      return featureNames.map((feature, idx) => 
-          (<DropdownItem 
-              key={idx}
-              value={feature} 
-              onClick={this.handleSortingMatrixY}>
-              {feature}
-          </DropdownItem>));
-    }
+    //   // Bottom
+    //   // For Attribute plot on the bottom
+    //   d3.selectAll('.attr_rect_left')
+    //       .data(selectedInstances)
+    //       .transition()
+    //       .duration(750)
+    //       .attr('y', (d) => _self.yMatrixScale(d.ranking))
+    //       .attr('fill', (d) => 
+    //         (sortMatrixYBy === 'sumDistortion') ? _self.yAttributeScale(d.sumDistortion)
+    //         : (sortMatrixYBy === 'ranking') ? _self.yAttributeScale(d.ranking)
+    //         : _self.yAttributeScale(d.features[sortMatrixYBy])
+    //       );
 
-    renderMatrixColorDropdownSelections() {
-      const matrixColorOptions = [ 'pairwise_distortion', 'bewteen_within_group_pairs' ];
+    //   d3.selectAll('.pair_rect_left')
+    //       .data(selectedInstances)
+    //       .transition()
+    //       .duration(750)
+    //       .attr('y', (d) => _self.yMatrixScale(d.ranking));
 
-      return matrixColorOptions.map((option, idx) => 
-          (<DropdownItem
-              key={idx}
-              value={option} 
-              onClick={this.handleColoringMatrix}>
-              {option}
-          </DropdownItem>));
-    }
+    //   // For sum distortion plot on the bottom
+    //   d3.selectAll('.sum_distortion_rect_left')
+    //       .data(selectedInstances)
+    //       .transition()
+    //       .duration(750)
+    //       .attr('y', (d) => _self.yMatrixScale(d.ranking) + _self.cellWidth / 2);
+
+    //   d3.selectAll('.sum_distortion_circle_left')
+    //       .data(selectedInstances)
+    //       .transition()
+    //       .duration(750)
+    //       .attr('cy', (d) => _self.yMatrixScale(d.ranking) + _self.cellWidth / 2);
+      
+    //   //this.props.onCalculateNDM(this.selectedPermutationDiffsFlattend);
+    // }
+
+    // handleColoringMatrix(e) {
+    //   const _self = this;
+
+    //   const colorMatrixBy = e.target.value,
+    //         { data } = this.props,
+    //         { selectedInstances, selectedPermutationDiffsFlattend } = this.props;
+
+    //   this.setState({ 
+    //     colorMatrixYBy: colorMatrixBy,
+    //     colorMatrixDropdownValue: colorMatrixBy
+    //   });
+
+    //   if (colorMatrixBy === 'pairwise_distortion') {
+    //     d3.selectAll('.pair_rect')
+    //       // .data(selectedPermutationDiffsFlattend)
+    //       .transition()
+    //       .duration(750)
+    //       .style('fill', (d) => {
+    //         if (d.pair === 3)
+    //           return _self.absDistortionBtnPairsScale(d.absDistortion);
+    //         else
+    //           return _self.absDistortionWtnPairsScale(d.absDistortion);
+    //       });
+    //   } else if (colorMatrixBy === 'pairwise_distortion') {
+    //     d3.selectAll('.pair_rect')
+    //       // .data(selectedPermutationDiffsFlattend)
+    //       .transition()
+    //       .duration(750)
+    //       .style('fill', (d) => {
+    //           return _self.absDistortionBtnPairsScale(d.absDistortion);
+    //       });
+    //   }
+    // }
+
+    // renderMatrixXDropdownSelections() {
+    //   const { data } = this.props,
+    //         { features } = data;
+
+    //   const featureNames = features
+    //           .map((d) => d.name)
+    //           .concat('sumDistortion', 'ranking');
+
+    //   return featureNames.map((feature, idx) => 
+    //       (<DropdownItem
+    //           key={idx}
+    //           value={feature} 
+    //           onClick={this.handleSortingMatrixX}>
+    //           {feature}
+    //       </DropdownItem>));
+    // }
+
+    // renderMatrixYDropdownSelections() {
+    //   const { data } = this.props,
+    //         { features } = data;
+
+    //   const featureNames = features
+    //           .map((d) => d.name)
+    //           .concat('sumDistortion', 'ranking');
+
+    //   return featureNames.map((feature, idx) => 
+    //       (<DropdownItem 
+    //           key={idx}
+    //           value={feature} 
+    //           onClick={this.handleSortingMatrixY}>
+    //           {feature}
+    //       </DropdownItem>));
+    // }
+
+    // renderMatrixColorDropdownSelections() {
+    //   const matrixColorOptions = [ 'pairwise_distortion', 'bewteen_within_group_pairs' ];
+
+    //   return matrixColorOptions.map((option, idx) => 
+    //       (<DropdownItem
+    //           key={idx}
+    //           value={option} 
+    //           onClick={this.handleColoringMatrix}>
+    //           {option}
+    //       </DropdownItem>));
+    // }
 
     renderMatrix() {
       const _self = this;
@@ -915,7 +938,7 @@ class RankingInspectorView extends Component {
       gDistortionPlotTop.selectAll('.distortion_rect_top')
           .data(selectedInstances)
           .enter().append('rect')
-          .attr('class', 'distortion_rect_top')
+          .attr('class', (d, i) => 'distortion_rect_top distortion_rect_top_'+ d.idx)
           .attr('x', (d) => _self.xMatrixScale(d.ranking))
           .attr('y', (d) => 35 - _self.sumDistortionScale(d.sumDistortion))
           .attr('width', _self.xMatrixScale.bandwidth() - 1)
@@ -962,6 +985,18 @@ class RankingInspectorView extends Component {
     handleSelectOutlierAndFairCheckbox(checked) {
     }
 
+    renderSortingOptions() {
+      const _self = this;
+
+      return ['ranking', 'group'].map((option, idx) => 
+        (<DropdownItem
+            key={idx}
+            value={option} 
+            onClick={_self.handleSortingMatrix}>
+            {option}
+        </DropdownItem>));
+    }
+
     renderFeatureCorrForTable() {
       const _self = this;
       const { featureCorrSelections } = this.state;
@@ -981,11 +1016,24 @@ class RankingInspectorView extends Component {
       const { data, topk, selectedInstance, selectedRankingInterval,
               selectedPermutationDiffsFlattend, permutationDiffs, permutationDiffsFlattened } = this.props,
             { instances, stat } = data,
-            { utility, goodnessOfFairness, rNNSum, GFDCG, groupSkew, sp, cp } = stat,
+            { inputSpaceDist, utility, goodnessOfFairness, rNNSum, GFDCG, groupSkew, sp, cp } = stat,
             { from, to } = selectedRankingInterval,
             selectedInstances = instances.slice(from, to),
             distortionMin = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[0],
             distortionMax = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[1];
+
+      const inputMeasure = (mode === 'GF') ?
+                              (<div className={styles.mappingGroupFairnessWrapper}>
+                                <div 
+                                  className={styles.mappingGroupFairnessTitle} 
+                                  onMouseOver={this.handleMouseOverGroupFairness}
+                                  onMouseOut={this.handleMouseOverGroupFairness}
+                                >Input Distance</div>
+                                <div className={styles.mappingGroupFairness}>{Math.round(inputSpaceDist * 1000) / 1000}</div>
+                              </div>) :
+                            (mode === 'IF') ?
+                              (<div></div>) : 
+                              (<div></div>);
 
       const mappingMeasure = (mode === 'GF') ?
                               (<div className={styles.mappingGroupFairnessWrapper}>
@@ -1024,7 +1072,7 @@ class RankingInspectorView extends Component {
         <div className={styles.spaceOverview}>
           <div className={styles.inputSpaceTitle}>INPUT SPACE</div>
           <div className={styles.inputSpaceDescription}></div>
-          <div className={styles.inputSpaceMeasure}></div>
+          <div className={styles.inputSpaceMeasure}>{inputMeasure}</div>
           <div className={styles.mappingSpaceTitle}>MAPPING</div>
           <div className={styles.mappingSpaceDescription}></div>
           <div className={styles.mappingSpaceMeasure}>{mappingMeasure}</div>
@@ -1042,6 +1090,11 @@ class RankingInspectorView extends Component {
     }
 
     renderRankingInspector(mode){ // mode == 'IF' (individual fairness), 'GF' (group fairness)
+
+      const _self = this;
+
+      const Option = Select.Option;
+
       return (
         <div className={styles.IndividualFairnessView}>
           <div className={styles.inspectorWrapper}>
@@ -1049,61 +1102,75 @@ class RankingInspectorView extends Component {
               <div className={styles.spaceViewTitleWrapper}>
                 <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Global Inspector</div>
               </div>
-              {this.renderSpaceOverview()}
+              {_self.renderSpaceOverview()}
               <LegendView 
                 className={styles.LegendView} 
               />
               <OutputSpaceView 
                   className={styles.OutputSpaceView}
                   mode={mode}
-                  data={this.props.data}
-                  topk={this.props.topk}
-                  selectedInstance={this.state.selectedInstance}
-                  selectedInstanceNNs={this.state.selectedInstanceNNs}
-                  nNeighbors={this.state.nNeighbors}
-                  selectedInstances={this.props.selectedInstances}
-                  selectedRankingInterval={this.props.selectedRankingInterval}
-                  onSelectedInstance={this.handleSelectedInstance}
-                  onUnselectedInstance={this.handleUnselectedInstance} 
+                  data={_self.props.data}
+                  topk={_self.props.topk}
+                  selectedInstance={_self.state.selectedInstance}
+                  selectedInstanceNNs={_self.state.selectedInstanceNNs}
+                  nNeighbors={_self.state.nNeighbors}
+                  selectedInstances={_self.props.selectedInstances}
+                  selectedRankingInterval={_self.props.selectedRankingInterval}
+                  onSelectedInstance={_self.handleSelectedInstance}
+                  onUnselectedInstance={_self.handleUnselectedInstance} 
               />
               <InputSpaceView 
                   className={styles.InputSpaceView}
                   mode={mode}
-                  data={this.props.data}
-                  topk={this.props.topk}
-                  inputCoords={this.props.inputCoords}
-                  selectedInstance={this.state.selectedInstance}
-                  selectedInstanceNNs={this.state.selectedInstanceNNs}
-                  nNeighbors={this.state.nNeighbors}
-                  selectedInstances={this.props.selectedInstances}
-                  selectedRankingInterval={this.props.selectedRankingInterval}
-                  onSelectedInstance={this.handleSelectedInstance}
-                  onUnselectedInstance={this.handleUnselectedInstance}
+                  data={_self.props.data}
+                  topk={_self.props.topk}
+                  inputCoords={_self.props.inputCoords}
+                  selectedInstance={_self.state.selectedInstance}
+                  selectedInstanceNNs={_self.state.selectedInstanceNNs}
+                  nNeighbors={_self.state.nNeighbors}
+                  selectedInstances={_self.props.selectedInstances}
+                  selectedRankingInterval={_self.props.selectedRankingInterval}
+                  onSelectedInstance={_self.handleSelectedInstance}
+                  onUnselectedInstance={_self.handleUnselectedInstance}
               />
               <div className={styles.MatrixWrapper}>
+                <div className={styles.dropdownWrapper}>
+                  <Dropdown 
+                    isOpen={_self.state.sortMatrixDropdownOpen}  
+                    size='sm' 
+                    toggle={_self.toggleMatrix}
+                  >
+                    <DropdownToggle caret>
+                      {_self.state.sortMatrixDropdownValue}
+                    </DropdownToggle>
+                    <DropdownMenu>
+                      {_self.renderSortingOptions()}
+                    </DropdownMenu>
+                  </Dropdown>
+                </div>
                 <div className={styles.MatrixView}>
-                  {this.svgMatrix.toReact()}
+                  {_self.svgMatrix.toReact()}
                 </div>
               </div>
             </div>
             <IndividualInspectionView
                 className={styles.IndividualInspectionView}
-                data={this.props.rankingInstance}
-                topk={this.props.topk}
-                selectedInstance={this.state.selectedInstance}
-                selectedRankingInterval={this.props.selectedRankingInterval}
-                xNN={this.state.xNN}
+                data={_self.props.rankingInstance}
+                topk={_self.props.topk}
+                selectedInstance={_self.state.selectedInstance}
+                selectedRankingInterval={_self.props.selectedRankingInterval}
+                xNN={_self.state.xNN}
             />
           </div>
           <div className={styles.InspectionComponentsView}>
             <FeatureInspectionView
                 className={styles.FeatureInspectionView}
-                data={this.props.data}
-                topk={this.props.topk}
-                selectedInstances={this.props.selectedInstances}
-                selectedRankingInterval={this.props.selectedRankingInterval}
-                corrBtnOutliersAndWholeInstances={this.state.corrBtnOutliersAndWholeInstances}
-                perturbationResults={this.state.perturbationResults}
+                data={_self.props.data}
+                topk={_self.props.topk}
+                selectedInstances={_self.props.selectedInstances}
+                selectedRankingInterval={_self.props.selectedRankingInterval}
+                corrBtnOutliersAndWholeInstances={_self.state.corrBtnOutliersAndWholeInstances}
+                perturbationResults={_self.state.perturbationResults}
             />
           </div>
         </div>

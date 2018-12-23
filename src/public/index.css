@@ -103,6 +103,12 @@ body {
   font-size: 12px !important;
 }
 
+.ant-btn-danger {
+  color: #084b7f !important;
+  border-color: #084b7f !important;
+  margin: 5px 3px !important;
+}
+
 .anticon-right-circle {
   font-size: 1.2rem;
 }
@@ -166,5 +172,8 @@ body {
 .g_x_output_space_selected_non_topk_axis line { stroke: gray; }
 .g_x_output_space_selected_non_topk_axis path { stroke: gray; }
 .g_x_output_space_selected_non_topk_axis text { fill: gray; }
+
+.g_corr_plot_group1 { stroke-width: 2px; }
+.g_corr_plot_group2 { stroke-width: 2px; }
 
 .selected { stroke-width: 2px !important; }

@@ -14,6 +14,7 @@ from decorator import decorator
 
 from ..static.lib.rankSVM import RankSVM
 from ..static.lib.gower_distance import gower_distances
+from scipy.spatial.distance import directed_hausdorff
 from io import StringIO
 import csv
 import pandas as pd
@@ -21,7 +22,7 @@ from pandas.io.json import json_normalize
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.metrics.pairwise import pairwise_distances
-from sklearn.manifold import MDS, TSNE
+from sklearn.manifold import TSNE
 from sklearn.preprocessing import Imputer
 from sklearn.linear_model import LogisticRegression
 from sklearn import preprocessing
@@ -45,7 +46,7 @@ import math
 import json, simplejson
 
 simple_file_path = './data/themis_ml_toy.csv'
-sample_file_path = './data/german_data_w_selected_features_100_5_5_synthetic.csv'
+sample_file_path = './data/german_data_w_selected_features_100_5_5.csv'
 heavy_file_path = './data/german_data.csv'
 
 numerical_features = ['age_in_years', 'duration_in_month', 'credit_amount']
@@ -794,7 +795,7 @@ class SetSensitiveAttr(APIView):
         sensitiveAttr = self.request.body
 
 
-class RunMDS(APIView):
+class RunTSNE(APIView):
     def get(self, request, format=None):
         pass
 
@@ -825,13 +826,24 @@ class RunMDS(APIView):
         d = gower_distances(X, categorical_features=is_categorical_feature_list)
         print(d[0])
 
-        df_mds_result = pd.DataFrame(TSNE(n_components=2, metric='precomputed', random_state=3).fit_transform(d), X.index)
-        df_mds_result['idx'] = whole_dataset_df['idx']
-        df_mds_result['group'] = s
-        df_mds_result['target'] = y
-        df_mds_result.columns = ['dim1', 'dim2', 'idx', 'group', 'target']
+        df_tsne_result = pd.DataFrame(TSNE(n_components=2, metric='precomputed', random_state=3).fit_transform(d), X.index)
+        df_tsne_result['idx'] = whole_dataset_df['idx']
+        df_tsne_result['group'] = s
+        df_tsne_result['target'] = y
+        df_tsne_result.columns = ['dim1', 'dim2', 'idx', 'group', 'target']
 
-        return Response(df_mds_result.to_json(orient='index'))
+        df_tsne_result['dim1'] = (df_tsne_result['dim1'] - min(df_tsne_result['dim1'])) / (max(df_tsne_result['dim1']) - min(df_tsne_result['dim1']))
+        df_tsne_result['dim2'] = (df_tsne_result['dim2'] - min(df_tsne_result['dim2'])) / (max(df_tsne_result['dim2']) - min(df_tsne_result['dim2']))
+        print(df_tsne_result[['dim1', 'dim2']])
+
+        df_group0 = df_tsne_result[df_tsne_result['group'] == 0]
+        df_group1 = df_tsne_result[df_tsne_result['group'] == 1]
+
+        hausdorff_distance = directed_hausdorff(df_group0, df_group1)[0]
+        hausdorff_distance2 = directed_hausdorff(df_group1, df_group0)[0]
+        print('haus distance: ', hausdorff_distance, hausdorff_distance2)
+
+        return Response(json.dumps({ 'inputSpaceDist': hausdorff_distance, 'dimReductions': df_tsne_result.to_json(orient='index')}))
 
 # Calculate pairwise gower distance for mixed type of variables
 class CalculatePairwiseInputDistance(APIView):

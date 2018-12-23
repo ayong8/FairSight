@@ -34,7 +34,7 @@
       'i mt tr'
       'lg mt tr';
     background-color: #f5f4f4;
-    border: 1px solid #e2e2e2;
+    // border: 1px solid #e2e2e2;
     padding: 10px;
   }
 
@@ -47,7 +47,7 @@
   .spaceOverview { 
     grid-area: sm; 
     display: grid;
-    grid-template-columns: 32% 5% 40% 5% 18%;
+    grid-template-columns: 32% 5% 42% 5% 16%;
     grid-template-rows: 20px 30px 30px;
     grid-template-areas:
       'it i1 mt i2 ot'
@@ -57,13 +57,13 @@
 
   .inputSpaceTitle { grid-area: it; }
   .inputSpaceDescription { grid-area: id; }
-  .inputSpaceMeasure { grid-area: im; }
+  .inputSpaceMeasure { grid-area: im; display: flex; justify-content: center; }
   .mappingSpaceTitle { grid-area: mt; }
   .mappingSpaceDescription { grid-area: md; }
   .mappingSpaceMeasure { grid-area: mm; display: flex; justify-content: center; }
   .outputSpaceTitle { grid-area: ot; }
   .outputSpaceDescription { grid-area: od; }
-  .outputSpaceMeasure { grid-area: om; }
+  .outputSpaceMeasure { grid-area: om; display: flex; justify-content: center; }
   .intervalSpace1 { grid-area: i1; }
   .intervalSpace2 { grid-area: i2; }
 
@@ -109,7 +109,11 @@
   .MatrixWrapper {
     grid-area: mt;
     padding-top: 10px;
-    display: flex;
+
+    .dropdownWrapper {
+      width: 30%;
+      float: right;
+    }
 
     .IndividualStatusView {
       width: 25%;

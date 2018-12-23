@@ -80,6 +80,18 @@ class RankingsListView extends Component {
             .attr('transform', 'translate(' + _self.layout.rankingPlot.plot.marginLeft + ',' + _self.layout.rankingPlot.plot.marginTop + ')')
             .call(d3.axisLeft(yUtilityScale).ticks(5).tickFormat((d) => d + '%'));
 
+    const xFairnessLegend = d3.select(svg)
+            .append('text')
+            .attr('x', _self.layout.rankingPlot.width - 20)
+            .attr('y', _self.layout.rankingPlot.svg.height - 10)
+            .text('Fairness');
+
+    const yUtilityLegend = d3.select(svg)
+            .append('text')
+            .attr('x', 0)
+            .attr('y', 0)
+            .text('Fairness');
+
     const gRankings = d3.select(svg)
             .selectAll('.g_ranking')
             .data(rankings).enter()

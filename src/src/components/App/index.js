@@ -78,8 +78,8 @@ class App extends Component {
           name: 'sex', 
           type: 'categorical', 
           range: ['Female', 'Male'],
-          protectedGroup: 'Male',
-          nonProtectedGroup: 'Female' 
+          protectedGroup: 'Female',
+          nonProtectedGroup: 'Male' 
         },
         features: [
           { name: 'foreign_worker', type: 'categorical', range: [], value: ['No', 'Yes'] },
@@ -95,6 +95,7 @@ class App extends Component {
         sumDistortion: 0,
         instances: [],
         stat: {
+          inputSpaceDist: 0,
           utility: 0, // ndcg
           precisionK: 0,
           goodnessOfFairness: 0,
@@ -158,8 +159,11 @@ class App extends Component {
               topk, n, selectedRankingInterval, mouseoveredInstance, rankings,
               permutationDiffsFlattened } = this.state;
       const updatedRankingInstance = responses[2],
+            inputSpaceDist = responses[4],
             { instances } = updatedRankingInstance,
             { from, to } = selectedRankingInterval;
+
+      console.log('responses: ', responses);
 
       let updatedInstances = [],
           inputs = [];
@@ -175,6 +179,8 @@ class App extends Component {
       this.calculateGroupSkew(this.pairwiseDiffs);
       const { utility, precisionK, GFDCG, rND, sp, cp } = this.calculateOutputMeasures(topk);
       this.calculateCorrBtnSensitiveAndAllFeatures();
+
+      console.log('together', inputSpaceDist, utility);
 
       let sortedInstances = _.sortBy(updatedInstances, 'ranking'),
           selectedRanking = rankings[rankingInstance.rankingId - 1];
@@ -193,6 +199,7 @@ class App extends Component {
             instances: sortedInstances,
             stat: {
               ...prevState.rankingInstance.stat,
+              inputSpaceDist: inputSpaceDist,
               goodnessOfFairness: this.rSquared,
               rNNSum: rNNSum,
               utility: utility,
@@ -384,8 +391,8 @@ class App extends Component {
   }
   
   // Response: Dim coordinates
-  runMDS(rankingInstance) {
-    return fetch('/dataset/runMDS/', {
+  runTSNE(rankingInstance) {
+    return fetch('/dataset/runTSNE/', {
           method: 'post',
           body: JSON.stringify(rankingInstance)
         })
@@ -393,9 +400,21 @@ class App extends Component {
           return response.json();
         })   
         .then( (responseOutput) => {
-          const dimReductions = _.values(JSON.parse(responseOutput));
+          const { inputSpaceDist, dimReductions } = JSON.parse(responseOutput);
+          console.log('chhheck inputspacedist: ', inputSpaceDist);
           
-          this.setState({inputCoords: dimReductions});
+          this.setState(prevState => ({
+            inputCoords: _.values(JSON.parse(dimReductions))
+            // rankingInstance: {
+            //   ...prevState.rankingInstance,
+            //   stat: {
+            //     ...prevState.rankingInstance.stat,
+            //     inputSpaceDist: Math.round(inputSpaceDist * 100) / 100
+            //   }
+            // }
+          }));
+
+          return inputSpaceDist;
         });
   }
   
@@ -403,19 +422,19 @@ class App extends Component {
     if (method.name === 'RankSVM') {
       return Promise.all([this.getDataset(), 
         this.getFeatures(), this.runRankSVM(rankingInstance), 
-        this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
+        this.calculatePairwiseInputDistance(rankingInstance), this.runTSNE(rankingInstance)]);
     } else if (method.name === 'SVM') {
       return Promise.all([this.getDataset(), 
         this.getFeatures(), this.runSVM(rankingInstance), 
-        this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
+        this.calculatePairwiseInputDistance(rankingInstance), this.runTSNE(rankingInstance)]);
     } else if (method.name === 'Logistic Regression') {
       return Promise.all([this.getDataset(), 
         this.getFeatures(), this.runLR(rankingInstance), 
-        this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
+        this.calculatePairwiseInputDistance(rankingInstance), this.runTSNE(rankingInstance)]);
     } else if (method.name === 'Additive Counterfactual Fairness') {
       return Promise.all([this.getDataset(), 
         this.getFeatures(), this.runACF(rankingInstance), 
-        this.calculatePairwiseInputDistance(rankingInstance), this.runMDS(rankingInstance)]);
+        this.calculatePairwiseInputDistance(rankingInstance), this.runTSNE(rankingInstance)]);
     }
   }
 
@@ -506,7 +525,10 @@ class App extends Component {
     .then((responses) => {
       const { rankings, topk } = this.state,
           updatedRankingInstance = responses[2],
+          inputSpaceDist = responses[4],
           { instances, isForPerturbation } = updatedRankingInstance;
+
+      console.log('responses: ', responses);
 
       let updatedInstances = [],
           inputs = [];
@@ -522,6 +544,8 @@ class App extends Component {
       this.calculateGroupSkew(this.pairwiseDiffs);
       const { utility, precisionK, GFDCG, rND, sp, cp } = this.calculateOutputMeasures(topk);
 
+      console.log('together', inputSpaceDist, utility);
+
       this.setState((prevState) => {
         const currentRankingInstance = {
             ...updatedRankingInstance,
@@ -529,6 +553,7 @@ class App extends Component {
             instances: updatedInstances,
             stat: {
               ...updatedRankingInstance.stat,
+              inputSpaceDist: inputSpaceDist,
               goodnessOfFairness: this.rSquared,
               rNNSum: rNNSum,
               utility: utility,
@@ -895,22 +920,23 @@ class App extends Component {
     const groupRanking1 = group1.map((d) => d.ranking),
           groupRanking2 = group2.map((d) => d.ranking);
 
-    const protectedGroupInTopk = instances.filter((d) => d.group === protectedGroupBinary && d.ranking <= topk ),
-          protectedGroupInWhole = instances.filter((d) => d.group === protectedGroupBinary);
+    const protectedGroupInTopk = instances.filter((d) => d.group === 1 && d.ranking <= topk ),
+          protectedGroupInWhole = instances.filter((d) => d.group === 1);
 
-    const nonProtectedGroupInTopk = instances.filter((d) => d.group === nonProtectedGroupBinary && d.ranking <= topk ),
-          nonProtectedGroupInWhole = instances.filter((d) => d.group === nonProtectedGroupBinary);
+    const nonProtectedGroupInTopk = instances.filter((d) => d.group === 0 && d.ranking <= topk ),
+          nonProtectedGroupInWhole = instances.filter((d) => d.group === 0);
 
     const nProtectedGroupInTopk = protectedGroupInTopk.length,
           nProtectedGroupInWhole = protectedGroupInWhole.length,
+          nNonProtectedGroupInTopk = nonProtectedGroupInWhole.length,
           nNonProtectedGroupInWhole = nonProtectedGroupInWhole.length,
           Z = (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (Math.min(nProtectedGroupInWhole, topk) / topk) - (nProtectedGroupInWhole / n) ),
           rND = 1 - (1/Z) * (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (nProtectedGroupInTopk / topk) - (nProtectedGroupInWhole / n) );
 
-    const statisticalParity = (group2.filter((d) => d.ranking <= topk).length / group2.length) / 
-                              (group1.filter((d) => d.ranking <= topk).length / group1.length);
-    const conditionalParity = (group2.filter((d) => d.ranking <= topk && d.target === 1) / group2.length) / 
-                              (group1.filter((d) => d.ranking <= topk && d.target === 1) / group1.length);
+    const statisticalParity = (nProtectedGroupInTopk.length / protectedGroupInWhole.length) / 
+                              (nNonProtectedGroupInTopk.length / nNonProtectedGroupInTopk.length);
+    const conditionalParity = (group2.filter((d) => d.ranking <= topk && d.target === 1).length / group2.length) / 
+                              (group1.filter((d) => d.ranking <= topk && d.target === 1).length / group1.length);
 
     // For utility = nDCG
     const topkInstances = instances.filter((d) => d.ranking <= topk);
@@ -920,7 +946,7 @@ class App extends Component {
                                                      .reduce((acc, curr) => acc + curr) / nProtectedGroupInWhole;
     const DCGForNonProtectedGroup = nonProtectedGroupInTopk.map((d) => d.target * (n - d.ranking) / n) 
                                                           .reduce((acc, curr) => acc + curr) / nNonProtectedGroupInWhole;
-    const GFDCG = DCGForNonProtectedGroup / DCGForProtectedGroup;
+    const GFDCG =  DCGForProtectedGroup / DCGForNonProtectedGroup;
     
     const DCG = topkInstances.map((d, i) => { // sorted by ranking
               const relevance = d.target;

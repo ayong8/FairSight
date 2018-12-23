@@ -9,7 +9,7 @@
   row-gap: 10px;
   column-gap: 10px;
   grid-template-columns: 20% 40% 40%;
-  grid-template-rows: 10% 10% 20% 30% 10%;
+  grid-template-rows: 8% 8% 30% 25% 10%;
   grid-template-areas: 
     't t t'
     'tst tst tst'
@@ -72,7 +72,7 @@
   .mappingGroupFairnessWrapper,
   .outputGroupFairnessWrapper,
   .individualFairnessWrapper {
-    width: 30%;
+    width: 40%;
   }
 
   .utility,

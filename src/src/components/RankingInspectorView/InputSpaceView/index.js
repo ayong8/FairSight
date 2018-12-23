@@ -38,13 +38,20 @@ class InputSpaceView extends Component {
     }
 
     componentWillUpdate(nextProps, nextState) {
-      if (this.props.selectedInstance !== nextProps.selectedInstance) {
-        if (Object.keys(nextProps.selectedInstance).length !== 0) {
-          d3.selectAll('.selected2').style('black', 1).classed('selected2', false);
-          d3.selectAll('.circle_input_' + nextProps.selectedInstance.idx).style('black', 2).classed('selected2', true);
-        }
-      }
+      // if (this.props.selectedInstance !== nextProps.selectedInstance) {
+      //   if (Object.keys(nextProps.selectedInstance).length !== 0) {
+      //     d3.selectAll('.selected2').style('stroke-width', 1).classed('selected2', false);
+      //     d3.selectAll('.circle_input2_' + nextProps.selectedInstance.idx).style('stroke-width', 2).classed('selected2', true);
+      //   }
+      // }
 
+      // console.log('qqqq: ', nextProps.selectedInstanceNNs);
+      // if (this.props.seletedInstanceNNs !== nextProps.selectedInstanceNNs) {
+      //     nextProps.selectedInstanceNNs.forEach((selectedInstanceNN) => {
+      //     d3.selectAll('.neighbor2').attr('r', 4).style('stroke-width', 1).classed('neighbor2', false);
+      //     d3.selectAll('.circle_input2_' + selectedInstanceNN.idx2).style('r', 6).style('stroke-width', 2).classed('neighbor2', true);
+      //   });
+      // }
       // selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
       //   d3.select('.circle_input2_' + selectedInstanceNN.idx).style('stroke', 'red');
       // });

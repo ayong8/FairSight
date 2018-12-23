@@ -53,9 +53,9 @@ urlpatterns = [
         name='ACFForPerturbation'
     ),
     url(
-        regex=r'^runMDS/$',
-        view=views.RunMDS.as_view(),
-        name='mds'
+        regex=r'^runTSNE/$',
+        view=views.RunTSNE.as_view(),
+        name='tsne'
     ),
     url(
         regex=r'^setSensitiveAttr/$',

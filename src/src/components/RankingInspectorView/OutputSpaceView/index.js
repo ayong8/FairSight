@@ -27,18 +27,58 @@ class OutputSpaceView extends Component {
     }
 
     componentWillUpdate(nextProps, nextState) {
-      console.log('come hereee');
       if (this.props.seletedInstance !== nextProps.selectedInstance)  {
         if (Object.keys(nextProps.selectedInstance).length !== 0) {
-          d3.selectAll('.selected').style('black', 1).classed('selected', false);
-          d3.selectAll('.rect_output_' + nextProps.selectedInstance.idx).style('black', 2).classed('selected', true);
+          // Remove previously generated points
+          //d3.select('.g_selected_interval_ranking').selectAll('.point_to_selected_instance').remove();
+
+          // Generate a point correspoding to the selected instance
+          // var triangleSize = 20;
+          // var verticalTransform = 100 + Math.sqrt(triangleSize);
+          // const triangle = d3.symbol()
+          //         .type(d3.symbolTriangle)
+          //         .size(triangleSize);
+
+          // console.log('selected instance: ', nextProps.selectedInstance);
+          // const currentY = d3.select('.rect_output_' + nextProps.selectedInstance.idx).attr('y');
+          // console.log('currentY: ', currentY);
+          // console.log('currentY: ', d3.select('.rect_output_' + nextProps.selectedInstance.idx).attr('y'));
+
+          // d3.select('.g_selected_interval_ranking')
+          //   .append('path')
+          //   .attr('class', 'point_to_selected_instance')
+          //   .attr("d", triangle)
+          //   .attr("stroke", 'black')
+          //   .attr("fill", 'black')
+          //   .attr("transform", function(d) { return "translate(" + 40 + "," + (d3.select('.rect_output_' + nextProps.selectedInstance.idx).attr('y') + 2.5) + ")rotate(30)"; });
+          d3.selectAll('.selected').style('stroke-width', 0.5).classed('selected', false);
+          d3.selectAll('.rect_output_' + nextProps.selectedInstance.idx).style('stroke-width', 2).classed('selected', true);
         }
       }
       console.log('qqqq: ', nextProps.selectedInstanceNNs);
       if (this.props.seletedInstanceNNs !== nextProps.selectedInstanceNNs) {
           nextProps.selectedInstanceNNs.forEach((selectedInstanceNN) => {
-          d3.selectAll('.neighbor').style('stroke', 'black').style('stroke-width', 1).classed('neighbor', false);
-          d3.selectAll('.rect_output_' + selectedInstanceNN.idx2).style('stroke', 'red').style('stroke-width', 2).classed('neighbor', true);
+            console.log('check it: ', selectedInstanceNN.ranking1, this.props.selectedRankingInterval.to);
+            if (selectedInstanceNN.ranking2 < this.props.selectedRankingInterval.to) {
+              // Generate a point correspoding to the selected instance
+              // var triangleSize = 20;
+              // var verticalTransform = 100 + Math.sqrt(triangleSize);
+              // const triangle = d3.symbol()
+              //         .type(d3.symbolTriangle)
+              //         .size(triangleSize);
+              // const currentY = d3.select('.rect_output_' + selectedInstanceNN.idx2).attr('y');
+
+              // d3.select('.g_selected_interval_ranking')
+              //   .append('path')
+              //   .attr('class', 'point_to_selected_instance_neighbor')
+              //   .attr("d", triangle)
+              //   .attr("stroke", 'gray')
+              //   .attr("fill", 'gray')
+              //   .attr("transform", function(d) { return "translate(" + 40 + "," + (currentY + 2.5) + ")rotate(30)"; });
+
+              d3.selectAll('.neighbor').style('stroke', 'black').style('stroke-width', 0.5).classed('neighbor', false);
+              d3.selectAll('.rect_output_' + selectedInstanceNN.idx2).style('stroke', 'blue').style('stroke-width', 2).classed('neighbor', true);
+            }
         });
       }
     }
@@ -103,8 +143,8 @@ class OutputSpaceView extends Component {
               .attr('transform', 'translate(' + (_self.layout.plot.marginLeft) + ',' + (_self.layout.plot.marginTop + topkPlotHeight) + ')')
               .call(d3.axisLeft(selectedNonTopkRankingScale).tickSizeOuter(0).tickValues(d3.range(topk+1, to, 5)));
 
-      const gTopkRanking = d3.select(svg).append('g')
-              .attr('class', 'g_top_k_ranking')
+      const gSelectedIntervalRanking = d3.select(svg).append('g')
+              .attr('class', 'g_selected_interval_ranking')
               .attr('transform', 'translate(' + (50) + ',' + '10)');
 
       const diagonalPattern = d3.select(svg)
@@ -119,10 +159,10 @@ class OutputSpaceView extends Component {
                 .attr('stroke', '#000000')
                 .attr('stroke-width', 1);
 
-      const outputRect = gTopkRanking.selectAll('.rect_output2')
+      const outputRect = gSelectedIntervalRanking.selectAll('.rect_group')
               .data(selectedInstances)
               .enter().append('rect')
-              .attr('class', (d) => 'rect_output2 rect_output2_' + d.idx)
+              .attr('class', (d) => 'rect_group rect_output rect_output_' + d.idx)
               .attr('x', (d) => 0)
               .attr('y', (d) => rankingScale(d.ranking))
               .attr('width', 30)
@@ -133,22 +173,16 @@ class OutputSpaceView extends Component {
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .on('mouseover', function(d) {
-                // d3.selectAll('.rect_output2_' + d.idx).style('stroke-width', 2);
                 _self.props.onSelectedInstance(d.idx);
-                console.log(selectedInstanceNNs);
-                // selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
-                //   d3.selectAll('.rect_output2_' + selectedInstanceNN.idx).style('stroke', 'red');
-                // });
               })
               .on('mouseout', function(d) {
-                // d3.select('.rect_output2_' + d.idx).style('stroke-width', 0.5);
                 _self.props.onUnselectedInstance();
               });
 
-      const outputRectForPattern = gTopkRanking.selectAll('.rect_output')
+      const outputRectForPattern = gSelectedIntervalRanking.selectAll('.rect_target')
               .data(selectedInstances)
               .enter().append('rect')
-              .attr('class', (d) => 'rect_output rect_output_' + d.idx)
+              .attr('class', (d) => 'rect_target rect_output rect_output_' + d.idx)
               .attr('x', (d) => 0)
               .attr('y', (d) => rankingScale(d.ranking))
               .attr('width', 30)
@@ -158,15 +192,9 @@ class OutputSpaceView extends Component {
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .on('mouseover', function(d) {
-                // console.log('outpued recttttt: ', d);
-                // d3.selectAll('.rect_output_' + d.idx).style('stroke-width', 2);
                 _self.props.onSelectedInstance(d.idx);
-                // selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
-                //   d3.select('.rect_output_' + selectedInstanceNN.idx).style('stroke', 'red');
-                // });
               })
               .on('mouseout', function(d) {
-                // d3.selectAll('.rect_output_' + d.idx).style('stroke-width', 0.5);
                 _self.props.onUnselectedInstance();
               });
 

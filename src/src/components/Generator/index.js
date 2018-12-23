@@ -2,10 +2,9 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import * as d3 from 'd3';
 import ReactFauxDOM from 'react-faux-dom';
-import { Button } from 'reactstrap';
 import { FormGroup, FormText, Input, Label,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { Alert, TreeSelect, Slider, InputNumber, Icon, Table, Badge, Radio } from 'antd';
+import { Button, Alert, TreeSelect, Slider, InputNumber, Icon, Table, Badge, Radio } from 'antd';
 // import ttest from 'ttest';
 import chiSquaredTest from 'chi-squared-test';
 
@@ -232,8 +231,8 @@ class Generator extends Component {
       return {
         key: idx+1,
         feature: name.replace(/_/g, ' '),
-        dist: name !== sensitiveAttr.name ? Math.round(corrBtnSensitiveAndAllFeatures[name] * 100) / 100 : 'NaN',
-        corr: (featureType === 'continuous') ? _self.renderCorrPlotWithSensitiveAttrForNumericalVars(feature, groupInstances1, groupInstances2)
+        corr: name !== sensitiveAttr.name ? Math.round(corrBtnSensitiveAndAllFeatures[name] * 100) / 100 : 'NaN',
+        distribution: (featureType === 'continuous') ? _self.renderCorrPlotWithSensitiveAttrForNumericalVars(feature, groupInstances1, groupInstances2)
             : (featureType === 'ordinal') ? _self.renderCorrPlotWithSensitiveAttrForOrdinalVars(feature, groupInstances1, groupInstances2)
             : _self.renderCorrPlotWithSensitiveAttrForCategoricalVars(feature)
       };
@@ -433,21 +432,6 @@ class Generator extends Component {
     
     let protectedGroupHistogramBar, nonProtectedGroupHistogramBar;
 
-    protectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1')
-          .data(featureValuesForProtectedGroupCount)
-          .enter().append('g')
-          .attr('class', 'g_corr_plot_group1')
-          .append('rect')
-          .attr('x', (d) => xScale(d.value))
-          .attr('y', (d) => yGroupScale1(d.count))
-          .attr('width', xScale.bandwidth())
-          .attr('height', (d, i) => _self.layout.featureTable.corr.height - yGroupScale1(d.count))
-          .style('fill', gs.groupColor1)
-          .style('stroke', 'black')
-          .style('opacity', 0.5)
-          .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.5);
-
     nonProtectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2')
           .data(featureValuesForNonProtectedGroupCount)
           .enter().append('g')
@@ -457,6 +441,21 @@ class Generator extends Component {
           .attr('y', (d) => yGroupScale2(d.count))
           .attr('width', xScale.bandwidth())
           .attr('height', (d, i) => _self.layout.featureTable.corr.height/2 - yGroupScale2(d.count))
+          .style('fill', gs.groupColor1)
+          .style('stroke', 'black')
+          .style('opacity', 1)
+          .style('shape-rendering', 'crispEdge')
+          .style('stroke-width', 0.5);
+
+    protectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1')
+          .data(featureValuesForProtectedGroupCount)
+          .enter().append('g')
+          .attr('class', 'g_corr_plot_group1')
+          .append('rect')
+          .attr('x', (d) => xScale(d.value))
+          .attr('y', (d) => yGroupScale1(d.count))
+          .attr('width', xScale.bandwidth())
+          .attr('height', (d, i) => _self.layout.featureTable.corr.height - yGroupScale1(d.count))
           .style('fill', gs.groupColor2)
           .style('stroke', 'black')
           .style('opacity', 1)
@@ -536,7 +535,7 @@ class Generator extends Component {
               .call(d3.axisBottom(xScale).tickSize(0).tickFormat('')),
           xGroupAxis2 = d3.select(svgCorrPlot)
               .append('g')
-              .attr('transform', 'translate(0' + _self.layout.featureTable.corr.height + '0)')
+              .attr('transform', 'translate(0,' + _self.layout.featureTable.corr.height + '0)')
               .call(d3.axisBottom(xScale).tickSize(0).tickFormat(''));
 
     let protectedGroupHistogramBar, nonProtectedGroupHistogramBar;
@@ -579,7 +578,7 @@ class Generator extends Component {
           })
           .style('fill', gs.groupColor1)
           .style('stroke', 'black')
-          .style('opacity', 0.5)
+          .style('opacity', 1)
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);
 
@@ -674,11 +673,7 @@ class Generator extends Component {
     const { dataset, rankingInstance, methods } = this.props,
           { features, sensitiveAttr, target, method } = rankingInstance,
           wholeFeatures = Object.keys(dataset[0]).filter((d) => d !== 'idx');
-
-    console.log('dddddd');
-    console.log(rankingInstance);
-    console.log(features);
-    console.log(wholeFeatures);
+          
     // For feature selection 
     const featureNames = features.map((feature) => feature.name),
           selectedRowKeys = wholeFeatures.map((d, idx) => {
@@ -693,8 +688,8 @@ class Generator extends Component {
 
     const featureSelectionColumns = [
       { title: 'Feature', dataIndex: 'feature', key: 1, width: 100 },
-      { title: 'Dist', dataIndex: 'dist', key: 2 },
-      { title: 'Corr', dataIndex: 'corr', key: 3 }
+      { title: 'Corr', dataIndex: 'corr', key: 2 },
+      { title: 'Distribution', dataIndex: 'distribution', key: 3 }
     ];
     const dataFeatureTable = this.renderFeatureSelectionsForTable();
     const featureSelection = {
@@ -759,7 +754,12 @@ class Generator extends Component {
         {/* // Protected Group selector */}
         { typeof(this.props.rankingInstance.sensitiveAttr) === 'undefined' ? <div></div> : this.renderSelectProtectedGroup() }
         {/* // Feature selector */}
-        <div className={styles.selectFeatures}>Features</div>
+        <div className={styles.selectFeatures}>
+          Features / Pre-processing<br/>
+          <Button type="danger" size="small" ghost>
+            Unawarness
+          </Button>
+        </div>
         <TreeSelect
           className={styles.featureSelector}
           showSearch
@@ -793,17 +793,26 @@ class Generator extends Component {
           </DropdownMenu>
         </Dropdown>
         {/* // Method selector */}
-        <div className={styles.generatorSubTitle}>Fairness Scenario</div>
+        <div className={styles.generatorSubTitle}>Method</div>
         {/* // Protected Group selector */}
-        <div className={styles.fairnessQuestion}>Q1. Goal: What do you optimize?</div>
-        {this.renderFairnessQuestion1()}
-        <div className={styles.fairnessQuestion}>Q2. Fairness: Which fairness matters?</div>
-        {this.renderFairnessQuestion2()}
-        <div className={styles.fairnessQuestion}>Q3-1. Fairness method: Possible to change input?</div>
-        {this.renderFairnessQuestion3()}
-        <div className={styles.fairnessQuestion}>Q3-1. Fairness method: Aim to achieve the perfect fair outcome?</div>
-        {this.renderFairnessQuestion4()}
-        <div className={styles.selectMethod}>Recommended Method</div>
+        <div className={styles.generatorSubSubTitle}>Utility-oriented</div>
+        <Button type="danger" size="small" ghost>
+          RankSVM
+        </Button>
+        <Button type="danger" size="small" ghost>
+          Logistic Regression
+        </Button>
+        <Button type="danger" size="small" ghost>
+          SVM
+        </Button>
+        <div className={styles.generatorSubSubTitle}>Fairness-oriented (In-processing)</div>
+        <Button type="danger" size="small" ghost>
+          Additive Counterfactual Fairness
+        </Button>
+        <div className={styles.generatorSubSubTitle}>Post-processing</div>
+        <Button type="danger" size="small" ghost>
+          FA*IR
+        </Button>
         <Dropdown className={styles.methodDropdown}
                   isOpen={this.state.methodDropdownOpen} 
                   toggle={this.toggleMethodDropdown}>

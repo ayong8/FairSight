@@ -5,17 +5,6 @@ from . import models
 from app.dataset import models as dataset_models
 
 
-# class MDSResultSerializer(serializers.ModelSerializer):
-
-#     """ Used for the notifications """
-
-#     class Meta:
-#         model = models.
-#         fields = (
-#             'file',
-#         )
-
-
 class CountImageSerializer(serializers.ModelSerializer):
 
     class Meta:

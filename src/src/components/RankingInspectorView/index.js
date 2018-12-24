@@ -411,7 +411,7 @@ class RankingInspectorView extends Component {
 
       const NNs = pairwiseDiffs.filter((d) => {
         return d.idx1 == selectedInstanceIdx;
-      }).sort((a, b) => d3.descending(a.scaledDiffInput, b.scaledDiffInput)).slice(0, nNeighbors);
+      }).sort((a, b) => d3.ascending(a.scaledDiffInput, b.scaledDiffInput)).slice(0, nNeighbors);
 
       return NNs;
     }

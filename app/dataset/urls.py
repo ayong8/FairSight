@@ -58,6 +58,11 @@ urlpatterns = [
         name='tsne'
     ),
     url(
+        regex=r'^runFAIR/$',
+        view=views.RunFAIR.as_view(),
+        name='fair'
+    ),
+    url(
         regex=r'^setSensitiveAttr/$',
         view=views.SetSensitiveAttr.as_view(),
         name='sensitiveAttr'

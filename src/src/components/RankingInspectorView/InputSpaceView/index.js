@@ -38,23 +38,25 @@ class InputSpaceView extends Component {
     }
 
     componentWillUpdate(nextProps, nextState) {
-      // if (this.props.selectedInstance !== nextProps.selectedInstance) {
-      //   if (Object.keys(nextProps.selectedInstance).length !== 0) {
-      //     d3.selectAll('.selected2').style('stroke-width', 1).classed('selected2', false);
-      //     d3.selectAll('.circle_input2_' + nextProps.selectedInstance.idx).style('stroke-width', 2).classed('selected2', true);
-      //   }
-      // }
+      if (this.props.seletedInstance !== nextProps.selectedInstance)  {
+        if (Object.keys(nextProps.selectedInstance).length !== 0) {
+          d3.selectAll('.circle_input.selected').style('stroke-width', 0.5).classed('selected', false);
+          d3.selectAll('.circle_input_' + nextProps.selectedInstance.idx).style('stroke-width', 3).classed('selected', true);
+        }
+      }
 
-      // console.log('qqqq: ', nextProps.selectedInstanceNNs);
-      // if (this.props.seletedInstanceNNs !== nextProps.selectedInstanceNNs) {
-      //     nextProps.selectedInstanceNNs.forEach((selectedInstanceNN) => {
-      //     d3.selectAll('.neighbor2').attr('r', 4).style('stroke-width', 1).classed('neighbor2', false);
-      //     d3.selectAll('.circle_input2_' + selectedInstanceNN.idx2).style('r', 6).style('stroke-width', 2).classed('neighbor2', true);
-      //   });
-      // }
-      // selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
-      //   d3.select('.circle_input2_' + selectedInstanceNN.idx).style('stroke', 'red');
-      // });
+      if (this.props.seletedInstanceNNs !== nextProps.selectedInstanceNNs) {
+        let classesForNNs = '';
+        nextProps.selectedInstanceNNs.forEach((selectedInstanceNN) => {
+          classesForNNs += '.circle_input_' + selectedInstanceNN.idx2 + ',';
+        });
+        console.log('classesForNNs: ', classesForNNs);
+        classesForNNs = classesForNNs.replace(/,\s*$/, '');
+        d3.selectAll('.circle_input.neighbor').style('stroke', 'black').style('stroke-width', 0.5).classed('neighbor', false);
+        if (classesForNNs !== '') {
+          d3.selectAll(classesForNNs).style('stroke', 'blue').style('stroke-width', 3).classed('neighbor', true);
+        }
+      }
     }
 
     getChangeHandler(key) {
@@ -140,10 +142,10 @@ class InputSpaceView extends Component {
           .attr('transform', 'translate(0,0)');
 
       const circles = gCircles
-          .selectAll('.circle_input2')
+          .selectAll('.circle_group')
           .data(instances)
           .enter().append('circle')
-          .attr('class', (d) => 'circle_input2 circle_input2_' + d.idx)
+          .attr('class', (d) => 'circle_group circle_input circle_input_' + d.idx)
           .attr('cx', (d) => xScale(d.dim1))
           .attr('cy', (d) => yScale(d.dim2))
           .attr('r', 4)
@@ -168,10 +170,10 @@ class InputSpaceView extends Component {
           });
 
       const circlesForPattern = gCircles
-          .selectAll('.circle_input')
+          .selectAll('.circle_target')
           .data(instances)
           .enter().append('circle')
-          .attr('class', (d) => 'circle_input circle_input_' + d.idx)
+          .attr('class', (d) => 'circle_target circle_input circle_input_' + d.idx)
           .attr('cx', (d) => xScale(d.dim1))
           .attr('cy', (d) => yScale(d.dim2))
           .attr('r', 4)
@@ -179,16 +181,9 @@ class InputSpaceView extends Component {
           .style('stroke', 'black')
           .style('opacity', 0.7)
           .on('mouseover', function(d) {
-            console.log('inputed circleeeeee: ', d);
-            // d3.select('.circle_input_' + d.idx).style('stroke-width', 2);
             _self.props.onSelectedInstance(d.idx);
-            console.log(selectedInstanceNNs);
-            selectedInstanceNNs.forEach((selectedInstanceNN) => { // For nearest neighbors
-              d3.select('.circle_input_' + selectedInstanceNN.idx).style('stroke', 'red');
-            });
           })
           .on('mouseout', function(d) {
-            // d3.select('.circle_input_' + d.idx).style('stroke-width', 0.5);
             _self.props.onUnselectedInstance();
           });
 

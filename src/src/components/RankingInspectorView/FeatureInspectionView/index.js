@@ -115,10 +115,9 @@ class IndividualFairnessInspectionView extends Component {
     }
   }
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   console.log('lengthhhh: ', this.props.perturbationResults);
-  //   return nextProps.perturbationResults !== this.props.perturbationResults;
-  // }
+  shouldComponentUpdate(nextProps, nextState) {
+    return nextProps.perturbationResults !== this.props.perturbationResults;
+  }
 
   renderCategoricalFeatureForOutlier(feature) {
     const _self = this;
@@ -831,9 +830,10 @@ class IndividualFairnessInspectionView extends Component {
 
   render() {
     console.log(this.props);
-    if ((!this.props.data.features || this.props.data.features.length === 0) ||
+    if ((!this.props.data.instances || this.props.data.instances.length === 0) ||
+        (!this.props.data.features || this.props.data.features.length === 0) ||
         (!this.props.perturbationResults || this.props.perturbationResults.length === 0) ||
-        (this.props.perturbationResults.length !== this.props.data.features.length))
+        (this.props.perturbationResults.length < this.props.data.features.length))
       return <div />
 
     return (

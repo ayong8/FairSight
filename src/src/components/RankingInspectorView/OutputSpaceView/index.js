@@ -29,69 +29,23 @@ class OutputSpaceView extends Component {
     componentWillUpdate(nextProps, nextState) {
       if (this.props.seletedInstance !== nextProps.selectedInstance)  {
         if (Object.keys(nextProps.selectedInstance).length !== 0) {
-          // Remove previously generated points
-          //d3.select('.g_selected_interval_ranking').selectAll('.point_to_selected_instance').remove();
-
-          // Generate a point correspoding to the selected instance
-          // var triangleSize = 20;
-          // var verticalTransform = 100 + Math.sqrt(triangleSize);
-          // const triangle = d3.symbol()
-          //         .type(d3.symbolTriangle)
-          //         .size(triangleSize);
-
-          // console.log('selected instance: ', nextProps.selectedInstance);
-          // const currentY = d3.select('.rect_output_' + nextProps.selectedInstance.idx).attr('y');
-          // console.log('currentY: ', currentY);
-          // console.log('currentY: ', d3.select('.rect_output_' + nextProps.selectedInstance.idx).attr('y'));
-
-          // d3.select('.g_selected_interval_ranking')
-          //   .append('path')
-          //   .attr('class', 'point_to_selected_instance')
-          //   .attr("d", triangle)
-          //   .attr("stroke", 'black')
-          //   .attr("fill", 'black')
-          //   .attr("transform", function(d) { return "translate(" + 40 + "," + (d3.select('.rect_output_' + nextProps.selectedInstance.idx).attr('y') + 2.5) + ")rotate(30)"; });
-          d3.selectAll('.selected').style('stroke-width', 0.5).classed('selected', false);
-          d3.selectAll('.rect_output_' + nextProps.selectedInstance.idx).style('stroke-width', 2).classed('selected', true);
+          d3.selectAll('.rect_output.selected').style('stroke-width', 0.5).classed('selected', false);
+          d3.selectAll('.rect_output_' + nextProps.selectedInstance.idx).style('stroke-width', 3).classed('selected', true);
         }
       }
-      console.log('qqqq: ', nextProps.selectedInstanceNNs);
       if (this.props.seletedInstanceNNs !== nextProps.selectedInstanceNNs) {
-          nextProps.selectedInstanceNNs.forEach((selectedInstanceNN) => {
-            console.log('check it: ', selectedInstanceNN.ranking1, this.props.selectedRankingInterval.to);
-            if (selectedInstanceNN.ranking2 < this.props.selectedRankingInterval.to) {
-              // Generate a point correspoding to the selected instance
-              // var triangleSize = 20;
-              // var verticalTransform = 100 + Math.sqrt(triangleSize);
-              // const triangle = d3.symbol()
-              //         .type(d3.symbolTriangle)
-              //         .size(triangleSize);
-              // const currentY = d3.select('.rect_output_' + selectedInstanceNN.idx2).attr('y');
-
-              // d3.select('.g_selected_interval_ranking')
-              //   .append('path')
-              //   .attr('class', 'point_to_selected_instance_neighbor')
-              //   .attr("d", triangle)
-              //   .attr("stroke", 'gray')
-              //   .attr("fill", 'gray')
-              //   .attr("transform", function(d) { return "translate(" + 40 + "," + (currentY + 2.5) + ")rotate(30)"; });
-
-              d3.selectAll('.neighbor').style('stroke', 'black').style('stroke-width', 0.5).classed('neighbor', false);
-              d3.selectAll('.rect_output_' + selectedInstanceNN.idx2).style('stroke', 'blue').style('stroke-width', 2).classed('neighbor', true);
-            }
+        let classesForNNs = '';
+        nextProps.selectedInstanceNNs.forEach((selectedInstanceNN) => {
+          if (selectedInstanceNN.ranking2 < this.props.selectedRankingInterval.to) {
+            classesForNNs += '.rect_output_' + selectedInstanceNN.idx2 + ',';
+          }
         });
+        classesForNNs = classesForNNs.replace(/,\s*$/, '');
+        d3.selectAll('.rect_output.neighbor').style('stroke', 'black').style('stroke-width', 0.5).classed('neighbor', false);
+        if (classesForNNs !== '') {
+          d3.selectAll(classesForNNs).style('stroke', 'blue').style('stroke-width', 3).classed('neighbor', true);
+        }
       }
-    }
-
-    identifyNNs(selectedInstance, nNeighbors) {
-      const { pairwiseDiffs } = this.props;
-      const selectedInstanceIdx = selectedInstance.idx;
-
-      const NNs = pairwiseDiffs.filter((d) => {
-        return d.idx1 == selectedInstanceIdx;
-      }).sort((a, b) => d3.descending(a.scaledDiffInput, b.scaledDiffInput)).slice(0, nNeighbors);
-
-      return NNs;
     }
 
     render() {

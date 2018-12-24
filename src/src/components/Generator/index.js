@@ -44,6 +44,7 @@ class Generator extends Component {
     this.toggleSensitiveAttrDropdown = this.toggleSensitiveAttrDropdown.bind(this);
     this.toggleTargetDropdown = this.toggleTargetDropdown.bind(this);
     this.toggleMethodDropdown = this.toggleMethodDropdown.bind(this);
+    this.handleMethodSelected = this.handleMethodSelected.bind(this);
     this.handleClickSensitiveAttr = this.handleClickSensitiveAttr.bind(this);
     this.handleClickProtectedGroup = this.handleClickProtectedGroup.bind(this);
     this.handleSelectFeatures = this.handleSelectFeatures.bind(this);
@@ -67,6 +68,7 @@ class Generator extends Component {
   }
 
   componentDidMount() {
+    d3.select('#buttonMethodLogisticRegression').classed('method_selected', true);
   }
 
   componentDidUpdate() {
@@ -82,6 +84,14 @@ class Generator extends Component {
     this.setState({
       targetDropdownOpen: !this.state.targetDropdownOpen
     });
+  }
+
+  handleMethodSelected(e) {
+    console.log('handlemethoddd: ', e);
+    console.log('handlemethoddd: ', e.target);
+    console.log('handlemethoddd: ', e.target.value);
+    console.log('handlemethoddd: ', e.target.id);
+    d3.select('#buttonMethodLogisticRegression').classed('method_selected', true);
   }
 
   toggleMethodDropdown() {
@@ -796,21 +806,40 @@ class Generator extends Component {
         <div className={styles.generatorSubTitle}>Method</div>
         {/* // Protected Group selector */}
         <div className={styles.generatorSubSubTitle}>Utility-oriented</div>
-        <Button type="danger" size="small" ghost>
+        <Button 
+          value={'RankSVM'}
+          type="primary" 
+          size="small" 
+          onClick={this.handleMethodSelected}>
           RankSVM
         </Button>
-        <Button type="danger" size="small" ghost>
+        <Button 
+          id={'buttonMethodLogisticRegression'}
+          className={index.buttonMethodLogisticRegression}
+          value={'Logistic Regression'}
+          type="primary" 
+          size="small" 
+          onClick={this.handleMethodSelected}>
           Logistic Regression
         </Button>
-        <Button type="danger" size="small" ghost>
+        <Button 
+          type="primary" 
+          size="small" 
+          onClick={this.handleMethodSelected}>
           SVM
         </Button>
         <div className={styles.generatorSubSubTitle}>Fairness-oriented (In-processing)</div>
-        <Button type="danger" size="small" ghost>
+        <Button 
+          type="primary" 
+          size="small" 
+          onClick={this.handleMethodSelected}>
           Additive Counterfactual Fairness
         </Button>
         <div className={styles.generatorSubSubTitle}>Post-processing</div>
-        <Button type="danger" size="small" ghost>
+        <Button 
+          type="primary" 
+          size="small" 
+          onClick={this.handleMethodSelected}>
           FA*IR
         </Button>
         <Dropdown className={styles.methodDropdown}

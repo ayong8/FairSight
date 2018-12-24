@@ -103,7 +103,8 @@ body {
   font-size: 12px !important;
 }
 
-.ant-btn-danger {
+.ant-btn-primary {
+  background-color: white !important;
   color: #084b7f !important;
   border-color: #084b7f !important;
   margin: 5px 3px !important;
@@ -177,3 +178,8 @@ body {
 .g_corr_plot_group2 { stroke-width: 2px; }
 
 .selected { stroke-width: 2px !important; }
+
+.method_selected { 
+  background-color: #003569 !important; 
+  color: white !important;
+}

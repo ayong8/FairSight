@@ -677,17 +677,37 @@ class IndividualFairnessInspectionView extends Component {
             .attr('class', 'g_non_top_k_ranking_cf_' + perturbedFeature)
             .attr('transform', 'translate(' + (_self.layout.cf.feature.plot.margin + plotWidth) + ',' + _self.layout.cf.feature.plot.marginTop + ')');
 
+    const previousRankingScale = d3.scaleLinear()
+            .domain([1, 100])
+            .range([0, 15]);
+
     gTopkRanking.selectAll('.rect_topk_cf')
         .data(topkInstances)
         .enter().append('rect')
         .attr('class', (d) => 'rect_topk_cf rect_topk_cf_' + d.ranking)
         .attr('x', (d) => topkRankingScale(d.ranking))
-        .attr('y', (d) => 0)
+        .attr('y', (d) => previousRankingScale(d.previousRanking))
         .attr('width', rectWidth)
-        .attr('height', rectHeight)
+        .attr('height', (d) => 20 - previousRankingScale(d.previousRanking))
         .style('fill', (d) => {
           const wasTopk = (d.previousRanking <= topk);
           return wasTopk ? gs.topkColor : gs.nonTopkColor;
+        })
+        .style('stroke', 'black')
+        .style('shape-rendering', 'crispEdge')
+        .style('stroke-width', 0.5);
+
+    gTopkRanking.selectAll('.rect_topk_cf_group')
+        .data(topkInstances)
+        .enter().append('rect')
+        .attr('class', (d) => 'rect_topk_cf_group rect_topk_cf_group_' + d.ranking)
+        .attr('x', (d) => topkRankingScale(d.ranking))
+        .attr('y', (d) => 20 + 2)
+        .attr('width', rectWidth)
+        .attr('height', (d) => 5)
+        .style('fill', (d) => {
+          const wasTopk = (d.previousRanking <= topk);
+          return (d.group === 0) ? gs.groupColor1 : gs.groupColor2;
         })
         .style('stroke', 'black')
         .style('shape-rendering', 'crispEdge')
@@ -711,14 +731,10 @@ class IndividualFairnessInspectionView extends Component {
         .style('stroke-width', 0.5)
         .style('opacity', 0.5);
 
-    console.log('statForPerturbation: ', statForPerturbation);
-
     const diffPrecisionK = statForPerturbation.precisionK - stat.precisionK,
           diffSp = statForPerturbation.sp  - stat.sp,
           diffCp = statForPerturbation.cp - stat.cp,
           dissAcc = statForPerturbation.accuracy - stat.accuracy;
-
-    console.log('diff in accuracy:', dissAcc);
 
     return { 
       perturbationDiv: 

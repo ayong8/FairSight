@@ -951,7 +951,7 @@ class RankingView extends Component {
           <div className={styles.wholeRankingSummaryStat1}>
             <div className={styles.utilityWrapper}>
               <div className={styles.utilityTitle}>
-                <div>BETWEEN</div>
+                <div className={styles.betweenTitle}>BETWEEN</div>
                 Utility
                 <Tooltip placement="topLeft" title="Prompt Text">
                   <Icon 
@@ -962,15 +962,15 @@ class RankingView extends Component {
                 </Tooltip>
               </div>
               <div className={styles.utility}>{Math.round(utility * 100) + '%'}</div>
-              <div>WITHIN</div>
-              <div>{Math.round(precisionK * 100) / 100}</div>
+              <div className={styles.withinTitle}>WITHIN</div>
+              <div className={styles.withinUtility}>{Math.round(precisionK * 100) + '%'}</div>
             </div>
             <div className={styles.groupFairnessWrapper}>
               <div 
                 className={styles.groupFairnessTitle} 
                 onMouseOver={this.handleMouseOverGroupFairness}
                 onMouseOut={this.handleMouseOverGroupFairness}>
-                <div>&nbsp;</div>
+                <div className={styles.betweenTitle}>&nbsp;</div>
                 Fairness
                 <Tooltip placement="topLeft" title="Prompt Text">
                   <Icon 
@@ -981,8 +981,8 @@ class RankingView extends Component {
                 </Tooltip>
               </div>
               <div className={styles.groupFairness}>{Math.round(GFDCG * 100) / 100}</div>
-              <div>&nbsp;</div>
-              <div>{Math.round(statParityK * 100) / 100}</div>
+              <div className={styles.withinTitle}>&nbsp;</div>
+              <div className={styles.withinFairness}>{Math.round(statParityK * 100) / 100}</div>
             </div>
           </div>
           <div className={styles.topkFilterView}>

@@ -1016,7 +1016,8 @@ class RankingInspectorView extends Component {
       const { data, topk, selectedInstance, selectedRankingInterval,
               selectedPermutationDiffsFlattend, permutationDiffs, permutationDiffsFlattened } = this.props,
             { instances, stat } = data,
-            { inputSpaceDist, utility, goodnessOfFairness, rNNSum, GFDCG, groupSkew, sp, cp } = stat,
+            { inputSpaceDist, utility, goodnessOfFairness, 
+              rNNSum, rNNSumGroup1, rNNSumGroup2, GFDCG, groupSkew, sp, cp } = stat,
             { from, to } = selectedRankingInterval,
             selectedInstances = instances.slice(from, to),
             distortionMin = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[0],
@@ -1041,8 +1042,8 @@ class RankingInspectorView extends Component {
                                   className={styles.mappingGroupFairnessTitle} 
                                   onMouseOver={this.handleMouseOverGroupFairness}
                                   onMouseOut={this.handleMouseOverGroupFairness}
-                                >GroupSkew</div>
-                                <div className={styles.mappingGroupFairness}>{groupSkew}</div>
+                                >GroupSkew &nbsp;&nbsp;&nbsp; rNN-Gain</div>
+                                <div className={styles.mappingGroupFairness}>{groupSkew + ' ' + Math.round(rNNSumGroup1 * 100) / 100 + ' ' + Math.round(rNNSumGroup2 * 100) / 100}</div>
                               </div>) :
                             (mode === 'IF') ?
                               (<div className={styles.individualFairnessWrapper}>

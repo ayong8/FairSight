@@ -2,10 +2,12 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import * as d3 from 'd3';
 import ReactFauxDOM from 'react-faux-dom';
+import d3tip from 'd3-tip';
+import d3tooltip from 'd3-tooltip';
 import { FormGroup, FormText, Input, Label,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import { Button, Alert, TreeSelect, Slider, InputNumber, Icon, Table, Badge, Radio } from 'antd';
-// import ttest from 'ttest';
+import { Tooltip } from 'react-svg-tooltip';
 import chiSquaredTest from 'chi-squared-test';
 
 import styles from './styles.scss';
@@ -28,7 +30,10 @@ class Generator extends Component {
       topkInput: 0,
       fq: {
         isFairness: true
-      }
+      },
+      isMouseoveredRect: false,
+      mouseoveredRect: 0,
+      tooltipLeft: 10
     };
 
     this.layout = {
@@ -68,7 +73,18 @@ class Generator extends Component {
   }
 
   componentDidMount() {
+    const { rankingInstance } = this.props,
+          { sensitiveAttr, features } = rankingInstance;
+          
+    if (features.filter((d) => d.name === sensitiveAttr.name).length !== 0) {
+      d3.select('#buttonUnawareness').classed('method_selected', true);
+    }
+    
     d3.select('#buttonMethodLogisticRegression').classed('method_selected', true);
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    console.log('generated componentWillUpdate')
   }
 
   componentDidUpdate() {
@@ -133,6 +149,14 @@ class Generator extends Component {
   }
 
   handleClickGroup() {
+  }
+
+  handleMouseoveredRect(idx) {
+    console.log('handleMouseoveredRect: ', idx);
+    this.setState({
+      isMouseoveredRect: true,
+      mouseoveredRect: idx
+    });
   }
 
   onChange = (value) => {
@@ -304,6 +328,7 @@ class Generator extends Component {
     svgCorrPlot.setAttribute('0 0 100 100');
     svgCorrPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     svgCorrPlot.setAttribute('class', 'svg_corr_plot_' + name);
+    const tooltip = d3tooltip(d3);
 
     // Both groups share the same x and y scale
     const xScale = d3.scaleBand()
@@ -316,18 +341,28 @@ class Generator extends Component {
           //     .append('g')
           //     .attr('transform', 'translate(0,0)')
           //     .call(d3.axisBottom(xScale).tickSize(0).tickFormat(''));
-
+    
     let groupHistogramBar1, groupHistogramBar2;
 
     groupHistogramBar1 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1_' + name)
           .data(dataBinGroup1)
           .enter().append('g')
-          .attr('class', 'g_corr_plot_group1_' + name)
+          .attr('class', (d, i) => 'g_corr_plot_group1_' + name)
           .attr('transform', function(d) {
             return 'translate(' + xScale(d.x0) + ',' + yScale(d.length) + ')'; 
           });
 
     groupHistogramBar1.append('rect')
+          .attr('class', 'tooltip_' + name)
+          .attr('x', 10)
+          .attr('y', 10)
+          .attr('width', 10)
+          .attr('height', 10)
+          .style('fill', 'black')
+          .style('opacity', 0);
+
+    groupHistogramBar1.append('rect')
+          .datum(name)
           .attr('x', 0)
           .attr('width', xScale.bandwidth())
           .attr('height', (d) => _self.layout.featureTable.corr.height - yScale(d.length))
@@ -335,7 +370,40 @@ class Generator extends Component {
           .style('stroke', 'black')
           .style('opacity', 0.5)
           .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.5);
+          .style('stroke-width', 0.5)
+          .on('mouseover', (d) => {
+            tooltip.html('ddddddd');
+            tooltip.show();
+          });
+          // .on('mouseover', function(d, i) {
+          //   console.log(d);
+          //   console.log(_self.state.isMouseoveredRect);
+          //   const boundingRect = this.getBoundingClientRect();
+          //   _self.handleMouseoveredRect(d);
+
+            
+
+          //   _self.setState({ 
+          //     isMouseoveredRect: true,
+          //     tooltipLeft: 50 
+          //   });
+
+          //   console.log('selected...: ', d3.select(this.parentNode).selectAll('.tooltip'))
+
+          //   d3.selectAll('.tooltip_' + name)
+          //     .classed('tooltip_mouseovered', true);
+
+          //   console.log('boundingRect: ', boundingRect);
+
+          //   // _self.props.onMouseOver({
+          //   //   position: {
+          //   //     top: boundingRect.top + window.scrollY,
+          //   //     left: boundingRect.left + window.scrollX + boundingRect.width / 2
+          //   //   },
+          //   //   data: d
+          //   // });
+
+          // });
 
     groupHistogramBar2 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2_' + name)
           .data(dataBinGroup2)
@@ -355,8 +423,38 @@ class Generator extends Component {
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5);
 
+    console.log('this.state.isMouseoveredRect: ', this.state.isMouseoveredRect);
+    
+
+    // svgCorrPlot.appendChild(
+    //   <Tooltip
+    //         triggerRef={currentRef}
+    //         left={50}
+    //         top={50}
+    //         opacity={1}
+    //         data={'dd'}
+    //         key="chart-tooltip"
+    //     />
+    // );
+
     return (
       <div className={styles.corrPlotWrapper}>
+        {/* {this.state.isMouseoveredRect ? 
+          // <Tooltip
+          //   left={tooltipLeft}
+          //   top={tooltipTop}
+          //   opacity={tooltipOpacity}
+          //   data={tooltipData}
+          //   key="chart-tooltip"
+          // />
+          <Tooltip
+            left={this.state.tooltipLeft}
+            top={50}
+            opacity={1}
+            data={'dd'}
+            key="chart-tooltip"
+          /> : <div></div>
+        } */}
         {svgCorrPlot.toReact()}
       </div>
     );
@@ -766,7 +864,11 @@ class Generator extends Component {
         {/* // Feature selector */}
         <div className={styles.selectFeatures}>
           Features / Pre-processing<br/>
-          <Button type="danger" size="small" ghost>
+          <Button 
+            id='buttonUnawareness'
+            type="primary" 
+            size="small" 
+            ghost>
             Unawarness
           </Button>
         </div>

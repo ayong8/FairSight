@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from 'react-redux';
 import * as d3 from 'd3';
 import _ from 'lodash';
+import { Tooltip } from 'react-svg-tooltip';
 
 import styles from "./styles.scss";
 import index from '../../index.css';
@@ -100,6 +101,8 @@ class App extends Component {
           precisionK: 0,
           goodnessOfFairness: 0,
           rNNSum: 0,
+          rNNSumGroup1: 0,
+          rNNSumGroup2: 0,
           groupSkew: 0,
           GFDCG: 0, // Global GF measure
           rND: 0, 
@@ -171,7 +174,7 @@ class App extends Component {
       this.calculatePairwiseDiffs();
       this.calculatePermutationDiffs();
       this.permutationDiffsFlattened = _.flatten(this.permutationDiffs);
-      const rNNSum = this.calculateRSquared(instances, this.pairwiseDiffs);
+      const { rNNSum, rNNSumGroup1, rNNSumGroup2 } = this.calculateRSquared(instances, this.pairwiseDiffs);
       this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
@@ -179,8 +182,6 @@ class App extends Component {
       this.calculateGroupSkew(this.pairwiseDiffs);
       const { utility, precisionK, GFDCG, rND, sp, cp } = this.calculateOutputMeasures(topk);
       this.calculateCorrBtnSensitiveAndAllFeatures();
-
-      console.log('together', inputSpaceDist, utility);
 
       let sortedInstances = _.sortBy(updatedInstances, 'ranking'),
           selectedRanking = rankings[rankingInstance.rankingId - 1];
@@ -202,6 +203,8 @@ class App extends Component {
               inputSpaceDist: inputSpaceDist,
               goodnessOfFairness: this.rSquared,
               rNNSum: rNNSum,
+              rNNSumGroup1: rNNSumGroup1,
+              rNNSumGroup2: rNNSumGroup2,
               utility: utility,
               precisionK: precisionK,
               GFDCG: GFDCG,
@@ -536,7 +539,7 @@ class App extends Component {
       this.calculatePairwiseDiffs();
       this.calculatePermutationDiffs();
       this.permutationDiffsFlattened = _.flatten(this.permutationDiffs);
-      const rNNSum = this.calculateRSquared(instances, this.pairwiseDiffs);
+      const { rNNSum, rNNSumGroup1, rNNSumGroup2 } = this.calculateRSquared(instances, this.pairwiseDiffs);
       this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
@@ -556,6 +559,8 @@ class App extends Component {
               inputSpaceDist: inputSpaceDist,
               goodnessOfFairness: this.rSquared,
               rNNSum: rNNSum,
+              rNNSumGroup1: rNNSumGroup1,
+              rNNSumGroup2: rNNSumGroup2,
               utility: utility,
               precisionK: precisionK,
               GFDCG: GFDCG,
@@ -1036,28 +1041,45 @@ class App extends Component {
     this.rSquared = Math.round((1 - (SSE / SST)) * 100) / 100;
 
     const nNeighbors = 4;
-    let rNNs = [];
+    let rNNs = [],
+        rNNsGroup1 = [],
+        rNNsGroup2 = [];
+
     instances.forEach((instance) => {
       let rNN;
-      // Identify NNs
+
       const NNPairs = pairwiseDiffs.filter((d) => {
         return (d.idx1 == instance.idx) || (d.idx2 == instance.idx);
-      }).sort((a, b) => d3.descending(a.scaledDiffInput, b.scaledDiffInput)).slice(0, nNeighbors);
+      }).sort((a, b) => d3.ascending(a.scaledDiffInput, b.scaledDiffInput)).slice(0, nNeighbors);
 
-      console.log(instance.idx);
-      console.log(NNPairs);
+      const yAbsDiffsForNNs = NNPairs.map((d) => Math.abs(d.ranking1 - d.ranking2) / Math.max(d.ranking1, d.ranking2)),
+            sumAbsDiffsForNNs = yAbsDiffsForNNs.reduce((acc, curr) => acc + curr);
 
-      const yDiffsForNNs = NNPairs.map((d) => Math.abs(d.ranking1 - d.ranking2) / Math.max(d.ranking1, d.ranking2)),
+      const yDiffsForNNs = NNPairs.map((d) => (d.ranking1 - d.ranking2) / Math.max(d.ranking1, d.ranking2)),
             sumDiffsForNNs = yDiffsForNNs.reduce((acc, curr) => acc + curr);
 
-      rNN = sumDiffsForNNs / nNeighbors;
+      rNN = sumAbsDiffsForNNs / nNeighbors;
+      
+      if (instance.group == 0) {
+        rNNsGroup1.push(rNN);
+      } else {
+        rNNsGroup2.push(rNN);
+      }
 
       rNNs.push(rNN);
     });
 
-    const rNNSum = rNNs.reduce((acc, curr) => acc + curr) / rNNs.length;
+    const rNNSum = rNNs.reduce((acc, curr) => acc + curr) / rNNs.length,
+          rNNSumGroup1 = rNNsGroup1.reduce((acc, curr) => acc + curr) / rNNs.length,
+          rNNSumGroup2 = rNNsGroup2.reduce((acc, curr) => acc + curr) / rNNs.length;
 
-    return rNNSum;
+    console.log('rNNSumGroup: ', rNNSumGroup1, rNNSumGroup2);
+
+    return { 
+      rNNSum: rNNSum,
+      rNNSumGroup1: rNNSumGroup1,
+      rNNSumGroup2: rNNSumGroup2
+     };
   }
 
   identifyNNs(instance, nNeighbors) {
@@ -1227,6 +1249,7 @@ class App extends Component {
         </div>
         <RankingsListView rankings={this.state.rankings} />
         <Footer />
+        
       </div>
     );
   }

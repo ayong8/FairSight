@@ -62,6 +62,13 @@
     }
   }
 
+  .betweenTitle,
+  .withinTitle {
+    font-size: 0.8rem;
+    /* margin: 3px 0; */
+    font-weight: 500;
+  }
+
   .topkSummaryStat {
     grid-area: tss;
     display: flex;
@@ -83,6 +90,11 @@
   .individualFairness {
     font-size: 2rem;
     margin-bottom: 10px;
+  }
+
+  .withinUtility,
+  .withinFairness {
+    font-size: 1.3rem;
   }
 
   .topkFilterView { 

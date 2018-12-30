@@ -69,7 +69,7 @@ class RankingInspectorView extends Component {
         selectedInstance: {},
         selectedInstanceNNs: [],
         nNeighbors: 4,
-        xNN: 'Not selected',
+        xNN: 0,
         selectedInstances: [],
         selectedPairwiseDiffs: [],
         selectedPermutationDiffs: [],
@@ -236,9 +236,24 @@ class RankingInspectorView extends Component {
     }
 
     componentWillUpdate(nextProps, nextState) {
-      if (this.props.seletedInstance !== nextProps.selectedInstance)  {
-        d3.select('distortion_rect_top_' + nextProps.selectedInstance.idx)
-          .style('stroke-width', 2);
+      if (this.state.seletedInstance !== nextState.selectedInstance)  {
+        if (Object.keys(nextState.selectedInstance).length !== 0) {
+          d3.selectAll('.distortion_rect_top.selected').style('stroke-width', 0.5).classed('selected', false);
+          d3.selectAll('.distortion_rect_top_' + nextProps.selectedInstance.idx).style('stroke-width', 3).classed('selected', true);
+        }
+      }
+      if (this.state.seletedInstanceNNs !== nextState.selectedInstanceNNs) {
+        let classesForNNs = '';
+        nextState.selectedInstanceNNs.forEach((selectedInstanceNN) => {
+          if (selectedInstanceNN.ranking2 < this.props.selectedRankingInterval.to) {
+            classesForNNs += '.distortion_rect_top_' + selectedInstanceNN.idx2 + ',';
+          }
+        });
+        classesForNNs = classesForNNs.replace(/,\s*$/, '');
+        d3.selectAll('.distortion_rect_top.neighbor').style('stroke', 'black').style('stroke-width', 0.5).classed('neighbor', false);
+        if (classesForNNs !== '') {
+          d3.selectAll(classesForNNs).style('stroke', 'blue').style('stroke-width', 2).classed('neighbor', true);
+        }
       }
     }
 
@@ -426,7 +441,7 @@ class RankingInspectorView extends Component {
       const yDiffsForNNs = NNs.map((d) => Math.abs(d.ranking1 - d.ranking2) / Math.max(d.ranking1, d.ranking2)),
             sumDiffsForNNs = yDiffsForNNs.reduce((acc, curr) => acc + curr);
   
-      const rNN = sumDiffsForNNs / nNeighbors;
+      const rNN = 1 - (sumDiffsForNNs / nNeighbors);
   
       return rNN;
   
@@ -1156,7 +1171,7 @@ class RankingInspectorView extends Component {
             </div>
             <IndividualInspectionView
                 className={styles.IndividualInspectionView}
-                data={_self.props.rankingInstance}
+                rankingInstance={_self.props.data}
                 topk={_self.props.topk}
                 selectedInstance={_self.state.selectedInstance}
                 selectedRankingInterval={_self.props.selectedRankingInterval}

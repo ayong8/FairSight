@@ -2,12 +2,10 @@ import React, { Component } from 'react';
 import _ from 'lodash';
 import * as d3 from 'd3';
 import ReactFauxDOM from 'react-faux-dom';
-import d3tip from 'd3-tip';
 import d3tooltip from 'd3-tooltip';
 import { FormGroup, FormText, Input, Label,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import { Button, Alert, TreeSelect, Slider, InputNumber, Icon, Table, Badge, Radio } from 'antd';
-import { Tooltip } from 'react-svg-tooltip';
 import chiSquaredTest from 'chi-squared-test';
 
 import styles from './styles.scss';
@@ -15,6 +13,7 @@ import index from '../../index.css';
 import gs from '../../config/_variables.scss';
 
 const TreeNode = TreeSelect.TreeNode;
+const tooltip = d3tooltip(d3);
 
 class Generator extends Component {
   constructor(props) {
@@ -76,7 +75,7 @@ class Generator extends Component {
     const { rankingInstance } = this.props,
           { sensitiveAttr, features } = rankingInstance;
           
-    if (features.filter((d) => d.name === sensitiveAttr.name).length !== 0) {
+    if (features.filter((d) => d.name === sensitiveAttr.name).length === 0) {
       d3.select('#buttonUnawareness').classed('method_selected', true);
     }
     
@@ -178,19 +177,19 @@ class Generator extends Component {
         <Radio.Group 
           className={styles.protectedGroupRadioButton} 
           onChange={this.handleClickProtectedGroup} 
-          defaultValue={group1} 
+          defaultValue={group2} 
           buttonStyle='solid' 
           size='small'>
           <Radio.Button value={group1}>{group1}</Radio.Button>
           <Radio.Button value={group2}>{group2}</Radio.Button>
         </Radio.Group>
         <div className={styles.selectProtectedGroup}>
-          <div className={styles.group1}>
-            <Badge onClick={this.handleClickGroup} status='default' />
+          <div className={styles.group2}>
+            <Badge onClick={this.handleClickGroup} status='error' />
             {protectedGroup + '(50%)'}
           </div>
-          <div className={styles.group2}>
-            <Badge status='error' />
+          <div className={styles.group1}>
+            <Badge status='default' />
             {nonProtectedGroup  + '(50%)'}
           </div>
         </div>
@@ -300,7 +299,9 @@ class Generator extends Component {
 
     const featureValues = dataset.map((d) => d[name]),
           featureValuesForGroup1 = groupInstances1.map((d) => d[name]),
-          featureValuesForGroup2 = groupInstances2.map((d) => d[name]);
+          featureValuesForGroup2 = groupInstances2.map((d) => d[name]),
+          nonProtectedGroupLength = featureValuesForGroup1.length,
+          protectedGroupLength = featureValuesForGroup2.length;
 
     const nBins = 10,
           min = d3.min(featureValues),
@@ -314,12 +315,14 @@ class Generator extends Component {
                   (featureValues),
           dataBinGroup1 = d3.histogram()
                   .domain(range)
+                  .value((d) => d[name])
                   .thresholds(thresholds)
-                  (featureValuesForGroup1),
+                  (groupInstances1),
           dataBinGroup2 = d3.histogram()
                   .domain(range)
+                  .value((d) => d[name])
                   .thresholds(thresholds)
-                  (featureValuesForGroup2);
+                  (groupInstances2);
 
     const svgCorrPlot = new ReactFauxDOM.Element('svg');
 
@@ -328,7 +331,6 @@ class Generator extends Component {
     svgCorrPlot.setAttribute('0 0 100 100');
     svgCorrPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     svgCorrPlot.setAttribute('class', 'svg_corr_plot_' + name);
-    const tooltip = d3tooltip(d3);
 
     // Both groups share the same x and y scale
     const xScale = d3.scaleBand()
@@ -362,7 +364,6 @@ class Generator extends Component {
           .style('opacity', 0);
 
     groupHistogramBar1.append('rect')
-          .datum(name)
           .attr('x', 0)
           .attr('width', xScale.bandwidth())
           .attr('height', (d) => _self.layout.featureTable.corr.height - yScale(d.length))
@@ -371,39 +372,15 @@ class Generator extends Component {
           .style('opacity', 0.5)
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5)
-          .on('mouseover', (d) => {
-            tooltip.html('ddddddd');
+          .on('mouseover', (d, i) => {
+            tooltip.html('<div>Group: Men</div>' + 
+                         '<div>Range: ' + d.x0 + '-' + d.x1 + '</div>' +
+                         '<div>Prob: ' + (Math.round(d.length / nonProtectedGroupLength * 100) / 100)  + '</div>');
             tooltip.show();
+          })
+          .on('mouseout', (d, i) => {
+            tooltip.hide();
           });
-          // .on('mouseover', function(d, i) {
-          //   console.log(d);
-          //   console.log(_self.state.isMouseoveredRect);
-          //   const boundingRect = this.getBoundingClientRect();
-          //   _self.handleMouseoveredRect(d);
-
-            
-
-          //   _self.setState({ 
-          //     isMouseoveredRect: true,
-          //     tooltipLeft: 50 
-          //   });
-
-          //   console.log('selected...: ', d3.select(this.parentNode).selectAll('.tooltip'))
-
-          //   d3.selectAll('.tooltip_' + name)
-          //     .classed('tooltip_mouseovered', true);
-
-          //   console.log('boundingRect: ', boundingRect);
-
-          //   // _self.props.onMouseOver({
-          //   //   position: {
-          //   //     top: boundingRect.top + window.scrollY,
-          //   //     left: boundingRect.left + window.scrollX + boundingRect.width / 2
-          //   //   },
-          //   //   data: d
-          //   // });
-
-          // });
 
     groupHistogramBar2 = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2_' + name)
           .data(dataBinGroup2)
@@ -421,40 +398,19 @@ class Generator extends Component {
           .style('stroke', 'black')
           .style('opacity', 0.5)
           .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.5);
-
-    console.log('this.state.isMouseoveredRect: ', this.state.isMouseoveredRect);
-    
-
-    // svgCorrPlot.appendChild(
-    //   <Tooltip
-    //         triggerRef={currentRef}
-    //         left={50}
-    //         top={50}
-    //         opacity={1}
-    //         data={'dd'}
-    //         key="chart-tooltip"
-    //     />
-    // );
+          .style('stroke-width', 0.5)
+          .on('mouseover', (d, i) => {
+            tooltip.html('<div>Group: Women</div>' + 
+                         '<div>Range: ' + d.x0 + '-' + d.x1 + '</div>' +
+                         '<div>Prob: ' + (Math.round(d.length / nonProtectedGroupLength * 100) / 100) + '</div>');
+            tooltip.show();
+          })
+          .on('mouseout', (d, i) => {
+            tooltip.hide();
+          });
 
     return (
       <div className={styles.corrPlotWrapper}>
-        {/* {this.state.isMouseoveredRect ? 
-          // <Tooltip
-          //   left={tooltipLeft}
-          //   top={tooltipTop}
-          //   opacity={tooltipOpacity}
-          //   data={tooltipData}
-          //   key="chart-tooltip"
-          // />
-          <Tooltip
-            left={this.state.tooltipLeft}
-            top={50}
-            opacity={1}
-            data={'dd'}
-            key="chart-tooltip"
-          /> : <div></div>
-        } */}
         {svgCorrPlot.toReact()}
       </div>
     );
@@ -465,7 +421,7 @@ class Generator extends Component {
 
     const { dataset, rankingInstance } = this.props,
           { instances, sensitiveAttr } = rankingInstance,
-          { name, type, range } = feature,
+          { name, type, range, label } = feature,
           { protectedGroup, nonProtectedGroup } = sensitiveAttr,
           sensitiveAttrName = sensitiveAttr.name,
           sensitiveAttrRange = sensitiveAttr.range;
@@ -500,22 +456,25 @@ class Generator extends Component {
     const featureValuesCountObject = _.countBy(featureValues),
           featureValuesForProtectedGroupCountObject = _.countBy(featureValuesForProtectedGroup),
           featureValuesForNonProtectedGroupCountObject = _.countBy(featureValuesForNonProtectedGroup),
-          featureValuesCount = Object.keys(featureValuesCountObject).map((value) => {
+          featureValuesCount = Object.keys(featureValuesCountObject).map((value, idx) => {
                     return { 
                       value: value, 
+                      label: label[idx],
                       count: featureValuesCountObject[value]
                     }
                   }),
-          featureValuesForProtectedGroupCount = Object.keys(featureValuesForProtectedGroupCountObject).map((value) => {
+          featureValuesForProtectedGroupCount = Object.keys(featureValuesForProtectedGroupCountObject).map((value, idx) => {
                     return { 
                       value: value, 
+                      label: label[idx],
                       count: featureValuesForProtectedGroupCountObject[value]
                     }
                   }),
           
-          featureValuesForNonProtectedGroupCount = Object.keys(featureValuesForNonProtectedGroupCountObject).map((value) => {
+          featureValuesForNonProtectedGroupCount = Object.keys(featureValuesForNonProtectedGroupCountObject).map((value, idx) => {
                     return { 
                       value: value, 
+                      label: label[idx],
                       count: featureValuesForNonProtectedGroupCountObject[value]
                     }
                   });
@@ -540,10 +499,10 @@ class Generator extends Component {
     
     let protectedGroupHistogramBar, nonProtectedGroupHistogramBar;
 
-    nonProtectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2')
+    nonProtectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1')
           .data(featureValuesForNonProtectedGroupCount)
           .enter().append('g')
-          .attr('class', 'g_corr_plot_group2')
+          .attr('class', 'g_corr_plot_group1')
           .append('rect')
           .attr('x', (d) => xScale(d.value))
           .attr('y', (d) => yGroupScale2(d.count))
@@ -553,12 +512,21 @@ class Generator extends Component {
           .style('stroke', 'black')
           .style('opacity', 1)
           .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.5);
+          .style('stroke-width', 0.5)
+          .on('mouseover', (d, i) => {
+            tooltip.html('<div>Group: Men</div>' + 
+                         '<div>Label: ' + d.label + '</div>' +
+                         '<div>Prob: ' + (Math.round(d.count / nonProtectedGroupLength * 100) / 100) + '</div>');
+            tooltip.show();
+          })
+          .on('mouseout', (d, i) => {
+            tooltip.hide();
+          });
 
-    protectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1')
+    protectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2')
           .data(featureValuesForProtectedGroupCount)
           .enter().append('g')
-          .attr('class', 'g_corr_plot_group1')
+          .attr('class', 'g_corr_plot_group2')
           .append('rect')
           .attr('x', (d) => xScale(d.value))
           .attr('y', (d) => yGroupScale1(d.count))
@@ -568,7 +536,16 @@ class Generator extends Component {
           .style('stroke', 'black')
           .style('opacity', 1)
           .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.5);
+          .style('stroke-width', 0.5)
+          .on('mouseover', (d, i) => {
+            tooltip.html('<div>Group: Women</div>' + 
+                         '<div>Label: ' + d.label + '</div>' +
+                         '<div>Prob: ' + (Math.round(d.count / protectedGroupLength * 100) / 100) + '</div>');
+            tooltip.show();
+          })
+          .on('mouseout', (d, i) => {
+            tooltip.hide();
+          });
 
     return (
       <div className={styles.corrPlotWrapper}>
@@ -585,7 +562,8 @@ class Generator extends Component {
           { name, type, range } = feature,
           { protectedGroup, nonProtectedGroup } = sensitiveAttr,
           sensitiveAttrName = sensitiveAttr.name,
-          sensitiveAttrRange = sensitiveAttr.range;
+          sensitiveAttrRange = sensitiveAttr.range,
+          label = ['No', 'Yes'];
 
     let protectedGroupBinary, nonProtectedGroupBinary;
 
@@ -648,10 +626,10 @@ class Generator extends Component {
 
     let protectedGroupHistogramBar, nonProtectedGroupHistogramBar;
 
-    protectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1')
+    protectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2')
           .data(dataBinProtectedGroup)
           .enter().append('g')
-          .attr('class', 'g_corr_plot_group1')
+          .attr('class', 'g_corr_plot_group2')
           .attr('transform', function(d, i) {
             return 'translate(' + xScale(d.x0) + ',' + yGroupScale1(d.length / protectedGroupLength) + ')'; 
           });
@@ -666,12 +644,21 @@ class Generator extends Component {
           .style('stroke', 'black')
           .style('opacity', 1)
           .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.5);
+          .style('stroke-width', 0.5)
+          .on('mouseover', (d, i) => {
+            tooltip.html('<div>Group: Women</div>' + 
+                         '<div>Label: ' + label[i] + '</div>' +
+                         '<div>Prob: ' + (Math.round(d.length / protectedGroupLength * 100) / 100) + '</div>');
+            tooltip.show();
+          })
+          .on('mouseout', (d, i) => {
+            tooltip.hide();
+          });
 
-    nonProtectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group2')
+    nonProtectedGroupHistogramBar = d3.select(svgCorrPlot).selectAll('.g_corr_plot_group1')
           .data(dataBinNonProtectedGroup)
           .enter().append('g')
-          .attr('class', 'g_corr_plot_group2')
+          .attr('class', 'g_corr_plot_group1')
           .attr('transform', function(d, i) {
             const groupLength = i == 0 ? protectedGroupLength : nonProtectedGroupLength;
             return 'translate(' + xScale(d.x0) + ',' + (_self.layout.featureTable.corr.height/2 + yGroupScale2(d.length / nonProtectedGroupLength)) + ')'; 
@@ -688,7 +675,16 @@ class Generator extends Component {
           .style('stroke', 'black')
           .style('opacity', 1)
           .style('shape-rendering', 'crispEdge')
-          .style('stroke-width', 0.5);
+          .style('stroke-width', 0.5)
+          .on('mouseover', (d, i) => {
+            tooltip.html('<div>Group: Men</div>' + 
+                         '<div>Label: ' + label[i] + '</div>' +
+                         '<div>Count: ' + (Math.round(d.length / nonProtectedGroupLength * 100) / 100) + '</div>');
+            tooltip.show();
+          })
+          .on('mouseout', (d, i) => {
+            tooltip.hide();
+          });
 
     return (
       <div className={styles.corrPlotWrapper}>
@@ -867,8 +863,7 @@ class Generator extends Component {
           <Button 
             id='buttonUnawareness'
             type="primary" 
-            size="small" 
-            ghost>
+            size="small">
             Unawarness
           </Button>
         </div>

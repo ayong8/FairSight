@@ -78,7 +78,7 @@ class App extends Component {
         sensitiveAttr: { 
           name: 'sex', 
           type: 'categorical', 
-          range: ['Female', 'Male'],
+          range: ['Male', 'Famale'],
           protectedGroup: 'Female',
           nonProtectedGroup: 'Male' 
         },
@@ -1230,7 +1230,7 @@ class App extends Component {
             onSelectedInterval={this.handleSelectedInterval}
             onSelectedTopk={this.handleSelectedTopk}  />
         <div className={styles.RankingInspector}>
-          <div className={styles.rankingInspectorTitle + ' ' + index.title}>Ranking Inspector</div>
+          <div className={styles.rankingInspectorTitle + ' ' + index.title}>Global Inspector</div>
           <RankingInspectorView 
               data={this.state.rankingInstance}
               topk={this.state.topk}

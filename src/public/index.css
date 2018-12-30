@@ -189,8 +189,8 @@ body {
 }
 
 .d3-tooltip {
-  line-height: 1;
-  font-weight: bold;
+  line-height: 1.5;
+  font-weight: 400;
   padding: 12px;
   background: rgba(0, 0, 0, 0.8);
   color: #fff;

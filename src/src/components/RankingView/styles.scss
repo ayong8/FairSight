@@ -11,14 +11,14 @@
   grid-template-columns: 20% 40% 40%;
   grid-template-rows: 8% 8% 30% 25% 10%;
   grid-template-areas: 
-    't t t'
-    'tst tst tst'
+    'crt crt crt'
+    'rvt ft ft'
     'wrst tf if'
     'wrp wrp wrp'
     'rbw rbw rbw';
 
-  .rankingViewTitle {
-    grid-area: t;
+  .currentRankingTitle {
+    grid-area: crt;
 
     border-bottom: 1.5px solid lightgray;
     padding-bottom: 10px;
@@ -28,8 +28,12 @@
     grid-area: ph;
   }
 
-  .topkSummaryTitle { 
-    grid-area: tst;
+  .rankingViewTitle {
+    grid-area: rvt;
+  }
+
+  .filterTitle { 
+    grid-area: ft;
     margin-top: 5px;
     // border-bottom: 1px solid #d7d7d7;
   }

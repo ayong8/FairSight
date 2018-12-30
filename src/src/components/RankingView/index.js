@@ -4,7 +4,7 @@ import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { Button } from 'reactstrap';
 import { Slider, Icon, InputNumber, Tag, Tooltip } from 'antd';
-import dc from 'dc';
+import d3tooltip from 'd3-tooltip';
 import regression from 'regression';
 
 import UtilityView from '../UtilityView';
@@ -12,6 +12,8 @@ import UtilityView from '../UtilityView';
 import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss'; // gs (=global style)
+
+const tooltip = d3tooltip(d3);
 
 class RankingView extends Component {
     constructor(props) {
@@ -692,7 +694,18 @@ class RankingView extends Component {
               .style('fill', gs.individualColor)
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
-              .style('stroke-width', 0.5);
+              .style('stroke-width', 0.5)
+              .on('mouseover', (d, i) => {
+                tooltip.html('<div>Ranking: ' + d.ranking + '</div>' + 
+                             '<div>Group: ' + (d.group == 0 ? 'Men' : 'Women') + '</div>' + 
+                             '<div>Cumulative measure up to ranking' + d.ranking + '</div>' +
+                             '<div>- Fairness(Statistical Parity): ' + (Math.round(statParityKData[i][1] * 100) / 100) + '</div>' +
+                             '<div>- Utility(Precison): ' + (Math.round(precisionKData[i][1] * 100) / 100) + '</div>');
+                tooltip.show();
+              })
+              .on('mouseout', (d, i) => {
+                tooltip.hide();
+              });
 
       const topkRectsForPattern = gTopkRanking.selectAll('.rect_whole_ranking_topk_for_pattern')
               .data(topkInstances)
@@ -705,7 +718,18 @@ class RankingView extends Component {
               .style('fill', (d) => !d.target ? 'url(#diagonalHatch)' : 'none')
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
-              .style('stroke-width', 0.5);
+              .style('stroke-width', 0.5)
+              .on('mouseover', (d, i) => {
+                tooltip.html('<div>Ranking: ' + d.ranking + '</div>' + 
+                             '<div>Group: ' + (d.group == 0 ? 'Men' : 'Women') + '</div>' + 
+                             '<div>Cumulative measure up to ranking' + d.ranking + '</div>' +
+                             '<div>- Fairness(Statistical Parity): ' + (Math.round(statParityKData[i][1] * 100) / 100) + '</div>' +
+                             '<div>- Utility(Precison): ' + (Math.round(precisionKData[i][1] * 100) / 100) + '</div>');
+                tooltip.show();
+              })
+              .on('mouseout', (d, i) => {
+                tooltip.hide();
+              });
 
       const topkGroupRects = gTopkRanking.selectAll('.topk_group_rect')
               .data(topkInstances)
@@ -741,7 +765,18 @@ class RankingView extends Component {
               .style('fill', gs.individualColor)
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
-              .style('stroke-width', 0.5);
+              .style('stroke-width', 0.5)
+              .on('mouseover', (d, i) => {
+                tooltip.html('<div>Ranking: ' + d.ranking + '</div>' + 
+                             '<div>Group: ' + (d.group == 0 ? 'Men' : 'Women') + '</div>' + 
+                             '<div>Cumulative measure up to ranking' + d.ranking + '</div>' +
+                             '<div>- Fairness(Statistical Parity): ' + (Math.round(statParityKData[i][1] * 100) / 100) + '</div>' +
+                             '<div>- Utility(Precison): ' + (Math.round(precisionKData[i][1] * 100) / 100) + '</div>');
+                tooltip.show();
+              })
+              .on('mouseout', (d, i) => {
+                tooltip.hide();
+              });
 
       const selectedNonTopkRectsForPattern = gSelectedNonTopkRanking.selectAll('.rect_whole_ranking_selected_non_topk_for_pattern')
               .data(selectedNonTopkInstances)
@@ -754,7 +789,18 @@ class RankingView extends Component {
               .style('fill', (d) => !d.target ? 'url(#diagonalHatch)' : 'none')
               .style('stroke', 'black')
               .style('shape-rendering', 'crispEdge')
-              .style('stroke-width', 0.5);
+              .style('stroke-width', 0.5)
+              .on('mouseover', (d, i) => {
+                tooltip.html('<div>Ranking: ' + d.ranking + '</div>' + 
+                             '<div>Group: ' + (d.group == 0 ? 'Men' : 'Women') + '</div>' + 
+                             '<div>Cumulative measure up to ranking' + d.ranking + '</div>' +
+                             '<div>- Fairness(Statistical Parity): ' + (Math.round(statParityKData[i][1] * 100) / 100) + '</div>' +
+                             '<div>- Utility(Precison): ' + (Math.round(precisionKData[i][1] * 100) / 100) + '</div>');
+                tooltip.show();
+              })
+              .on('mouseout', (d, i) => {
+                tooltip.hide();
+              });
 
       const selectedNonTopkGroupRects = gSelectedNonTopkRanking.selectAll('.rect_whole_ranking_non_topk')
               .data(selectedNonTopkInstances)
@@ -940,9 +986,12 @@ class RankingView extends Component {
 
       return (
         <div className={styles.RankingView}>
-          <div className={styles.rankingViewTitle + ' ' + index.title}>
+          <div className={styles.currentRankingTitle + ' ' + index.title}>
             Current ranking: &nbsp;
             <Tag color="#108ee9">{'R' + data.rankingId}</Tag>
+          </div>
+          <div className={styles.rankingViewTitle  + ' ' + index.subTitle}>
+            Ranking View
           </div>
           <div className={styles.topkSummaryTitle  + ' ' + index.subTitle}>
             <Icon type="filter" theme="outlined" />
@@ -1006,8 +1055,8 @@ class RankingView extends Component {
                 min={1}
                 max={this.state.selectedRankingInterval.to}
                 value={this.state.topk}
-                trackStyle={{ backgroundColor: 'mediumblue', height: '5px' }}
-                handleStyle={{ backgroundColor: 'mediumblue', border: '2px solid white' }}
+                trackStyle={{ backgroundColor: gs.topkColor, height: '5px' }}
+                handleStyle={{ backgroundColor: gs.topkColor, border: '2px solid white' }}
                 style={{ width: '90%' }}
                 onChange={this.handleSelectedTopk} 
               />
@@ -1042,8 +1091,8 @@ class RankingView extends Component {
               max={this.props.n}
               value={this.state.selectedRankingInterval.to}
               style={{ width: '90%' }}
-              trackStyle={{ backgroundColor: 'deepskyblue', height: '5px' }}
-              handleStyle={{ backgroundColor: 'deepskyblue', border: '2px solid white' }}
+              trackStyle={{ backgroundColor: gs.nonTopkColor, height: '5px' }}
+              handleStyle={{ backgroundColor: gs.nonTopkColor, border: '2px solid white' }}
               onChange={this.handleIntervalChange}
             />
           </div>

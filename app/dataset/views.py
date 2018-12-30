@@ -51,12 +51,20 @@ heavy_file_path = './data/german_data.csv'
 
 numerical_features = ['age_in_years', 'duration_in_month', 'credit_amount']
 ordinal_features = [ 
-                    {'name': 'present_employment_since',	'range': [0, 1, 2, 3, 4]},
-                    {'name': 'marriage', 'range': [0, 1, 2, 3]},
-                    {'name': 'job', 'range': [0, 1, 2, 3]},
-                    {'name': 'account_check_status', 'range': [0, 1, 2, 3]},
-                    {'name': 'credit_history', 'range': [0, 1, 2, 3, 4]},
-                    {'name': 'housing', 'range': [0, 1, 2]}
+                    {'name': 'present_employment_since', 'range': [0, 1, 2, 3, 4], \
+                     'label': ['unemployed', '< 1 year', '1 <= ... < 4 years', '4 <= ... < 7 years']},
+                    {'name': 'marriage', 'range': [0, 1, 2, 3], \
+                     'label': ['single', 'divorced/separated/married', 'divorced/separated', 'married/widowed']},
+                    {'name': 'job', 'range': [0, 1, 2, 3], \
+                     'label': ['unemployed/unskilled', 'unskilled', 'skilled employee', \
+                               'management / self-employed / highly qualified employee / officer' ]},
+                    {'name': 'account_check_status', 'range': [0, 1, 2, 3], \
+                     'label': ['<0', '0 <= … < 200', '=> 200', 'no checking account']},
+                    {'name': 'credit_history', 'range': [0, 1, 2, 3, 4], \
+                     'label': ['no credits taken', 'all credits at this bank paid back duly', \
+                               'existing credits paid back duly till now', 'delay in paying off in the past', 'critical account']},
+                    {'name': 'housing', 'range': [0, 1, 2], \
+                     'label': ['rent', 'own', 'for free']}
                   ]
 
 category_ranges = {
@@ -274,7 +282,7 @@ class ExtractFeatures(APIView):
                 feature_info = { 'name': feature, 'type': 'continuous', 'mean': mean_value, 'std': std_value, 'range': [min_value, max_value] }
             elif feature in ordinal_feature_names:  # For ordinal features
                 feature_dict = [ feature_dict for feature_dict in ordinal_features if feature_dict['name'] == feature ][0]
-                feature_info = { 'name': feature, 'type': 'categorical', 'range': feature_dict['range'] }
+                feature_info = { 'name': feature, 'type': 'categorical', 'range': feature_dict['range'], 'label': feature_dict['label'] }
             else:  # For categorical features
                 feature_info = { 'name': feature, 'type': 'categorical', 'range': [0, 1], 'vallue': ['No', 'Yes'] }
             

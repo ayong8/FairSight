@@ -54,7 +54,7 @@ class InputSpaceView extends Component {
         classesForNNs = classesForNNs.replace(/,\s*$/, '');
         d3.selectAll('.circle_input.neighbor').style('stroke', 'black').style('stroke-width', 0.5).classed('neighbor', false);
         if (classesForNNs !== '') {
-          d3.selectAll(classesForNNs).style('stroke', 'blue').style('stroke-width', 3).classed('neighbor', true);
+          d3.selectAll(classesForNNs).style('stroke', 'blue').style('stroke-width', 2).classed('neighbor', true);
         }
       }
     }

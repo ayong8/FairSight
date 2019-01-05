@@ -239,7 +239,7 @@ class RankingInspectorView extends Component {
       if (this.state.seletedInstance !== nextState.selectedInstance)  {
         if (Object.keys(nextState.selectedInstance).length !== 0) {
           d3.selectAll('.distortion_rect_top.selected').style('stroke-width', 0.5).classed('selected', false);
-          d3.selectAll('.distortion_rect_top_' + nextProps.selectedInstance.idx).style('stroke-width', 3).classed('selected', true);
+          d3.selectAll('.distortion_rect_top_' + nextState.selectedInstance.idx).style('stroke-width', 3).classed('selected', true);
         }
       }
       if (this.state.seletedInstanceNNs !== nextState.selectedInstanceNNs) {

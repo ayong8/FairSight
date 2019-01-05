@@ -520,14 +520,18 @@ class IndividualFairnessInspectionView extends Component {
           rectInterval = 7,
           rectWidth = 5,
           rectHeight = 20,
-          plotWidth = rectInterval * topk; // topk and non-topk plot have the same length
+          plotWidth = rectInterval * topk, // topk and non-topk plot have the same length
+          nonTopkRectHeight = (plotWidth / (n - topk)) - 1;
 
     const topkRankingScale = d3.scaleBand()
             .domain(d3.range(1, topk+1))
             .range([0, plotWidth]),
           nonTopkRankingScale = d3.scaleBand()
             .domain(d3.range(topk+1, n+1))
-            .range([0, plotWidth]);
+            .range([0, plotWidth]),
+          previousRankingScale = d3.scaleLinear()
+            .domain([1, n+1])
+            .range([0.5, rectHeight]);
 
     const xTopkAxis = d3.select(svgOriginalRanking)
             .append('g')
@@ -552,10 +556,23 @@ class IndividualFairnessInspectionView extends Component {
         .enter().append('rect')
         .attr('class', (d) => 'rect_topk_cf rect_topk_cf_' + d.ranking)
         .attr('x', (d) => topkRankingScale(d.ranking))
-        .attr('y', (d) => 0)
+        .attr('y', (d) => previousRankingScale(d.ranking))
         .attr('width', rectWidth)
-        .attr('height', rectHeight)
+        .attr('height', (d) => rectHeight - previousRankingScale(d.ranking))
         .style('fill', gs.topkColor)
+        .style('stroke', 'black')
+        .style('shape-rendering', 'crispEdge')
+        .style('stroke-width', 0.5);
+
+    gNonTopkRanking.selectAll('.rect_non_topk_cf')
+        .data(nonTopkInstances)
+        .enter().append('rect')
+        .attr('class', (d) => 'rect_non_topk_cf rect_non_topk_cf_' + d.ranking)
+        .attr('x', (d) => nonTopkRankingScale(d.ranking))
+        .attr('y', (d) => previousRankingScale(d.ranking))
+        .attr('width', nonTopkRectHeight)
+        .attr('height', (d) => rectHeight - previousRankingScale(d.ranking))
+        .style('fill', gs.nonTopkColor)
         .style('stroke', 'black')
         .style('shape-rendering', 'crispEdge')
         .style('stroke-width', 0.5);
@@ -679,7 +696,7 @@ class IndividualFairnessInspectionView extends Component {
 
     const previousRankingScale = d3.scaleLinear()
             .domain([1, 100])
-            .range([0, 15]);
+            .range([0.5, 15]);
 
     gTopkRanking.selectAll('.rect_topk_cf')
         .data(topkInstances)
@@ -821,7 +838,7 @@ class IndividualFairnessInspectionView extends Component {
         corrBtnOutliersAndWholeInstances: corrBtnOutliersAndWholeInstances,
         outlier: outlierDiv,
         diffPrecisionK: Math.round(diffPrecisionK * 100) + '%',
-        diffSp: Math.round(diffSp * 100) + '%',
+        diffSp: Math.round(diffSp * 100) / 100,
         perturbation: perturbationDiv
       });
     });

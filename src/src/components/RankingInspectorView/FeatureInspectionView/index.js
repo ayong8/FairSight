@@ -177,7 +177,7 @@ class IndividualFairnessInspectionView extends Component {
                 .attr('cy', (e, i) => - ((i%15) * 2*r))
                 .attr('r', (e) => r)
                 .style('fill', (e) => e.isOutlier ? gs.outlierColor: gs.individualColor)
-                .style('stroke', (e) => d3.rgb(gs.individualColor).darker())
+                .style('stroke', 'none')
                 .style('stroke-width', (e) => 1);
             });
 
@@ -265,7 +265,7 @@ class IndividualFairnessInspectionView extends Component {
                 .attr('r', r)
                 .style('fill', (e) => e.isTopk ? gs.topkColor : 
                                       e.isOutlier ? 'red' : gs.individualColor)
-                .style('stroke', (e) => e.isOutlier ? d3.rgb('red').darker() : (e.isOutlierWithinSelection ? d3.rgb('blue').darker() : d3.rgb(gs.individualColor).darker()))
+                .style('stroke', 'none')
                 .style('stroke-width', (e) => 0.5);
             });
 
@@ -376,7 +376,7 @@ class IndividualFairnessInspectionView extends Component {
               .attr('cy', - ((i%15) * 2*r))
               .attr('r', r)
               .style('fill', e.isOutlier ? gs.outlierColor : gs.individualColor)
-              .style('stroke', d3.rgb(gs.individualColor).darker())
+              .style('stroke', 'none')
               .style('stroke-width', 1);
           });
         });
@@ -710,7 +710,7 @@ class IndividualFairnessInspectionView extends Component {
           const wasTopk = (d.previousRanking <= topk);
           return wasTopk ? gs.topkColor : gs.nonTopkColor;
         })
-        .style('stroke', 'black')
+        .style('stroke', 'none')
         .style('shape-rendering', 'crispEdge')
         .style('stroke-width', 0.5);
 
@@ -726,7 +726,7 @@ class IndividualFairnessInspectionView extends Component {
           const wasTopk = (d.previousRanking <= topk);
           return (d.group === 0) ? gs.groupColor1 : gs.groupColor2;
         })
-        .style('stroke', 'black')
+        .style('stroke', 'none')
         .style('shape-rendering', 'crispEdge')
         .style('stroke-width', 0.5);
 
@@ -743,7 +743,7 @@ class IndividualFairnessInspectionView extends Component {
           const wasTopk = (d.previousRanking <= topk);
           return wasTopk ? gs.topkColor : gs.nonTopkColor;
         })
-        .style('stroke', 'black')
+        .style('stroke', 'none')
         .style('shape-rendering', 'crispEdge')
         .style('stroke-width', 0.5)
         .style('opacity', 0.5);

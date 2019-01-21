@@ -160,7 +160,17 @@ class InputSpaceView extends Component {
                 return gs.individualColor;
               }
           })
-          .style('stroke', 'black')
+          .style('stroke', (d) => {
+            if (mode === 'GF') {
+              let group = d.group;
+              return group === 0
+                  ? d3.rgb(gs.groupColor1).darker()
+                  : d3.rgb(gs.groupColor2).darker();
+            } else if (mode === 'IF') {
+              //return d.isTopk ? gs.topkColor : gs.individualColor;
+              return d3.rgb(gs.individualColor).darker();
+            }
+          })
           .style('opacity', 0.7)
           .on('mouseover', function(d) {
             _self.props.onSelectedInstance(d.idx);
@@ -178,7 +188,7 @@ class InputSpaceView extends Component {
           .attr('cy', (d) => yScale(d.dim2))
           .attr('r', 4)
           .style('fill', (d) => !d.target ? 'url(#diagonalHatch)': 'none')
-          .style('stroke', 'black')
+          .style('stroke', 'none')
           .style('opacity', 0.7)
           .on('mouseover', function(d) {
             _self.props.onSelectedInstance(d.idx);

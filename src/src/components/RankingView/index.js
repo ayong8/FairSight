@@ -692,7 +692,7 @@ class RankingView extends Component {
               .attr('width', rectWidth)
               .attr('height', rectHeight)
               .style('fill', gs.individualColor)
-              .style('stroke', 'black')
+              .style('stroke', d3.rgb(gs.individualColor).darker())
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .on('mouseover', (d, i) => {
@@ -716,7 +716,7 @@ class RankingView extends Component {
               .attr('width', rectWidth)
               .attr('height', rectHeight)
               .style('fill', (d) => !d.target ? 'url(#diagonalHatch)' : 'none')
-              .style('stroke', 'black')
+              .style('stroke', 'none')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .on('mouseover', (d, i) => {
@@ -740,7 +740,7 @@ class RankingView extends Component {
               .attr('width', rectWidth)
               .attr('height', rectHeight / 7)
               .style('fill', (d) => groupColorScale(d.group))
-              .style('stroke', 'black')
+              .style('stroke', 'none')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5);
 
@@ -787,7 +787,7 @@ class RankingView extends Component {
               .attr('width', rectWidth)
               .attr('height', rectHeight)
               .style('fill', (d) => !d.target ? 'url(#diagonalHatch)' : 'none')
-              .style('stroke', 'black')
+              .style('stroke', d3.rgb(gs.individualColor).darker())
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .on('mouseover', (d, i) => {
@@ -811,7 +811,7 @@ class RankingView extends Component {
               .attr('width', rectWidth)
               .attr('height', rectHeight / 7)
               .style('fill', (d) => groupColorScale(d.group))
-              .style('stroke', 'black')
+              .style('stroke', 'none')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5);
 
@@ -916,7 +916,7 @@ class RankingView extends Component {
               .attr('width', rectWidth)
               .attr('height', rectHeight)
               .style('fill', gs.individualColor)
-              .style('stroke', 'black')
+              .style('stroke', d3.rgb(gs.individualColor).darker())
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .style('opacity', (d, i) => ((renderedNonTopkInstances.length-i) / renderedNonTopkInstances.length));
@@ -930,7 +930,7 @@ class RankingView extends Component {
               .attr('width', rectWidth)
               .attr('height', rectHeight)
               .style('fill', (d) => !d.target ? 'url(#diagonalHatch)' : 'none')
-              .style('stroke', 'black')
+              .style('stroke', d3.rgb(gs.individualColor).darker())
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .style('opacity', (d, i) => ((renderedNonTopkInstances.length-i) / renderedNonTopkInstances.length));
@@ -944,7 +944,7 @@ class RankingView extends Component {
               .attr('width', rectWidth)
               .attr('height', rectHeight / 7)
               .style('fill', (d) => groupColorScale(d.group))
-              .style('stroke', 'black')
+              .style('stroke', 'none')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .style('opacity', (d, i) => ((renderedNonTopkInstances.length-i) / renderedNonTopkInstances.length));

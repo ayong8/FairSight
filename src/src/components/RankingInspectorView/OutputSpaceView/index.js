@@ -123,7 +123,17 @@ class OutputSpaceView extends Component {
               .attr('height', (d) => rectInterval - 2)
               .style('fill', (d) => (mode === 'GF') ? groupColorScale(d.group) : 
                                     (mode === 'IF') ? gs.individualColor : 'none')
-              .style('stroke', 'black')
+              .style('stroke', (d) => {
+                if (mode === 'GF') {
+                  let group = d.group;
+                  return group === 0
+                      ? d3.rgb(gs.groupColor1).darker()
+                      : d3.rgb(gs.groupColor2).darker();
+                } else if (mode === 'IF') {
+                  //return d.isTopk ? gs.topkColor : gs.individualColor;
+                  return d3.rgb(gs.individualColor).darker();
+                }
+              })
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .on('mouseover', function(d) {
@@ -142,7 +152,17 @@ class OutputSpaceView extends Component {
               .attr('width', 30)
               .attr('height', (d) => rectInterval - 2)
               .style('fill', (d) => !d.target ? 'url(#diagonalHatch)': 'none')
-              .style('stroke', 'black')
+              .style('stroke', (d) => {
+                if (mode === 'GF') {
+                  let group = d.group;
+                  return group === 0
+                      ? d3.rgb(gs.groupColor1).darker()
+                      : d3.rgb(gs.groupColor2).darker();
+                } else if (mode === 'IF') {
+                  //return d.isTopk ? gs.topkColor : gs.individualColor;
+                  return d3.rgb(gs.individualColor).darker();
+                }
+              })
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .on('mouseover', function(d) {

@@ -71,34 +71,6 @@ class IndividualInspectionView extends Component {
               </div>
             </div>
             <p></p>
-            <div className={styles.GroupStatus}>
-              <div>Group Inspection</div>
-              {/* <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', marginBottom: 10}}/> */}
-              <div>
-                <span className={index.instanceIdTitle}>Groups</span>
-                <Badge status='error' />{' ' + protectedGroup}
-                <Badge status='default' />{' ' + nonProtectedGroup}
-              </div>
-              <div>
-                <div>Original Group Ratio</div>
-                <Progress percent={50} size="small" status="active" />
-                <div>Top-k Group Ratio</div>
-                <Progress percent={50} size="small" status="active" />
-                <div>Ranking Gain</div>
-
-              </div>
-              <div className={styles.individualMeasures}>{'rNN: ' + Math.round(this.props.xNN * 100) / 100}</div>
-              <div className={styles.instanceDataTableWrapper}>
-                <Table
-                  className={styles.instanceDataTable}
-                  columns={columns} 
-                  dataSource={ (selectedInstance && Object.keys(selectedInstance).length !== 0) ? this.renderFeatureTable() : this.renderEmptyTable() } 
-                  scroll={{ y: 120 }}
-                  pagination={false}
-                  bordered
-                />
-              </div>
-            </div>
         </div>
       );
     }

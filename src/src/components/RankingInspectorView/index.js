@@ -940,7 +940,7 @@ class RankingInspectorView extends Component {
               strokeColor = 'blue';
             }
 
-            return 'black';
+            return 'whitesmoke';
           })
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.3)
@@ -962,7 +962,7 @@ class RankingInspectorView extends Component {
               (mode === 'IF') ? gs.individualColor : 
               (mode === 'GF' && d.group === 0) ? gs.groupColor1 : gs.groupColor2
           )
-          .attr('stroke', 'black')
+          .attr('stroke', 'none')
           .attr('stroke-width', 0.4)
           .on('mouseover', (d) => {
             //console.log('distortion_sum: ', d.sumDistortion, d.ranking);
@@ -1057,8 +1057,8 @@ class RankingInspectorView extends Component {
                                   className={styles.mappingGroupFairnessTitle} 
                                   onMouseOver={this.handleMouseOverGroupFairness}
                                   onMouseOut={this.handleMouseOverGroupFairness}
-                                >GroupSkew &nbsp;&nbsp;&nbsp; rNN-Gain</div>
-                                <div className={styles.mappingGroupFairness}>{groupSkew + ' ' + Math.round(rNNSumGroup1 * 100) / 100 + ' ' + Math.round(rNNSumGroup2 * 100) / 100}</div>
+                                >GroupSkew &nbsp;&nbsp;&nbsp; </div>
+                                <div className={styles.mappingGroupFairness}>{groupSkew}</div>
                               </div>) :
                             (mode === 'IF') ?
                               (<div className={styles.individualFairnessWrapper}>

@@ -358,17 +358,17 @@ class Generator extends Component {
           .attr('class', 'tooltip_' + name)
           .attr('x', 10)
           .attr('y', 10)
-          .attr('width', 10)
+          .attr('width', 10 - 0.5)  // 0.5 = padding
           .attr('height', 10)
-          .style('fill', 'black')
+          .style('fill', 'none')
           .style('opacity', 0);
 
     groupHistogramBar1.append('rect')
           .attr('x', 0)
-          .attr('width', xScale.bandwidth())
+          .attr('width', xScale.bandwidth() - 0.5)
           .attr('height', (d) => _self.layout.featureTable.corr.height - yScale(d.length))
           .style('fill', gs.groupColor1)
-          .style('stroke', 'black')
+          .style('stroke', 'none')
           .style('opacity', 0.5)
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5)
@@ -395,7 +395,7 @@ class Generator extends Component {
           .attr('width', xScale.bandwidth())
           .attr('height', (d) => _self.layout.featureTable.corr.height - yScale(d.length))
           .style('fill', '#fd5d00')
-          .style('stroke', 'black')
+          .style('stroke', 'none')
           .style('opacity', 0.5)
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5)
@@ -506,10 +506,10 @@ class Generator extends Component {
           .append('rect')
           .attr('x', (d) => xScale(d.value))
           .attr('y', (d) => yGroupScale2(d.count))
-          .attr('width', xScale.bandwidth())
+          .attr('width', xScale.bandwidth() - 0.5)
           .attr('height', (d, i) => _self.layout.featureTable.corr.height/2 - yGroupScale2(d.count))
           .style('fill', gs.groupColor1)
-          .style('stroke', 'black')
+          .style('stroke', 'none')
           .style('opacity', 1)
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5)
@@ -530,10 +530,10 @@ class Generator extends Component {
           .append('rect')
           .attr('x', (d) => xScale(d.value))
           .attr('y', (d) => yGroupScale1(d.count))
-          .attr('width', xScale.bandwidth())
+          .attr('width', xScale.bandwidth() - 0.5)
           .attr('height', (d, i) => _self.layout.featureTable.corr.height - yGroupScale1(d.count))
           .style('fill', gs.groupColor2)
-          .style('stroke', 'black')
+          .style('stroke', 'none')
           .style('opacity', 1)
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5)
@@ -636,12 +636,12 @@ class Generator extends Component {
 
     protectedGroupHistogramBar.append('rect')
           .attr('x', 0)
-          .attr('width', xScale.bandwidth())
+          .attr('width', xScale.bandwidth() - 0.5)
           .attr('height', (d, i) => {
             return _self.layout.featureTable.corr.height/2 - yGroupScale1(d.length / protectedGroupLength)
           })
           .style('fill', gs.groupColor2)
-          .style('stroke', 'black')
+          .style('stroke', 'none')
           .style('opacity', 1)
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5)
@@ -666,13 +666,13 @@ class Generator extends Component {
 
     nonProtectedGroupHistogramBar.append('rect')
           .attr('x', 0)
-          .attr('width', xScale.bandwidth())
+          .attr('width', xScale.bandwidth() - 0.5)
           .attr('height', (d, i) => {
             const groupLength = i == 0 ? protectedGroupLength : nonProtectedGroupLength;
             return _self.layout.featureTable.corr.height/2 - yGroupScale2(d.length / nonProtectedGroupLength)
           })
           .style('fill', gs.groupColor1)
-          .style('stroke', 'black')
+          .style('stroke', 'none')
           .style('opacity', 1)
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.5)
@@ -864,7 +864,7 @@ class Generator extends Component {
             id='buttonUnawareness'
             type="primary" 
             size="small">
-            Unawarness
+            Fairness through Unawareness
           </Button>
         </div>
         <TreeSelect
@@ -949,13 +949,13 @@ class Generator extends Component {
             {this.renderMethods()}
           </DropdownMenu>
         </Dropdown>
-        <Table 
+        {/* <Table 
           rowSelection={methodSelectionRows}
           columns={methodSelectionColumns} 
           dataSource={dataMethodTable} 
           scroll={{ y: 150 }}
           pagination={false}
-        />
+        /> */}
         <div className={styles.runButtonWrapper}>
           <Button className={styles.buttonGenerateRanking} color='danger' onClick={this.handleClickRun}>RUN</Button>
         </div>

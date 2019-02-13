@@ -40,8 +40,8 @@ class InputSpaceView extends Component {
     componentWillUpdate(nextProps, nextState) {
       if (this.props.seletedInstance !== nextProps.selectedInstance)  {
         if (Object.keys(nextProps.selectedInstance).length !== 0) {
-          d3.selectAll('.circle_input.selected').style('stroke-width', 0.5).classed('selected', false);
-          d3.selectAll('.circle_input_' + nextProps.selectedInstance.idx).style('stroke-width', 3).classed('selected', true);
+          d3.selectAll('.circle_input.selected').style('stroke', d3.rgb(gs.groupColor1).darker()).style('stroke-width', 0.5).classed('selected', false);
+          d3.selectAll('.circle_input_' + nextProps.selectedInstance.idx).style('stroke', 'black').style('stroke-width', 3).classed('selected', true);
         }
       }
 

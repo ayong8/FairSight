@@ -320,9 +320,6 @@ class RankingInspectorView extends Component {
             { instances } = data,
             selectedInstance = instances.filter((d) => d.idx === selectedInstanceIdx)[0];
 
-      console.log('in handleselected: ', selectedInstanceIdx);
-      console.log('in handleselected: ', selectedInstance);
-
       this.setState({
         selectedInstance: selectedInstance,
         selectedInstanceNNs: this.identifyNNs(selectedInstance, 4),
@@ -945,10 +942,7 @@ class RankingInspectorView extends Component {
           .style('shape-rendering', 'crispEdge')
           .style('stroke-width', 0.3)
           .on('mouseover', (d) => {
-            //console.log(d.absDistortion);
           });
-
-      // console.log('sortedSelectedX: ', sortedSelectedX.map((d) => d.sumDistortion));
       // Distortion plot top
       gDistortionPlotTop.selectAll('.distortion_rect_top')
           .data(selectedInstances)
@@ -965,7 +959,6 @@ class RankingInspectorView extends Component {
           .attr('stroke', 'none')
           .attr('stroke-width', 0.4)
           .on('mouseover', (d) => {
-            //console.log('distortion_sum: ', d.sumDistortion, d.ranking);
           })
 
       // // For histo matrix

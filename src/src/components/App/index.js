@@ -166,8 +166,6 @@ class App extends Component {
             { instances } = updatedRankingInstance,
             { from, to } = selectedRankingInterval;
 
-      console.log('responses: ', responses);
-
       let updatedInstances = [],
           inputs = [];
 
@@ -179,7 +177,7 @@ class App extends Component {
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
-      this.calculateGroupSkew(this.pairwiseDiffs);
+      const groupSkew = this.calculateGroupSkew(this.pairwiseDiffs);
       const { utility, precisionK, GFDCG, rND, sp, cp } = this.calculateOutputMeasures(topk);
       this.calculateCorrBtnSensitiveAndAllFeatures();
 
@@ -201,6 +199,7 @@ class App extends Component {
             stat: {
               ...prevState.rankingInstance.stat,
               inputSpaceDist: inputSpaceDist,
+              groupSkew: groupSkew,
               goodnessOfFairness: this.rSquared,
               rNNSum: rNNSum,
               rNNSumGroup1: rNNSumGroup1,
@@ -404,7 +403,6 @@ class App extends Component {
         })   
         .then( (responseOutput) => {
           const { inputSpaceDist, dimReductions } = JSON.parse(responseOutput);
-          console.log('chhheck inputspacedist: ', inputSpaceDist);
           
           this.setState(prevState => ({
             inputCoords: _.values(JSON.parse(dimReductions))
@@ -531,8 +529,6 @@ class App extends Component {
           inputSpaceDist = responses[4],
           { instances, isForPerturbation } = updatedRankingInstance;
 
-      console.log('responses: ', responses);
-
       let updatedInstances = [],
           inputs = [];
 
@@ -544,10 +540,8 @@ class App extends Component {
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
       this.calculateNDM(this.permutationDiffs);
-      this.calculateGroupSkew(this.pairwiseDiffs);
+      const groupSkew = this.calculateGroupSkew(this.pairwiseDiffs);
       const { utility, precisionK, GFDCG, rND, sp, cp } = this.calculateOutputMeasures(topk);
-
-      console.log('together', inputSpaceDist, utility);
 
       this.setState((prevState) => {
         const currentRankingInstance = {
@@ -557,6 +551,7 @@ class App extends Component {
             stat: {
               ...updatedRankingInstance.stat,
               inputSpaceDist: inputSpaceDist,
+              groupSkew: groupSkew,
               goodnessOfFairness: this.rSquared,
               rNNSum: rNNSum,
               rNNSumGroup1: rNNSumGroup1,
@@ -888,20 +883,10 @@ class App extends Component {
           .map((d) => d.absDistortion),
           wtnPairsSumForGroup2 = wtnPairs.reduce((sum, curr) => sum + curr);
 
-
-    console.log('wtnpairssss: ', wtnPairsSumForGroup1 / wtnPairsForGroup1.length, wtnPairsSumForGroup2 / wtnPairsForGroup2.length);
-
     const groupSkew = (btnPairsSum / btnPairs.length) / 
                       (wtnPairsSum / wtnPairs.length);
-    this.setState((prevState) => ({
-      rankingInstance: {
-        ...prevState.rankingInstance,
-        stat: {
-          ...prevState.rankingInstance.stat,
-          groupSkew: Math.round(groupSkew * 1000) / 1000
-        }
-      }
-    }));
+    
+    return Math.round(groupSkew * 1000) / 1000;
   }
 
   calculateOutputMeasures(topk) {

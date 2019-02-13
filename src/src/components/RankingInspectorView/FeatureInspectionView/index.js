@@ -812,9 +812,7 @@ class IndividualFairnessInspectionView extends Component {
 
     perturbationResults.forEach((perturbationResult) => {
       let svgFeature, outlierResultObj;
-      console.log('featuresvvv: ', features);
       const featureName = perturbationResult.perturbedFeature;
-      console.log('featurevvv: ', featureName);
       const feature = features.filter((d) => d.name === featureName)[0];
       const { name, type, range, value } = feature;
 

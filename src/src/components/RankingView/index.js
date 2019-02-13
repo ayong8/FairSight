@@ -119,9 +119,6 @@ class RankingView extends Component {
             return acc + curr;
           });
 
-      console.log('precisionKData: ', precisionKData);
-      console.log('statParityKData: ', statParityKData);
-
       this.setState({
         topk: topk,
         statParityKData: statParityKData,
@@ -976,9 +973,6 @@ class RankingView extends Component {
             { stat } = data,
             { utility, goodnessOfFairness, groupSkew, GFDCG, rND, sp, cp } = stat,
             instances = _.sortBy([...data.instances], ['ranking'], ['desc']);
-
-      console.log('precisionKDataaa: ', this.state.precisionKData);
-      console.log('precisionKDataaa: ', this.state.precisionKData[topk-1]);
 
       const { precisionKData, statParityKData } = this.state,
             precisionK = precisionKData[topk-1][1],

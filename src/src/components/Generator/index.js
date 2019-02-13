@@ -83,7 +83,6 @@ class Generator extends Component {
   }
 
   componentWillUpdate(nextProps, nextState) {
-    console.log('generated componentWillUpdate')
   }
 
   componentDidUpdate() {
@@ -102,11 +101,6 @@ class Generator extends Component {
   }
 
   handleMethodSelected(e) {
-    console.log('handlemethoddd: ', e);
-    console.log('handlemethoddd: ', e.target);
-    console.log('handlemethoddd: ', e.target.value);
-    console.log('handlemethoddd: ', e.target.id);
-    d3.select('#buttonMethodLogisticRegression').classed('method_selected', true);
   }
 
   toggleMethodDropdown() {
@@ -151,7 +145,6 @@ class Generator extends Component {
   }
 
   handleMouseoveredRect(idx) {
-    console.log('handleMouseoveredRect: ', idx);
     this.setState({
       isMouseoveredRect: true,
       mouseoveredRect: idx

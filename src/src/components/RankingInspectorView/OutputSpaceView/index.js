@@ -29,20 +29,19 @@ class OutputSpaceView extends Component {
     componentWillUpdate(nextProps, nextState) {
       if (this.props.seletedInstance !== nextProps.selectedInstance)  {
         if (Object.keys(nextProps.selectedInstance).length !== 0) {
-          d3.selectAll('.rect_output.selected').style('stroke-width', 0.5).classed('selected', false);
-          d3.selectAll('.rect_output_' + nextProps.selectedInstance.idx).style('stroke-width', 3).classed('selected', true);
+          d3.selectAll('.rect_output.selected').style('stroke', d3.rgb(gs.groupColor1).darker()).style('stroke-width', 0.5).classed('selected', false);
+          d3.selectAll('.rect_output_' + nextProps.selectedInstance.idx).style('stroke', 'black').style('stroke-width', 3).classed('selected', true);
         }
       }
       if (this.props.seletedInstanceNNs !== nextProps.selectedInstanceNNs) {
         let classesForNNs = '';
         nextProps.selectedInstanceNNs.forEach((selectedInstanceNN) => {
-          if (selectedInstanceNN.ranking2 < this.props.selectedRankingInterval.to) {
-            classesForNNs += '.rect_output_' + selectedInstanceNN.idx2 + ',';
-          }
+          classesForNNs += '.rect_output_' + selectedInstanceNN.idx2 + ',';
         });
         classesForNNs = classesForNNs.replace(/,\s*$/, '');
-        d3.selectAll('.rect_output.neighbor').style('stroke', 'black').style('stroke-width', 0.5).classed('neighbor', false);
+        d3.selectAll('.rect_output.neighbor').style('stroke', d3.rgb(gs.groupColor1).darker()).style('stroke-width', 0.5).classed('neighbor', false);
         if (classesForNNs !== '') {
+          console.log('inside classesForNNs: ', classesForNNs);
           d3.selectAll(classesForNNs).style('stroke', 'blue').style('stroke-width', 2).classed('neighbor', true);
         }
       }
@@ -152,17 +151,7 @@ class OutputSpaceView extends Component {
               .attr('width', 30)
               .attr('height', (d) => rectInterval - 2)
               .style('fill', (d) => !d.target ? 'url(#diagonalHatch)': 'none')
-              .style('stroke', (d) => {
-                if (mode === 'GF') {
-                  let group = d.group;
-                  return group === 0
-                      ? d3.rgb(gs.groupColor1).darker()
-                      : d3.rgb(gs.groupColor2).darker();
-                } else if (mode === 'IF') {
-                  //return d.isTopk ? gs.topkColor : gs.individualColor;
-                  return d3.rgb(gs.individualColor).darker();
-                }
-              })
+              .style('stroke', 'none')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .on('mouseover', function(d) {

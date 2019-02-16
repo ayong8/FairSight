@@ -1113,7 +1113,8 @@ class RankingInspectorView extends Component {
               </div>
               {_self.renderSpaceOverview()}
               <LegendView 
-                className={styles.LegendView} 
+                className={styles.LegendView}
+                mode={mode}
               />
               <OutputSpaceView 
                   className={styles.OutputSpaceView}

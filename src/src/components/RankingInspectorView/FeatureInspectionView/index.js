@@ -869,7 +869,7 @@ class IndividualFairnessInspectionView extends Component {
 
     return (
       <div className={styles.IndividualFairnessInspectionView}>
-        <div className={index.subTitle}>Feature Inspector</div>
+        <div className={index.subTitle + ' ' + styles.featureInspectorTitle}>Feature Inspector</div>
         {this.renderFeatureInspectorTable()}
       </div>
     );

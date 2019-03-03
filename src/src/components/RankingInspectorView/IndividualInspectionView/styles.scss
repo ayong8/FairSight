@@ -4,15 +4,16 @@
 
     /* border-top: 1px solid #d9d9d9; */
     border-left: 1px dashed #d9d9d9;
-    padding: 5px;
     /* margin: 5px 0; */
-    background-color: #f5f4f4;
+    // background-color: #f5f4f4;
 
     // .instanceDataTableWrapper {
     //     display: flex;
     // }
     .IndividualStatus {
         height: 200px;
+        background-color: #efefef;
+        border: 1px solid lightgray;
     }
     .infoWrapper {
         margin: 10px;

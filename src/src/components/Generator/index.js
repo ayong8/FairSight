@@ -828,13 +828,13 @@ class Generator extends Component {
           <br />
         </div>
         {/* // Dataset selector */}
-        <div className={styles.generatorDatasetWrapper}>
+        {/* <div className={styles.generatorDatasetWrapper}>
           <div className={styles.generatorSubTitle}>Dataset</div>
           <div className={styles.generatorDescription}>
             <div>- 12 Features</div>
             <div>- 100 instances</div>
           </div>
-        </div>
+        </div> */}
         <div className={styles.generatorSubTitle}>Feature</div>
         {/* // Sensitive Attribute selector */}
         <div className={styles.selectSensitiveAttr}>Sensitive attribute</div>

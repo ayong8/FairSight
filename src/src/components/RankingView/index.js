@@ -12,6 +12,8 @@ import UtilityView from '../UtilityView';
 import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss'; // gs (=global style)
+import FairnessBar from '../FairnessBar';
+import UtilityBar from '../UtilityBar';
 
 const tooltip = d3tooltip(d3);
 
@@ -981,51 +983,67 @@ class RankingView extends Component {
       return (
         <div className={styles.RankingView}>
           <div className={styles.currentRankingTitle + ' ' + index.title}>
-            Current ranking: &nbsp;
+            Ranking View &nbsp;
             <Tag color="#108ee9">{'R' + data.rankingId}</Tag>
           </div>
           <div className={styles.rankingViewTitle  + ' ' + index.subTitle}>
-            Ranking View
+            Measures
           </div>
           <div className={styles.topkSummaryTitle  + ' ' + index.subTitle}>
             <Icon type="filter" theme="outlined" />
             &nbsp;Filter
           </div>
-          <div className={styles.wholeRankingSummaryStat1}>
-            <div className={styles.utilityWrapper}>
-              <div className={styles.utilityTitle}>
-                <div className={styles.betweenTitle}>BETWEEN</div>
-                Utility
-                <Tooltip placement="topLeft" title="Prompt Text">
-                  <Icon 
-                    type="question-circle" 
-                    theme="twoTone"
-                    style={{ fontSize: '15px', verticalAlign: 'text-top', margin: '0 5px' }} 
-                  />
-                </Tooltip>
-              </div>
-              <div className={styles.utility}>{Math.round(utility * 100) + '%'}</div>
-              <div className={styles.withinTitle}>WITHIN</div>
-              <div className={styles.withinUtility}>{Math.round(precisionK * 100) + '%'}</div>
+          <div className={styles.wholeRankingSummaryStat}>
+            <div className={styles.placeholder}></div>
+            <div className={styles.utilityTitle}>
+              Utility
+              <Tooltip placement="topLeft" title="Prompt Text">
+                <Icon 
+                  type="question-circle" 
+                  theme="twoTone"
+                  style={{ fontSize: '15px', verticalAlign: 'text-top', margin: '0 5px' }} 
+                />
+              </Tooltip>
             </div>
-            <div className={styles.groupFairnessWrapper}>
-              <div 
-                className={styles.groupFairnessTitle} 
-                onMouseOver={this.handleMouseOverGroupFairness}
-                onMouseOut={this.handleMouseOverGroupFairness}>
-                <div className={styles.betweenTitle}>&nbsp;</div>
-                Fairness
-                <Tooltip placement="topLeft" title="Prompt Text">
-                  <Icon 
-                    type="question-circle" 
-                    theme="twoTone"
-                    style={{ fontSize: '15px', verticalAlign: 'text-top', margin: '0 5px' }} 
-                  />
-                </Tooltip>
-              </div>
-              <div className={styles.groupFairness}>{Math.round(GFDCG * 100) / 100}</div>
-              <div className={styles.withinTitle}>&nbsp;</div>
-              <div className={styles.withinFairness}>{Math.round(statParityK * 100) / 100}</div>
+            <div className={styles.fairnessTitle}>
+              Fairness
+              <Tooltip placement="topLeft" title="Prompt Text">
+                <Icon 
+                  type="question-circle" 
+                  theme="twoTone"
+                  style={{ fontSize: '15px', verticalAlign: 'text-top', margin: '0 5px' }} 
+                />
+              </Tooltip>
+            </div>
+            <div className={styles.betweenTitle}>Between</div>
+            <div className={styles.withinTitle}>Within</div>
+            <div className={styles.btnUtility}>
+              <UtilityBar 
+                measure={utility}
+                measureDomain={[0, 1]}
+                color={gs.utilityColor}
+              />
+            </div>
+            <div className={styles.wtnUtility}>
+              <UtilityBar 
+                measure={utility}
+                measureDomain={[0, 1]}
+                color={gs.utilityColor}
+              />
+            </div>
+            <div className={styles.btnFairness}>
+              <FairnessBar 
+                measure={GFDCG}
+                measureDomain={[0, 2]}
+                color={gs.fairnessColor}
+              />
+            </div>
+            <div className={styles.wtnFairness}>
+              <FairnessBar 
+                measure={precisionK}
+                measureDomain={[0, 1]}
+                color={gs.fairnessColor}
+              />
             </div>
           </div>
           <div className={styles.topkFilterView}>

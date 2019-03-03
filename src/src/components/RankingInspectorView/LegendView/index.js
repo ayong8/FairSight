@@ -14,7 +14,7 @@ class LegendView extends Component {
     this.layout = {
       svg: {
         width: '100%',
-        height: 100,
+        height: 135,
         padding: 10
       },
       fontSize: 13,
@@ -27,7 +27,9 @@ class LegendView extends Component {
 
   render() {
     const _self = this;
-    const { mode } = this.props;
+    const { mode, absDistortionWtnPairsScale, absDistortionBtnPairsScale } = this.props;
+    const medianBtnPairsColor = this.props.absDistortionBtnPairsScale((this.props.absDistortionBtnPairsScale.domain()[0] + this.props.absDistortionBtnPairsScale.domain()[1]) / 2),
+          medianWtnPairsColor = this.props.absDistortionWtnPairsScale((this.props.absDistortionWtnPairsScale.domain()[0] + this.props.absDistortionWtnPairsScale.domain()[1]) / 2);
 
     console.log('mode in legend: ', mode);
 
@@ -51,8 +53,8 @@ class LegendView extends Component {
         .attr('x', -5)
         .attr('y', -5)
         .attr('width', '90%')
-        .attr('height', this.layout.svg.height)
-        .style('fill', 'white')
+        .attr('height', this.layout.svg.height - 5)
+        .style('fill', '#f1f1f1')
         .style('shape-rendering','crispEdges')
         .style('stroke', '#d9d9d9')
         .style('stroke-width', 1.0)
@@ -140,24 +142,25 @@ class LegendView extends Component {
             .attr('transform', 'translate(10, 10)');
 
     // legend border
-    // gLegendGroupFairness.append('rect')
-    //     .attr('class', 'legend')
-    //     .attr('x', 0)
-    //     .attr('y', 0)
-    //     .attr('width', this.layout.svg.width - this.layout.svg.padding)
-    //     .attr('height', this.layout.svg.height)
-    //     .style('fill', '#f7f7f7')
-    //     .style('shape-rendering','crispEdges')
-    //     .style('stroke', '#d9d9d9')
-    //     .style('stroke-width', 1.0)
-    //     .style('opacity', 0.5);
+    gLegendGroupFairness.append('rect')
+        .attr('class', 'legend')
+        .attr('x', -5)
+        .attr('y', -5)
+        .attr('width', '90%')
+        .attr('height', this.layout.svg.height - 5)
+        .style('fill', '#f1f1f1')
+        .style('shape-rendering','crispEdges')
+        .style('stroke', '#d9d9d9')
+        .style('stroke-width', 1.0)
+        .style('opacity', 0.5);
 
     // Pair (node)
     gLegendGroupFairness.append('text')
         .attr('x', 0)
         .attr('y', 15)
         .text('Individuals')
-        .style('font-size', this.layout.fontSize + 3);
+        .style('fill', this.layout.fontColor)
+        .style('font-size', this.layout.fontSize + 1);
 
     // Individuals
     // Non-protected group
@@ -195,91 +198,97 @@ class LegendView extends Component {
         .attr('x', 0)
         .attr('y', 70)
         .text('Within-group pairs')
+        .style('fill', this.layout.fontColor)
         .style('font-size', this.layout.fontSize);
 
     gLegendGroupFairness.append('text')
         .attr('x', 0)
-        .attr('y', 88)
-        .text('low')
-        .style('font-size', this.layout.fontSize);
-
-    gLegendGroupFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 25)
-        .attr('y', 91)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', 'white')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendGroupFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 27)
-        .attr('y', 91)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', 'lightpink')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendGroupFairness.append('rect')
-        .attr('class', 'legend_rect')
-        .attr('x', 50)
-        .attr('y', 91)
-        .attr('width', 8)
-        .attr('height', 8)
-        .style('fill', 'hotpink')
-        .style('stroke', this.layout.borderColor);
-
-    gLegendGroupFairness.append('text')
-        .attr('x', 65)
-        .attr('y', 98)
-        .text('high')
-        .style('font-size', this.layout.fontSize);
-
-    // Between-group pairs
-    gLegendGroupFairness.append('text')
-        .attr('x', 10)
-        .attr('y', 113)
-        .text('Between-group pairs')
-        .style('font-size', this.layout.fontSize);
-
-    gLegendGroupFairness.append('text')
-        .attr('x', 15)
-        .attr('y', 130)
-        .text('low')
+        .attr('y', 85)
+        .text('low(' + absDistortionWtnPairsScale.domain()[0] + ')')
+        .style('fill', this.layout.fontColor)
         .style('font-size', this.layout.fontSize);
 
     gLegendGroupFairness.append('rect')
         .attr('class', 'legend_rect')
         .attr('x', 40)
-        .attr('y', 122)
+        .attr('y', 77)
         .attr('width', 8)
         .attr('height', 8)
-        .style('fill', 'white')
+        .style('fill', absDistortionWtnPairsScale(absDistortionWtnPairsScale.domain()[0]))
         .style('stroke', this.layout.borderColor);
 
     gLegendGroupFairness.append('rect')
         .attr('class', 'legend_rect')
-        .attr('x', 52)
-        .attr('y', 122)
+        .attr('x', 50)
+        .attr('y', 77)
         .attr('width', 8)
         .attr('height', 8)
-        .style('fill', '#d4ffd4')
+        .style('fill', medianWtnPairsColor)
         .style('stroke', this.layout.borderColor);
 
     gLegendGroupFairness.append('rect')
         .attr('class', 'legend_rect')
-        .attr('x', 65)
-        .attr('y', 122)
+        .attr('x', 60)
+        .attr('y', 77)
         .attr('width', 8)
         .attr('height', 8)
-        .style('fill', 'lightgreen')
+        .style('fill', absDistortionWtnPairsScale(absDistortionWtnPairsScale.domain()[1]))
         .style('stroke', this.layout.borderColor);
 
     gLegendGroupFairness.append('text')
-        .attr('x', 80)
-        .attr('y', 130)
-        .text('high')
+        .attr('x', 75)
+        .attr('y', 85)
+        .text('high(' + (Math.round(absDistortionWtnPairsScale.domain()[1] * 100) / 100) + ')')
+        .style('fill', this.layout.fontColor)
+        .style('font-size', this.layout.fontSize);
+
+    // Between-group pairs
+    gLegendGroupFairness.append('text')
+        .attr('x', 0)
+        .attr('y', 102)
+        .text('Between-group pairs')
+        .style('fill', this.layout.fontColor)
+        .style('font-size', this.layout.fontSize);
+
+    gLegendGroupFairness.append('text')
+        .attr('x', 0)
+        .attr('y', 118)
+        .text('low(' + absDistortionBtnPairsScale.domain()[0] + ')')
+        .style('fill', this.layout.fontColor)
+        .style('font-size', this.layout.fontSize);
+
+    gLegendGroupFairness.append('rect')
+        .attr('class', 'legend_rect')
+        .attr('x', 40)
+        .attr('y', 110)
+        .attr('width', 8)
+        .attr('height', 8)
+        .style('fill', absDistortionBtnPairsScale(absDistortionBtnPairsScale.domain()[0]))
+        .style('stroke', this.layout.borderColor);
+
+    gLegendGroupFairness.append('rect')
+        .attr('class', 'legend_rect')
+        .attr('x', 50)
+        .attr('y', 110)
+        .attr('width', 8)
+        .attr('height', 8)
+        .style('fill', medianBtnPairsColor)
+        .style('stroke', this.layout.borderColor);
+
+    gLegendGroupFairness.append('rect')
+        .attr('class', 'legend_rect')
+        .attr('x', 60)
+        .attr('y', 110)
+        .attr('width', 8)
+        .attr('height', 8)
+        .style('fill', absDistortionBtnPairsScale(absDistortionBtnPairsScale.domain()[1]))
+        .style('stroke', this.layout.borderColor);
+
+    gLegendGroupFairness.append('text')
+        .attr('x', 75)
+        .attr('y', 118)
+        .text('high(' + (Math.round(absDistortionBtnPairsScale.domain()[1] * 100) / 100) + ')')
+        .style('fill', this.layout.fontColor)
         .style('font-size', this.layout.fontSize);
 
     return (

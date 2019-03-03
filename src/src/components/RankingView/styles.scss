@@ -2,14 +2,13 @@
   grid-area: r;
   width: 99%;
   background-color: white;
-  padding: 0 10px;
   border-bottom: 1px solid lightgray;
 
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
-  grid-template-columns: 20% 40% 40%;
-  grid-template-rows: 8% 8% 30% 25% 10%;
+  grid-template-columns: 40% 30% 30%;
+  grid-template-rows: 10% 14% 30% 25% 10%;
   grid-template-areas: 
     'crt crt crt'
     'rvt ft ft'
@@ -19,9 +18,11 @@
 
   .currentRankingTitle {
     grid-area: crt;
-
+    height: 35px;
     border-bottom: 1.5px solid lightgray;
     padding-bottom: 10px;
+    background-color: #4d688e;
+    color: white;
   }
 
   .placeholder {
@@ -46,11 +47,28 @@
     width: 90%;
   }
 
-  .wholeRankingSummaryStat1 {
+  .wholeRankingSummaryStat {
     grid-area: wrst;
-    display: flex;
+    display: grid;
+    grid-template-rows: 20% 40% 40%;
+    grid-template-columns: 20% 40% 40%;
+    grid-template-areas:
+      'p ut ft'
+      'bt bu bf'
+      'wt wu wf';
     justify-content: space-around;
   }
+
+  .placeholder { grid-area: p; }
+  .utilityTitle { grid-area: ut; }
+  .fairnessTitle { grid-area: ft; }
+  .betweenTitle { grid-area: bt; }
+  .withinTitle { grid-area: wt; }
+
+  .btnUtility { grid-area: bu; }
+  .btnFairness { grid-area: bf; }
+  .wtnUtility { grid-area: wu; }
+  .wtnFairness { grid-area: wf; }
 
   .filterTitle { 
     grid-area: wrst;
@@ -58,19 +76,11 @@
     // border-bottom: 1px solid #d9d9d9;
   }
 
-  .wholeRankingSummary { 
-    grid-area: wrs; 
-
-    .wholeRankingSummaryStat {
-      display: flex;
-    }
-  }
-
   .betweenTitle,
   .withinTitle {
-    font-size: 0.8rem;
-    /* margin: 3px 0; */
-    font-weight: 500;
+    align-self: center;
+    justify-self: end;
+    padding: 15px;
   }
 
   .topkSummaryStat {

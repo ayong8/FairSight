@@ -3,22 +3,21 @@
     align-items: center;
 
     height: 30px;
-    margin: 1px 1px;
+    padding: 10px;
     /* font-weight: 600; */
     /* background-color: #747373;
     border: 1px solid #565555; */
-    color: #2a4b5a;
-    font-size: 1.4rem;
-    font-weight: 600;
-    /* text-transform: uppercase; */
+    color: white;
+    font-size: 1.1rem;
+    text-transform: uppercase;
   }
 
 .subTitle {
-  color: #00346b;
   font-size: 1.2rem;
-  margin-top: 10px;
   margin-bottom: 15px;
   font-weight: 500;
+  height: 35px;
+  padding: 5px;
 }
 
 .subTitle2 {

@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { Select, Icon, Table, Tabs, Slider, InputNumber } from 'antd';
+import { Select, Icon, Table, Tabs, Slider, InputNumber, Tooltip } from 'antd';
 
 import LegendView from 'components/RankingInspectorView/LegendView';
 import FeatureInspectionView from 'components/RankingInspectorView/FeatureInspectionView';
@@ -14,6 +14,8 @@ import InputSpaceView from 'components/RankingInspectorView/InputSpaceView';
 import styles from './styles.scss';
 import index from '../../index.css';
 import gs from '../../config/_variables.scss'; // gs (=global style)
+import FairnessBar from '../FairnessBar';
+import UtilityBar from '../UtilityBar';
 
 class RankingInspectorView extends Component {
     constructor(props) {
@@ -1037,8 +1039,21 @@ class RankingInspectorView extends Component {
                                   className={styles.mappingGroupFairnessTitle} 
                                   onMouseOver={this.handleMouseOverGroupFairness}
                                   onMouseOut={this.handleMouseOverGroupFairness}
-                                >Input Distance</div>
-                                <div className={styles.mappingGroupFairness}>{Math.round(inputSpaceDist * 1000) / 1000}</div>
+                                >Input Distance
+                                  <Tooltip placement="topLeft" title="Group separation">
+                                    <Icon 
+                                      type="question-circle" 
+                                      theme="twoTone"
+                                      style={{ fontSize: '15px', verticalAlign: 'text-top', margin: '0 5px' }} 
+                                    />
+                                  </Tooltip>
+                                </div>
+                                <div className={styles.mappingGroupFairness}>
+                                  <UtilityBar
+                                    measure={Math.round(inputSpaceDist * 1000) / 1000}
+                                    measureScale={[4, 6]}
+                                  />
+                                </div>
                               </div>) :
                             (mode === 'IF') ?
                               (<div></div>) : 
@@ -1051,7 +1066,12 @@ class RankingInspectorView extends Component {
                                   onMouseOver={this.handleMouseOverGroupFairness}
                                   onMouseOut={this.handleMouseOverGroupFairness}
                                 >GroupSkew &nbsp;&nbsp;&nbsp; </div>
-                                <div className={styles.mappingGroupFairness}>{groupSkew}</div>
+                                <div className={styles.mappingGroupFairness}>
+                                  <FairnessBar
+                                    measure={groupSkew}
+                                    measureScale={[0.5, 1.5]}
+                                  />
+                                </div>
                               </div>) :
                             (mode === 'IF') ?
                               (<div className={styles.individualFairnessWrapper}>
@@ -1071,7 +1091,12 @@ class RankingInspectorView extends Component {
                                     onMouseOver={this.handleMouseOverGroupFairness}
                                     onMouseOut={this.handleMouseOverGroupFairness}
                                     >Fairness</div>
-                                  <div className={styles.outputGroupFairness}>{Math.round(GFDCG * 100) / 100}</div>
+                                  <div className={styles.outputGroupFairness}>
+                                    <FairnessBar
+                                      measure={Math.round(GFDCG * 100) / 100}
+                                      measureScale={[0, 2]}
+                                    />
+                                  </div>
                                 </div>) :
                             (mode === 'IF') ?
                                 (<div></div>) : 
@@ -1099,7 +1124,6 @@ class RankingInspectorView extends Component {
     }
 
     renderRankingInspector(mode){ // mode == 'IF' (individual fairness), 'GF' (group fairness)
-
       const _self = this;
 
       const Option = Select.Option;
@@ -1115,6 +1139,8 @@ class RankingInspectorView extends Component {
               <LegendView 
                 className={styles.LegendView}
                 mode={mode}
+                absDistortionWtnPairsScale={_self.absDistortionWtnPairsScale}
+                absDistortionBtnPairsScale={_self.absDistortionBtnPairsScale}
               />
               <OutputSpaceView 
                   className={styles.OutputSpaceView}

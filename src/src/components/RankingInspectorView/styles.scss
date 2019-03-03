@@ -21,38 +21,43 @@
 
   .inspectorWrapper {
     display: flex;
+    border-bottom: 1px solid lightgray;
   }
 
   .SpaceView {
     width: 80%;
     display: grid;
     grid-template-columns: 35% 50% 15%;
-    grid-template-rows: 40px 110px 270px 130px;
+    grid-template-rows: 35px 110px 270px 135px;
     grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
       't t t'
       'sm sm sm'
       'i mt tr'
       'lg mt tr';
-    background-color: #f5f4f4;
+    // background-color: #f5f4f4;
     // border: 1px solid #e2e2e2;
-    padding: 10px;
+    margin-right: 10px;
   }
 
   .spaceViewTitleWrapper { 
     grid-area: t;
     display: flex;
     justify-content: space-between;
+    background-color: #577399;
+    color: white;
+    padding: 5px 10px;
   }
 
   .spaceOverview { 
     grid-area: sm; 
     display: grid;
     grid-template-columns: 32% 5% 42% 5% 16%;
-    grid-template-rows: 20px 30px 30px;
+    grid-template-rows: 20px 5px 50px;
     grid-template-areas:
       'it i1 mt i2 ot'
       'id i1 md i2 od'
       'im i1 mm i2 om';
+    margin-top: 10px;
   }
 
   .inputSpaceTitle { grid-area: it; }

@@ -1051,7 +1051,8 @@ class RankingInspectorView extends Component {
                                 <div className={styles.mappingGroupFairness}>
                                   <UtilityBar
                                     measure={Math.round(inputSpaceDist * 1000) / 1000}
-                                    measureScale={[4, 6]}
+                                    measureDomain={[4, 6]}
+                                    color={gs.utilityColor}
                                   />
                                 </div>
                               </div>) :
@@ -1069,7 +1070,8 @@ class RankingInspectorView extends Component {
                                 <div className={styles.mappingGroupFairness}>
                                   <FairnessBar
                                     measure={groupSkew}
-                                    measureScale={[0.5, 1.5]}
+                                    measureDomain={[0.5, 1.5]}
+                                    color={gs.utilityColor}
                                   />
                                 </div>
                               </div>) :
@@ -1094,7 +1096,7 @@ class RankingInspectorView extends Component {
                                   <div className={styles.outputGroupFairness}>
                                     <FairnessBar
                                       measure={Math.round(GFDCG * 100) / 100}
-                                      measureScale={[0, 2]}
+                                      measureDomain={[0, 2]}
                                     />
                                   </div>
                                 </div>) :
@@ -1133,7 +1135,7 @@ class RankingInspectorView extends Component {
           <div className={styles.inspectorWrapper}>
             <div className={styles.SpaceView}>
               <div className={styles.spaceViewTitleWrapper}>
-                <div className={styles.spaceViewTitle + ' ' + index.subTitle}>Global Inspector</div>
+                <div className={styles.spaceViewTitle + ' ' + index.title}>Global Inspector</div>
               </div>
               {_self.renderSpaceOverview()}
               <LegendView 

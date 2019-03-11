@@ -2,7 +2,7 @@
     display:flex;
     align-items: center;
 
-    height: 30px;
+    height: 35px;
     padding: 10px;
     /* font-weight: 600; */
     /* background-color: #747373;
@@ -15,7 +15,6 @@
 .subTitle {
   font-size: 1.2rem;
   margin-bottom: 15px;
-  font-weight: 500;
   height: 35px;
   padding: 5px;
 }

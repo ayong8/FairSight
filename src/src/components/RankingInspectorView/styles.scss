@@ -25,7 +25,7 @@
   }
 
   .SpaceView {
-    width: 80%;
+    width: 70%;
     display: grid;
     grid-template-columns: 35% 50% 15%;
     grid-template-rows: 35px 110px 270px 135px;
@@ -43,9 +43,8 @@
     grid-area: t;
     display: flex;
     justify-content: space-between;
-    background-color: #577399;
+    background-color: #00346b;
     color: white;
-    padding: 5px 10px;
   }
 
   .spaceOverview { 
@@ -60,12 +59,12 @@
     margin-top: 10px;
   }
 
-  .inputSpaceTitle { grid-area: it; }
+  .inputSpaceTitle { grid-area: it; padding-left: 30px; }
   .inputSpaceDescription { grid-area: id; }
-  .inputSpaceMeasure { grid-area: im; display: flex; justify-content: center; }
-  .mappingSpaceTitle { grid-area: mt; }
+  .inputSpaceMeasure { grid-area: im; display: flex; padding-left: 30px;}
+  .mappingSpaceTitle { grid-area: mt; padding-left: 30px; }
   .mappingSpaceDescription { grid-area: md; }
-  .mappingSpaceMeasure { grid-area: mm; display: flex; justify-content: center; }
+  .mappingSpaceMeasure { grid-area: mm; display: flex; padding-left: 30px;}
   .outputSpaceTitle { grid-area: ot; }
   .outputSpaceDescription { grid-area: od; }
   .outputSpaceMeasure { grid-area: om; display: flex; justify-content: center; }
@@ -113,7 +112,9 @@
 
   .MatrixWrapper {
     grid-area: mt;
-    padding-top: 10px;
+    border: 1px dashed #e4e4e4;
+    padding: 15px;
+    margin: 5px;
 
     .dropdownWrapper {
       width: 30%;

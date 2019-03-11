@@ -19,15 +19,15 @@ body {
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
-  grid-template-rows: 20px 30px 300px 400px 800px 80px;
-  grid-template-columns: 20% 20% 37.5% 20%;
+  grid-template-rows: 20px 30px 350px 400px 800px 80px;
+  grid-template-columns: 20% 52.5% 27%;
   grid-template-areas:
-    'mg mg mg mg'
-    'm m m m'
-    'g r r l'
-    'g ri ri l'
-    'g ri ri ii'
-    'f f f f';
+    'mg mg mg'
+    'm m m'
+    'g r l'
+    'g ri ri'
+    'g ri ri'
+    'f f f';
 }
 
 .marginDiv { grid-area: mg; }
@@ -44,12 +44,9 @@ body {
   display: grid;
   row-gap: 10px;
   column-gap: 10px;
-  grid-template-rows: 30px 250px 100px 300px 150px 350px;
+  grid-template-rows: 250px 100px 250px 150px 350px;
   grid-template-columns: 20% 40% 20% 17%;
   grid-template-areas:
-    'rt rt rt rt'
-    'd d d d'
-    'd d d d'
     'd d d d'
     'd d d d'
     'd d d d';

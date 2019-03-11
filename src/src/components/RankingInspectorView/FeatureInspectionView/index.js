@@ -559,8 +559,7 @@ class IndividualFairnessInspectionView extends Component {
         .attr('y', (d) => previousRankingScale(d.ranking))
         .attr('width', rectWidth)
         .attr('height', (d) => rectHeight - previousRankingScale(d.ranking))
-        .style('fill', gs.topkColor)
-        .style('stroke', 'black')
+        .style('fill', '#0075e6b3')
         .style('shape-rendering', 'crispEdge')
         .style('stroke-width', 0.5);
 
@@ -573,7 +572,7 @@ class IndividualFairnessInspectionView extends Component {
         .attr('width', nonTopkRectHeight)
         .attr('height', (d) => rectHeight - previousRankingScale(d.ranking))
         .style('fill', gs.nonTopkColor)
-        .style('stroke', 'black')
+        .style('fill-opacity', 0.7)
         .style('shape-rendering', 'crispEdge')
         .style('stroke-width', 0.5);
 
@@ -756,6 +755,7 @@ class IndividualFairnessInspectionView extends Component {
     return { 
       perturbationDiv: 
         <div className={styles.featureRow}>
+          <div>{Math.round(diffPrecisionK * 100) / 100}</div>
           {svgPerturbation.toReact()}
         </div>,
       diffPrecisionK: Math.round(diffPrecisionK * 100) / 100,

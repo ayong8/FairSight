@@ -4,6 +4,11 @@
 
     /* border-top: 1px solid #d9d9d9; */
     border-left: 1px dashed #d9d9d9;
+
+    .localInspectorTitle {
+        background-color: #00346b;
+        color: white;
+    }
     /* margin: 5px 0; */
     // background-color: #f5f4f4;
 
@@ -12,8 +17,6 @@
     // }
     .IndividualStatus {
         height: 200px;
-        background-color: #efefef;
-        border: 1px solid lightgray;
     }
     .infoWrapper {
         margin: 10px;

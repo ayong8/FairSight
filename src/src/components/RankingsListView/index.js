@@ -8,8 +8,8 @@ import styles from "./styles.scss";
 import index from "../../index.css";
 import gs from "../../config/_variables.scss"; // gs (=global style)
 
-const _attr = {
-}
+import FairnessBar from "../FairnessBar";
+import UtilityBar from "../UtilityBar";
 
 class RankingsListView extends Component {
   constructor(props) {
@@ -161,25 +161,47 @@ class RankingsListView extends Component {
       return {
         id: 'R' + rankingId,
         topk: currentTopk,
-        if: Math.round(stat.rNNSum * 100) + '%',
-        gf: stat.GFDCG,
-        u: Math.round(stat.utility * 100) + '%'
+        if: 
+        <div className={styles.featureRow}>
+          <UtilityBar 
+            measure={stat.rNNSum}
+            measureDomain={[0, 1]}
+            color={gs.utilityColor}
+          />
+        </div>,
+        gf: 
+        <div className={styles.featureRow}>
+            <FairnessBar 
+              measure={stat.GFDCG}
+              measureDomain={[0, 2]}
+              color={gs.fairnessColor}
+            />
+        </div>,
+        u: 
+        <div>
+          <UtilityBar 
+            measure={stat.utility}
+            measureDomain={[0, 1]}
+            color={gs.utilityColor}
+          />
+        </div>
       }
     });
   }
 
   render() {
+    const _self = this;
     console.log('RankingListView rendered');
     if ((!this.props.rankings || this.props.rankings.length === 0)) {
         return <div />
       }
 
     const rankingListColumns = [
-        { title: 'ID', dataIndex: 'id', width: '10%' },
-        { title: 'TOPK', dataIndex: 'topk', width: '15%' },
-        { title: 'GF', dataIndex: 'gf', width: '20%'},
-        { title: 'IF', dataIndex: 'if', width: '20%'},
-        { title: 'U', dataIndex: 'u', width: '20%'}
+        { title: 'ID', dataIndex: 'id', width: '5%' },
+        { title: 'TOPK', dataIndex: 'topk', width: '10%' },
+        { title: 'GF', dataIndex: 'gf', width: '25%'},
+        { title: 'IF', dataIndex: 'if', width: '25%'},
+        { title: 'U', dataIndex: 'u', width: '25%'}
       ];
 
     return (
@@ -187,7 +209,7 @@ class RankingsListView extends Component {
         <div className={styles.titleWrapper}>
           <div className={index.title + ' ' + styles.title }> Rankings </div>
         </div>
-        {this.renderRankingPlot()}
+        {/* {this.renderRankingPlot()} */}
         <Table
           className={styles.rankingComparisonTable}
           columns={rankingListColumns} 

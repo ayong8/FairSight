@@ -8,7 +8,7 @@
   row-gap: 10px;
   column-gap: 10px;
   grid-template-columns: 40% 30% 30%;
-  grid-template-rows: 10% 14% 30% 25% 10%;
+  grid-template-rows: 10% 10% 30% 20% 20%;
   grid-template-areas: 
     'crt crt crt'
     'rvt ft ft'
@@ -21,7 +21,7 @@
     height: 35px;
     border-bottom: 1.5px solid lightgray;
     padding-bottom: 10px;
-    background-color: #4d688e;
+    background-color: #003569;
     color: white;
   }
 

@@ -40,7 +40,7 @@ body {
 }
 .ant-table-row > td,
 .ant-table-thead > tr > th {
-  padding: 6px !important;
+  padding: 2px !important;
   font-size: 1rem !important;
 }
 .ant-table-thead > tr > th {
@@ -112,6 +112,11 @@ body {
 
 .anticon-right-circle {
   font-size: 1.2rem;
+}
+
+.ant-tabs.ant-tabs-card, .ant-tabs-card-bar, .ant-tabs-tab-active, .ant-tabs-tab {
+  /* border: 2px solid #00346b;
+  color: white; */
 }
 
 .g_x_whole_ranking_topk_axis line { stroke: gray; }

@@ -35,7 +35,7 @@ class FairnessBar extends Component {
         .range([0, 60]);
 
     const g = d3.select(svg).append('g')
-        .attr('transform', 'translate(3,2)');
+        .attr('transform', 'translate(3,0)');
         
     const xAxisSetting = d3.axisBottom(measureScale)
             .tickValues(measureDomain).tickSize(0),
@@ -46,20 +46,20 @@ class FairnessBar extends Component {
 
     xAxis.select('.domain').remove();
 
-    d3.select(svg).append('rect')
-      .attr('x', 0)
-      .attr('y', 5)
-      .attr('width', 70)
-      .attr('height', 10)
-      .style('stroke', '#d0d0d0')
-      .style('fill', '#efefef');
+    const backgroundRect = g.append('rect')
+            .attr('x', 0)
+            .attr('y', 10)
+            .attr('width', 70)
+            .attr('height', 10)
+            .style('stroke', '#d0d0d0')
+            .style('fill', '#efefef');
 
-    const currentMeasure = d3.select(svg).append('line')
-      .attr('x1', measureScale(measure))
-      .attr('y1', 5)
-      .attr('x2', measureScale(measure))
-      .attr('y2', 15)
-      .style('stroke', 'black');
+    const currentMeasure = g.append('line')
+            .attr('x1', measureScale(measure))
+            .attr('y1', 10)
+            .attr('x2', measureScale(measure))
+            .attr('y2', 21)
+            .style('stroke', 'black');
 
     const avgCircle = g.append('circle')
             .attr('cx', measureScale(1.3))
@@ -71,28 +71,29 @@ class FairnessBar extends Component {
 
     const score = g.append('text')
             .attr('x', 60 + 15)
-            .attr('y', 15)
+            .attr('y', 21)
             .style('font-size', 16)
-            .text(measure);
+            .text(Math.round(measure * 100) / 100);
+
+    const fairRect = g.append('rect')
+            .attr('width', 5)
+            .attr('height', 5)
+            .style('fill', '#c91765')
+            .style('stroke', '#c91765')
+            .attr('transform', 'translate(30,2)rotate(45)');
 
     const fairLine = g.append('line')
-            .attr('x1', 35)
-            .attr('y1', 5)
-            .attr('x2', 35)
+            .attr('x1', measureScale(1))
+            .attr('y1', 10)
+            .attr('x2', measureScale(1))
             .attr('y2', 20)
             .style('stroke', '#c91765')
             .style('stroke-width', 2);
 
-            const fairRect = g.append('rect')
-            .attr('width', 3)
-            .attr('height', 3)
-            .style('fill', '#c91765')
-            .style('stroke', '#c91765')
-            .attr('transform', 'translate(35,15)rotate(45)');
-
     // Traingle-shaped indicator for current fair score
     var triangleSize = 20;
     var verticalTransform = 100 + Math.sqrt(triangleSize);
+
     const triangle = d3.symbol()
             .type(d3.symbolTriangle)
             .size(triangleSize);
@@ -102,7 +103,7 @@ class FairnessBar extends Component {
       .attr("d", triangle)
       .attr("stroke", 'black')
       .attr("fill", 'black')
-      .attr("transform", function(d) { return "translate(" + measureScale(measure) + "," + 3 + ")rotate(180)"; });
+      .attr("transform", function(d) { return "translate(" + measureScale(measure) + "," + 25 + ")"; });
 
     return (
       <div className={styles.measure}>

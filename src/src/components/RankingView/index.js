@@ -1040,8 +1040,8 @@ class RankingView extends Component {
             </div>
             <div className={styles.wtnFairness}>
               <FairnessBar 
-                measure={precisionK}
-                measureDomain={[0, 1]}
+                measure={statParityK}
+                measureDomain={[0, 2]}
                 color={gs.fairnessColor}
               />
             </div>

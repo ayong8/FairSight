@@ -46,48 +46,64 @@ class UtilityBar extends Component {
 
     xAxis.select('.domain').remove();
 
-    g.append('rect')
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('width', 70)
-      .attr('height', 20)
-      .style('fill', '#efefef');
+    const backgroundRect = g.append('rect')
+            .attr('x', 0)
+            .attr('y', 10)
+            .attr('width', 70)
+            .attr('height', 10)
+            .style('stroke', '#d0d0d0')
+            .style('fill', '#efefef');
 
-    g.append('rect')
-      .attr('x', 0)
-      .attr('y', 0)
-      .attr('width', measureScale(measure))
-      .attr('height', 20)
-      .style('fill', color);
+    const currentMeasure = g.append('line')
+            .attr('x1', measureScale(measure))
+            .attr('y1', 10)
+            .attr('x2', measureScale(measure))
+            .attr('y2', 21)
+            .style('stroke', 'black');
 
     const avgCircle = g.append('circle')
-      .attr('cx', measureScale(0.5))
-      .attr('cy', 0 + 10)
-      .attr('r', 3)
-      .style('fill', 'black')
-      .style('fill-opacity', 0.5)
-      .style('stroke', 'black');
+            .attr('cx', measureScale(1.3))
+            .attr('cy', 0 + 10)
+            .attr('r', 3)
+            .style('fill', 'white')
+            .style('fill-opacity', 0.5)
+            .style('stroke', 'white');
 
-    const perfectLine = g.append('line')
-        .attr('x1', 70)
-        .attr('y1', 0)
-        .attr('x2', 70)
-        .attr('y2', 20)
-        .style('stroke', '#c91765')
-        .style('stroke-width', 2);
+    const score = g.append('text')
+            .attr('x', 60 + 15)
+            .attr('y', 21)
+            .style('font-size', 16)
+            .text(Math.round(measure * 100) / 100);
 
-    const perfectRect = g.append('rect')
-        .attr('width', 3)
-        .attr('height', 3)
-        .style('fill', '#c91765')
-        .style('stroke', '#c91765')
-        .attr('transform', 'translate(70,20)rotate(45)');
+    const fairRect = g.append('rect')
+            .attr('width', 5)
+            .attr('height', 5)
+            .style('fill', '#c91765')
+            .style('stroke', '#c91765')
+            .attr('transform', 'translate(30,2)rotate(45)');
 
-    g.append('text')
-      .attr('x', 60 + 15)
-      .attr('y', 15)
-      .style('font-size', 16)
-      .text(measure);
+    const fairLine = g.append('line')
+            .attr('x1', measureScale(1))
+            .attr('y1', 10)
+            .attr('x2', measureScale(1))
+            .attr('y2', 20)
+            .style('stroke', '#c91765')
+            .style('stroke-width', 2);
+
+    // Traingle-shaped indicator for current fair score
+    var triangleSize = 20;
+    var verticalTransform = 100 + Math.sqrt(triangleSize);
+
+    const triangle = d3.symbol()
+            .type(d3.symbolTriangle)
+            .size(triangleSize);
+
+    g.append('path')
+      .attr('class', 'point_to_selected_instance')
+      .attr("d", triangle)
+      .attr("stroke", 'black')
+      .attr("fill", 'black')
+      .attr("transform", function(d) { return "translate(" + measureScale(measure) + "," + 25 + ")"; });
 
     return (
       <div className={styles.measure}>

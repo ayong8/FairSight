@@ -4,6 +4,8 @@ import _ from 'lodash';
 import ReactFauxDOM from 'react-faux-dom';
 import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import { Select, Icon, Table, Tabs, Slider, InputNumber, Tooltip } from 'antd';
+import { BeatLoader } from 'react-spinners';
+
 
 import LegendView from 'components/RankingInspectorView/LegendView';
 import FeatureInspectionView from 'components/RankingInspectorView/FeatureInspectionView';
@@ -1195,6 +1197,7 @@ class RankingInspectorView extends Component {
                 className={styles.IndividualInspectionView}
                 rankingInstance={_self.props.data}
                 topk={_self.props.topk}
+                features={_self.props.data.features}
                 selectedInstance={_self.state.selectedInstance}
                 selectedRankingInterval={_self.props.selectedRankingInterval}
                 xNN={_self.state.xNN}
@@ -1222,7 +1225,7 @@ class RankingInspectorView extends Component {
           (!this.props.permutationDiffs || this.props.permutationDiffs.length === 0) ||
           (!this.props.permutationDiffsFlattened || this.props.permutationDiffsFlattened.length === 0)
          ) {
-        return <div />
+        return <div><BeatLoader /></div>
       }
       const _self = this;
       const TabPane = Tabs.TabPane;

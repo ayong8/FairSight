@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import * as d3 from 'd3';
 import _ from 'lodash';
 import { Tooltip } from 'react-svg-tooltip';
+import { BeatLoader } from 'react-spinners';
 
 import styles from "./styles.scss";
 import index from '../../index.css';
@@ -235,22 +236,6 @@ class App extends Component {
             yHat: 0
           }
       });
-
-      return fetch('/dataset/calculateConfidenceInterval/', {
-        method: 'post',
-        body: JSON.stringify(inputs)
-      });
-    })
-    .then( (response) => {
-      return response.json();
-    })
-    .then( (response) => {
-      const confIntervalPoints = JSON.parse(response);
-
-      _self.setState({
-        confIntervalPoints: confIntervalPoints
-      });
-      _self.setFairInstancesFromConfidenceInterval(confIntervalPoints, this.pairwiseDiffs);
     });
   }
 
@@ -573,39 +558,10 @@ class App extends Component {
           permutationDiffsFlattened: this.permutationDiffsFlattened,
           selectedPermutationDiffsFlattend: this.selectedPermutationDiffsFlattend,
           rankingInstance: currentRankingInstance,
-          rankings: [...prevState.rankings, currentRankingInstance ]
-        }
-      });
-
-      inputs = _.map(this.pairwiseDiffs, (d) => {
-          return {
-            idx1: d.idx1,
-            idx2: d.idx2,
-            X: d.scaledDiffInput,
-            y: d.distortion,
-            yHat: 0
-          }
-      });
-
-      return fetch('/dataset/calculateConfidenceInterval/', {
-        method: 'post',
-        body: JSON.stringify(inputs)
-      });
-    })
-    .then( (response) => {
-      return response.json();
-    })
-    .then( (response) => {
-      const confIntervalPoints = JSON.parse(response);
-
-      this.setState(prevState => ({
-        confIntervalPoints: confIntervalPoints,
-        rankingInstance: {
-          ...prevState.rankingInstance,
+          rankings: [...prevState.rankings, currentRankingInstance ],
           shouldRunModel: true
         }
-      }));
-      this.setFairInstancesFromConfidenceInterval(confIntervalPoints, this.pairwiseDiffs);
+      });
     });
   }
 
@@ -964,19 +920,6 @@ class App extends Component {
     }
   }
 
-  setFairInstancesFromConfidenceInterval(confIntervalPoints, pairwiseDiffs) {
-    const _self = this;
-
-    const dataPairForConfInterval = _.filter(confIntervalPoints, (d) => d.isUpper === 1),
-          numPairs = pairwiseDiffs.length;
-
-          for(let i=0; i<numPairs; i++){
-            pairwiseDiffs[i].isFair = dataPairForConfInterval[i].isFair;
-          };
-
-    this.pairwiseDiffs = pairwiseDiffs;
-  }
-
   calculateOutlierInstances(instances) {
     const sumDistortions = instances.map((d) => d.sumDistortion);
     const mean = sumDistortions.reduce((acc, curr) => acc + curr) / sumDistortions.length,
@@ -1166,25 +1109,36 @@ class App extends Component {
         (!this.state.pairwiseInputDistances || this.state.pairwiseInputDistances.length === 0) ||
         (!this.state.pairwiseDiffs || this.state.pairwiseDiffs.length === 0) ||
         (!this.state.permutationDiffs || this.state.permutationDiffs.length === 0) ||
-        (!this.state.confIntervalPoints || this.state.confIntervalPoints.length === 0) ||
         (!this.state.rankings || this.state.rankings.length === 0) || 
         (Object.keys(this.state.corrBtnSensitiveAndAllFeatures).length === 0) ||
         (!this.state.topk)
        ) {
-      return <div />
+      return (
+        <div className={styles.App}>
+          <div className={styles.Menubar}>
+            <div className={styles.appTitle}>FAIRSIGHT</div>
+          </div>
+          <div className={styles.Generator}>
+            <div className={styles.generatorTitleWrapper}>
+              <span className={styles.generatorTitle + ' ' + index.title}>Generator</span>
+              <br />
+            </div>
+            <BeatLoader />
+          </div>
+          <div className={styles.RankingView}>
+            <div className={styles.currentRankingTitle + ' ' + index.title}>
+              Ranking View &nbsp;
+            </div>
+          </div>
+        </div>)
     }
+
     // For the Ranking Inspector, only send down the selected ranking data
     const { rankingInstance, dataset, methods, features, 
             topk, n, selectedRankingInterval, mouseoveredInstance, rankings,
             selectedInstances, permutationDiffsFlattened, selectedPermutationDiffsFlattend } = this.state,
           { instances } = rankingInstance,
           { from, to } = selectedRankingInterval;
-
-
-    const tracker = new Tracker([
-              // pageViewListener,
-              // productClickListener
-            ]);
 
     return (
       <div className={styles.App}>
@@ -1210,7 +1164,6 @@ class App extends Component {
             n={this.state.n}
             data={this.state.rankingInstance}
             pairwiseDiffs={this.pairwiseDiffs}
-            confIntervalPoints={this.state.confIntervalPoints}
             onRunningFilter={this.handleFilterRunning}
             onSelectedInterval={this.handleSelectedInterval}
             onSelectedTopk={this.handleSelectedTopk}  />

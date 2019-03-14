@@ -107,3 +107,57 @@ body {
   margin-top: 8px;
   margin-left: 5px;
 }
+
+
+
+// For Loading view
+.Generator {
+  grid-area: g;
+  width: 100%;
+  align-items: center;
+  font-size: 12px;
+
+  border-right: 1px solid lightgray;
+  font-size: 1.1rem;
+
+  .generatorTitleWrapper {
+    margin-bottom: 20px;
+    display: flex;
+    background-color: #003569;
+    
+    .generatorTitle {
+        // padding: 0;
+    }
+  }
+}
+.Menubar {
+  grid-area: m;
+
+  width: 100%;
+}
+
+.appTitle {
+  grid-area: t;
+
+  font-size: 30px;
+  font-weight: 800;
+  text-transform: uppercase;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.RankingView {
+  grid-area: r;
+  width: 99%;
+  background-color: white;
+  border-bottom: 1px solid lightgray;
+
+  .currentRankingTitle {
+    grid-area: crt;
+    height: 35px;
+    border-bottom: 1.5px solid lightgray;
+    padding-bottom: 10px;
+    background-color: #003569;
+    color: white;
+  }
+}

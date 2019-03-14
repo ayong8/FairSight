@@ -2,13 +2,13 @@
     grid-area: l;
 
     border-left: 1px solid #e3e1e1;
+    overflow-y: scroll;
 
     .titleWrapper {
         display: flex;
         background-color: #00346b;
         height: 35px;
         margin-left: 5px;
-        padding: 2px 10px;
 
         .title {
           }

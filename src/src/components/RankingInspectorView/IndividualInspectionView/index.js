@@ -28,9 +28,11 @@ class IndividualInspectionView extends Component {
     }
 
     renderEmptyTable() {
+      const { features } = this.props;
+
       return [
         {
-          feature: <div></div>,
+          feature: features.map((d) => (<div>{d.name}</div>)),
           value: ''
         }
       ]
@@ -51,14 +53,21 @@ class IndividualInspectionView extends Component {
         <div className={styles.IndividualInspectionView}>
           <div className={index.title + ' ' + styles.localInspectorTitle}>Local Inspector</div>
             <div className={styles.IndividualStatus}>
-              <div>Individual Inspection</div>
+              <div className={styles.individualInspectionTitle}>Individual Inspection</div>
               {/* <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', marginBottom: 10}}/> */}
               <div>
                 <Badge status="success"/>
                 <span className={index.instanceIdTitle}>Instance ID:&nbsp;</span>
                 {(selectedInstance && Object.keys(selectedInstance).length !== 0) ? selectedInstance.idx : ''}
               </div>
-              <div className={styles.individualMeasures}>{'rNN: ' + Math.round(this.props.xNN * 100) / 100}</div>
+              <div className={styles.individualMeasures}>
+                <Badge status="success"/>
+                {'rNN: ' + Math.round(this.props.xNN * 100) / 100}
+              </div>
+              <div className={styles.individualMeasures}>
+                <Badge status="success"/>
+                {'rNN (gain): ' + Math.round(this.props.xNN * 100) / 100}
+              </div>
               <div className={styles.instanceDataTableWrapper}>
                 <Table
                   className={styles.instanceDataTable}

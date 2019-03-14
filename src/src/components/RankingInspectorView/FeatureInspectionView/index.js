@@ -748,9 +748,11 @@ class IndividualFairnessInspectionView extends Component {
         .style('opacity', 0.5);
 
     const diffPrecisionK = statForPerturbation.precisionK - stat.precisionK,
-          diffSp = statForPerturbation.sp  - stat.sp,
+          diffSp = statForPerturbation.sp - stat.sp,
           diffCp = statForPerturbation.cp - stat.cp,
           dissAcc = statForPerturbation.accuracy - stat.accuracy;
+
+    console.log(statForPerturbation.sp, stat.sp);
 
     return { 
       perturbationDiv: 

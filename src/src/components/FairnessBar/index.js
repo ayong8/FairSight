@@ -24,7 +24,7 @@ class FairnessBar extends Component {
 
     const svg = new ReactFauxDOM.Element('svg');
 
-    svg.setAttribute('width', '100%');
+    svg.setAttribute('width', '120px');
     svg.setAttribute('height', '50px');
     svg.setAttribute('0 0 200 200');
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
@@ -65,9 +65,9 @@ class FairnessBar extends Component {
             .attr('cx', measureScale(1.3))
             .attr('cy', 0 + 10)
             .attr('r', 3)
-            .style('fill', 'white')
-            .style('fill-opacity', 0.5)
-            .style('stroke', 'white');
+            .style('fill', 'none')
+            .style('stroke', '#003569')
+            .style('stroke', '1px');
 
     const score = g.append('text')
             .attr('x', 60 + 15)
@@ -78,16 +78,16 @@ class FairnessBar extends Component {
     const fairRect = g.append('rect')
             .attr('width', 5)
             .attr('height', 5)
-            .style('fill', '#c91765')
-            .style('stroke', '#c91765')
-            .attr('transform', 'translate(30,2)rotate(45)');
+            .style('fill', '#003569')
+            .style('stroke', '#003569')
+            .attr('transform', 'translate(' + measureScale(1) + ',2)rotate(45)');
 
     const fairLine = g.append('line')
             .attr('x1', measureScale(1))
             .attr('y1', 10)
             .attr('x2', measureScale(1))
             .attr('y2', 20)
-            .style('stroke', '#c91765')
+            .style('stroke', '#003569')
             .style('stroke-width', 2);
 
     // Traingle-shaped indicator for current fair score

@@ -6,7 +6,8 @@ import d3tooltip from 'd3-tooltip';
 import { FormGroup, FormText, Input, Label,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
 import { Button, Alert, TreeSelect, Slider, InputNumber, Icon, Table, Badge, Radio } from 'antd';
-import chiSquaredTest from 'chi-squared-test';
+// import chiSquaredTest from 'chi-squared-test';
+import { BeatLoader } from 'react-spinners';
 
 import styles from './styles.scss';
 import index from '../../index.css';
@@ -72,6 +73,7 @@ class Generator extends Component {
   }
 
   componentDidMount() {
+    console.log('componentdidmount,...generator')
     const { rankingInstance } = this.props,
           { sensitiveAttr, features } = rankingInstance;
           
@@ -764,6 +766,12 @@ class Generator extends Component {
   }
 
   render() {
+    if (this.props.isLoading)
+    {
+      console.log('render not yet here')
+      return <div><BeatLoader /></div>;
+    }
+    
     const _self = this;
     
     console.log('Generater rendered');

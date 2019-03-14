@@ -2,12 +2,14 @@
     grid-area: ii;
     width: 20%;
 
-    /* border-top: 1px solid #d9d9d9; */
-    border-left: 1px dashed #d9d9d9;
-
     .localInspectorTitle {
         background-color: #00346b;
         color: white;
+    }
+
+    .individualInspectionTitle {
+        border-bottom: 1px solid grey;
+        margin-bottom: 5px;
     }
     /* margin: 5px 0; */
     // background-color: #f5f4f4;
@@ -17,6 +19,7 @@
     // }
     .IndividualStatus {
         height: 200px;
+        padding-top: 5px;
     }
     .infoWrapper {
         margin: 10px;

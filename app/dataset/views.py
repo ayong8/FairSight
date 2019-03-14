@@ -46,7 +46,7 @@ import math
 import json, simplejson
 
 simple_file_path = './data/themis_ml_toy.csv'
-sample_file_path = './data/german_data_w_selected_features_100_5_5.csv'
+sample_file_path = './data/german_data_w_selected_features_200_5_5.csv'
 heavy_file_path = './data/german_data.csv'
 
 numerical_features = ['age_in_years', 'duration_in_month', 'credit_amount']

@@ -105,9 +105,10 @@ class InputSpaceView extends Component {
       }
 
       const _self = this;
-      const { mode, inputCoords, topk, selectedInstanceNNs} = this.props;
+      const { mode, data, inputCoords, topk, selectedInstanceNNs, selectedRankingInterval} = this.props;
       const wholeInstances = _.toArray(inputCoords),
-            instances = wholeInstances.slice(0, 100);
+            topkIdx = data.instances.map((d) => d.idx).slice(0, selectedRankingInterval.to),
+            instances = wholeInstances.filter((d) => topkIdx.indexOf(d.idx) > -1).slice(0, selectedRankingInterval.to);
 
       const svg = new ReactFauxDOM.Element('svg');
 

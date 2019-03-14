@@ -24,7 +24,7 @@ class UtilityBar extends Component {
 
     const svg = new ReactFauxDOM.Element('svg');
 
-    svg.setAttribute('width', '100%');
+    svg.setAttribute('width', '120px');
     svg.setAttribute('height', '50px');
     svg.setAttribute('0 0 200 200');
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
@@ -62,12 +62,12 @@ class UtilityBar extends Component {
             .style('stroke', 'black');
 
     const avgCircle = g.append('circle')
-            .attr('cx', measureScale(1.3))
+            .attr('cx', measureScale(0.7))
             .attr('cy', 0 + 10)
             .attr('r', 3)
-            .style('fill', 'white')
-            .style('fill-opacity', 0.5)
-            .style('stroke', 'white');
+            .style('fill', 'none')
+            .style('stroke', '#c91765')
+            .style('stroke', '1px');
 
     const score = g.append('text')
             .attr('x', 60 + 15)

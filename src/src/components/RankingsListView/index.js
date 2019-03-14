@@ -190,12 +190,11 @@ class RankingsListView extends Component {
   }
 
   render() {
-    const _self = this;
-    console.log('RankingListView rendered');
     if ((!this.props.rankings || this.props.rankings.length === 0)) {
-        return <div />
-      }
-
+      return <div />
+    }
+    const _self = this;
+    
     const rankingListColumns = [
         { title: 'ID', dataIndex: 'id', width: '5%' },
         { title: 'TOPK', dataIndex: 'topk', width: '10%' },

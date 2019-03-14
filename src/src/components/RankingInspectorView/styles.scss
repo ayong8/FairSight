@@ -51,7 +51,7 @@
     grid-area: sm; 
     display: grid;
     grid-template-columns: 32% 5% 42% 5% 16%;
-    grid-template-rows: 20px 5px 50px;
+    grid-template-rows: 25px 5px 50px;
     grid-template-areas:
       'it i1 mt i2 ot'
       'id i1 md i2 od'
@@ -59,12 +59,12 @@
     margin-top: 10px;
   }
 
-  .inputSpaceTitle { grid-area: it; padding-left: 30px; }
+  .inputSpaceTitle { grid-area: it; }
   .inputSpaceDescription { grid-area: id; }
-  .inputSpaceMeasure { grid-area: im; display: flex; padding-left: 30px;}
-  .mappingSpaceTitle { grid-area: mt; padding-left: 30px; }
+  .inputSpaceMeasure { grid-area: im; display: flex; justify-content: center;}
+  .mappingSpaceTitle { grid-area: mt; }
   .mappingSpaceDescription { grid-area: md; }
-  .mappingSpaceMeasure { grid-area: mm; display: flex; padding-left: 30px;}
+  .mappingSpaceMeasure { grid-area: mm; display: flex; justify-content: center; }
   .outputSpaceTitle { grid-area: ot; }
   .outputSpaceDescription { grid-area: od; }
   .outputSpaceMeasure { grid-area: om; display: flex; justify-content: center; }
@@ -78,6 +78,7 @@
     color: #00346b;
     font-size: 1.1rem;
     font-weight: 500;
+    border-bottom: 1px solid black;
   }
 
   .intervalSpace1,

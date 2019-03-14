@@ -6,6 +6,7 @@ import { Button } from 'reactstrap';
 import { Slider, Icon, InputNumber, Tag, Tooltip } from 'antd';
 import d3tooltip from 'd3-tooltip';
 import regression from 'regression';
+import { BeatLoader } from 'react-spinners';
 
 import UtilityView from '../UtilityView';
 
@@ -96,6 +97,7 @@ class RankingView extends Component {
     }
 
     componentDidMount() {
+      console.log('componentdidmount in ranking view');
       const { topk } = this.state,
             { data } = this.props,
             { instances } = data;
@@ -215,7 +217,7 @@ class RankingView extends Component {
       _self.svgPlot.setAttribute('preserveAspectRatio', 'xMidYMid meet');
       _self.svgPlot.setAttribute('transform', 'translate(0,10)');
 
-      let { data, pairwiseDiffs, confIntervalPoints, selectedRankingInterval } = _self.props,
+      let { data, pairwiseDiffs, selectedRankingInterval } = _self.props,
           selectedInstanceIdx = _self.props.selectedRankingInterval;
 
       // data
@@ -331,16 +333,6 @@ class RankingView extends Component {
       let confIntervalLine = d3.line()
           .x((d) => {_self.xObservedScale(d.x)})
           .y((d) => _self.yDistortionScale(d.y));
-
-      const confInterval = gPlot.append('path')
-          .datum(confIntervalPoints)
-          .attr('class', 'conf_interval_line')
-          .attr('d', confIntervalLine)
-          .style('stroke', d3.rgb('lightblue').darker())
-          .style('stroke-width', 1)
-          .style('stroke-dasharray', '2, 2')
-          .style('fill', 'lightblue')
-          .style('opacity', 0.5);
 
       const upperOutlierArea = gPlot
                 .append('rect')
@@ -958,17 +950,21 @@ class RankingView extends Component {
 
     render() {
       console.log('RankingView rendered');
+      console.log('props of rankingview: ', this.props);
+      console.log('state of rankingview: ', this.state);
       if ((!this.props.data || this.props.data.length === 0) ||
           (typeof(this.props.topk) == undefined) ||
           (!this.state.precisionKData || this.state.precisionKData.length === 0) ||
           (!this.state.statParityKData || this.state.statParityKData.length === 0)) {
-        return <div />
+        return (
+          <div>
+            <BeatLoader />
+          </div>);
       }
-
 
       const _self = this;
 
-      this.renderPlot();
+      // this.renderPlot();
 
       const { topk } = this.state;
       const { data, n } = this.props,

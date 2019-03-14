@@ -32,7 +32,7 @@ class IndividualInspectionView extends Component {
 
       return [
         {
-          feature: features.map((d) => (<div>{d.name}</div>)),
+          feature: features.map((d) => d.name),
           value: ''
         }
       ]

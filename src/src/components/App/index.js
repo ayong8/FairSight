@@ -4,6 +4,7 @@ import * as d3 from 'd3';
 import _ from 'lodash';
 import { Tooltip } from 'react-svg-tooltip';
 import { BeatLoader } from 'react-spinners';
+import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 
 import styles from "./styles.scss";
 import index from '../../index.css';
@@ -15,6 +16,7 @@ import RankingView from 'components/RankingView';
 import RankingInspectorView from 'components/RankingInspectorView';
 import RankingsListView from 'components/RankingsListView';
 import Footer from "components/Footer";
+
 
 import { Tracker } from 'react-tracker';
 
@@ -1123,12 +1125,32 @@ class App extends Component {
               <span className={styles.generatorTitle + ' ' + index.title}>Generator</span>
               <br />
             </div>
-            <BeatLoader />
+            <SkeletonTheme color="lightgray" highlightColor="white">
+              <p>
+                <Skeleton circle={true} height={50} width={50} />
+                <Skeleton height={100} count={3} />
+                <Skeleton count={3} />
+                <Skeleton count={3} />
+                <Skeleton circle={true} height={50} width={50} />
+                <Skeleton count={3} />
+                <Skeleton count={3} />
+                <Skeleton count={3} />
+              </p>
+            </SkeletonTheme>
           </div>
           <div className={styles.RankingView}>
             <div className={styles.currentRankingTitle + ' ' + index.title}>
               Ranking View &nbsp;
             </div>
+            <SkeletonTheme color="lightgray" highlightColor="white">
+              <p>
+                <Skeleton circle={true} height={50} width={50} />
+                <Skeleton circle={true} height={50} width={50} />
+                <Skeleton count={3} />
+                <Skeleton count={3} />
+                <Skeleton count={3} />
+              </p>
+            </SkeletonTheme>
           </div>
         </div>)
     }

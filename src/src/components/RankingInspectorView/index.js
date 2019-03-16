@@ -73,7 +73,8 @@ class RankingInspectorView extends Component {
         selectedInstance: {},
         selectedInstanceNNs: [],
         nNeighbors: 4,
-        xNN: 0,
+        rNN: 0,
+        rNNGain: 0,
         selectedInstances: [],
         selectedPairwiseDiffs: [],
         selectedPermutationDiffs: [],
@@ -324,10 +325,13 @@ class RankingInspectorView extends Component {
             { instances } = data,
             selectedInstance = instances.filter((d) => d.idx === selectedInstanceIdx)[0];
 
+      const { rNN, rNNGain } = this.calculateRNN(selectedInstance);
+
       this.setState({
         selectedInstance: selectedInstance,
         selectedInstanceNNs: this.identifyNNs(selectedInstance, 4),
-        xNN: this.calculateXNN(selectedInstance),
+        rNN: rNN,
+        rNNGain: rNNGain
       });
     }
 
@@ -335,7 +339,7 @@ class RankingInspectorView extends Component {
       this.setState({
         selectedInstance: {},
         selectedInstanceNNs: [],
-        xNN: 'Not selected'
+        rNN: 'Not selected'
       });
     }
 
@@ -432,35 +436,27 @@ class RankingInspectorView extends Component {
       return NNs;
     }
 
-    calculateXNN(selectedInstance) {  
+    calculateRNN(selectedInstance) {  
       const nNeighbors = 4;
       const NNs = this.identifyNNs(selectedInstance, nNeighbors);
+
+      console.log(selectedInstance, NNs);
 
       if (NNs.length === 0)
         return 'NaN';
 
-      const yDiffsForNNs = NNs.map((d) => Math.abs(d.ranking1 - d.ranking2) / Math.max(d.ranking1, d.ranking2)),
+      const yAbsDiffsForNNs = NNs.map((d) => Math.abs(d.ranking1 - d.ranking2) / Math.max(d.ranking1, d.ranking2)),
+            yDiffsForNNs = NNs.map((d) => (d.ranking2 - d.ranking1) / Math.max(d.ranking1, d.ranking2)),
+            sumAbsDiffsForNNs = yAbsDiffsForNNs.reduce((acc, curr) => acc + curr),
             sumDiffsForNNs = yDiffsForNNs.reduce((acc, curr) => acc + curr);
   
-      const rNN = 1 - (sumDiffsForNNs / nNeighbors);
+      const rNN = 1 - (sumAbsDiffsForNNs / nNeighbors),
+            rNNGain = sumDiffsForNNs / nNeighbors;
   
-      return rNN;
-  
-      // idx1: pairs[i][0].idx,
-      // idx2: pairs[i][1].idx,
-      // ranking1: pairs[i][0].instance.ranking,
-      // ranking2: pairs[i][1].instance.ranking,
-      // x1: pairs[i][0].instance,
-      // x2: pairs[i][1].instance,
-      // pair: pair,
-      // diffInput: diffInput,
-      // diffOutput: diffOutput,
-      // scaledDiffInput: _self.inputScale(diffInput),
-      // scaledDiffOutput: _self.outputScale(diffOutput),
-      // distortion: _self.outputScale(diffOutput) - _self.inputScale(diffInput),
-      // absDistortion: Math.abs(_self.outputScale(diffOutput) - _self.inputScale(diffInput)),
-      // isFair: false,
-      // isOutlier: false
+      return {
+        rNN: rNN,
+        rNNGain: rNNGain
+      }
     }
 
 
@@ -1053,7 +1049,7 @@ class RankingInspectorView extends Component {
                                 <div className={styles.mappingGroupFairness}>
                                   <UtilityBar
                                     measure={Math.round(inputSpaceDist * 1000) / 1000}
-                                    measureDomain={[4, 6]}
+                                    measureDomain={[0, 1]}
                                     color={gs.utilityColor}
                                   />
                                 </div>
@@ -1200,7 +1196,8 @@ class RankingInspectorView extends Component {
                 features={_self.props.data.features}
                 selectedInstance={_self.state.selectedInstance}
                 selectedRankingInterval={_self.props.selectedRankingInterval}
-                xNN={_self.state.xNN}
+                rNN={_self.state.rNN}
+                rNNGain={_self.state.rNNGain}
             />
           </div>
           <div className={styles.InspectionComponentsView}>

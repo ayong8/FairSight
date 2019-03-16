@@ -38,12 +38,6 @@ class RankingsListView extends Component {
     this.renderRankingInstances = this.renderRankingInstances.bind(this);
   }
 
-  // shouldComponentUpdate(nextProps, nextState) {
-  //   if (this.props.rankings !== nextProps.rankings) { return true; }
-
-  //   return false;
-  // }
-
   renderRankingPlot() {
     const _self = this;
     const { rankings } = this.props;
@@ -166,7 +160,7 @@ class RankingsListView extends Component {
           <UtilityBar 
             measure={stat.rNNSum}
             measureDomain={[0, 1]}
-            color={gs.utilityColor}
+            color={gs.fairnesscolor}
           />
         </div>,
         gf: 

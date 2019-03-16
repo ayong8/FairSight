@@ -288,8 +288,6 @@ class ExtractFeatures(APIView):
             
             feature_info_list.append(feature_info)
 
-        print(feature_info_list)
-
         return Response(json.dumps(feature_info_list))
 
 class RunRankSVM(APIView):
@@ -651,9 +649,6 @@ class RunACF(APIView):
         ranking_instance['stat']['accuracy'] = math.ceil(accuracy * 100)
         ranking_instance['instances'] = instances_dict_list
 
-        print('ranking instance: ')
-        print(ranking_instance)
-
         return Response(json.dumps(ranking_instance))
 
 class RunACFForPerturbation(APIView):
@@ -837,7 +832,6 @@ class RunFAIR(APIView):
 
         result = []
         gft = FairnessInRankingsTester(minProp, alpha, k, correctedAlpha=True)
-        print('gfttt: ', gft)
         countProtected = 0
 
         idxProtected = 0
@@ -919,7 +913,6 @@ class RunTSNE(APIView):
                 is_categorical_feature_list.append(True)
 
         d = gower_distances(X, categorical_features=is_categorical_feature_list)
-        print(d[0])
 
         df_tsne_result = pd.DataFrame(TSNE(n_components=2, metric='precomputed', random_state=3).fit_transform(d), X.index)
         df_tsne_result['idx'] = whole_dataset_df['idx']
@@ -929,16 +922,18 @@ class RunTSNE(APIView):
 
         df_tsne_result['dim1'] = (df_tsne_result['dim1'] - min(df_tsne_result['dim1'])) / (max(df_tsne_result['dim1']) - min(df_tsne_result['dim1']))
         df_tsne_result['dim2'] = (df_tsne_result['dim2'] - min(df_tsne_result['dim2'])) / (max(df_tsne_result['dim2']) - min(df_tsne_result['dim2']))
-        print(df_tsne_result[['dim1', 'dim2']])
 
         df_group0 = df_tsne_result[df_tsne_result['group'] == 0]
         df_group1 = df_tsne_result[df_tsne_result['group'] == 1]
 
-        hausdorff_distance = directed_hausdorff(df_group0, df_group1)[0]
-        hausdorff_distance2 = directed_hausdorff(df_group1, df_group0)[0]
+        print(df_group0)
+        print(df_group1)
+
+        hausdorff_distance = directed_hausdorff(df_group0[['dim1', 'dim2']], df_group1[['dim1', 'dim2']])
+        hausdorff_distance2 = directed_hausdorff(df_group1[['dim1', 'dim2']], df_group0[['dim1', 'dim2']])
         print('haus distance: ', hausdorff_distance, hausdorff_distance2)
 
-        return Response(json.dumps({ 'inputSpaceDist': hausdorff_distance, 'dimReductions': df_tsne_result.to_json(orient='index')}))
+        return Response(json.dumps({ 'inputSpaceDist': max(hausdorff_distance[0], hausdorff_distance2[0]), 'dimReductions': df_tsne_result.to_json(orient='index')}))
 
 # Calculate pairwise gower distance for mixed type of variables
 class CalculatePairwiseInputDistance(APIView):

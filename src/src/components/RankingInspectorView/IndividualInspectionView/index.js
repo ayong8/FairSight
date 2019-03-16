@@ -30,12 +30,12 @@ class IndividualInspectionView extends Component {
     renderEmptyTable() {
       const { features } = this.props;
 
-      return [
-        {
-          feature: features.map((d) => d.name),
+      return features.map((d) => {
+        return  {
+          feature: d.name,
           value: ''
         }
-      ]
+      });
     }
 
     render() {
@@ -52,34 +52,34 @@ class IndividualInspectionView extends Component {
       return (
         <div className={styles.IndividualInspectionView}>
           <div className={index.title + ' ' + styles.localInspectorTitle}>Local Inspector</div>
-            <div className={styles.IndividualStatus}>
-              <div className={styles.individualInspectionTitle}>Individual Inspection</div>
-              {/* <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', marginBottom: 10}}/> */}
-              <div>
-                <Badge status="success"/>
-                <span className={index.instanceIdTitle}>Instance ID:&nbsp;</span>
-                {(selectedInstance && Object.keys(selectedInstance).length !== 0) ? selectedInstance.idx : ''}
-              </div>
-              <div className={styles.individualMeasures}>
-                <Badge status="success"/>
-                {'rNN: ' + Math.round(this.props.xNN * 100) / 100}
-              </div>
-              <div className={styles.individualMeasures}>
-                <Badge status="success"/>
-                {'rNN (gain): ' + Math.round(this.props.xNN * 100) / 100}
-              </div>
-              <div className={styles.instanceDataTableWrapper}>
-                <Table
-                  className={styles.instanceDataTable}
-                  columns={columns} 
-                  dataSource={ (selectedInstance && Object.keys(selectedInstance).length !== 0) ? this.renderFeatureTable() : this.renderEmptyTable() } 
-                  scroll={{ y: 120 }}
-                  pagination={false}
-                  bordered
-                />
-              </div>
+          <div className={styles.IndividualStatus}>
+            <div className={styles.individualInspectionTitle}>Individual Inspection</div>
+            {/* <Icon type="user" style={{ fontSize: 50, backgroundColor: 'white', border: '1px solid grey', marginBottom: 10}}/> */}
+            <div>
+              <Badge status="success"/>
+              <span className={index.instanceIdTitle}>Instance ID:&nbsp;</span>
+              {(selectedInstance && Object.keys(selectedInstance).length !== 0) ? selectedInstance.idx : ''}
             </div>
-            <p></p>
+            <div className={styles.individualMeasures}>
+              <Badge status="success"/>
+              {'rNN: ' + Math.round(this.props.rNN * 100) / 100}
+            </div>
+            <div className={styles.individualMeasures}>
+              <Badge status="success"/>
+              {'rNN (gain): ' + Math.round(this.props.rNNGain * 100) / 100}
+            </div>
+            <div className={styles.instanceDataTableWrapper}>
+              <Table
+                className={styles.instanceDataTable}
+                columns={columns} 
+                dataSource={ (selectedInstance && Object.keys(selectedInstance).length !== 0) ? this.renderFeatureTable() : this.renderEmptyTable() } 
+                scroll={{ y: 180 }}
+                pagination={false}
+                bordered
+              />
+            </div>
+          </div>
+          <div className={styles.individualInspectionTitle}>Group Inspection</div>
         </div>
       );
     }

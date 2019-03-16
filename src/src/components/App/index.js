@@ -5,6 +5,7 @@ import _ from 'lodash';
 import { Tooltip } from 'react-svg-tooltip';
 import { BeatLoader } from 'react-spinners';
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
+import { Button } from 'antd';
 
 import styles from "./styles.scss";
 import index from '../../index.css';
@@ -45,6 +46,7 @@ class App extends Component {
     this.rSquared;
 
     this.state = {
+      isModelRunning: false,
       dataset: [],
       features: [],
       numericalFeatures: ['age_in_years', 'duration_in_month', 'credit_amount'],
@@ -500,6 +502,8 @@ class App extends Component {
   }
 
   handleModelRunning(){  // this.state.rankingInstance from Generator
+    this.setState({ isModelRunning: true });
+
     const { rankingInstance } = this.state,
           { method } = rankingInstance;
 
@@ -561,7 +565,8 @@ class App extends Component {
           selectedPermutationDiffsFlattend: this.selectedPermutationDiffsFlattend,
           rankingInstance: currentRankingInstance,
           rankings: [...prevState.rankings, currentRankingInstance ],
-          shouldRunModel: true
+          shouldRunModel: true,
+          isModelRunning: false
         }
       });
     });
@@ -1012,48 +1017,6 @@ class App extends Component {
      };
   }
 
-  identifyNNs(instance, nNeighbors) {
-    const { pairwiseDiffs } = this.props;
-    const selectedInstanceIdx = instance.idx;
-
-    const NNs = pairwiseDiffs.filter((d) => {
-      return d.idx1 == selectedInstanceIdx;
-    }).sort((a, b) => d3.descending(a.scaledDiffInput, b.scaledDiffInput)).slice(0, nNeighbors);
-
-    return NNs;
-  }
-
-  calculateXNN(instance) {  
-    const nNeighbors = 4;
-    const NNs = this.identifyNNs(instance, nNeighbors);
-
-    if(NNs.length === 0)
-      return 'NaN';
-
-    const yDiffsForNNs = NNs.map((d) => Math.abs(d.ranking1 - d.ranking2) / Math.max(d.ranking1, d.ranking2)),
-          sumDiffsForNNs = yDiffsForNNs.reduce((acc, curr) => acc + curr);
-
-    const rNN = sumDiffsForNNs / nNeighbors;
-
-    return rNN;
-
-    // idx1: pairs[i][0].idx,
-    // idx2: pairs[i][1].idx,
-    // ranking1: pairs[i][0].instance.ranking,
-    // ranking2: pairs[i][1].instance.ranking,
-    // x1: pairs[i][0].instance,
-    // x2: pairs[i][1].instance,
-    // pair: pair,
-    // diffInput: diffInput,
-    // diffOutput: diffOutput,
-    // scaledDiffInput: _self.inputScale(diffInput),
-    // scaledDiffOutput: _self.outputScale(diffOutput),
-    // distortion: _self.outputScale(diffOutput) - _self.inputScale(diffInput),
-    // absDistortion: Math.abs(_self.outputScale(diffOutput) - _self.inputScale(diffInput)),
-    // isFair: false,
-    // isOutlier: false
-  }
-
   calculateNDM(selectedPermutationDiffs) {  // Noise Dissimilarity Measure for feature matrix
     // Generate a random permutation
     let originalMat = _.map(selectedPermutationDiffs, (arr) => _.map(arr, (d) => d.distortion)),
@@ -1116,41 +1079,11 @@ class App extends Component {
         (!this.state.topk)
        ) {
       return (
-        <div className={styles.App}>
-          <div className={styles.Menubar}>
-            <div className={styles.appTitle}>FAIRSIGHT</div>
-          </div>
-          <div className={styles.Generator}>
-            <div className={styles.generatorTitleWrapper}>
-              <span className={styles.generatorTitle + ' ' + index.title}>Generator</span>
-              <br />
-            </div>
-            <SkeletonTheme color="lightgray" highlightColor="white">
-              <p>
-                <Skeleton circle={true} height={50} width={50} />
-                <Skeleton height={100} count={3} />
-                <Skeleton count={3} />
-                <Skeleton count={3} />
-                <Skeleton circle={true} height={50} width={50} />
-                <Skeleton count={3} />
-                <Skeleton count={3} />
-                <Skeleton count={3} />
-              </p>
-            </SkeletonTheme>
-          </div>
-          <div className={styles.RankingView}>
-            <div className={styles.currentRankingTitle + ' ' + index.title}>
-              Ranking View &nbsp;
-            </div>
-            <SkeletonTheme color="lightgray" highlightColor="white">
-              <p>
-                <Skeleton circle={true} height={50} width={50} />
-                <Skeleton circle={true} height={50} width={50} />
-                <Skeleton count={3} />
-                <Skeleton count={3} />
-                <Skeleton count={3} />
-              </p>
-            </SkeletonTheme>
+        <div className={styles.loadingScreen}>
+          <div className={styles.loadingLogo}>FAIRSIGHT</div>
+          <div className={styles.loadingMessage}>
+            Loading... &nbsp;
+            <Button shape="circle" size='small' loading />
           </div>
         </div>)
     }
@@ -1184,6 +1117,7 @@ class App extends Component {
             onSelectProtectedGroup={this.handleSensitiveAttr} />
         <RankingView 
             n={this.state.n}
+            isModelRunning={this.state.isModelRunning}
             data={this.state.rankingInstance}
             pairwiseDiffs={this.pairwiseDiffs}
             onRunningFilter={this.handleFilterRunning}

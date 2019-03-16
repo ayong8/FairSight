@@ -964,7 +964,7 @@ class RankingView extends Component {
 
       const _self = this;
 
-      // this.renderPlot();
+      console.log('isModelRunning in RankingView? ', this.state.isModelRunning);
 
       const { topk } = this.state;
       const { data, n } = this.props,
@@ -977,7 +977,7 @@ class RankingView extends Component {
             statParityK = statParityKData[topk-1][1];
 
       return (
-        <div className={styles.RankingView}>
+        <div className={this.props.isModelRunning ? styles.RankingView + ' ' + index.isModelRunning : styles.RankingView}>
           <div className={styles.currentRankingTitle + ' ' + index.title}>
             Ranking View &nbsp;
             <Tag color="#108ee9">{'R' + data.rankingId}</Tag>
@@ -1022,7 +1022,7 @@ class RankingView extends Component {
             </div>
             <div className={styles.wtnUtility}>
               <UtilityBar 
-                measure={utility}
+                measure={precisionK}
                 measureDomain={[0, 1]}
                 color={gs.utilityColor}
               />

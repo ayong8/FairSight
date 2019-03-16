@@ -49,7 +49,7 @@ class UtilityBar extends Component {
     const backgroundRect = g.append('rect')
             .attr('x', 0)
             .attr('y', 10)
-            .attr('width', 70)
+            .attr('width', 60)
             .attr('height', 10)
             .style('stroke', '#d0d0d0')
             .style('fill', '#efefef');
@@ -80,7 +80,7 @@ class UtilityBar extends Component {
             .attr('height', 5)
             .style('fill', '#c91765')
             .style('stroke', '#c91765')
-            .attr('transform', 'translate(30,2)rotate(45)');
+            .attr('transform', 'translate(60,2)rotate(45)');
 
     const fairLine = g.append('line')
             .attr('x1', measureScale(1))

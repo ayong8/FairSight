@@ -44,6 +44,7 @@ scipy = "*"
 simplejson = "*"
 themis-ml = "*"
 django-storages = "*"
+fairsearchcore = "*"
 
 [dev-packages]
 

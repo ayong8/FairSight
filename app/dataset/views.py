@@ -28,6 +28,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn import preprocessing
 from sklearn import svm
 
+import fairsearchcore as fsc
+from fairsearchcore.models import FairScoreDoc
 import pickle, random
 
 # For ACF
@@ -46,7 +48,7 @@ import math
 import json, simplejson
 
 simple_file_path = './data/themis_ml_toy.csv'
-sample_file_path = './data/german_data_w_selected_features_200_5_5.csv'
+sample_file_path = './data/german_data_w_selected_features_250_5_5_7_3_2.csv'
 heavy_file_path = './data/german_data.csv'
 
 numerical_features = ['age_in_years', 'duration_in_month', 'credit_amount']
@@ -124,53 +126,6 @@ def load_trained_model(ranking_instance):
     f.close()
 
     return model
-    
-    # if os.path.exists(filename):
-    #     try:
-    #         f = open(filename, 'rb')
-    #         if os.path.exists(filename):    # Since it's asynchronous
-    #             try:
-    #                 unpickler = pickle.Unpickler(f)
-    #                 model = unpickler.load()
-    #                 f.close()
-    #             except FileNotFoundError as e:
-    #                 pass
-    #             except EOFError as e2:
-    #                 pass
-
-    #     except FileNotFoundError as e:
-    #         pass
-    
-    #     if model != '':
-    #         return model
-    #     else:
-    #         pass
-    # for file_num in range(1, 20):
-    #     filename = './app/static/data/trained_model_' + str(ranking_instance['rankingId'])
-    #     filename = filename + '_' + str(file_num) + '.pkl'
-    #     model = ''
-        
-    #     if os.path.exists(filename):
-    #         try:
-    #             f = open(filename, 'rb')
-    #             if os.path.exists(filename):    # Since it's asynchronous
-    #                 try:
-    #                     unpickler = pickle.Unpickler(f)
-    #                     model = unpickler.load()
-    #                     f.close()
-    #                     os.remove(filename)
-    #                 except FileNotFoundError as e:
-    #                     pass
-    #                 except EOFError as e2:
-    #                     pass
-
-    #         except FileNotFoundError as e:
-    #             continue
-        
-    #         if model != '':
-    #             return model
-    #         else:
-    #             continue
 
 def run_experiment_iteration_themis_ml_ACF(
         X, X_no_sex, y, s_sex, train, test):
@@ -236,7 +191,7 @@ def run_experiment_iteration_themis_ml_ACF(
 
     probs = acf_clf.predict_proba(X, s_sex)
     accuracy = roc_auc_score(y[test], acf_preds_sex)
-    probs_would_not_default = [ prob[1] for prob in probs ]
+    probs_would_not_default = [ prob[0] for prob in probs ]
 
     # convert metrics list of lists into dataframe
     return { 'prob': probs_would_not_default, 'accuracy': accuracy, 'acf_fit': acf_clf }
@@ -256,6 +211,30 @@ def perturb_feature(ranking_instance):
     perturbed_instance = pd.DataFrame([ instance['features'] for instance in instances ])
 
     return perturbed_instance
+
+def rerank(ranking_instance):
+    k = 30 # number of topK elements returned (value should be between 10 and 400)
+    p = 0.5 # proportion of protected candidates in the topK elements (value should be between 0.02 and 0.98) 
+    alpha = 0.1 # significance level (value should be between 0.01 and 0.15)
+
+    fair = fsc.Fair(k, p, alpha)
+
+    # create the Fair object 
+    ranking_instance
+    unfair_ranking = [FairScoreDoc(20, 20, False), FairScoreDoc(19, 19, False), FairScoreDoc(18, 18, False),
+                      FairScoreDoc(17, 17, False), FairScoreDoc(16, 16, False), FairScoreDoc(15, 15, False),
+                      FairScoreDoc(14, 14, False), FairScoreDoc(13, 13, False), FairScoreDoc(12, 12, False),
+                      FairScoreDoc(11, 11, False), FairScoreDoc(10, 10, False), FairScoreDoc(9, 9, False),
+                      FairScoreDoc(8, 8, False), FairScoreDoc(7, 7, False), FairScoreDoc(6, 6, True),
+                      FairScoreDoc(5, 5, True), FairScoreDoc(4, 4, True), FairScoreDoc(3, 3, True),
+                      FairScoreDoc(2, 2, True), FairScoreDoc(1, 1, True)]
+    re_ranked = fair.re_rank(unfair_ranking)
+
+    re_ranked_individuals = []
+    for ind in re_ranked:
+        re_ranked_individuals.append({ 'id': ind.id, 'score': ind.score, 'is_protected': ind.is_protected })
+
+    return re_ranked_individuals
 
 class LoadFile(APIView):
     def get(self, request, format=None):
@@ -390,7 +369,7 @@ class RunSVM(APIView):
         accuracy = svm_fit.score(X_test, y_test)
 
         probs = svm_fit.predict_proba(X)
-        probs_would_not_default = [ prob[1] for prob in probs ]
+        probs_would_not_default = [ prob[0] for prob in probs ]
 
         output_df = X.copy()
         output_df['idx'] = whole_dataset_df['idx']
@@ -441,7 +420,7 @@ class RunLR(APIView):
         accuracy = lr_fit.score(X_test, y_test)
 
         probs = lr_fit.predict_proba(X)
-        probs_would_not_default = [ prob[1] for prob in probs ]
+        probs_would_not_default = [ prob[0] for prob in probs ]
 
         output_df = X.copy()
         output_df['idx'] = whole_dataset_df['idx']
@@ -464,6 +443,13 @@ class RunLR(APIView):
 
         ranking_instance['stat']['accuracy'] = math.ceil(accuracy * 100)
         ranking_instance['instances'] = instances_dict_list
+
+        # Combine reranking when selected
+        if ranking_instance['isReranking']:
+            reranked = rerank()
+            df_reranked = pd.DataFrame(reranked).sort_values(by='id', ascending=False)
+            ranking_instance['reranking'] = df_reranked['reranking']
+            
 
         return Response(json.dumps(ranking_instance))
 
@@ -496,7 +482,7 @@ class RunLRForPerturbation(APIView):
 
             probs = lr_fit.predict_proba(X)
             accuracy_after_perturbation = lr_fit.score(X_test, y_test)
-            probs_would_not_default = [ prob[1] for prob in probs ]
+            probs_would_not_default = [ prob[0] for prob in probs ]
 
             output_df = X.copy()
             output_df['idx'] = whole_dataset_df['idx']
@@ -561,7 +547,7 @@ class RunSVMForPerturbation(APIView):
             
             probs = svm_fit.predict_proba(X)
             accuracy_after_perturbation = svm_fit.score(X_test, y_test)
-            probs_would_not_default = [ prob[1] for prob in probs ]
+            probs_would_not_default = [ prob[0] for prob in probs ]
 
             output_df = X.copy()
             output_df['idx'] = whole_dataset_df['idx']
@@ -926,12 +912,8 @@ class RunTSNE(APIView):
         df_group0 = df_tsne_result[df_tsne_result['group'] == 0]
         df_group1 = df_tsne_result[df_tsne_result['group'] == 1]
 
-        print(df_group0)
-        print(df_group1)
-
         hausdorff_distance = directed_hausdorff(df_group0[['dim1', 'dim2']], df_group1[['dim1', 'dim2']])
         hausdorff_distance2 = directed_hausdorff(df_group1[['dim1', 'dim2']], df_group0[['dim1', 'dim2']])
-        print('haus distance: ', hausdorff_distance, hausdorff_distance2)
 
         return Response(json.dumps({ 'inputSpaceDist': max(hausdorff_distance[0], hausdorff_distance2[0]), 'dimReductions': df_tsne_result.to_json(orient='index')}))
 
@@ -1001,7 +983,7 @@ class TestCorrelationBtnSensitiveAndFeatures(APIView):
 # To calculate the similarity of two groups with different length: 
 # (1) Protected vs. Non-protected group conditional to a feature (in Generator)
 # (2) Outliers vs. Whole instances
-class CalculateAndersonDarlingTest(APIView):
+class CalculateWassersteinDistance(APIView):
 
     def get(self, request, format=None):
         pass
@@ -1019,6 +1001,7 @@ class CalculateAndersonDarlingTest(APIView):
 
             # Normalize
             whole_values = feature_values_group1 + feature_values_group2
+            print(whole_values)
             max_val = max(whole_values)
             min_val = min(whole_values)
 

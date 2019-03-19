@@ -20,7 +20,7 @@ class OutputSpaceView extends Component {
             margin: 10
           },
           plot: {
-            marginLeft: 40,
+            marginLeft: 20,
             marginTop: 10
           }
       };
@@ -31,6 +31,8 @@ class OutputSpaceView extends Component {
         if (Object.keys(nextProps.selectedInstance).length !== 0) {
           d3.selectAll('.rect_output.selected').style('stroke', d3.rgb(gs.groupColor1).darker()).style('stroke-width', 0.5).classed('selected', false);
           d3.selectAll('.rect_output_' + nextProps.selectedInstance.idx).style('stroke', 'black').style('stroke-width', 3).classed('selected', true);
+        } else {
+          d3.selectAll('.rect_output.selected').style('stroke', d3.rgb(gs.groupColor1).darker()).style('stroke-width', 0.5).classed('selected', false);
         }
       }
       if (this.props.seletedInstanceNNs !== nextProps.selectedInstanceNNs) {
@@ -98,7 +100,11 @@ class OutputSpaceView extends Component {
 
       const gSelectedIntervalRanking = d3.select(svg).append('g')
               .attr('class', 'g_selected_interval_ranking')
-              .attr('transform', 'translate(' + (50) + ',' + '10)');
+              .attr('transform', 'translate(' + (_self.layout.plot.marginLeft + 10) + ',' + '10)');
+
+      const gSelectedIntervalReranking = d3.select(svg).append('g')
+              .attr('class', 'g_selected_interval_reranking')
+              .attr('transform', 'translate(' + (_self.layout.plot.marginLeft + 35 + 10) + ',' + '10)');
 
       const diagonalPattern = d3.select(svg)
               .append('defs')
@@ -150,7 +156,7 @@ class OutputSpaceView extends Component {
               .attr('y', (d) => rankingScale(d.ranking))
               .attr('width', 30)
               .attr('height', (d) => rectInterval - 2)
-              .style('fill', (d) => !d.target ? 'url(#diagonalHatch)': 'none')
+              .style('fill', (d) => !d.target ? 'none' : 'url(#diagonalHatch)')
               .style('stroke', 'none')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)

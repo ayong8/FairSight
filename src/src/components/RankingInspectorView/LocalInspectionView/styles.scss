@@ -1,13 +1,16 @@
-.IndividualInspectionView {
+.LocalInspectionView {
     grid-area: ii;
-    width: 20%;
+    width: 30%;
 
     .localInspectorTitle {
         background-color: #00346b;
         color: white;
     }
 
+    .groupInspectionTitle,
     .individualInspectionTitle {
+        font-weight: 800;
+        font-size: 1.2rem;
         border-bottom: 1px solid grey;
         margin-bottom: 5px;
     }
@@ -18,7 +21,7 @@
     //     display: flex;
     // }
     .IndividualStatus {
-        height: 200px;
+        height: 300px;
         padding-top: 5px;
     }
     .infoWrapper {
@@ -26,5 +29,9 @@
     }
     .selectedRankingIntervalInfo {
         width: 80%;
+    }
+    .individualMeasures,
+    .groupMeasures {
+        font-weight: 600;
     }
 }

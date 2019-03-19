@@ -27,7 +27,7 @@
   .SpaceView {
     width: 70%;
     display: grid;
-    grid-template-columns: 35% 50% 15%;
+    grid-template-columns: 35% 45% 20%;
     grid-template-rows: 35px 110px 270px 135px;
     grid-template-areas: // nv: navigation bar, lg: legend, st: individual status, dp: distortion plot
       't t t'

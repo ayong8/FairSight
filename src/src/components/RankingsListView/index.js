@@ -160,6 +160,7 @@ class RankingsListView extends Component {
           <UtilityBar 
             measure={stat.rNNSum}
             measureDomain={[0, 1]}
+            perfectScore={1}
             color={gs.fairnesscolor}
           />
         </div>,
@@ -168,6 +169,7 @@ class RankingsListView extends Component {
             <FairnessBar 
               measure={stat.GFDCG}
               measureDomain={[0, 2]}
+              perfectScore={1}
               color={gs.fairnessColor}
             />
         </div>,
@@ -176,6 +178,7 @@ class RankingsListView extends Component {
           <UtilityBar 
             measure={stat.utility}
             measureDomain={[0, 1]}
+            perfectScore={1}
             color={gs.utilityColor}
           />
         </div>

@@ -60,7 +60,7 @@ class App extends Component {
         {name: 'SVM', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
         {name: 'Logistic Regression', spec: { Q1: 'A', Q2: '', Q3: '', Q4: '' }},
         {name: 'Additive Counterfactual Fairness', spec: { Q1: 'F', Q2: 'B', Q3: 'Yes', Q4: 'No' }},
-        {name: 'FA*IR', spec: { Q1: 'F', Q2: 'B', Q3: 'Yes', Q4: 'Yes' }}
+        {name: 'Reranking', spec: { Q1: 'F', Q2: 'B', Q3: 'Yes', Q4: 'Yes' }}
       ],
       sensitiveAttrs: [
         { name: 'sex', type: 'categorical', range: ['Men', 'Women'], protectedGroup: 'Men', nonProtectedGroup: 'Women'  },
@@ -68,15 +68,15 @@ class App extends Component {
         { name: 'age>25', type: 'categorical', range: ['age_over_25', 'age_less_25'], protectedGroup: 'age_less_25', nonProtectedGroup: 'age_over_25' },
         { name: 'age>35', type: 'categorical', range: ['age_over_35', 'age_less_35'], protectedGroup: 'age_less_35', nonProtectedGroup: 'age_over_35' }
       ],
-      topk: 30,
-      n: 40,
+      topk: 40,
+      n: 60,
       selectedDataset: [],  // A subset of the dataset that include features, target, and idx
       inputCoords: [],
       weights: {},
       mouseoveredInstance: 1, // Index of a ranking selected among rankings in 'rankings'
       selectedRankingInterval: {
         from: 0,
-        to: 50
+        to: 60
       },
       rankingInstance: {
         rankingId: 1,
@@ -88,15 +88,17 @@ class App extends Component {
           nonProtectedGroup: 'Male' 
         },
         features: [
-          { name: 'foreign_worker', type: 'categorical', range: [], value: ['No', 'Yes'] },
+          { name: 'foreign_worker', type: 'categorical', range: [0,1], value: ['No', 'Yes'] },
           { name: 'credit_amount', type: 'continuous', range: []},
           { name: 'age_in_years', type: 'continuous', range: []},
-          { name: 'marriage', type: 'categorical', range: []},
-          { name: 'job', type: 'categorical', range: []},
-          { name: 'credit_history', type: 'categorical', range: []},
-          { name: 'account_check_status', type: 'categorical', range: []}
+          { name: 'marriage', type: 'categorical', range: [0,1,2,3]},
+          { name: 'job', type: 'categorical', range: [0,1,2,3]},
+          { name: 'credit_history', type: 'categorical', range: [0,1,2,3,4]},
+          { name: 'account_check_status', type: 'categorical', range: [0,1,2,3]},
+          { name: 'sex', type: 'categorical', range: [0,1]},
+          { name: 'present_employment_since', type: 'categorical', range: [0,1,2,3,4]}
         ],
-        target: { name: 'credit_risk', type: 'categorical', range: [], value: ['No', 'Yes'] },
+        target: { name: 'credit_risk', type: 'categorical', range: [0,1], value: ['No', 'Yes'] },
         method: { name: 'Logistic Regression' },
         sumDistortion: 0,
         instances: [],
@@ -106,8 +108,8 @@ class App extends Component {
           precisionK: 0,
           goodnessOfFairness: 0,
           rNNSum: 0,
-          rNNSumGroup1: 0,
-          rNNSumGroup2: 0,
+          rNNSumNonProtectedGroup: 0,
+          rNNSumProtectedGroup: 0,
           groupSkew: 0,
           GFDCG: 0, // Global GF measure
           rND: 0, 
@@ -121,6 +123,8 @@ class App extends Component {
           precisionK: 0,
           goodnessOfFairness: 0,
           rNNSum: 0,
+          rNNSumNonProtectedGroup: 0,
+          rNNSumProtectedGroup: 0,
           groupSkew: 0,
           GFDCG: 0,
           rND: 0,
@@ -131,7 +135,8 @@ class App extends Component {
         },
         isForPerturbation: false,  // False in python
         currentTopk: 30,
-        shouldRunModel: true
+        shouldRunModel: true,
+        isReranking: false
       },
       output: [],
       selectedInstances: [],
@@ -177,7 +182,7 @@ class App extends Component {
       this.calculatePairwiseDiffs();
       this.calculatePermutationDiffs();
       this.permutationDiffsFlattened = _.flatten(this.permutationDiffs);
-      const { rNNSum, rNNSumGroup1, rNNSumGroup2 } = this.calculateRSquared(instances, this.pairwiseDiffs);
+      const { rNNSum, rNNSumNonProtectedGroup, rNNSumProtectedGroup } = this.calculateRSquared(instances, this.pairwiseDiffs);
       this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
@@ -207,8 +212,8 @@ class App extends Component {
               groupSkew: groupSkew,
               goodnessOfFairness: this.rSquared,
               rNNSum: rNNSum,
-              rNNSumGroup1: rNNSumGroup1,
-              rNNSumGroup2: rNNSumGroup2,
+              rNNSumNonProtectedGroup: rNNSumNonProtectedGroup,
+              rNNSumProtectedGroup: rNNSumProtectedGroup,
               utility: utility,
               precisionK: precisionK,
               GFDCG: GFDCG,
@@ -418,8 +423,8 @@ class App extends Component {
         this.getFeatures(), this.runSVM(rankingInstance), 
         this.calculatePairwiseInputDistance(rankingInstance), this.runTSNE(rankingInstance)]);
     } else if (method.name === 'Logistic Regression') {
-      return Promise.all([this.getDataset(), 
-        this.getFeatures(), this.runLR(rankingInstance), 
+      return Promise.all([this.getFeatures(),
+        this.getDataset(), this.runLR(rankingInstance), 
         this.calculatePairwiseInputDistance(rankingInstance), this.runTSNE(rankingInstance)]);
     } else if (method.name === 'Additive Counterfactual Fairness') {
       return Promise.all([this.getDataset(), 
@@ -440,7 +445,17 @@ class App extends Component {
     this.setState(prevState => {
       const stateProperty = Object.keys(optionObj)[0];
 
-      if (stateProperty === 'method') {
+      if (stateProperty === 'reranking') {
+        return {
+          rankingInstance: {
+            ...prevState.rankingInstance,
+            shouldRunModel: false,
+            isReranking: true
+          }
+        }
+      }
+      else if (stateProperty === 'method') {
+        
         const methodName = Object.values(optionObj)[0],
               methodObj = methods.filter((d) => d.name === methodName)[0];
 
@@ -526,7 +541,7 @@ class App extends Component {
       this.calculatePairwiseDiffs();
       this.calculatePermutationDiffs();
       this.permutationDiffsFlattened = _.flatten(this.permutationDiffs);
-      const { rNNSum, rNNSumGroup1, rNNSumGroup2 } = this.calculateRSquared(instances, this.pairwiseDiffs);
+      const { rNNSum, rNNSumNonProtectedGroup, rNNSumProtectedGroup } = this.calculateRSquared(instances, this.pairwiseDiffs);
       this.calculatePredictionIntervalandOutliers(this.pairwiseDiffs);
       updatedInstances = this.calculateSumDistortion(instances, this.permutationDiffsFlattened);
       updatedInstances = this.calculateOutlierInstances(updatedInstances);
@@ -545,8 +560,8 @@ class App extends Component {
               groupSkew: groupSkew,
               goodnessOfFairness: this.rSquared,
               rNNSum: rNNSum,
-              rNNSumGroup1: rNNSumGroup1,
-              rNNSumGroup2: rNNSumGroup2,
+              rNNSumNonProtectedGroup: rNNSumNonProtectedGroup,
+              rNNSumProtectedGroup: rNNSumProtectedGroup,
               utility: utility,
               precisionK: precisionK,
               GFDCG: GFDCG,
@@ -678,7 +693,7 @@ class App extends Component {
       groupInstances2: groupInstances2
     }
 
-    fetch('/dataset/calculateAndersonDarlingTest/', {
+    fetch('/dataset/calculateWassersteinDistance/', {
       method: 'post',
       body: JSON.stringify(corrTestRequest)
     })
@@ -693,26 +708,6 @@ class App extends Component {
         corrBtnSensitiveAndAllFeatures: corrTestResult
       });
     });
-    // Send all features and two groups to server and calculate Anderson-Darling test
-
-    // wholeFeatures.map((feature) => {
-    //   let featureType;
-    //   const isFeatureNumerical = numericalFeatures.indexOf(feature) >= 0 ? true : false;
-      
-    //   if (isFeatureNumerical === true) {
-    //     featureType = 'numerical';
-    //   } else if (isFeatureNumerical === false) {
-    //     featureType = 'categorical';
-    //   }
-
-    // // categorical feature with group1 and group2
-    // if (featureType === 'numerical') {
-    //   ttestStat = ttest(featureValuesForGroup1, featureValuesForGroup2);
-    //   pValue = ttestStat.pValue();
-    // } else if (featureType === 'categorical') {
-    //   chiSquaredStat = chiSquaredTest(featureValuesForGroup1, featureValuesForGroup2, 1);
-    //   pValue = chiSquaredStat;
-    // }
   }
 
   // Calculate distortions of combinatorial pairs (For pairwise distortion plot)
@@ -881,36 +876,38 @@ class App extends Component {
 
     const nProtectedGroupInTopk = protectedGroupInTopk.length,
           nProtectedGroupInWhole = protectedGroupInWhole.length,
-          nNonProtectedGroupInTopk = nonProtectedGroupInWhole.length,
+          nNonProtectedGroupInTopk = nonProtectedGroupInTopk.length,
           nNonProtectedGroupInWhole = nonProtectedGroupInWhole.length,
           Z = (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (Math.min(nProtectedGroupInWhole, topk) / topk) - (nProtectedGroupInWhole / n) ),
           rND = 1 - (1/Z) * (1 / (Math.log(topk) / Math.log(2))) * Math.abs( (nProtectedGroupInTopk / topk) - (nProtectedGroupInWhole / n) );
 
-    const statisticalParity = (nProtectedGroupInTopk.length / protectedGroupInWhole.length) / 
-                              (nNonProtectedGroupInTopk.length / nNonProtectedGroupInTopk.length);
-    const conditionalParity = (group2.filter((d) => d.ranking <= topk && d.target === 1).length / group2.length) / 
-                              (group1.filter((d) => d.ranking <= topk && d.target === 1).length / group1.length);
+    const statisticalParity = (nProtectedGroupInTopk / nProtectedGroupInWhole) / 
+                              (nNonProtectedGroupInTopk / nNonProtectedGroupInWhole);
+    const conditionalParity = (group2.filter((d) => d.ranking <= topk && d.target === 0).length / group2.length) / 
+                              (group1.filter((d) => d.ranking <= topk && d.target === 0).length / group1.length);
 
     // For utility = nDCG
     const topkInstances = instances.filter((d) => d.ranking <= topk);
-    const precisionK = topkInstances.filter((d) => d.target === 1).length / topkInstances.length;
+    const precisionK = topkInstances.filter((d) => d.target === 0).length / topkInstances.length;
 
-    const DCGForProtectedGroup = protectedGroupInTopk.map((d) => d.target * (n - d.ranking) / n)
-                                                     .reduce((acc, curr) => acc + curr) / nProtectedGroupInWhole;
-    const DCGForNonProtectedGroup = nonProtectedGroupInTopk.map((d) => d.target * (n - d.ranking) / n) 
-                                                          .reduce((acc, curr) => acc + curr) / nNonProtectedGroupInWhole;
+    const DCGForProtectedGroup = protectedGroupInTopk.filter((d) => d.target === 0)
+                                                      .map((d) => (n - d.ranking) / n)
+                                                      .reduce((acc, curr) => acc + curr) / nProtectedGroupInWhole;
+    const DCGForNonProtectedGroup = nonProtectedGroupInTopk.filter((d) => d.target === 0)
+                                                      .map((d) => (n - d.ranking) / n) 
+                                                      .reduce((acc, curr) => acc + curr) / nNonProtectedGroupInWhole;
     const GFDCG =  DCGForProtectedGroup / DCGForNonProtectedGroup;
     
     const DCG = topkInstances.map((d, i) => { // sorted by ranking
-              const relevance = d.target;
+              const relevance = d.target - 1;
               const cumulativeDiscount = (topk - d.ranking) / topk;
 
               return relevance * cumulativeDiscount;
             }).reduce((acc, curr) => acc + curr);
 
     const IDCG = _.sortBy(topkInstances, 'target').reverse().map((d, i) => {
-              const relevance = d.target;
-              const cumulativeDiscount = (topk - i) / topk;
+              const relevance = d.target - 1;
+              const cumulativeDiscount = (topk - d.ranking) / topk;
 
               return relevance * cumulativeDiscount;
             }).reduce((acc, curr) => acc + curr);
@@ -977,8 +974,8 @@ class App extends Component {
 
     const nNeighbors = 4;
     let rNNs = [],
-        rNNsGroup1 = [],
-        rNNsGroup2 = [];
+        rNNsNonProtectedGroup = [],
+        rNNsProtectedGroup = [];
 
     instances.forEach((instance) => {
       let rNN;
@@ -993,27 +990,27 @@ class App extends Component {
       const yDiffsForNNs = NNPairs.map((d) => (d.ranking1 - d.ranking2) / Math.max(d.ranking1, d.ranking2)),
             sumDiffsForNNs = yDiffsForNNs.reduce((acc, curr) => acc + curr);
 
-      rNN = sumAbsDiffsForNNs / nNeighbors;
+      rNN = 1 - (sumAbsDiffsForNNs / nNeighbors);
       
-      if (instance.group == 0) {
-        rNNsGroup1.push(rNN);
+      if (instance.group === 0) {
+        rNNsNonProtectedGroup.push(rNN);
       } else {
-        rNNsGroup2.push(rNN);
+        rNNsProtectedGroup.push(rNN);
       }
 
       rNNs.push(rNN);
     });
 
     const rNNSum = rNNs.reduce((acc, curr) => acc + curr) / rNNs.length,
-          rNNSumGroup1 = rNNsGroup1.reduce((acc, curr) => acc + curr) / rNNs.length,
-          rNNSumGroup2 = rNNsGroup2.reduce((acc, curr) => acc + curr) / rNNs.length;
+          rNNSumNonProtectedGroup = rNNsNonProtectedGroup.reduce((acc, curr) => acc + curr) / rNNs.length,
+          rNNSumProtectedGroup = rNNsProtectedGroup.reduce((acc, curr) => acc + curr) / rNNs.length;
 
-    console.log('rNNSumGroup: ', rNNSumGroup1, rNNSumGroup2);
+    console.log('rNNSumGroup: ', rNNSumNonProtectedGroup, rNNSumProtectedGroup);
 
     return { 
       rNNSum: rNNSum,
-      rNNSumGroup1: rNNSumGroup1,
-      rNNSumGroup2: rNNSumGroup2
+      rNNSumNonProtectedGroup: rNNSumNonProtectedGroup,
+      rNNSumProtectedGroup: rNNSumProtectedGroup
      };
   }
 
@@ -1088,6 +1085,8 @@ class App extends Component {
         </div>)
     }
 
+    console.log('rerank:', this.state.rankingInstance.rerank)
+
     // For the Ranking Inspector, only send down the selected ranking data
     const { rankingInstance, dataset, methods, features, 
             topk, n, selectedRankingInterval, mouseoveredInstance, rankings,
@@ -1125,6 +1124,7 @@ class App extends Component {
             onSelectedTopk={this.handleSelectedTopk}  />
         <div className={styles.RankingInspector}>
           <RankingInspectorView 
+              isModelRunning={this.state.isModelRunning}
               data={this.state.rankingInstance}
               topk={this.state.topk}
               n={this.state.n}

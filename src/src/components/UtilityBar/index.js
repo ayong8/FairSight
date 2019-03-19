@@ -20,7 +20,7 @@ class UtilityBar extends Component {
         return <div />
       }
 
-    const { measure, measureDomain, color } = this.props;
+    const { measure, measureDomain, perfectScore, color } = this.props;
 
     const svg = new ReactFauxDOM.Element('svg');
 
@@ -32,7 +32,7 @@ class UtilityBar extends Component {
 
     const measureScale = d3.scaleLinear()
         .domain(measureDomain)
-        .range([0, 60]);
+        .range([5, 65]);
 
     const g = d3.select(svg).append('g')
         .attr('transform', 'translate(3,0)');
@@ -47,7 +47,7 @@ class UtilityBar extends Component {
     xAxis.select('.domain').remove();
 
     const backgroundRect = g.append('rect')
-            .attr('x', 0)
+            .attr('x', 5)
             .attr('y', 10)
             .attr('width', 60)
             .attr('height', 10)
@@ -80,12 +80,12 @@ class UtilityBar extends Component {
             .attr('height', 5)
             .style('fill', '#c91765')
             .style('stroke', '#c91765')
-            .attr('transform', 'translate(60,2)rotate(45)');
+            .attr('transform', 'translate(' + measureScale(perfectScore) + ',2)' + 'rotate(45)');
 
     const fairLine = g.append('line')
-            .attr('x1', measureScale(1))
+            .attr('x1', measureScale(perfectScore))
             .attr('y1', 10)
-            .attr('x2', measureScale(1))
+            .attr('x2', measureScale(perfectScore))
             .attr('y2', 20)
             .style('stroke', '#c91765')
             .style('stroke-width', 2);

@@ -35,7 +35,7 @@ body {
 .Generator { grid-area: g; }
 .RankingView { grid-area: r; }
 .RankingsListView { grid-area: l; }
-.IndividualInspectionView { grid-area: ii; }
+.LocalInspectionView { grid-area: ii; }
 .Footer { grid-area: f; }
 
 .RankingInspector {
@@ -82,7 +82,7 @@ body {
 // .LegendView { grid-area: lg; }
 // .CorrelationView { grid-area: cr; }
 .OutputSpaceView { grid-area: tr; }
-.IndividualInspectionView { grid-area: ii; }
+.LocalInspectionView { grid-area: ii; }
 .RankingInspectorView { grid-area: d; }
 // .GroupFairnessView { grid-area: gf; }
 .UtilityView { grid-area: u; }

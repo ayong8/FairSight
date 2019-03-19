@@ -42,6 +42,8 @@ class InputSpaceView extends Component {
         if (Object.keys(nextProps.selectedInstance).length !== 0) {
           d3.selectAll('.circle_input.selected').style('stroke', d3.rgb(gs.groupColor1).darker()).style('stroke-width', 0.5).classed('selected', false);
           d3.selectAll('.circle_input_' + nextProps.selectedInstance.idx).style('stroke', 'black').style('stroke-width', 3).classed('selected', true);
+        } else {
+          d3.selectAll('.circle_input.selected').style('stroke', d3.rgb(gs.groupColor1).darker()).style('stroke-width', 0.5).classed('selected', false);
         }
       }
 
@@ -188,7 +190,7 @@ class InputSpaceView extends Component {
           .attr('cx', (d) => xScale(d.dim1))
           .attr('cy', (d) => yScale(d.dim2))
           .attr('r', 4)
-          .style('fill', (d) => !d.target ? 'url(#diagonalHatch)': 'none')
+          .style('fill', (d) => (d.target === 0) ? 'none' : 'url(#diagonalHatch)')
           .style('stroke', 'none')
           .style('opacity', 0.7)
           .on('mouseover', function(d) {

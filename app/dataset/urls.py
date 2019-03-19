@@ -78,8 +78,8 @@ urlpatterns = [
         name='confidenceInterval'
     ),
     url(
-        regex=r'^calculateAndersonDarlingTest/$',
-        view=views.CalculateAndersonDarlingTest.as_view(),
+        regex=r'^calculateWassersteinDistance/$',
+        view=views.CalculateWassersteinDistance.as_view(),
         name='wassersteinDistance'
     )
 ]

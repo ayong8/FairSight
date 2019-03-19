@@ -19,7 +19,7 @@ function median(array) {
 // CC = Counterfactual and Critical Region analysis
 // CR = Critical Region
 // CF = Counterfactual
-class IndividualFairnessInspectionView extends Component {
+class FeatureInspectionView extends Component {
   constructor(props) {
     super(props);
 
@@ -143,37 +143,58 @@ class IndividualFairnessInspectionView extends Component {
             .value((d) => d.features[name])
             (instances);
 
-    const xFeatureScaleForInstances = d3.scaleBand()
+    const xFeatureScaleForOutliers = d3.scaleBand()
             .domain(featureBinForInstances.map((d) => d.x0))
-            .range([0, this.layout.outlier.feature.widthForInstances * 2]);
+            .range([0, this.layout.outlier.feature.widthForInstances * 2]),
+          xFeatureScaleForWholeInstances = d3.scaleBand()
+            .domain(featureBinForInstances.map((d) => d.x0))
+            .range([0, this.layout.outlier.feature.svg.width]),
+          yFrequencyScale = d3.scaleLinear()
+            .domain(d3.extent(featureBinForInstances.map((d) => d.length)))
+            .range([_self.layout.outlier.feature.svg.height - _self.layout.outlier.feature.marginBottom - 10, 10 + _self.layout.outlier.feature.marginBottom]);
 
     const xAxisForInstances = d3.select(svgFeature)
             .append('g')
             .attr('class', 'g_x_feature_axis_instances')
             .attr('transform', 'translate(0,' + (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + 
                                                  _self.layout.outlier.feature.margin) + ')')
-            .call(d3.axisBottom(xFeatureScaleForInstances).tickSize(0).tickFormat((d) => d === 0 ? 'No' : 'Yes'));
+            .call(d3.axisBottom(xFeatureScaleForOutliers).tickSize(0).tickFormat((d) => d === 0 ? 'No' : 'Yes'));
     const r = 3;
+
+    // // Bar for whole individuals
+    // const featureHistogramForWholeInstances = d3.select(svgFeature)
+    //         .selectAll('.rect_for_whole_individuals_' + name)
+    //         .data(featureBinForInstances)
+    //         .enter().append('rect')
+    //         .attr('class', 'rect_for_whole_individuals_' + name)
+    //         .attr('x', (d) => _self.layout.outlier.feature.margin + 15 + xFeatureScaleForWholeInstances(d[0].features[name]))
+    //         .attr('y', (d) => yFrequencyScale(d.length))
+    //         .attr('width', 15)
+    //         .attr('height', (d) => _self.layout.outlier.feature.svg.height - _self.layout.outlier.feature.marginBottom - 10 - yFrequencyScale(d.length))
+    //         .style('fill', 'lightgray');
     
-    const featureHistogramForInstances = d3.select(svgFeature)
-            .selectAll('.g_feature_histogram_for_instances_' + name)
+    const featureHistogramForOutliers = d3.select(svgFeature)
+            .selectAll('.g_feature_histogram_for_outliers_' + name)
             .data(featureBinForInstances)
             .enter().append('g')
-            .attr('class', 'g_feature_histogram_for_instances_' + name)
+            .attr('class', 'g_feature_histogram_for_outliers_' + name)
             .attr('transform', function(d) {
               return 'translate(' + (_self.layout.outlier.feature.margin + _self.layout.outlier.feature.widthForInstances*2/8) + ',' 
                                   + (_self.layout.outlier.feature.height - 5) + ')'; 
             })
             .each(function(d, i) {
+              const binFrequency = d.length;
               const sortedInstances = _.orderBy(d, 'isOutlier', 'desc'),
+              // const sortedInstances = d.filter((e) => e.isOutlier),
                     featureValue = d[0].features[name];
 
+              // Circles for outliers
               d3.select(this)
                 .selectAll('.circle_categorical_plot')
                 .data(sortedInstances)
                 .enter().append('circle')
                 .attr('class', 'circle_categorical_plot')
-                .attr('cx', (e, i) => xFeatureScaleForInstances(featureValue) - r + Math.floor(i/15) * 2*r)
+                .attr('cx', (e, i) => xFeatureScaleForOutliers(featureValue) - r + Math.floor(i/15) * 2*r)
                 .attr('cy', (e, i) => - ((i%15) * 2*r))
                 .attr('r', (e) => r)
                 .style('fill', (e) => e.isOutlier ? gs.outlierColor: gs.individualColor)
@@ -583,67 +604,6 @@ class IndividualFairnessInspectionView extends Component {
     );
   }
 
-  // renderCRDistortionPlot() {
-  //   const _self = this;
-
-  //   const { data, topk } = this.props;
-  //   const { instances } = data,
-  //         sumDistortions = instances.map((d) => d.sumDistortion);
-
-  //   const margin = 10,
-  //         marginalTopkInstances = instances.slice(topk - margin, topk),
-  //         marginalNonTopkInstances = instances.slice(topk, topk + margin);
-
-  //   _self.svgCR = new ReactFauxDOM.Element('svg');
-
-  //   _self.svgCR.setAttribute('width', _self.layout.cf.cr.svg.width);
-  //   _self.svgCR.setAttribute('height', _self.layout.cf.cr.svg.height);
-  //   _self.svgCR.setAttribute('0 0 200 200');
-  //   _self.svgCR.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-  //   _self.svgCR.setAttribute('class', 'svg_cr');
-
-  //   const xDistortionScale = d3.scaleLinear()
-  //           .domain(d3.extent(sumDistortions))
-  //           .range([this.layout.cf.cr.plot.margin * 2, this.layout.cf.cr.plot.width - this.layout.cf.cr.plot.margin]),
-  //         xAxis1 = d3.select(_self.svgCR)
-  //               .append('g')
-  //               .attr('class', 'g_cr_plot_axis')
-  //               .attr('transform', 'translate(0,' + (_self.layout.cf.cr.plot.height - _self.layout.cf.cr.plot.marginBottom) + ')')
-  //               .call(d3.axisBottom(xDistortionScale).tickSize(1).tickValues(d3.range(0, d3.max(sumDistortions), 5))),
-  //         xAxis2 = d3.select(_self.svgCR)
-  //               .append('g')
-  //               .attr('class', 'g_cr_plot_axis')
-  //               .attr('transform', 'translate(0,' + (_self.layout.cf.cr.plot.height - _self.layout.cf.cr.plot.marginBottom * 2) + ')')
-  //               .call(d3.axisTop(xDistortionScale).tickSize(1).tickValues(d3.range(0, d3.max(sumDistortions), 5)));
-
-  //   const topkCircles = d3.select(_self.svgCR)
-  //           .selectAll('.topk_instances')
-  //           .data(marginalTopkInstances)
-  //           .enter().append('circle')
-  //           .attr('class', 'topk_instances')
-  //           .attr('cx', (d) => xDistortionScale(d.sumDistortion))
-  //           .attr('cy', (_self.layout.cf.cr.plot.height - _self.layout.cf.cr.plot.marginBottom))
-  //           .attr('r', 5)
-  //           .style('fill', 'red')
-  //           .style('opacity', 0.5),
-  //         nonTopkCircles = d3.select(_self.svgCR)
-  //           .selectAll('.non_topk_instances')
-  //           .data(marginalNonTopkInstances)
-  //           .enter().append('circle')
-  //           .attr('class', 'non_topk_instances')
-  //           .attr('cx', (d) => xDistortionScale(d.sumDistortion))
-  //           .attr('cy', (_self.layout.cf.cr.plot.height - _self.layout.cf.cr.plot.marginBottom * 2))
-  //           .attr('r', 5)
-  //           .style('fill', 'blue')
-  //           .style('opacity', 0.5);
-
-  //   return (
-  //     <div>
-  //       {this.svgCR.toReact()}
-  //     </div>
-  //   );
-  // }
-
   renderFeaturePerturbation(perturbedRankingInstance) {
     const _self = this;
 
@@ -757,7 +717,7 @@ class IndividualFairnessInspectionView extends Component {
     return { 
       perturbationDiv: 
         <div className={styles.featureRow}>
-          <div>{Math.round(diffPrecisionK * 100) / 100}</div>
+          {/* <div>{Math.round(diffPrecisionK * 100) / 100}</div> */}
           {svgPerturbation.toReact()}
         </div>,
       diffPrecisionK: Math.round(diffPrecisionK * 100) / 100,
@@ -819,6 +779,8 @@ class IndividualFairnessInspectionView extends Component {
       const { name, type, range, value } = feature;
 
       // For outlier analysis...
+      console.log('is perturbation...', perturbationResult.perturbedFeature);
+      console.log('feature perturbation: ', type, range);
       if (type === 'categorical') {
         if (range.length == 2) {
           outlierResultObj = _self.renderCategoricalFeatureForOutlier(feature);
@@ -862,7 +824,6 @@ class IndividualFairnessInspectionView extends Component {
   }
 
   render() {
-    console.log(this.props);
     if ((!this.props.data.instances || this.props.data.instances.length === 0) ||
         (!this.props.data.features || this.props.data.features.length === 0) ||
         (!this.props.perturbationResults || this.props.perturbationResults.length === 0) ||
@@ -870,12 +831,12 @@ class IndividualFairnessInspectionView extends Component {
       return <div />
 
     return (
-      <div className={styles.IndividualFairnessInspectionView}>
-        <div className={index.subTitle + ' ' + styles.featureInspectorTitle}>Feature Inspector</div>
+      <div className={this.props.isModelRunning ? styles.FeatureInspectionView + ' ' + index.isModelRunning : styles.FeatureInspectionView}>
+        <div className={index.title + ' ' + styles.featureInspectorTitle}>Feature Inspector</div>
         {this.renderFeatureInspectorTable()}
       </div>
     );
   }
 }
 
-export default IndividualFairnessInspectionView;
+export default FeatureInspectionView;

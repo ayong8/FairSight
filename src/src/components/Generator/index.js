@@ -85,6 +85,18 @@ class Generator extends Component {
   }
 
   componentWillUpdate(nextProps, nextState) {
+    if (nextProps.rankingInstance.method.name !== this.props.rankingInstance.method.name) {
+      if (nextProps.rankingInstance.method.name !== 'Reranking') {
+        d3.select('#buttonMethod' + this.props.rankingInstance.method.name.replace(' ', '')).classed('method_selected', false);
+        d3.select('#buttonMethod' + nextProps.rankingInstance.method.name.replace(' ', '')).classed('method_selected', true);
+      } else {
+        if (nextProps.rankingInstance.isReranking) {
+          d3.select('#buttonReranking').classed('method_selected', true);
+        } else {
+          d3.select('#buttonReranking').classed('method_selected', false);
+        }
+      }
+    }
   }
 
   componentDidUpdate() {
@@ -103,6 +115,17 @@ class Generator extends Component {
   }
 
   handleMethodSelected(e) {
+    const { method, isReranking } = this.props.rankingInstance;
+    const selectedMethod = e.target.value;
+    if (selectedMethod !== method.name) {
+      console.log('selected: ', d3.select('#buttonMethod' + method.name.replace(' ', '')));
+      this.props.onSelectRankingInstanceOptions({ method: selectedMethod });
+    }
+    if (selectedMethod === 'Reranking') {
+      if (isReranking === false) {
+        this.props.onSelectRankingInstanceOptions({ isReranking: true });  
+      }
+    }
   }
 
   toggleMethodDropdown() {
@@ -905,6 +928,7 @@ class Generator extends Component {
         {/* // Protected Group selector */}
         <div className={styles.generatorSubSubTitle}>Utility-oriented</div>
         <Button 
+          id={'buttonMethodRankSVM'}
           value={'RankSVM'}
           type="primary" 
           size="small" 
@@ -913,7 +937,6 @@ class Generator extends Component {
         </Button>
         <Button 
           id={'buttonMethodLogisticRegression'}
-          className={index.buttonMethodLogisticRegression}
           value={'Logistic Regression'}
           type="primary" 
           size="small" 
@@ -921,6 +944,8 @@ class Generator extends Component {
           Logistic Regression
         </Button>
         <Button 
+          id={'buttonMethodSVM'}
+          value={'SVM'}
           type="primary" 
           size="small" 
           onClick={this.handleMethodSelected}>
@@ -928,6 +953,8 @@ class Generator extends Component {
         </Button>
         <div className={styles.generatorSubSubTitle}>Fairness-oriented (In-processing)</div>
         <Button 
+          id={'buttonMethodAdditiveCounterfactualFairness'}
+          value={'Additive Counterfactual Fairness'}
           type="primary" 
           size="small" 
           onClick={this.handleMethodSelected}>
@@ -935,10 +962,12 @@ class Generator extends Component {
         </Button>
         <div className={styles.generatorSubSubTitle}>Post-processing</div>
         <Button 
+          id={'buttonReranking'}
+          value={'Reranking'}
           type="primary" 
           size="small" 
           onClick={this.handleMethodSelected}>
-          FA*IR
+          Reranking
         </Button>
         <Dropdown className={styles.methodDropdown}
                   isOpen={this.state.methodDropdownOpen} 

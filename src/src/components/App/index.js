@@ -915,7 +915,7 @@ class App extends Component {
     const nDCG = DCG / IDCG;
 
     return {
-      utility: Math.round(nDCG * 100) / 100,
+      utility: Math.round(nDCG * 10000) / 10000,
       precisionK: Math.round(precisionK * 100) / 100,
       GFDCG: Math.round(GFDCG * 100) / 100,
       rND: Math.round(rND * 100) / 100,

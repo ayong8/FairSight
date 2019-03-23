@@ -107,7 +107,7 @@ class LocalInspectionView extends Component {
                 className={styles.instanceDataTable}
                 columns={columnsForIndividual} 
                 dataSource={ (selectedInstance && Object.keys(selectedInstance).length !== 0) ? this.renderIndividualFeatureTable() : this.renderIndividualEmptyTable() } 
-                scroll={{ y: 120 }}
+                scroll={{ y: 180 }}
                 pagination={false}
                 bordered
               />
@@ -128,7 +128,7 @@ class LocalInspectionView extends Component {
                 className={styles.groupDataTable}
                 columns={columnsForGroup} 
                 dataSource={ this.renderGroupFeatureTable() } 
-                scroll={{ y: 120 }}
+                scroll={{ y: 180 }}
                 pagination={false}
                 bordered
               />

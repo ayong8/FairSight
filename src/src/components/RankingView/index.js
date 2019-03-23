@@ -78,10 +78,10 @@ class RankingView extends Component {
       };
 
       this.state = {
-        topk: 30,
+        topk: 65,
         selectedRankingInterval: {
           from: 0,
-          to: 50
+          to: 70
         },
         precisionK: 0,
         statParityK: 0,

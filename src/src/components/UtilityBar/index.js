@@ -73,7 +73,7 @@ class UtilityBar extends Component {
             .attr('x', 60 + 15)
             .attr('y', 21)
             .style('font-size', 16)
-            .text(Math.round(measure * 100) / 100);
+            .text(Math.round(measure * 10000) / 10000);
 
     const fairRect = g.append('rect')
             .attr('width', 5)

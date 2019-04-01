@@ -15,7 +15,6 @@ class UtilityBar extends Component {
 
   render() {
     console.log('MeasureView rendered');
-    console.log(this.props);
     if ((!this.props.measure || this.props.measure.length === 0)) {
         return <div />
       }
@@ -24,11 +23,11 @@ class UtilityBar extends Component {
 
     const svg = new ReactFauxDOM.Element('svg');
 
-    svg.setAttribute('width', '120px');
-    svg.setAttribute('height', '50px');
+    svg.setAttribute('width', '110px');
+    svg.setAttribute('height', '40px');
     svg.setAttribute('0 0 200 200');
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    svg.setAttribute('transform', 'translate(0,10)');
+    svg.setAttribute('transform', 'translate(0,0)');
 
     const measureScale = d3.scaleLinear()
         .domain(measureDomain)
@@ -70,16 +69,16 @@ class UtilityBar extends Component {
             .style('stroke', '1px');
 
     const score = g.append('text')
-            .attr('x', 60 + 15)
+            .attr('x', 60 + 10)
             .attr('y', 21)
             .style('font-size', 16)
-            .text(Math.round(measure * 10000) / 10000);
+            .text(Math.round(measure * 100) / 100);
 
     const fairRect = g.append('rect')
             .attr('width', 5)
             .attr('height', 5)
-            .style('fill', '#c91765')
-            .style('stroke', '#c91765')
+            .style('fill', color)
+            .style('stroke', color)
             .attr('transform', 'translate(' + measureScale(perfectScore) + ',2)' + 'rotate(45)');
 
     const fairLine = g.append('line')
@@ -87,7 +86,7 @@ class UtilityBar extends Component {
             .attr('y1', 10)
             .attr('x2', measureScale(perfectScore))
             .attr('y2', 20)
-            .style('stroke', '#c91765')
+            .style('stroke', color)
             .style('stroke-width', 2);
 
     // Traingle-shaped indicator for current fair score

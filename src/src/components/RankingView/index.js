@@ -78,7 +78,7 @@ class RankingView extends Component {
       };
 
       this.state = {
-        topk: 65,
+        topk: 45,
         selectedRankingInterval: {
           from: 0,
           to: 70
@@ -97,44 +97,33 @@ class RankingView extends Component {
     }
 
     componentDidMount() {
-      console.log('componentdidmount in ranking view');
       const { topk } = this.state,
             { data } = this.props,
             { instances } = data;
 
-      // let precisionKData = [ [ 1, instances.map((d) => d.target)[0] ] ],
-      //     statParityKData = [ [ 1, instances.map((d) => d.group)[0]  ] ];
-      let precisionKData = [],
-          statParityKData = [];
-          
-      // Calculate precisionK (within-utility)
-      let sumNumTrue = 0;
-      instances.map((d) => d.target)
-          .forEach((d, i) => {
-            const isTrue = (d === 0) ? 1 : 0;
-            const ranking = i + 1,
-                  length = i + 1;
-
-            sumNumTrue += isTrue;
-
-            const precisionK = sumNumTrue / length;
-
-            precisionKData.push([ ranking, precisionK]);
-          });
-
-      let sumNumProtectedGroup = 0;
-      instances.map((d) => d.group)
-          .forEach((d, i) => {
-            const isProtectedGroup = (d === 1) ? 1 : 0;
-            const ranking = i + 1,
-                  length = i + 1;
-
-            sumNumProtectedGroup += isProtectedGroup;
-
-            const statParityK = sumNumProtectedGroup / length;
-
-            statParityKData.push([ ranking, statParityK]);
-          });
+      let precisionKData = [ [ 1, instances.map((d) => d.target)[0] ] ],
+          statParityKData = [ [ 1, instances.map((d) => d.group)[0]  ] ];
+        
+        instances.map((d) => d.target)
+            .reduce((acc, curr, currIdx) => {
+              const ranking = currIdx + 1,
+                    length = currIdx + 1;
+  
+              precisionKData.push([ ranking, (length - (acc + curr)) / length]);
+              return acc + curr;
+            });
+  
+        instances.map((d) => d.group)
+            .reduce((acc, curr, currIdx) => {
+              const ranking = currIdx + 1,
+                    length = currIdx + 1;
+  
+              const groupRatio = (acc + curr) / (length - (acc + curr)),
+                    statParityK = isFinite(groupRatio) ? groupRatio : 0; // If the ratio is infinity, treat as 0
+  
+              statParityKData.push([ ranking, statParityK]);
+              return acc + curr;
+            });
 
       this.setState({
         topk: topk,
@@ -145,21 +134,7 @@ class RankingView extends Component {
 
     componentWillUpdate() {
       const { isMouseOveredGroupFairness } = this.state;
-
-      // if (isMouseOveredGroupFairness === false) {
-      //   d3.selectAll('.rect_whole_ranking_topk')
-      //     .style('stroke-width', 2);
-      // } else {
-      //   d3.selectAll('.rect_whole_ranking_topk')
-      //     .style('stroke-width', 0.5);
-      // }
     }
-
-    // shouldComponentUpdate(nextProps, nextState) {
-    //   const shouldRunModel = nextProps.data.shouldRunModel;
-      
-    //   return shouldRunModel;
-    // }
 
     handleSelectedTopk(topk) {
       const { data } = this.props,
@@ -183,7 +158,7 @@ class RankingView extends Component {
                   length = currIdx + 1;
 
             const groupRatio = (acc + curr) / (length - (acc + curr)),
-                  statParityK = groupRatio < 0 ? 0 : groupRatio; // If the ratio is infinity, treat as 0
+                  statParityK = isFinite(groupRatio) ? groupRatio : 0; // If the ratio is infinity, treat as 0
 
             statParityKData.push([ ranking, statParityK]);
             return acc + curr;
@@ -251,6 +226,10 @@ class RankingView extends Component {
             topkPlotWidth = rectInterval * topk, // topk and non-topk plot have the same length
             selectedNonTopkPlotWidth = rectInterval * (to - topk + 1),
             renderedNonTopkWidth = rectInterval * renderedNonTopkInstances.length;
+
+      const statParityKList = statParityKData.slice(0, to).map((d) => d[1]);
+
+      console.log('statparity: ', statParityKList);
   
       const topkRankingScale = d3.scaleBand()
               .domain(d3.range(1, topk+1))
@@ -269,7 +248,7 @@ class RankingView extends Component {
               .domain([1, 0]),
             statParityScale = d3.scaleLinear()
               .range([0, rectHeight])
-              .domain([1, 0]);
+              .domain([Math.max(...statParityKList), 0]);
 
       const topkTickValues = [1, ...d3.range(5, topk, 5), topk],
             selectedNonTopkTickValues = [topk+1, ...d3.range(topk+1 + ((topk+1) % 5), to, 5), to];
@@ -616,8 +595,6 @@ class RankingView extends Component {
 
       const _self = this;
 
-      console.log('isModelRunning in RankingView? ', this.state.isModelRunning);
-
       const { topk } = this.state;
       const { data, n } = this.props,
             { stat } = data,
@@ -629,7 +606,7 @@ class RankingView extends Component {
             statParityK = statParityKData[topk-1][1];
 
       return (
-        <div className={this.props.isModelRunning ? styles.RankingView + ' ' + index.isModelRunning : styles.RankingView}>
+        <div className={styles.RankingView}>
           <div className={styles.currentRankingTitle + ' ' + index.title}>
             Ranking View &nbsp;
             <Tag color="#108ee9">{'R' + data.rankingId}</Tag>
@@ -692,8 +669,8 @@ class RankingView extends Component {
             <div className={styles.wtnFairness}>
               <FairnessBar 
                 measure={statParityK}
-                measureDomain={[0, 1]}
-                perfectScore={0.5}
+                measureDomain={[0, 2]}
+                perfectScore={1}
                 color={gs.fairnessColor}
               />
             </div>

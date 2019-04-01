@@ -34,7 +34,7 @@ body {
   background-color: #00346b !important;
 } */
 .ant-table {
-  width: 95% !important;
+  width: 100% !important;
   margin: 10px auto !important;
   font-size: 1rem !important;
 }
@@ -181,6 +181,9 @@ body {
 
 .g_corr_plot_group1 { stroke-width: 2px; }
 .g_corr_plot_group2 { stroke-width: 2px; }
+
+.g_x_feature_axis_individual line { stroke: gray; stroke-width: 2px; }
+.g_x_feature_axis_individual path { stroke: gray; stroke-width: 2px; }
 
 .selected { stroke-width: 2px !important; }
 

@@ -17,14 +17,58 @@ class LocalInspectionView extends Component {
 
     renderIndividualFeatureTable() {
       const _self = this;
-      const { selectedInstance, selectedInstanceNNs } = this.props,
+      const { selectedInstance, selectedInstanceNNs, features } = this.props,
             nSelectedInstanceNNs = selectedInstanceNNs.length;
   
-      return Object.keys(selectedInstance.features).map((feature, idx) => {
+      return features.map((feature, idx) => {
+        const svg = new ReactFauxDOM.Element('svg');
+
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '25px');
+        svg.setAttribute('class', 'svg_ranking_plot');
+
+        const featureName = d3.select(svg)
+                .append('text')
+                .attr('x', 0)
+                .attr('y', 15)
+                .text(feature.name.replace(/_/g, ' '));
+
+        const individualValue = selectedInstance.features[feature.name],
+              neighborsValue = _.sum(selectedInstanceNNs.map((d) => d.x2.features[feature.name])) / nSelectedInstanceNNs;
+
+        const g = d3.select(svg)
+              .append('g')
+              .attr('transform', 'translate(150,10)');
+
+        const xFeatureScale = d3.scaleLinear()
+              .domain([d3.min(feature.range), d3.max(feature.range)])
+              .range([0, 50]),
+            xAxis = g.append('g')
+                  .attr('class', 'g_x_feature_axis_individual')
+                  .attr('transform', 'translate(0,0)')
+                  .call(d3.axisBottom(xFeatureScale).tickSize(5).tickSizeOuter(0).tickValues([d3.min(feature.range), d3.max(feature.range)]));
+        //.tickValues(xFeatureScale.domain().filter(function(d,i){ return !(i%5)})).tickSizeOuter(0).tickFormat(d3.format('.0f'))
+
+        const indiCircle = g.append('circle')
+                .attr('cx', xFeatureScale(individualValue))
+                .attr('cy', 1)
+                .attr('r', 3)
+                .style('fill', 'none')
+                .style('stroke', 'black')
+                .style('stroke-width', 2);
+
+        const neighborCircle = g.append('circle')
+                .attr('cx', xFeatureScale(neighborsValue))
+                .attr('cy', 1)
+                .attr('r', 3)
+                .style('fill', 'none')
+                .style('stroke', 'blue')
+                .style('stroke-width', 2);
+
         return {
-          feature: feature.replace(/_/g, ' '),
-          individualValue: selectedInstance.features[feature],
-          neighborsValue: _.sum(selectedInstanceNNs.map((d) => d.x2.features[feature])) / nSelectedInstanceNNs
+          feature: svg.toReact(),
+          individualValue: individualValue,
+          neighborsValue: neighborsValue
         };
       });
     }
@@ -34,7 +78,7 @@ class LocalInspectionView extends Component {
 
       return features.map((d) => {
         return  {
-          feature: d.name,
+          feature: d.name.replace(/_/g, ' '),
           individualValue: '',
           neighborsValues: ''
         }
@@ -52,8 +96,8 @@ class LocalInspectionView extends Component {
       return Object.keys(instances[0].features).map((feature, idx) => {
         return {
           feature: feature.replace(/_/g, ' '),
-          nonProtectedGroupValue: _.sum(nonProtectedGroup.map((d) => d.features[feature])) / nNonProtectedGroup,
-          protectedGroupValue: _.sum(protectedGroup.map((d) => d.features[feature])) / nProtectedGroup
+          nonProtectedGroupValue: Math.round(_.sum(nonProtectedGroup.map((d) => d.features[feature])) / nNonProtectedGroup * 100) / 100,
+          protectedGroupValue: Math.round(_.sum(protectedGroup.map((d) => d.features[feature])) / nProtectedGroup * 100) / 100
         };
       });
     }
@@ -68,15 +112,15 @@ class LocalInspectionView extends Component {
             featureNames = Object.keys(instances[0].features);
   
       const columnsForIndividual = [
-        { title: 'Feature', dataIndex: 'feature', width: '50%' },
-        { title: 'Individual', dataIndex: 'individualValue', width: '25%'},
-        { title: 'Neighbors', dataIndex: 'neighborsValue', width: '25%'}
+        { title: 'Feature', dataIndex: 'feature', width: '60%' },
+        { title: 'Individual', dataIndex: 'individualValue', width: '20%'},
+        { title: 'Neighbors', dataIndex: 'neighborsValue', width: '20%'}
       ];
 
       const columnsForGroup = [
-        { title: 'Feature', dataIndex: 'feature', width: '50%' },
-        { title: 'Non-protected', dataIndex: 'nonProtectedGroupValue', width: '25%'},
-        { title: 'Protected', dataIndex: 'protectedGroupValue', width: '25%'}
+        { title: 'Feature', dataIndex: 'feature', width: '60%' },
+        { title: 'Non-protected', dataIndex: 'nonProtectedGroupValue', width: '20%'},
+        { title: 'Protected', dataIndex: 'protectedGroupValue', width: '20%'}
       ];
 
       return (
@@ -107,7 +151,7 @@ class LocalInspectionView extends Component {
                 className={styles.instanceDataTable}
                 columns={columnsForIndividual} 
                 dataSource={ (selectedInstance && Object.keys(selectedInstance).length !== 0) ? this.renderIndividualFeatureTable() : this.renderIndividualEmptyTable() } 
-                scroll={{ y: 180 }}
+                scroll={{ y: 280 }}
                 pagination={false}
                 bordered
               />
@@ -128,7 +172,7 @@ class LocalInspectionView extends Component {
                 className={styles.groupDataTable}
                 columns={columnsForGroup} 
                 dataSource={ this.renderGroupFeatureTable() } 
-                scroll={{ y: 180 }}
+                scroll={{ y: 80 }}
                 pagination={false}
                 bordered
               />

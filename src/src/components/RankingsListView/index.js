@@ -111,6 +111,7 @@ class RankingsListView extends Component {
     return (
       <div>
         {svg.toReact()}
+        <div>0.48</div>
       </div>
     )
   }
@@ -154,16 +155,25 @@ class RankingsListView extends Component {
 
       return {
         id: 'R' + rankingId,
-        topk: currentTopk,
+        topk: 
+          <div>
+            <div style={{'fontWeight': 600}}>O(B)</div>
+            <div style={{'fontWeight': 600}}>
+              <div className={styles.spaceTitle}>{'I'}</div>
+              <span>{' '}</span>
+              <span className={styles.spaceTitle}>{'M'}</span> 
+            </div>
+          </div>,
         if: 
-        <div className={styles.featureRow}>
-          <UtilityBar 
-            measure={stat.rNNSum}
-            measureDomain={[0, 1]}
-            perfectScore={1}
-            color={gs.fairnesscolor}
-          />
-        </div>,
+          <div className={styles.featureRow}>
+            <UtilityBar 
+              measure={stat.rNNSum}
+              measureDomain={[0, 1]}
+              perfectScore={1}
+              color={gs.fairnessColor}
+            />
+            <div>-</div>
+          </div>,
         gf: 
         <div className={styles.featureRow}>
             <FairnessBar 
@@ -172,6 +182,14 @@ class RankingsListView extends Component {
               perfectScore={1}
               color={gs.fairnessColor}
             />
+            <div style={{'fontWeight': 600, 'display': 'flex'}}>
+              <div className={styles.spaceTitle}>{'I'}</div>
+              &nbsp;<span>{' ' + Math.round(stat.inputSpaceDist * 100) / 100 + '  '}</span>
+              &nbsp;<div className={styles.spaceTitle}>{'M'}</div>
+              &nbsp;<span>{' ' + Math.round(stat.groupSkew * 100) / 100 + '  '}</span>
+              &nbsp;<div className={styles.spaceTitle}>{'W'}</div>
+              &nbsp;<span>{' ' + Math.round(stat.sp * 100) / 100}</span>
+            </div>
         </div>,
         u: 
         <div>
@@ -181,6 +199,10 @@ class RankingsListView extends Component {
             perfectScore={1}
             color={gs.utilityColor}
           />
+          <div style={{'fontWeight': 600, 'display': 'flex'}}>
+            &nbsp;<div className={styles.spaceTitleUtility}>{'W'}</div>
+            &nbsp;<span>{Math.round(stat.precisionK * 100) / 100}</span>
+          </div>
         </div>
       }
     });
@@ -193,11 +215,10 @@ class RankingsListView extends Component {
     const _self = this;
     
     const rankingListColumns = [
-        { title: 'ID', dataIndex: 'id', width: '5%' },
-        { title: 'TOPK', dataIndex: 'topk', width: '10%' },
-        { title: 'GF', dataIndex: 'gf', width: '25%'},
-        { title: 'IF', dataIndex: 'if', width: '25%'},
-        { title: 'U', dataIndex: 'u', width: '25%'}
+        { title: 'ID', dataIndex: 'id', width: '7%' },
+        { title: 'Group Fairness', dataIndex: 'gf', width: '48%'},
+        { title: 'Individual Fairness', dataIndex: 'if', width: '24%'},
+        { title: 'Utility', dataIndex: 'u', width: '22%'}
       ];
 
     return (
@@ -205,7 +226,22 @@ class RankingsListView extends Component {
         <div className={styles.titleWrapper}>
           <div className={index.title + ' ' + styles.title }> Rankings </div>
         </div>
-        {/* {this.renderRankingPlot()} */}
+        <div style={{ 'display': 'flex', 'paddingTop': '8px', 'paddingLeft': '8px' }}>
+          <div className={styles.spaceTitle}>{' '}</div>
+          &nbsp;<span>{'Fairness measure'}</span>
+          &nbsp;<div className={styles.spaceTitleUtility}>{' '}</div>
+          &nbsp;<span>{'Utility measure'}</span>
+        </div>
+        <div style={{ 'display': 'flex', 'paddingTop': '2px', 'paddingLeft': '8px' }}>
+          <div className={styles.spaceTitle}>{'I'}</div>
+          &nbsp;<span>{'Input Space'}</span>
+          &nbsp;<div className={styles.spaceTitle}>{'M'}</div>
+          &nbsp;<span>{'Mapping'}</span>
+          &nbsp;<div className={styles.spaceTitle}>{'B'}</div>
+          &nbsp;<span>{'Between-ranking'}</span>
+          &nbsp;<div className={styles.spaceTitle}>{'W'}</div>
+          &nbsp;<span>{'Within-ranking'}</span>
+        </div>
         <Table
           className={styles.rankingComparisonTable}
           columns={rankingListColumns} 

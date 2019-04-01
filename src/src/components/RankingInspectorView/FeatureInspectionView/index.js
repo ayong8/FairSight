@@ -31,11 +31,11 @@ class FeatureInspectionView extends Component {
     this.layout = {
       outlier: {
         svg: {
-          width: 200,
+          width: 280,
           height: 120
         },
         histogram: {
-          width: 200,
+          width: 250,
           height: 120,
           margin: 10,
           marginBottom: 30
@@ -47,14 +47,14 @@ class FeatureInspectionView extends Component {
           marginLeft: 10,
           marginBottom: 25,
           marginBtn: 10,
-          widthForInstances: 95,
+          widthForInstances: 115,
           heightForInstances: 100,
-          widthForOutliers: 95,
+          widthForOutliers: 115,
           heightForOutliers: 100,
           widthForMedian: 50,
           heightForMedian: 100,
           svg: {
-            width: 200,
+            width: 280,
             height: 120
           },
           plot: {
@@ -62,7 +62,7 @@ class FeatureInspectionView extends Component {
             height: 100
           },
           histoForCont: {
-            width: 200,
+            width: 250,
             height: 140,
             margin: 25,
             marginBottom: 30
@@ -265,7 +265,7 @@ class FeatureInspectionView extends Component {
                 .attr('transform', 'translate(0,' + (_self.layout.outlier.feature.heightForInstances - _self.layout.outlier.feature.marginBottom + 
                                                     _self.layout.outlier.feature.margin) + ')')
                 .call(d3.axisBottom(xFeatureScale).tickValues(xFeatureScale.domain().filter(function(d,i){ return !(i%5)})).tickSizeOuter(0).tickFormat(d3.format('.0f'))),
-          r = xFeatureScale.bandwidth() / 2;
+          r = xFeatureScale.bandwidth() / 2.5;
 
     const featureHistogram = d3.select(svgFeature).selectAll('.g_outlier_histogram')
             .data(instancesBin)
@@ -284,8 +284,7 @@ class FeatureInspectionView extends Component {
                 .attr('cx', r)
                 .attr('cy', (e, i) => - r - (i*(2*r) + 0.5))
                 .attr('r', r)
-                .style('fill', (e) => e.isTopk ? gs.topkColor : 
-                                      e.isOutlier ? 'red' : gs.individualColor)
+                .style('fill', (e) => e.isOutlier ? 'red' : gs.individualColor)
                 .style('stroke', 'none')
                 .style('stroke-width', (e) => 0.5);
             });
@@ -464,18 +463,6 @@ class FeatureInspectionView extends Component {
                 .call(d3.axisBottom(xDistortionScale).tickSizeOuter(0).tickValues(xDistortionScale.domain().filter(function(d,i){ return !(i%6)}))),
           r = xDistortionScale.bandwidth() / 2;
 
-    const diagonalPattern = d3.select(_self.svgOutlier)
-          .append('defs')
-          .append('pattern')
-            .attr('id', 'diagonalHatch')
-            .attr('patternUnits', 'userSpaceOnUse')
-            .attr('width', 4)
-            .attr('height', 4)
-          .append('path')
-            .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
-            .attr('stroke', 'red')
-            .attr('stroke-width', 1);
-
     const distortionHistogram = d3.select(_self.svgOutlier).selectAll('.g_outlier_histogram')
             .data(dataBin)
             .enter().append('g')
@@ -493,9 +480,8 @@ class FeatureInspectionView extends Component {
                 .attr('cy', (e, i) => _self.layout.outlier.histogram.height - _self.layout.outlier.histogram.marginBottom -
                                       r - (i*xDistortionScale.bandwidth()+0.5))
                 .attr('r', r)
-                .style('fill', (e) => e.isTopk ? gs.topkColor :
-                                      e.isOutlier ? gs.outlierColor : gs.individualColor)
-                .style('stroke', (e) => e.isOutlier ? d3.rgb('red').darker() : (e.isOutlierWithinSelection ? d3.rgb('blue').darker() : d3.rgb(gs.individualColor).darker()))
+                .style('fill', (e) => e.isOutlier ? gs.outlierColor : gs.individualColor)
+                .style('stroke', (e) => d3.rgb(gs.individualColor).darker())
                 .style('stroke-width', (e) => 0.5);
 
               d3.select(this)
@@ -507,7 +493,7 @@ class FeatureInspectionView extends Component {
                 .attr('cy', (e, i) => _self.layout.outlier.histogram.height - _self.layout.outlier.histogram.marginBottom -
                                       r - (i*xDistortionScale.bandwidth()+0.5))
                 .attr('r', r)
-                .style('fill', (e) => e.isOutlier ? 'url(#diagonalHatch)' : 'none');
+                .style('fill', (e) => e.isOutlier ? gs.outlierColor : 'none');
             });
 
     return (
@@ -563,7 +549,7 @@ class FeatureInspectionView extends Component {
             .append('g')
             .attr('class', 'g_x_permutation_axis')
             .attr('transform', 'translate(' + (_self.layout.cf.feature.plot.margin + plotWidth) + ',' + (_self.layout.cf.feature.plot.marginTop + rectHeight + 10) + ')')
-            .call(d3.axisBottom(nonTopkRankingScale).tickValues([topk+1, ...d3.range(topk+10, n, 10)]).tickSizeOuter(0));
+            .call(d3.axisBottom(nonTopkRankingScale).tickValues([topk+1, ...d3.range(topk+10, n, 30), n]).tickSizeOuter(0));
 
     const gTopkRanking = d3.select(svgOriginalRanking).append('g')
             .attr('class', 'g_top_k_ranking_cf_')
@@ -644,7 +630,7 @@ class FeatureInspectionView extends Component {
             .append('g')
             .attr('class', 'g_x_permutation_axis')
             .attr('transform', 'translate(' + (_self.layout.cf.feature.plot.margin + plotWidth) + ',' + (_self.layout.cf.feature.plot.marginTop + rectHeight + 10) + ')')
-            .call(d3.axisBottom(nonTopkRankingScale).tickValues([topk+1, ...d3.range(topk+10, n, 10)]).tickSizeOuter(0));
+            .call(d3.axisBottom(nonTopkRankingScale).tickValues([topk+1, ...d3.range(topk+10, n, 30), n]).tickSizeOuter(0));
 
     const gTopkRanking = d3.select(svgPerturbation).append('g')
             .attr('class', 'g_top_k_ranking_cf_' + perturbedFeature)
@@ -652,6 +638,18 @@ class FeatureInspectionView extends Component {
           gNonTopkRanking = d3.select(svgPerturbation).append('g')
             .attr('class', 'g_non_top_k_ranking_cf_' + perturbedFeature)
             .attr('transform', 'translate(' + (_self.layout.cf.feature.plot.margin + plotWidth) + ',' + _self.layout.cf.feature.plot.marginTop + ')');
+    
+    const diagonalPattern = d3.select(svgPerturbation)
+            .append('defs')
+            .append('pattern')
+              .attr('id', 'diagonalHatch')
+              .attr('patternUnits', 'userSpaceOnUse')
+              .attr('width', 4)
+              .attr('height', 4)
+            .append('path')
+              .attr('d', 'M-3,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+              .attr('stroke', '#000000')
+              .attr('stroke-width', 1);
 
     const previousRankingScale = d3.scaleLinear()
             .domain([1, 100])
@@ -689,15 +687,28 @@ class FeatureInspectionView extends Component {
         .style('shape-rendering', 'crispEdge')
         .style('stroke-width', 0.5);
 
+    gTopkRanking.selectAll('.rect_topk_cf_group_pattern')
+        .data(topkInstances)
+        .enter().append('rect')
+        .attr('class', (d) => 'rect_topk_cf_group_pattern rect_topk_cf_group_pattern_' + d.ranking)
+        .attr('x', (d) => topkRankingScale(d.ranking))
+        .attr('y', (d) => 20 + 2)
+        .attr('width', rectWidth)
+        .attr('height', (d) => 5)
+        .style('fill', (d) => !d.target ? 'none': 'url(#diagonalHatch)')
+        .style('stroke', 'none')
+        .style('shape-rendering', 'crispEdge')
+        .style('stroke-width', 0.5);
+
     // Only render instances within previous topk rankings
     gNonTopkRanking.selectAll('.rect_non_topk_cf')
         .data(nonTopkInstances.filter((d) => d.previousRanking <= topk))
         .enter().append('rect')
         .attr('class', (d) => 'rect_non_topk_cf rect_non_topk_cf_' + d.ranking)
         .attr('x', (d) => nonTopkRankingScale(d.ranking))
-        .attr('y', (d) => 0)
+        .attr('y', (d) => previousRankingScale(d.previousRanking))
         .attr('width', rectWidth)
-        .attr('height', rectHeight)
+        .attr('height', (d) => 20 - previousRankingScale(d.previousRanking))
         .style('fill', (d) => {
           const wasTopk = (d.previousRanking <= topk);
           return wasTopk ? gs.topkColor : gs.nonTopkColor;
@@ -707,12 +718,14 @@ class FeatureInspectionView extends Component {
         .style('stroke-width', 0.5)
         .style('opacity', 0.5);
 
+    console.log('topkInstances: ', ...topkInstances);
+    console.log('statPerturbation', statForPerturbation.precisionK, stat.precisionK);
+    console.log('statPerturbation', statForPerturbation.sp, stat.sp);
+
     const diffPrecisionK = statForPerturbation.precisionK - stat.precisionK,
           diffSp = statForPerturbation.sp - stat.sp,
           diffCp = statForPerturbation.cp - stat.cp,
           dissAcc = statForPerturbation.accuracy - stat.accuracy;
-
-    console.log(statForPerturbation.sp, stat.sp);
 
     return { 
       perturbationDiv: 
@@ -755,8 +768,8 @@ class FeatureInspectionView extends Component {
     const tableDataSource = [];
     const featureInspectorColumns = [
       { title: 'Feature', dataIndex: 'feature', width: '8%'},
-      { title: 'Measure', dataIndex: 'corrBtnOutliersAndWholeInstances', width: '9%'},
-      { title: 'Outlier', dataIndex: 'outlier', width: '22%'},
+      { title: 'Measure', dataIndex: 'corrBtnOutliersAndWholeInstances', width: '6%'},
+      { title: 'Outlier', dataIndex: 'outlier', width: '25%'},
       { title: 'U', dataIndex: 'diffPrecisionK', width: '7%'},
       { title: 'F', dataIndex: 'diffSp', width: '7%'},
       { title: 'Perturbation', dataIndex: 'perturbation', width: '43%'}
@@ -779,8 +792,6 @@ class FeatureInspectionView extends Component {
       const { name, type, range, value } = feature;
 
       // For outlier analysis...
-      console.log('is perturbation...', perturbationResult.perturbedFeature);
-      console.log('feature perturbation: ', type, range);
       if (type === 'categorical') {
         if (range.length == 2) {
           outlierResultObj = _self.renderCategoricalFeatureForOutlier(feature);

@@ -89,8 +89,8 @@ class App extends Component {
         },
         features: [
           { name: 'foreign_worker', type: 'categorical', range: [0,1], value: ['No', 'Yes'] },
-          { name: 'credit_amount', type: 'continuous', range: []},
-          { name: 'age_in_years', type: 'continuous', range: []},
+          { name: 'credit_amount', type: 'continuous', range: [0, 18500]},
+          { name: 'age_in_years', type: 'continuous', range: [15, 70]},
           { name: 'marriage', type: 'categorical', range: [0,1,2,3]},
           { name: 'job', type: 'categorical', range: [0,1,2,3]},
           { name: 'credit_history', type: 'categorical', range: [0,1,2,3,4]},
@@ -445,17 +445,23 @@ class App extends Component {
     this.setState(prevState => {
       const stateProperty = Object.keys(optionObj)[0];
 
-      if (stateProperty === 'reranking') {
+      if (stateProperty === 'isReranking') {  // optionObj = { isReranking: true, method: selectedMethod }
+        const methodName = Object.values(optionObj)[1],
+              methodObj = methods.filter((d) => d.name === methodName)[0],
+              isReranking = Object.values(optionObj)[0]
+
         return {
           rankingInstance: {
             ...prevState.rankingInstance,
             shouldRunModel: false,
-            isReranking: true
+            method: {
+              ...methodObj
+            },
+            isReranking: isReranking
           }
         }
       }
-      else if (stateProperty === 'method') {
-        
+      else if (stateProperty === 'method') {        
         const methodName = Object.values(optionObj)[0],
               methodObj = methods.filter((d) => d.name === methodName)[0];
 
@@ -1085,8 +1091,6 @@ class App extends Component {
         </div>)
     }
 
-    console.log('rerank:', this.state.rankingInstance.rerank)
-
     // For the Ranking Inspector, only send down the selected ranking data
     const { rankingInstance, dataset, methods, features, 
             topk, n, selectedRankingInterval, mouseoveredInstance, rankings,
@@ -1103,6 +1107,7 @@ class App extends Component {
             onSelectSensitiveAttr={this.handleSelectSensitiveAttr} />
         <Generator 
             className={styles.Generator}
+            isModelRunning={this.state.isModelRunning}
             dataset={this.state.dataset}
             methods={this.state.methods}
             features={this.state.features}
@@ -1140,7 +1145,10 @@ class App extends Component {
               onFilterRunning={this.handleFilterRunning} 
           />
         </div>
-        <RankingsListView rankings={this.state.rankings} />
+        <RankingsListView 
+          isModelRunning={this.state.isModelRunning}
+          rankings={this.state.rankings} 
+        />
         <Footer />
         
       </div>

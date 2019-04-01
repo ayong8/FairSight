@@ -15,7 +15,6 @@ class FairnessBar extends Component {
 
   render() {
     console.log('MeasureView rendered');
-    console.log(this.props);
     if ((!this.props.measure || this.props.measure.length === 0)) {
         return <div />
       }
@@ -24,11 +23,11 @@ class FairnessBar extends Component {
 
     const svg = new ReactFauxDOM.Element('svg');
 
-    svg.setAttribute('width', '120px');
-    svg.setAttribute('height', '50px');
+    svg.setAttribute('width', '110px');
+    svg.setAttribute('height', '40px');
     svg.setAttribute('0 0 200 200');
     svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-    svg.setAttribute('transform', 'translate(0,10)');
+    svg.setAttribute('transform', 'translate(0,0)');
 
     const measureScale = d3.scaleLinear()
         .domain(measureDomain)
@@ -70,7 +69,7 @@ class FairnessBar extends Component {
             .style('stroke', '1px');
 
     const score = g.append('text')
-            .attr('x', 60 + 15)
+            .attr('x', 60 + 10)
             .attr('y', 21)
             .style('font-size', 16)
             .text(Math.round(measure * 100) / 100);

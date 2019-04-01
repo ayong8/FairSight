@@ -5,7 +5,7 @@ import ReactFauxDOM from 'react-faux-dom';
 import d3tooltip from 'd3-tooltip';
 import { FormGroup, FormText, Input, Label,
         Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'reactstrap';
-import { Button, Alert, TreeSelect, Slider, InputNumber, Icon, Table, Badge, Radio } from 'antd';
+import { Button, Alert, TreeSelect, Slider, InputNumber, Icon, Table, Badge, Radio, Spin } from 'antd';
 // import chiSquaredTest from 'chi-squared-test';
 import { BeatLoader } from 'react-spinners';
 
@@ -73,7 +73,6 @@ class Generator extends Component {
   }
 
   componentDidMount() {
-    console.log('componentdidmount,...generator')
     const { rankingInstance } = this.props,
           { sensitiveAttr, features } = rankingInstance;
           
@@ -86,16 +85,13 @@ class Generator extends Component {
 
   componentWillUpdate(nextProps, nextState) {
     if (nextProps.rankingInstance.method.name !== this.props.rankingInstance.method.name) {
-      if (nextProps.rankingInstance.method.name !== 'Reranking') {
-        d3.select('#buttonMethod' + this.props.rankingInstance.method.name.replace(' ', '')).classed('method_selected', false);
-        d3.select('#buttonMethod' + nextProps.rankingInstance.method.name.replace(' ', '')).classed('method_selected', true);
-      } else {
-        if (nextProps.rankingInstance.isReranking) {
-          d3.select('#buttonReranking').classed('method_selected', true);
-        } else {
-          d3.select('#buttonReranking').classed('method_selected', false);
-        }
-      }
+        d3.select('#buttonMethod' + this.props.rankingInstance.method.name.replace(/ /g, '')).classed('method_selected', false);
+        d3.select('#buttonMethod' + nextProps.rankingInstance.method.name.replace(/ /g, '')).classed('method_selected', true);
+    }
+    if (nextProps.rankingInstance.isReranking) {
+      d3.select('#buttonReranking').classed('method_selected', true);
+    } else {
+      d3.select('#buttonReranking').classed('method_selected', false);
     }
   }
 
@@ -117,13 +113,15 @@ class Generator extends Component {
   handleMethodSelected(e) {
     const { method, isReranking } = this.props.rankingInstance;
     const selectedMethod = e.target.value;
+    
     if (selectedMethod !== method.name) {
-      console.log('selected: ', d3.select('#buttonMethod' + method.name.replace(' ', '')));
-      this.props.onSelectRankingInstanceOptions({ method: selectedMethod });
+        this.props.onSelectRankingInstanceOptions({ method: selectedMethod });
     }
     if (selectedMethod === 'Reranking') {
       if (isReranking === false) {
-        this.props.onSelectRankingInstanceOptions({ isReranking: true });  
+        this.props.onSelectRankingInstanceOptions({ isReranking: true, method: method.name });  
+      } else {
+        this.props.onSelectRankingInstanceOptions({ isReranking: false, method: method.name });  
       }
     }
   }
@@ -789,12 +787,6 @@ class Generator extends Component {
   }
 
   render() {
-    if (this.props.isLoading)
-    {
-      console.log('render not yet here')
-      return <div><BeatLoader /></div>;
-    }
-    
     const _self = this;
     
     console.log('Generater rendered');
@@ -852,6 +844,8 @@ class Generator extends Component {
       }),
     };
 
+    const antIcon = <Icon type="loading" style={{ fontSize: 17 }} spin />;
+
     return (
       <div className={styles.Generator}>
         <div className={styles.generatorTitleWrapper}>
@@ -866,7 +860,7 @@ class Generator extends Component {
             <div>- 100 instances</div>
           </div>
         </div> */}
-        <div className={styles.generatorSubTitle}>Feature</div>
+        {/* <div className={styles.generatorSubTitle}>Feature</div> */}
         {/* // Sensitive Attribute selector */}
         <div className={styles.selectSensitiveAttr}>Sensitive attribute</div>
         <Dropdown className={styles.sensitiveAttrDropdown} 
@@ -883,13 +877,13 @@ class Generator extends Component {
         { typeof(this.props.rankingInstance.sensitiveAttr) === 'undefined' ? <div></div> : this.renderSelectProtectedGroup() }
         {/* // Feature selector */}
         <div className={styles.selectFeatures}>
-          Features / Pre-processing<br/>
-          <Button 
+          Features<br/>
+          {/* <Button 
             id='buttonUnawareness'
             type="primary" 
             size="small">
             Fairness through Unawareness
-          </Button>
+          </Button> */}
         </div>
         <TreeSelect
           className={styles.featureSelector}
@@ -986,8 +980,9 @@ class Generator extends Component {
           scroll={{ y: 150 }}
           pagination={false}
         /> */}
-        <div className={styles.runButtonWrapper}>
-          <Button className={styles.buttonGenerateRanking} color='danger' onClick={this.handleClickRun}>RUN</Button>
+        <div className={styles.runButtonWrapper} style={{ 'display': 'flex', 'justifyContent': 'flex-end' }}>
+          {this.props.isModelRunning ? <Spin indicator={antIcon} /> : <span></span>}
+          &nbsp;&nbsp;<Button className={styles.buttonGenerateRanking} color='danger' onClick={this.handleClickRun}>RUN</Button>
         </div>
       </div>
     );

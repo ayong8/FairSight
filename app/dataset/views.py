@@ -220,18 +220,27 @@ def rerank(ranking_instance):
     fair = fsc.Fair(k, p, alpha)
 
     # create the Fair object 
-    ranking_instance
-    unfair_ranking = [FairScoreDoc(20, 20, False), FairScoreDoc(19, 19, False), FairScoreDoc(18, 18, False),
-                      FairScoreDoc(17, 17, False), FairScoreDoc(16, 16, False), FairScoreDoc(15, 15, False),
-                      FairScoreDoc(14, 14, False), FairScoreDoc(13, 13, False), FairScoreDoc(12, 12, False),
-                      FairScoreDoc(11, 11, False), FairScoreDoc(10, 10, False), FairScoreDoc(9, 9, False),
-                      FairScoreDoc(8, 8, False), FairScoreDoc(7, 7, False), FairScoreDoc(6, 6, True),
-                      FairScoreDoc(5, 5, True), FairScoreDoc(4, 4, True), FairScoreDoc(3, 3, True),
-                      FairScoreDoc(2, 2, True), FairScoreDoc(1, 1, True)]
+    instances = ranking_instance['instances']
+
+    unfair_ranking = []
+    for indi in instances:
+        unfair_ranking.append(FairScoreDoc(indi['idx'], 1/indi['ranking'], (indi['group'] == 1)))
+
+    print('unfair_ranking:', unfair_ranking)
+    # FairScoreDoc(ID, SCORE, IS_PROTECTED)
+    # unfair_ranking = [ FairScoreDoc(20, 20, False), FairScoreDoc(19, 19, False), FairScoreDoc(18, 18, False),
+    #                   FairScoreDoc(17, 17, False), FairScoreDoc(16, 16, False), FairScoreDoc(15, 15, False),
+    #                   FairScoreDoc(14, 14, False), FairScoreDoc(13, 13, False), FairScoreDoc(12, 12, False),
+    #                   FairScoreDoc(11, 11, False), FairScoreDoc(10, 10, False), FairScoreDoc(9, 9, False),
+    #                   FairScoreDoc(8, 8, False), FairScoreDoc(7, 7, False), FairScoreDoc(6, 6, True),
+    #                   FairScoreDoc(5, 5, True), FairScoreDoc(4, 4, True), FairScoreDoc(3, 3, True),
+    #                   FairScoreDoc(2, 2, True), FairScoreDoc(1, 1, True) ]
     re_ranked = fair.re_rank(unfair_ranking)
 
+    print('re_ranked: ', re_ranked)
     re_ranked_individuals = []
     for ind in re_ranked:
+        print('indi:', indi)
         re_ranked_individuals.append({ 'id': ind.id, 'score': ind.score, 'is_protected': ind.is_protected })
 
     return re_ranked_individuals
@@ -446,9 +455,9 @@ class RunLR(APIView):
 
         # Combine reranking when selected
         if ranking_instance['isReranking']:
-            reranked = rerank()
+            reranked = rerank(ranking_instance)
             df_reranked = pd.DataFrame(reranked).sort_values(by='id', ascending=False)
-            ranking_instance['reranking'] = df_reranked['reranking']
+            ranking_instance['reranking'] = df_reranked
             
 
         return Response(json.dumps(ranking_instance))
@@ -482,6 +491,7 @@ class RunLRForPerturbation(APIView):
 
             probs = lr_fit.predict_proba(X)
             accuracy_after_perturbation = lr_fit.score(X_test, y_test)
+            print('accuracy perturb: ', accuracy_after_perturbation)
             probs_would_not_default = [ prob[0] for prob in probs ]
 
             output_df = X.copy()
@@ -1001,7 +1011,6 @@ class CalculateWassersteinDistance(APIView):
 
             # Normalize
             whole_values = feature_values_group1 + feature_values_group2
-            print(whole_values)
             max_val = max(whole_values)
             min_val = min(whole_values)
 

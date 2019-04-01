@@ -31,8 +31,6 @@ class LegendView extends Component {
     const medianBtnPairsColor = this.props.absDistortionBtnPairsScale((this.props.absDistortionBtnPairsScale.domain()[0] + this.props.absDistortionBtnPairsScale.domain()[1]) / 2),
           medianWtnPairsColor = this.props.absDistortionWtnPairsScale((this.props.absDistortionWtnPairsScale.domain()[0] + this.props.absDistortionWtnPairsScale.domain()[1]) / 2);
 
-    console.log('mode in legend: ', mode);
-
     const svgIndividualFairness = new ReactFauxDOM.Element('svg');
     svgIndividualFairness.setAttribute('width', _self.layout.svg.width);
     svgIndividualFairness.setAttribute('height', _self.layout.svg.height);

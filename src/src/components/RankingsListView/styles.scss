@@ -19,6 +19,28 @@
               margin-left: 5px;
           }
     }
+
+    .spaceTitle {
+        width: 18px;
+        background-color: #003569;
+        color: white;
+        border-radius: 2px;
+        text-align: center;
+    }
+    .spaceTitleUtility {
+        width: 18px;
+        background-color: #c91765;
+        color: white;
+        border-radius: 2px;
+        text-align: center;
+    }
+    .spaceTitleLong {
+        width: 40px;
+        background-color: #003569;
+        color: white;
+        border-radius: 2px;
+        text-align: center;
+    }
 }
 
 .rankingList {

@@ -13,8 +13,6 @@ const getClientEnvironment = require("./env");
 const paths = require("./paths");
 const getLocalIdent = require('css-loader/lib/getLocalIdent');
 
-console.log(paths.appSrc);
-
 // Webpack uses `publicPath` to determine where the app is being served from.
 // In development, we always serve from the root. This makes config easier.
 const publicPath = "/";

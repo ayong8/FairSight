@@ -442,8 +442,6 @@ class RankingInspectorView extends Component {
       const nNeighbors = 4;
       const NNs = this.identifyNNs(selectedInstance, nNeighbors);
 
-      console.log(selectedInstance, NNs);
-
       if (NNs.length === 0)
         return 'NaN';
 
@@ -834,7 +832,7 @@ class RankingInspectorView extends Component {
                                     <FairnessBar
                                       measure={Math.round(GFDCG * 100) / 100}
                                       measureDomain={[0, 2]}
-                                      perfectScore={2}
+                                      perfectScore={1}
                                     />
                                   </div>
                                 </div>) :
@@ -897,6 +895,7 @@ class RankingInspectorView extends Component {
               />
               <InputSpaceView 
                   className={this.props.isModelRunning ? styles.InputSpaceView + ' ' + index.isModelRunning : styles.InputSpaceView}
+                  isModelRunning={_self.props.isModelRunning}
                   mode={mode}
                   data={_self.props.data}
                   topk={_self.props.topk}
@@ -943,7 +942,7 @@ class RankingInspectorView extends Component {
           </div>
           <div className={styles.InspectionComponentsView}>
             <FeatureInspectionView
-                className={styles.FeatureInspectionView}
+                className={this.props.isModelRunning ? styles.FeatureInspectionView + ' ' + index.isModelRunning : styles.FeatureInspectionView}
                 data={_self.props.data}
                 topk={_self.props.topk}
                 selectedInstances={_self.props.selectedInstances}
@@ -977,7 +976,7 @@ class RankingInspectorView extends Component {
       ];
 
       return (
-        <div className={this.props.isModelRunning ? styles.RankingInspectorView + ' ' + index.isModelRunning : styles.RankingInspectorView}>
+        <div className={styles.RankingInspectorView}>
           <Tabs 
             onChange={this.changeFairnessMode} 
             type="card"

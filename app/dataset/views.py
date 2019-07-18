@@ -129,15 +129,6 @@ def load_trained_model(ranking_instance):
 
 def run_experiment_iteration_themis_ml_ACF(
         X, X_no_sex, y, s_sex, train, test):
-    '''Run the experiment on a particular set of train and test indices.'''
-    
-    # store our metrics here. This will be a list of lists, where the inner
-    # list is contains the following metadata:
-    # - 'name'
-    # - fairness metric with respect to sex
-    # - fairness metric with respect to foreign status
-    # - utility metric with respect to sex
-    # - utility metric with respect to foreign status
     metrics = []
 
     # define our model.
@@ -226,21 +217,9 @@ def rerank(ranking_instance):
     for indi in instances:
         unfair_ranking.append(FairScoreDoc(indi['idx'], 1/indi['ranking'], (indi['group'] == 1)))
 
-    print('unfair_ranking:', unfair_ranking)
-    # FairScoreDoc(ID, SCORE, IS_PROTECTED)
-    # unfair_ranking = [ FairScoreDoc(20, 20, False), FairScoreDoc(19, 19, False), FairScoreDoc(18, 18, False),
-    #                   FairScoreDoc(17, 17, False), FairScoreDoc(16, 16, False), FairScoreDoc(15, 15, False),
-    #                   FairScoreDoc(14, 14, False), FairScoreDoc(13, 13, False), FairScoreDoc(12, 12, False),
-    #                   FairScoreDoc(11, 11, False), FairScoreDoc(10, 10, False), FairScoreDoc(9, 9, False),
-    #                   FairScoreDoc(8, 8, False), FairScoreDoc(7, 7, False), FairScoreDoc(6, 6, True),
-    #                   FairScoreDoc(5, 5, True), FairScoreDoc(4, 4, True), FairScoreDoc(3, 3, True),
-    #                   FairScoreDoc(2, 2, True), FairScoreDoc(1, 1, True) ]
     re_ranked = fair.re_rank(unfair_ranking)
-
-    print('re_ranked: ', re_ranked)
     re_ranked_individuals = []
     for ind in re_ranked:
-        print('indi:', indi)
         re_ranked_individuals.append({ 'id': ind.id, 'score': ind.score, 'is_protected': ind.is_protected })
 
     return re_ranked_individuals
@@ -289,11 +268,6 @@ class RunRankSVM(APIView):
         target = json_request['target']['name']
         sensitive_attr = json_request['sensitiveAttr']['name']
         method = json_request['method']['name']
-
-        # features = ['credit_amount', 'installment_rate_in_percentage_of_disposable_income', 'age_in_years']
-        # target = 'credit_risk'
-        # sensitive_attr = 'sex'
-        # method = 'RankSVM'
 
         raw_df = open_dataset('./data/themis_ml_raw_sample.csv')
         whole_dataset_df = open_dataset(sample_file_path)
@@ -491,7 +465,6 @@ class RunLRForPerturbation(APIView):
 
             probs = lr_fit.predict_proba(X)
             accuracy_after_perturbation = lr_fit.score(X_test, y_test)
-            print('accuracy perturb: ', accuracy_after_perturbation)
             probs_would_not_default = [ prob[0] for prob in probs ]
 
             output_df = X.copy()
@@ -825,7 +798,6 @@ class RunFAIR(APIView):
         the left-over candidates that were not selected into the ranking, sorted color-blindly
         """
 
-
         result = []
         gft = FairnessInRankingsTester(minProp, alpha, k, correctedAlpha=True)
         countProtected = 0
@@ -847,12 +819,6 @@ class RunFAIR(APIView):
                 result.append(protectedCandidates[idxProtected])
                 idxProtected += 1
                 countProtected += 1
-
-            # elif countProtected < gft.candidates_needed[i]:
-            #     # add a protected candidate
-            #     result.append(protectedCandidates[idxProtected])
-            #     idxProtected += 1
-            #     countProtected += 1
 
             else:
                 # find the best candidate available

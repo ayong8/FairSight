@@ -222,7 +222,7 @@ class RankingView extends Component {
   
       const rectInterval = 10,
             rectWidth = 8,
-            rectHeight = 30,
+            rectHeight = 25,
             topkPlotWidth = rectInterval * topk, // topk and non-topk plot have the same length
             selectedNonTopkPlotWidth = rectInterval * (to - topk + 1),
             renderedNonTopkWidth = rectInterval * renderedNonTopkInstances.length;
@@ -360,11 +360,11 @@ class RankingView extends Component {
               .enter().append('rect')
               .attr('class', 'topk_group_rect')
               .attr('x', (d) => topkRankingScale(d.ranking))
-              .attr('y', (d) => rectHeight * (6/7))
+              .attr('y', (d) => rectHeight * (15/14))
               .attr('width', rectWidth)
               .attr('height', rectHeight / 7)
               .style('fill', (d) => groupColorScale(d.group))
-              .style('stroke', 'none')
+              .style('stroke', 'rgb(148, 148, 148)')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5);
 
@@ -568,7 +568,7 @@ class RankingView extends Component {
               .attr('width', rectWidth)
               .attr('height', rectHeight / 7)
               .style('fill', (d) => groupColorScale(d.group))
-              .style('stroke', 'none')
+              .style('stroke', 'rgb(148, 148, 148)')
               .style('shape-rendering', 'crispEdge')
               .style('stroke-width', 0.5)
               .style('opacity', (d, i) => ((renderedNonTopkInstances.length-i) / renderedNonTopkInstances.length));

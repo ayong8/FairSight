@@ -1,64 +1,58 @@
-
 .Menubar {
-    grid-area: m;
+  grid-area: m;
 
-    width: 100%;
+  width: 100%;
+
+  display: grid;
+  grid-template-columns: 15% 6% 20% 38%;
+  grid-template-rows: 100%;
+  grid-template-areas: 't a r f';
+
+  align-items: center;
+
+  background-color: #ffffff;
+  color: #003569;
+
+  .appTitle {
+    grid-area: t;
+
+    font-size: 30px;
+    font-weight: 800;
+    text-transform: uppercase;
+    align-items: center;
+    margin-left: 10px;
+  }
+
+  .addDataset {
+    grid-area: d;
+    align-items: center;
+    padding: 9px 9px;
 
     display: grid;
-    grid-template-columns: 15% 6% 20% 38%;
-    grid-template-rows: 100%;
-    grid-template-areas: 
-      't a r f';
-    
-    align-items: center;
-
-    background-color: #ffffff;
-    color: #003569;
-
-    .appTitle {
-      grid-area: t;
-
-      font-size: 30px;
-      font-weight: 800;
-      text-transform: uppercase;
-      align-items: center;
-      margin-left: 10px;
-    }
-
-    .addDataset {
-      grid-area: d;
-      align-items: center;
-      padding: 9px 9px;
-
-      display: grid;
-      .addDatasetTitle {
-          justify-self: center;
-      }
-    }
-    .addRanking {
-      grid-area: a;
-      align-items: center;
+    .addDatasetTitle {
       justify-self: center;
-      padding: 17px 20px;
     }
+  }
+  .addRanking {
+    grid-area: a;
+    align-items: center;
+    justify-self: center;
+    padding: 17px 20px;
+  }
 
-    .FilterView {
-      grid-area: f;
-      justify-self: end;
-      align-self: end;
-      padding-bottom: 5px;
-      font-size: 1.1rem;
-    }
+  .FilterView {
+    grid-area: f;
+    justify-self: end;
+    align-self: end;
+    padding-bottom: 5px;
+    font-size: 1.1rem;
+  }
 
-    .ranking {
-      grid-area: r;
-    }
+  .ranking {
+    grid-area: r;
+  }
 
-    .ProcessIndicator > div > div {
-        font-size: 0.9rem;
-    }
+  .ProcessIndicator > div > div {
+    font-size: 0.9rem;
+  }
 }
-
-
-
-

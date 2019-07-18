@@ -9,7 +9,7 @@
   column-gap: 10px;
   grid-template-columns: 40% 30% 30%;
   grid-template-rows: 10% 10% 30% 20% 20%;
-  grid-template-areas: 
+  grid-template-areas:
     'crt crt crt'
     'rvt ft ft'
     'wrst tf if'
@@ -33,7 +33,7 @@
     grid-area: rvt;
   }
 
-  .filterTitle { 
+  .filterTitle {
     grid-area: ft;
     margin-top: 5px;
     // border-bottom: 1px solid #d7d7d7;
@@ -59,18 +59,36 @@
     justify-content: space-around;
   }
 
-  .placeholder { grid-area: p; }
-  .utilityTitle { grid-area: ut; }
-  .fairnessTitle { grid-area: ft; }
-  .betweenTitle { grid-area: bt; }
-  .withinTitle { grid-area: wt; }
+  .placeholder {
+    grid-area: p;
+  }
+  .utilityTitle {
+    grid-area: ut;
+  }
+  .fairnessTitle {
+    grid-area: ft;
+  }
+  .betweenTitle {
+    grid-area: bt;
+  }
+  .withinTitle {
+    grid-area: wt;
+  }
 
-  .btnUtility { grid-area: bu; }
-  .btnFairness { grid-area: bf; }
-  .wtnUtility { grid-area: wu; }
-  .wtnFairness { grid-area: wf; }
+  .btnUtility {
+    grid-area: bu;
+  }
+  .btnFairness {
+    grid-area: bf;
+  }
+  .wtnUtility {
+    grid-area: wu;
+  }
+  .wtnFairness {
+    grid-area: wf;
+  }
 
-  .filterTitle { 
+  .filterTitle {
     grid-area: wrst;
     margin-top: 0;
     // border-bottom: 1px solid #d9d9d9;
@@ -111,7 +129,7 @@
     font-size: 1.3rem;
   }
 
-  .topkFilterView { 
+  .topkFilterView {
     grid-area: tf;
 
     .topkInputWrapper {
@@ -126,8 +144,8 @@
     }
   }
 
-  .intervalFilterView { 
-    grid-area: if; 
+  .intervalFilterView {
+    grid-area: if;
 
     .intervalInputWrapper {
       display: flex;

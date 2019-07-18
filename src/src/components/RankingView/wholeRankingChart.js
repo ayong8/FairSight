@@ -6,7 +6,12 @@ import { genRandomNormalPoints } from '@vx/mock-data';
 import { scaleLinear } from '@vx/scale';
 import { Group } from '@vx/group';
 import { AxisLeft, AxisBottom } from '@vx/axis';
-import { BoxBrush, withBrush, getCoordsFromEvent, constrainToRegion } from '@vx/brush';
+import {
+  BoxBrush,
+  withBrush,
+  getCoordsFromEvent,
+  constrainToRegion
+} from '@vx/brush';
 import { Motion, spring } from 'react-motion';
 
 import styles from './styles.scss';
@@ -27,7 +32,7 @@ class WholeRankingChart extends React.Component {
         width: 450,
         height: 60
       }
-    }
+    };
 
     this.extent = {
       x0: margin.left,
@@ -38,7 +43,7 @@ class WholeRankingChart extends React.Component {
 
     this.initialDomain = {
       x: [0, 100],
-      y: d3.extent(data.instances, (d) => d.score)
+      y: d3.extent(data.instances, d => d.score)
     };
 
     this.xScale = scaleLinear({
@@ -89,7 +94,10 @@ class WholeRankingChart extends React.Component {
       onBrushEnd(constrainToRegion({ region, x, y }));
       return;
     }
-    this.props.onSelectedRankingInterval({ from: this.invertedDomain[0], to: this.invertedDomain[1] });
+    this.props.onSelectedRankingInterval({
+      from: this.invertedDomain[0],
+      to: this.invertedDomain[1]
+    });
     onBrushReset(event);
   }
 
@@ -99,37 +107,42 @@ class WholeRankingChart extends React.Component {
     const { data, width, height, brush, margin } = this.props;
     const { xScale, yScale } = this;
     const { instances } = data;
-    const dataBin = d3.histogram()
-            .domain([0, 100])
-            .thresholds(d3.range(0, 100, 1))
-            (_.map(instances, (d) => d.score));
-    const topInstances = [...instances].sort((a, b) => 
-              d3.descending(a.score, b.score)
-            ).slice(0, 100);
+    const dataBin = d3
+      .histogram()
+      .domain([0, 100])
+      .thresholds(d3.range(0, 100, 1))(_.map(instances, d => d.score));
+    const topInstances = [...instances]
+      .sort((a, b) => d3.descending(a.score, b.score))
+      .slice(0, 100);
 
     const xMax = width - margin.left - margin.right;
     const yMax = height - margin.top - margin.bottom;
 
     _self.xScale.domain([100, 0]);
-    _self.yScale.domain(d3.extent(dataBin, (d) => typeof(d.length) !== 'undefined' ? d.length : 0));
-                       
+    _self.yScale.domain(
+      d3.extent(dataBin, d => (typeof d.length !== 'undefined' ? d.length : 0))
+    );
+
     if (brush.domain) {
       const { domain } = brush;
       const { x0, x1, y0, y1 } = domain;
-      _self.invertedDomain = [x0, x1].map((d) => { 
-                return xScale.customInvert(d)
-              });
+      _self.invertedDomain = [x0, x1].map(d => {
+        return xScale.customInvert(d);
+      });
     }
 
-    xScale.customInvert = (function(){
-        var domain = xScale.domain();
-        var range = xScale.range();
-        var scale = d3.scaleQuantize().domain(range).range(domain);
-    
-        return function(x){
-            return scale(x)
-        }
-    })()
+    xScale.customInvert = (function() {
+      var domain = xScale.domain();
+      var range = xScale.range();
+      var scale = d3
+        .scaleQuantize()
+        .domain(range)
+        .range(domain);
+
+      return function(x) {
+        return scale(x);
+      };
+    })();
 
     return (
       <div className={styles.WholeRankingChart}>
@@ -152,13 +165,11 @@ class WholeRankingChart extends React.Component {
             stroke={'#1b1a1e'}
             tickTextFill={'#1b1a1e'}
           />
-          <Group 
-            top={margin.top} 
-            left={margin.left + 10}
-          >
+          <Group top={margin.top} left={margin.left + 10}>
             {dataBin.map((bin, idx) => {
               return (
-                <Bar key={idx}
+                <Bar
+                  key={idx}
                   width={6}
                   height={25 - yScale(bin.length)}
                   x={xScale(bin.x0)}

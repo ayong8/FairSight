@@ -765,6 +765,7 @@ class RankingInspectorView extends Component {
             selectedInstances = instances.slice(from, to),
             distortionMin = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[0],
             distortionMax = d3.extent(permutationDiffsFlattened, (d) => d.distortion)[1];
+            
 
       const inputMeasure = (mode === 'GF') ?
                               (<div className={styles.mappingGroupFairnessWrapper}>

@@ -1,10 +1,9 @@
-//@import "reset-css/reset.css";
-@import url("https://fonts.googleapis.com/css?family=Lato:300,400,700");
-@import "@blueprintjs/core/lib/css/blueprint.css";
+@import url('https://fonts.googleapis.com/css?family=Lato:300,400,700');
+@import '@blueprintjs/core/lib/css/blueprint.css';
 
 body {
   background-color: $bg-color;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica,
     Arial, sans-serif;
   color: $dark-blue;
 }
@@ -30,13 +29,27 @@ body {
     'f f f';
 }
 
-.marginDiv { grid-area: mg; }
-.Menubar { grid-area: m; }
-.Generator { grid-area: g; }
-.RankingView { grid-area: r; }
-.RankingsListView { grid-area: l; }
-.LocalInspectionView { grid-area: ii; }
-.Footer { grid-area: f; }
+.marginDiv {
+  grid-area: mg;
+}
+.Menubar {
+  grid-area: m;
+}
+.Generator {
+  grid-area: g;
+}
+.RankingView {
+  grid-area: r;
+}
+.RankingsListView {
+  grid-area: l;
+}
+.LocalInspectionView {
+  grid-area: ii;
+}
+.Footer {
+  grid-area: f;
+}
 
 .RankingInspector {
   grid-area: ri;
@@ -52,18 +65,42 @@ body {
     'd d d d';
 }
 
-.marginDiv1 { grid-area: mg1; }
-.marginDiv2 { grid-area: mg2; }
-.marginDiv3 { grid-area: mg3; }
-.marginDiv4 { grid-area: mg4; }
-.marginDiv5 { grid-area: mg5; }
-.marginDiv6 { grid-area: mg6; }
-.marginDiv7 { grid-area: mg7; }
-.marginDiv8 { grid-area: mg8; }
-.marginDiv9 { grid-area: mg9; }
-.marginDiv10 { grid-area: mg10; }
-.marginDiv10 { grid-area: mg11; }
-.marginDiv10 { grid-area: mg12; }
+.marginDiv1 {
+  grid-area: mg1;
+}
+.marginDiv2 {
+  grid-area: mg2;
+}
+.marginDiv3 {
+  grid-area: mg3;
+}
+.marginDiv4 {
+  grid-area: mg4;
+}
+.marginDiv5 {
+  grid-area: mg5;
+}
+.marginDiv6 {
+  grid-area: mg6;
+}
+.marginDiv7 {
+  grid-area: mg7;
+}
+.marginDiv8 {
+  grid-area: mg8;
+}
+.marginDiv9 {
+  grid-area: mg9;
+}
+.marginDiv10 {
+  grid-area: mg10;
+}
+.marginDiv10 {
+  grid-area: mg11;
+}
+.marginDiv10 {
+  grid-area: mg12;
+}
 
 .DatasetView,
 .InputSpaceView,
@@ -71,21 +108,33 @@ body {
 .GroupFairnessView,
 .RankingView,
 .UtilityView {
-    margin: 10px;
-    background-color: white;
-    border-left: 1px solid lightgray;
-    border-bottom: 1px solid lightgray;
+  margin: 10px;
+  background-color: white;
+  border-left: 1px solid lightgray;
+  border-bottom: 1px solid lightgray;
 }
 
-.rankingInspectorTitle { grid-area: rt; }
-.InputSpaceView { grid-area: i; }
+.rankingInspectorTitle {
+  grid-area: rt;
+}
+.InputSpaceView {
+  grid-area: i;
+}
 // .LegendView { grid-area: lg; }
 // .CorrelationView { grid-area: cr; }
-.OutputSpaceView { grid-area: tr; }
-.LocalInspectionView { grid-area: ii; }
-.RankingInspectorView { grid-area: d; }
+.OutputSpaceView {
+  grid-area: tr;
+}
+.LocalInspectionView {
+  grid-area: ii;
+}
+.RankingInspectorView {
+  grid-area: d;
+}
 // .GroupFairnessView { grid-area: gf; }
-.UtilityView { grid-area: u; }
+.UtilityView {
+  grid-area: u;
+}
 
 .margin {
   grid-column: 1 / 5;
@@ -95,15 +144,15 @@ body {
 }
 
 // UI Components
-.step2 { 
-  color: #54aaff; 
+.step2 {
+  color: #54aaff;
   font-size: 1.6rem;
   margin-top: 8px;
-  margin-left: 5px; 
+  margin-left: 5px;
 }
-.step3 { 
-  color: #1c88f3; 
-  font-size: 1.6rem; 
+.step3 {
+  color: #1c88f3;
+  font-size: 1.6rem;
   margin-top: 8px;
   margin-left: 5px;
 }
@@ -128,56 +177,3 @@ body {
     font-weight: 500;
   }
 }
-
-
-// // For Loading view
-// .Generator {
-//   grid-area: g;
-//   width: 100%;
-//   align-items: center;
-//   font-size: 12px;
-
-//   // border-right: 1px solid lightgray;
-//   font-size: 1.1rem;
-
-//   .generatorTitleWrapper {
-//     margin-bottom: 20px;
-//     display: flex;
-//     background-color: #003569;
-    
-//     .generatorTitle {
-//         // padding: 0;
-//     }
-//   }
-// }
-// .Menubar {
-//   grid-area: m;
-
-//   width: 100%;
-// }
-
-// .appTitle {
-//   grid-area: t;
-
-//   font-size: 30px;
-//   font-weight: 800;
-//   text-transform: uppercase;
-//   align-items: center;
-//   margin-left: 10px;
-// }
-
-// .RankingView {
-//   grid-area: r;
-//   width: 99%;
-//   background-color: white;
-//   border-bottom: 1px solid lightgray;
-
-//   .currentRankingTitle {
-//     grid-area: crt;
-//     height: 35px;
-//     // border-bottom: 1.5px solid lightgray;
-//     padding-bottom: 10px;
-//     background-color: #003569;
-//     color: white;
-//   }
-// }

@@ -1,16 +1,16 @@
 .title {
-    display:flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 
-    height: 35px;
-    padding: 10px;
-    /* font-weight: 600; */
-    /* background-color: #747373;
+  height: 35px;
+  padding: 10px;
+  /* font-weight: 600; */
+  /* background-color: #747373;
     border: 1px solid #565555; */
-    color: white;
-    font-size: 1.1rem;
-    text-transform: uppercase;
-  }
+  color: white;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
 
 .subTitle {
   font-size: 1.2rem;
@@ -21,7 +21,7 @@
 
 .subTitle2 {
   color: #00346b;
-  font-size: 1.0rem;
+  font-size: 1rem;
   font-weight: 500;
   margin-top: 10px;
   margin-bottom: 15px;
@@ -30,26 +30,41 @@
 .featureTitle {
   margin: 5px 0;
   color: #2196f3;
-  font-size: 1.0rem;
+  font-size: 1rem;
   text-transform: uppercase;
 }
 
 .instanceIdTitle {
   margin: 5px 0;
   color: #2196f3;
-  font-size: 1.0rem;
+  font-size: 1rem;
   text-transform: uppercase;
 }
 
 .description {
-  font-family: 'Titillium Web'
+  font-family: 'Titillium Web';
 }
 
-.step1 i { color: #b5dafe; font-size: 1.6rem; }
-.step2 i { color: #54aaff; font-size: 1.6rem; }
-.step3 i { color: #1c88f3; font-size: 1.6rem; }
-.step4 i { color: #0575e5; font-size: 1.6rem; }
-.step5 i { color: #003569; font-size: 1.6rem; }
+.step1 i {
+  color: #b5dafe;
+  font-size: 1.6rem;
+}
+.step2 i {
+  color: #54aaff;
+  font-size: 1.6rem;
+}
+.step3 i {
+  color: #1c88f3;
+  font-size: 1.6rem;
+}
+.step4 i {
+  color: #0575e5;
+  font-size: 1.6rem;
+}
+.step5 i {
+  color: #003569;
+  font-size: 1.6rem;
+}
 
 /* Loading for model running */
 .isModelRunning {

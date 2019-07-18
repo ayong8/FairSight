@@ -1,37 +1,37 @@
 .LocalInspectionView {
-    grid-area: ii;
-    width: 30%;
+  grid-area: ii;
+  width: 30%;
 
-    .localInspectorTitle {
-        background-color: #00346b;
-        color: white;
-    }
+  .localInspectorTitle {
+    background-color: #00346b;
+    color: white;
+  }
 
-    .groupInspectionTitle,
-    .individualInspectionTitle {
-        font-weight: 800;
-        font-size: 1.2rem;
-        border-bottom: 1px solid grey;
-        margin-bottom: 5px;
-    }
-    /* margin: 5px 0; */
-    // background-color: #f5f4f4;
+  .groupInspectionTitle,
+  .individualInspectionTitle {
+    font-weight: 800;
+    font-size: 1.2rem;
+    border-bottom: 1px solid grey;
+    margin-bottom: 5px;
+  }
+  /* margin: 5px 0; */
+  // background-color: #f5f4f4;
 
-    // .instanceDataTableWrapper {
-    //     display: flex;
-    // }
-    .IndividualStatus {
-        height: 400px;
-        padding-top: 5px;
-    }
-    .infoWrapper {
-        margin: 10px;
-    }
-    .selectedRankingIntervalInfo {
-        width: 80%;
-    }
-    .individualMeasures,
-    .groupMeasures {
-        font-weight: 600;
-    }
+  // .instanceDataTableWrapper {
+  //     display: flex;
+  // }
+  .IndividualStatus {
+    height: 400px;
+    padding-top: 5px;
+  }
+  .infoWrapper {
+    margin: 10px;
+  }
+  .selectedRankingIntervalInfo {
+    width: 80%;
+  }
+  .individualMeasures,
+  .groupMeasures {
+    font-weight: 600;
+  }
 }

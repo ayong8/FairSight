@@ -4,6 +4,9 @@
 </h1>
 <b>FairSight</b> is a viable fair decision making system to assist decision makers in achieving fair decision making through the machine learning workflow.
 
+### Reference
+Ahn, Y., & Lin, Y. R. (2019). <b>Fairsight: Visual analytics for fairness in decision making.</b> IEEE transactions on visualization and computer graphics (TVCG), 26(1), 1086-1095.
+
 #### Specification
 
 - <b>React</b>: Frontend framework for rendering and communicating with data

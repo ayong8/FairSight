@@ -7,7 +7,7 @@
 ### Reference
 Ahn, Y., & Lin, Y. R. (2019). <b>Fairsight: Visual analytics for fairness in decision making.</b> IEEE transactions on visualization and computer graphics (TVCG), 26(1), 1086-1095.
 
-#### Specification
+### Specification
 
 - <b>React</b>: Frontend framework for rendering and communicating with data
 - <b>django</b>: Python-based backend framework for serving API of data and running machine learning work

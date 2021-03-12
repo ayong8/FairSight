@@ -55,7 +55,7 @@
     "react": "^16.0.0",
     "react-d3-brush": "^1.1.0",
     "react-dc": "^1.0.6",
-    "react-dev-utils": "^4.1.0",
+    "react-dev-utils": "^11.0.4",
     "react-dom": "^16.4.1",
     "react-faux-dom": "^4.2.0",
     "react-loading-skeleton": "^1.0.0",
